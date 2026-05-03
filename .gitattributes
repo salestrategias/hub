@@ -1,0 +1,22 @@
+# Normalização de line endings — evita warnings LF/CRLF em times mistos Windows/Mac/Linux
+* text=auto eol=lf
+
+# Scripts shell — sempre LF (rodam em containers Linux)
+*.sh text eol=lf
+*.bash text eol=lf
+
+# PowerShell — CRLF nativo Windows
+*.ps1 text eol=crlf
+
+# Binários — não tentar normalizar
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary

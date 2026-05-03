@@ -1,0 +1,29 @@
+node_modules
+.next
+.env
+.env.local
+.env.production
+.DS_Store
+*.log
+dist
+build
+.vercel
+coverage
+.turbo
+prisma/migrations/dev.db*
+postgres-data
+backups
+certbot
+
+# Claude Code: configs locais ficam fora; launch.json é compartilhável
+.claude/settings.local.json
+.claude/projects
+.claude/sessions
+.claude/cache
+
+# OS / editor
+Thumbs.db
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

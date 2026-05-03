@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 25% 5%;
+    --foreground: 240 14% 92%;
+    --card: 240 22% 9%;
+    --card-foreground: 240 14% 92%;
+    --popover: 240 22% 11%;
+    --popover-foreground: 240 14% 92%;
+    --primary: 268 76% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 18% 14%;
+    --secondary-foreground: 240 14% 92%;
+    --muted: 240 18% 14%;
+    --muted-foreground: 240 8% 65%;
+    --accent: 240 18% 14%;
+    --accent-foreground: 240 14% 92%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 20% 15%;
+    --input: 240 20% 15%;
+    --ring: 268 76% 53%;
+    --radius: 0.625rem;
+  }
+
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 240 25% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 25% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 25% 8%;
+    --primary: 268 76% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 20% 96%;
+    --secondary-foreground: 240 25% 12%;
+    --muted: 240 20% 96%;
+    --muted-foreground: 240 8% 45%;
+    --accent: 240 20% 96%;
+    --accent-foreground: 240 25% 12%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 14% 90%;
+    --input: 240 14% 90%;
+    --ring: 268 76% 53%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01", "ss03", "calt" 1;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(126, 48, 225, 0.12), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 95% 100%, rgba(126, 48, 225, 0.06), transparent 70%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+}
+
+::selection { background: #7E30E1; color: white; }
+
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #2A2A3A; border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: #3A3A4D; }
+
+/* react-big-calendar overrides */
+.rbc-calendar { @apply text-foreground; }
+.rbc-toolbar button { @apply text-foreground border-border; }
+.rbc-toolbar button.rbc-active { @apply bg-primary text-primary-foreground; }
+.rbc-month-view, .rbc-time-view { @apply border-border rounded-lg overflow-hidden; }
+.rbc-header { @apply bg-secondary border-border text-muted-foreground py-2; }
+.rbc-day-bg { @apply border-border; }
+.rbc-today { background: rgba(126, 48, 225, 0.08); }
+.rbc-event { @apply border-0 rounded-md text-xs px-2 py-1; background: #7E30E1; color: white; }
+.rbc-off-range-bg { @apply bg-muted/30; }
+.rbc-month-row { @apply border-border; }
+.rbc-date-cell { @apply text-muted-foreground; }
+.rbc-now { @apply text-primary font-semibold; }
+
+.note-tag { color: #7E30E1; font-weight: 500; }
+.note-link { color: #B794F4; border-bottom: 1px dotted #7E30E1; cursor: pointer; }
+
+.glass {
+  background: rgba(14, 14, 20, 0.7);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+}
+
+.kbd-key {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: hsl(var(--secondary));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+}

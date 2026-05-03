@@ -1,0 +1,85 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: salhub-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sal}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sal}
+      POSTGRES_DB: ${POSTGRES_DB:-salhub}
+      TZ: America/Sao_Paulo
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # NOTA: porta 5432 NÃO exposta na rede pública por segurança.
+    # Acessível só dentro da rede salhub-net (entre containers).
+    # Se quiser conectar com Prisma Studio do host, descomente:
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sal} -d ${POSTGRES_DB:-salhub}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - salhub-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: salhub-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sal}:${POSTGRES_PASSWORD:-sal}@db:5432/${POSTGRES_DB:-salhub}?schema=public
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      NODE_ENV: production
+      TZ: America/Sao_Paulo
+    expose:
+      - "3000"
+    # App não exposto diretamente — só nginx encosta nele via salhub-net
+    volumes:
+      - ./backups:/app/backups:ro
+    networks:
+      - salhub-net
+    # No primeiro deploy: db push (cria schema sem migrations versionadas).
+    # Quando você gerar migrations com `prisma migrate dev`, o deploy passa a usá-las.
+    command: >
+      sh -c "
+        if [ -d prisma/migrations ] && [ \"$$(ls -A prisma/migrations 2>/dev/null)\" ]; then
+          echo '→ Migrations encontradas, rodando prisma migrate deploy';
+          npx prisma migrate deploy;
+        else
+          echo '→ Sem migrations versionadas, rodando prisma db push (modo inicial)';
+          npx prisma db push --skip-generate --accept-data-loss;
+        fi &&
+        node server.js
+      "
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: salhub-nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    networks:
+      - salhub-net
+
+volumes:
+  postgres-data:
+
+networks:
+  salhub-net:
+    driver: bridge

@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAL Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          display: ['Inter Tight', 'Inter', 'sans-serif'],
+          mono: ['JetBrains Mono', 'monospace'],
+        },
+        colors: {
+          ink: { 950: '#0A0A0F', 900: '#0E0E14', 850: '#13131C', 800: '#1A1A26', 700: '#252533', 600: '#2F2F3D' },
+          line: '#1F1F2D',
+          line2: '#2A2A3A',
+          paper: '#E8E8F0',
+          dim: '#9696A8',
+          dim2: '#6B6B7B',
+          sal: { DEFAULT: '#7E30E1', 50: '#F5EFFE', 100: '#E9DCFC', 400: '#B794F4', 500: '#9F6EE8', 600: '#7E30E1', 700: '#6921C4', 800: '#54199F', 900: '#3A1170' },
+        },
+        animation: {
+          'fade-in': 'fadeIn 0.3s ease-out',
+          'slide-up': 'slideUp 0.3s ease-out',
+        },
+        keyframes: {
+          fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+          slideUp: { '0%': { opacity: 0, transform: 'translateY(8px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+        }
+      },
+    },
+  };
+</script>
+<style>
+  html, body { background: #0A0A0F; color: #E8E8F0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: "cv11", "ss01", "ss03";
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(126, 48, 225, 0.15), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 90% 100%, rgba(126, 48, 225, 0.08), transparent 70%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "calt" 1, "ss01" 1; }
+  .display { font-family: 'Inter Tight', 'Inter', sans-serif; letter-spacing: -0.022em; }
+
+  ::selection { background: #7E30E1; color: white; }
+
+  /* Scrollbars elegantes */
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb { background: #2A2A3A; border-radius: 3px; }
+  *::-webkit-scrollbar-thumb:hover { background: #3A3A4D; }
+
+  /* Componentes base */
+  .card {
+    background: linear-gradient(180deg, #13131C 0%, #0E0E14 100%);
+    border: 1px solid #1F1F2D;
+    border-radius: 12px;
+    transition: border-color .15s ease;
+  }
+  .card-hover:hover { border-color: #2A2A3A; }
+  .card-elevated {
+    background: linear-gradient(180deg, #1A1A26 0%, #13131C 100%);
+    border: 1px solid #2A2A3A;
+    border-radius: 12px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px rgba(0,0,0,0.3);
+  }
+
+  .glass {
+    background: rgba(14,14,20,0.7);
+    backdrop-filter: saturate(160%) blur(14px);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+  }
+
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; line-height: 1.5; letter-spacing: 0.01em; }
+  .badge-success { background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.2); }
+  .badge-warning { background: rgba(245, 158, 11, 0.12); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.2); }
+  .badge-destructive { background: rgba(239, 68, 68, 0.12); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+  .badge-info { background: rgba(59, 130, 246, 0.12); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.2); }
+  .badge-sal { background: rgba(126, 48, 225, 0.15); color: #B794F4; border: 1px solid rgba(126, 48, 225, 0.3); }
+  .badge-muted { background: #1A1A26; color: #9696A8; border: 1px solid #2A2A3A; }
+  .badge-outline { border: 1px solid #2A2A3A; color: #C0C0D0; }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; line-height: 1; user-select: none; }
+  .btn-primary { background: #7E30E1; color: white; box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset, 0 1px 2px rgba(126,48,225,0.4); }
+  .btn-primary:hover { background: #8B3DEE; }
+  .btn-outline { background: #13131C; border: 1px solid #2A2A3A; color: #E8E8F0; }
+  .btn-outline:hover { background: #1A1A26; border-color: #3A3A4D; }
+  .btn-ghost { color: #9696A8; }
+  .btn-ghost:hover { background: #1A1A26; color: #E8E8F0; }
+  .btn-destructive { background: #DC2626; color: white; }
+  .btn-destructive:hover { background: #EF4444; }
+  .btn-sm { padding: 6px 10px; font-size: 12px; }
+  .btn-icon { padding: 8px; border-radius: 8px; cursor: pointer; color: #9696A8; transition: all .15s; }
+  .btn-icon:hover { background: #1A1A26; color: #E8E8F0; }
+
+  .input { background: #0E0E14; border: 1px solid #1F1F2D; border-radius: 8px; padding: 8px 12px; color: #E8E8F0; font-size: 13px; outline: none; transition: border-color .15s, box-shadow .15s; width: 100%; }
+  .input:focus { border-color: #7E30E1; box-shadow: 0 0 0 3px rgba(126,48,225,0.15); }
+  .input-mini { padding: 6px 10px; font-size: 12px; }
+
+  .nav-link { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 7px; font-size: 13px; color: #9696A8; cursor: pointer; transition: all .12s ease; font-weight: 450; }
+  .nav-link:hover { background: rgba(255,255,255,0.04); color: #E8E8F0; }
+  .nav-link.active { background: rgba(126, 48, 225, 0.12); color: #B794F4; font-weight: 500; box-shadow: inset 2px 0 0 #7E30E1; }
+
+  .nav-section-title { padding: 0 10px; margin-bottom: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B7B; }
+
+  .tab-strip { display: inline-flex; padding: 3px; background: #13131C; border: 1px solid #1F1F2D; border-radius: 9px; gap: 2px; }
+  .tab { padding: 6px 12px; border-radius: 6px; font-size: 12.5px; font-weight: 500; color: #9696A8; cursor: pointer; transition: all .12s; }
+  .tab:hover { color: #E8E8F0; }
+  .tab.active { background: #1A1A26; color: #E8E8F0; box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 1px 2px rgba(0,0,0,0.4); }
+
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 9999px; font-size: 11.5px; font-weight: 500; border: 1px solid; cursor: pointer; transition: all 0.12s; }
+
+  .kbd { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 5px; border-radius: 4px; background: #1A1A26; border: 1px solid #2A2A3A; color: #9696A8; }
+
+  /* Notion-style transcript */
+  .transcript-block { padding: 6px 0; }
+  .transcript-block:hover .transcript-time { opacity: 1; }
+  .transcript-time { opacity: 0.5; transition: opacity .15s; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B6B7B; }
+  .transcript-speaker { font-weight: 600; font-size: 12.5px; color: #B794F4; }
+
+  /* Obsidian-style note editor */
+  .note-tag { color: #7E30E1; font-weight: 500; }
+  .note-link { color: #B794F4; border-bottom: 1px dotted #7E30E1; }
+  .note-h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin: 16px 0 8px; }
+  .note-h2 { font-size: 18px; font-weight: 600; margin: 14px 0 6px; }
+
+  /* Mind map canvas */
+  .mm-node { cursor: grab; user-select: none; }
+  .mm-node:active { cursor: grabbing; }
+</style>
+</head>
+<body>
+
+<div class="flex min-h-screen">
+
+  <!-- ─────────── Sidebar ─────────── -->
+  <aside class="hidden md:flex w-[232px] shrink-0 flex-col border-r border-line bg-ink-900/60 sticky top-0 h-screen">
+    <div class="px-4 pt-5 pb-4 border-b border-line">
+      <div class="flex items-center gap-2.5">
+        <div class="h-9 w-9 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#7E30E1 0%,#54199F 100%);box-shadow:0 4px 14px rgba(126,48,225,0.4),0 1px 0 rgba(255,255,255,0.1) inset">
+          <img src="sal-logo.svg" alt="SAL" class="h-5 w-5" style="filter:brightness(0) invert(1)" />
+        </div>
+        <div>
+          <div class="font-display font-semibold text-[14px] text-paper leading-none">SAL Hub</div>
+          <div class="text-[10px] text-dim2 mt-0.5 uppercase tracking-wider">Estratégias de Marketing</div>
+        </div>
+      </div>
+      <div class="relative mt-4">
+        <i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dim2"></i>
+        <input class="input input-mini pl-8 pr-12 bg-ink-850" placeholder="Buscar..." />
+        <span class="absolute right-2 top-1/2 -translate-y-1/2 kbd">⌘K</span>
+      </div>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+      <div>
+        <div class="nav-section-title">Visão Geral</div>
+        <div onclick="goto('dashboard')" data-nav="dashboard" class="nav-link"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</div>
+      </div>
+      <div>
+        <div class="nav-section-title">Clientes</div>
+        <div onclick="goto('clientes')" data-nav="clientes" class="nav-link"><i data-lucide="users" class="w-4 h-4"></i> CRM</div>
+      </div>
+      <div>
+        <div class="nav-section-title">Produção</div>
+        <div onclick="goto('editorial')" data-nav="editorial" class="nav-link"><i data-lucide="calendar-days" class="w-4 h-4"></i> Editorial</div>
+        <div onclick="goto('projetos')" data-nav="projetos" class="nav-link"><i data-lucide="kanban-square" class="w-4 h-4"></i> Projetos</div>
+        <div onclick="goto('tarefas')" data-nav="tarefas" class="nav-link"><i data-lucide="list-checks" class="w-4 h-4"></i> Tarefas</div>
+      </div>
+      <div>
+        <div class="nav-section-title">Workspace</div>
+        <div onclick="goto('reunioes')" data-nav="reunioes" class="nav-link"><i data-lucide="mic" class="w-4 h-4"></i> Reuniões</div>
+        <div onclick="goto('notas')" data-nav="notas" class="nav-link"><i data-lucide="file-text" class="w-4 h-4"></i> Notas</div>
+        <div onclick="goto('mapas')" data-nav="mapas" class="nav-link"><i data-lucide="git-branch" class="w-4 h-4"></i> Mapas mentais</div>
+      </div>
+      <div>
+        <div class="nav-section-title">Financeiro</div>
+        <div onclick="goto('financeiro')" data-nav="financeiro" class="nav-link"><i data-lucide="wallet" class="w-4 h-4"></i> Financeiro</div>
+        <div onclick="goto('contratos')" data-nav="contratos" class="nav-link"><i data-lucide="file-signature" class="w-4 h-4"></i> Contratos</div>
+      </div>
+      <div>
+        <div class="nav-section-title">Google</div>
+        <div onclick="goto('drive')" data-nav="drive" class="nav-link"><i data-lucide="folder-open" class="w-4 h-4"></i> Drive</div>
+        <div onclick="goto('agenda')" data-nav="agenda" class="nav-link"><i data-lucide="calendar-range" class="w-4 h-4"></i> Agenda</div>
+      </div>
+      <div>
+        <div class="nav-section-title">Relatórios</div>
+        <div onclick="goto('redes')" data-nav="redes" class="nav-link"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Redes Sociais</div>
+        <div onclick="goto('seo')" data-nav="seo" class="nav-link"><i data-lucide="search" class="w-4 h-4"></i> SEO</div>
+        <div onclick="goto('trafego')" data-nav="trafego" class="nav-link"><i data-lucide="megaphone" class="w-4 h-4"></i> Tráfego Pago</div>
+      </div>
+    </nav>
+
+    <div class="px-4 py-3 border-t border-line flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-7 w-7 rounded-full bg-sal flex items-center justify-center text-[11px] font-semibold text-white">M</div>
+        <div class="leading-tight">
+          <div class="text-[12px] font-medium">Marcelo</div>
+          <div class="text-[10px] text-dim2">Admin</div>
+        </div>
+      </div>
+      <i data-lucide="settings" class="w-3.5 h-3.5 text-dim2 cursor-pointer hover:text-paper"></i>
+    </div>
+  </aside>
+
+  <!-- ─────────── Main ─────────── -->
+  <main class="flex-1 min-w-0">
+    <header class="sticky top-0 z-30 glass border-b border-line">
+      <div class="flex items-center justify-between gap-4 px-8 py-3.5">
+        <div>
+          <h1 id="page-title" class="display text-[20px] font-semibold tracking-tight leading-none">Dashboard</h1>
+          <p id="page-subtitle" class="text-[12px] text-dim mt-1.5">Visão consolidada da operação</p>
+        </div>
+        <div class="flex items-center gap-1">
+          <button class="btn-icon" title="Notificações"><i data-lucide="bell" class="w-4 h-4"></i></button>
+          <button class="btn-icon" title="Tema"><i data-lucide="sun" class="w-4 h-4"></i></button>
+          <button class="btn-icon" title="Ajuda"><i data-lucide="help-circle" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+    </header>
+    <div id="content" class="px-8 py-7 space-y-6 animate-slide-up"></div>
+  </main>
+</div>
+
+<!-- ─────────── Data + Pages ─────────── -->
+<script>
+const CLIENTES = [
+  { nome: "Galeria Chaves", valor: 2500, status: "ATIVO", email: "contato@galeriachaves.com.br", tags: [{nome:"Cliente Ativo",cor:"#10B981"},{nome:"VIP",cor:"#7E30E1"}] },
+  { nome: "Lindóia Shopping", valor: 3800, status: "ATIVO", email: "marketing@lindoiashopping.com.br", tags: [{nome:"Cliente Ativo",cor:"#10B981"}] },
+  { nome: "Tavi Papelaria", valor: 1800, status: "ATIVO", email: "tavi@tavi.com.br", tags: [{nome:"Cliente Ativo",cor:"#10B981"}] },
+  { nome: "Pipeline Services", valor: 4200, status: "ATIVO", email: "rh@pipeline.com.br", tags: [{nome:"Cliente Ativo",cor:"#10B981"},{nome:"Renovação Próxima",cor:"#F59E0B"}] },
+  { nome: "Rua da Praia Shopping", valor: 2800, status: "ATIVO", email: "ana@ruadapraia.com.br", tags: [{nome:"Cliente Ativo",cor:"#10B981"}] },
+  { nome: "Conhecer para Transformar", valor: 1500, status: "ATIVO", email: "contato@cpt.org.br", tags: [{nome:"Cliente Ativo",cor:"#10B981"}] },
+  { nome: "Canal do Vannucci", valor: 1200, status: "ATIVO", email: "vannucci@youtube.com", tags: [{nome:"Cliente Ativo",cor:"#10B981"}] },
+  { nome: "Café Veloso", valor: 0, status: "PROSPECT", email: "novo@cafeveloso.com", tags: [{nome:"Prospect Quente",cor:"#EC4899"}] },
+];
+
+const TAGS_GLOBAIS = [
+  {nome:"Cliente Ativo",cor:"#10B981"},
+  {nome:"Cliente Desativado",cor:"#EF4444"},
+  {nome:"Em Onboarding",cor:"#3B82F6"},
+  {nome:"Renovação Próxima",cor:"#F59E0B"},
+  {nome:"VIP",cor:"#7E30E1"},
+  {nome:"Prospect Quente",cor:"#EC4899"},
+];
+
+const PAGES = {
+  dashboard: { title: "Dashboard", subtitle: "Visão consolidada da operação", render: renderDashboard },
+  clientes: { title: "Clientes", subtitle: "8 clientes cadastrados · pipeline de R$ 17.800/mês", render: renderClientes },
+  detalhe: { title: "Pipeline Services", subtitle: "Cliente ativo desde Jun/2025 · R$ 4.200/mês", render: renderDetalhe },
+  editorial: { title: "Calendário Editorial", subtitle: "32 posts em maio · sincronizado com Google Agenda", render: renderEditorial },
+  projetos: { title: "Projetos", subtitle: "9 projetos ativos no pipeline", render: renderKanban },
+  tarefas: { title: "Tarefas", subtitle: "14 tarefas — 3 atrasadas · filtro por cliente", render: renderTarefas },
+  reunioes: { title: "Reuniões", subtitle: "Histórico, transcrições e action items extraídos", render: renderReunioes },
+  reuniaoDetalhe: { title: "Renovação contratual — Pipeline Services", subtitle: "02/05/2026 · 14:00–15:24 · 3 participantes", render: renderReuniaoDetalhe },
+  notas: { title: "Notas", subtitle: "Bloco de notas estilo Obsidian · markdown · wikilinks · tags", render: renderNotas },
+  mapas: { title: "Mapas Mentais", subtitle: "Canvas livre estilo Excalidraw · brainstorming visual", render: renderMapas },
+  financeiro: { title: "Financeiro", subtitle: "MRR, despesas, projeções", render: renderFinanceiro },
+  contratos: { title: "Contratos", subtitle: "7 contratos · 2 vencendo nos próximos 30 dias", render: renderContratos },
+  drive: { title: "Google Drive", subtitle: "Navegue, pesquise e vincule arquivos", render: renderDrive },
+  agenda: { title: "Google Agenda", subtitle: "Sincronizado em tempo real", render: renderAgenda },
+  redes: { title: "Redes Sociais", subtitle: "Métricas mensais · comparativo MoM · PDF", render: renderRedes },
+  seo: { title: "SEO", subtitle: "Posições, cliques, keywords · Score ponderado", render: renderSeo },
+  trafego: { title: "Tráfego Pago", subtitle: "Campanhas, ROAS e investimento por plataforma", render: renderTrafego },
+};
+
+function fmtBRL(v) { return new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(v); }
+function fmtNum(v) { return new Intl.NumberFormat('pt-BR').format(v); }
+
+function tagBadge(t) { return `<span class="badge" style="background:${t.cor}22;color:${t.cor};border:1px solid ${t.cor}40">${t.nome}</span>`; }
+function tagsRow(tags) { return tags.map(tagBadge).join(' '); }
+function statusBadge(s) {
+  const c = {ATIVO:'success', PROSPECT:'warning', INATIVO:'muted', CHURNED:'destructive', EM_RENOVACAO:'warning'}[s] || 'muted';
+  return `<span class="badge badge-${c}">${s.toLowerCase().replace('_',' ')}</span>`;
+}
+
+function goto(page) {
+  document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+  const navName = ({detalhe:'clientes',reuniaoDetalhe:'reunioes'}[page]) || page;
+  const navEl = document.querySelector(`[data-nav="${navName}"]`);
+  if (navEl) navEl.classList.add('active');
+  const cfg = PAGES[page] || PAGES.dashboard;
+  document.getElementById('page-title').textContent = cfg.title;
+  document.getElementById('page-subtitle').textContent = cfg.subtitle;
+  document.getElementById('content').innerHTML = cfg.render();
+  setTimeout(() => lucide.createIcons(), 0);
+  window.scrollTo(0, 0);
+  if (page === 'mapas') setTimeout(initMindMap, 50);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════════
+function renderDashboard() {
+  const mrr = CLIENTES.filter(c => c.status === 'ATIVO').reduce((s,c) => s+c.valor, 0);
+  const meses = ['Jun','Jul','Ago','Set','Out','Nov','Dez','Jan','Fev','Mar','Abr','Mai'];
+  const valores = [13200, 13500, 14000, 14500, 15800, 16500, 17200, 17800, 17800, 17800, 17800, 17800];
+  const max = Math.max(...valores);
+
+  return `
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      ${kpi('MRR Recorrente', fmtBRL(mrr), 'arrow-up-right', '+12.5%', 'good')}
+      ${kpi('Clientes ativos', '7', 'users', null)}
+      ${kpi('Posts no mês', '32', 'send', '+8', 'good')}
+      ${kpi('Tarefas abertas', '14', 'list-checks', '3 atrasadas', 'bad')}
+      ${kpi('Projetos ativos', '9', 'kanban-square', null)}
+    </div>
+
+    <div class="card p-5" style="background:linear-gradient(180deg,rgba(245,158,11,0.06) 0%,rgba(19,19,28,1) 60%);border-color:rgba(245,158,11,0.25)">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-lg flex items-center justify-center" style="background:rgba(245,158,11,0.15)"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i></div>
+          <div>
+            <div class="text-[13.5px] font-semibold">Contratos vencendo em 30 dias</div>
+            <div class="text-[11px] text-dim mt-0.5">2 contratos exigem ação imediata</div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm">Ver todos <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        ${[['Pipeline Services', '15/05/2026', 12, fmtBRL(4200)], ['Tavi Papelaria', '28/05/2026', 25, fmtBRL(1800)]].map(([n,d,dias,v]) => `
+          <div class="card p-3.5 flex items-center justify-between">
+            <div>
+              <div class="font-medium text-[13px]">${n}</div>
+              <div class="text-[11px] text-dim mono mt-0.5">${d}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[13px] mono">${v}</div>
+              <span class="badge badge-${dias <= 15 ? 'destructive' : 'warning'} mt-1">${dias} dias</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="card md:col-span-2 p-5">
+        <div class="flex items-center justify-between mb-1">
+          <div>
+            <div class="text-[13.5px] font-semibold">Receita recorrente</div>
+            <div class="text-[11px] text-dim mt-0.5">Últimos 12 meses</div>
+          </div>
+          <div class="tab-strip"><span class="tab active">12M</span><span class="tab">6M</span><span class="tab">3M</span></div>
+        </div>
+        <div class="flex items-end gap-1.5 h-52 mt-6">
+          ${valores.map((v,i) => `
+            <div class="flex flex-col items-center gap-1 flex-1 group">
+              <span class="text-[10px] mono text-dim2 opacity-0 group-hover:opacity-100 transition">${fmtBRL(v).replace('R$','R$ ').replace(',00','')}</span>
+              <div class="w-full rounded-t-md transition-all group-hover:opacity-90" style="height:${(v/max)*170}px;background:linear-gradient(180deg,#9F6EE8 0%,#7E30E1 100%)"></div>
+              <span class="text-[10px] text-dim2">${meses[i]}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="card p-5">
+        <div class="text-[13.5px] font-semibold mb-1">Distribuição</div>
+        <div class="text-[11px] text-dim mb-4">Receita por cliente</div>
+        ${donutChart()}
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      ${listCard('Próximas entregas', 'list-checks', [
+        ['Carrossel Dia das Mães', 'Galeria Chaves', '04/05'],
+        ['Reels promocional', 'Lindóia Shopping', '05/05'],
+        ['Roteiro vídeo institucional', 'Pipeline Services', '06/05'],
+        ['Stories campanha', 'Rua da Praia Shopping', '07/05'],
+      ])}
+      ${listCard('Próximos eventos', 'calendar', [
+        ['Reunião briefing', 'Tavi Papelaria', 'Hoje 14:00'],
+        ['Aprovação carrossel', 'Lindóia Shopping', '04/05 10:00'],
+        ['Renovação contrato', 'Pipeline Services', '05/05 16:00'],
+        ['Workshop interno', 'Time SAL', '07/05 14:00'],
+      ])}
+    </div>
+  `;
+}
+
+function kpi(label, value, icon, hint, accent) {
+  const cor = accent === 'good' ? '#34D399' : accent === 'bad' ? '#F87171' : '#9696A8';
+  return `
+    <div class="card card-hover p-4">
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] text-dim font-medium">${label}</span>
+        <i data-lucide="${icon}" class="w-3.5 h-3.5 text-dim2"></i>
+      </div>
+      <div class="mt-2 display text-[24px] font-semibold tracking-tight">${value}</div>
+      ${hint ? `<div class="text-[11px] mt-0.5 mono" style="color:${cor}">${hint}</div>` : '<div class="text-[11px] mt-0.5 text-dim2">—</div>'}
+    </div>`;
+}
+
+function donutChart() {
+  const data = CLIENTES.filter(c => c.status === 'ATIVO').map(c => ({name: c.nome, value: c.valor}));
+  const total = data.reduce((s,d) => s+d.value, 0);
+  const cores = ["#7E30E1","#10B981","#3B82F6","#F59E0B","#EC4899","#14B8A6","#EF4444"];
+  let acc = 0;
+  const segs = data.map((d,i) => {
+    const start = acc / total * 360;
+    acc += d.value;
+    const end = acc / total * 360;
+    return `<circle cx="100" cy="100" r="55" fill="transparent" stroke="${cores[i]}" stroke-width="22"
+      stroke-dasharray="${(end-start)/360 * 345.6} 345.6"
+      stroke-dashoffset="${-start/360 * 345.6}"
+      transform="rotate(-90 100 100)"/>`;
+  }).join('');
+  return `
+    <div class="flex flex-col items-center">
+      <div class="relative">
+        <svg viewBox="0 0 200 200" class="w-40 h-40">${segs}</svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <div class="text-[10px] text-dim2 uppercase tracking-wider">Total</div>
+          <div class="display font-semibold text-[18px]">${fmtBRL(total).replace(',00','')}</div>
+        </div>
+      </div>
+      <div class="space-y-1 text-[11px] mt-3 w-full">
+        ${data.slice(0,4).map((d,i) => `<div class="flex items-center gap-2"><span class="inline-block w-2.5 h-2.5 rounded-sm" style="background:${cores[i]}"></span><span class="text-dim truncate flex-1">${d.name}</span><span class="mono">${Math.round(d.value/total*100)}%</span></div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function listCard(title, icon, items) {
+  return `
+    <div class="card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="${icon}" class="w-3.5 h-3.5 text-dim"></i>
+          <div class="text-[13.5px] font-semibold">${title}</div>
+        </div>
+        <button class="btn-icon"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+      </div>
+      <div class="space-y-2.5">
+        ${items.map(([t,c,d]) => `
+          <div class="flex items-center justify-between gap-2 hover:bg-ink-850 -mx-2 px-2 py-1.5 rounded-md transition cursor-pointer">
+            <div class="min-w-0">
+              <div class="text-[13px] font-medium truncate">${t}</div>
+              <div class="text-[11px] text-dim mt-0.5">${c}</div>
+            </div>
+            <span class="text-[11px] mono text-dim shrink-0">${d}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CLIENTES + filtros
+// ═══════════════════════════════════════════════════════════════════
+let filtroBusca = '', tagsAtivas = [], statusAtivos = [];
+
+function renderClientes() {
+  let lista = CLIENTES.filter(c => {
+    if (filtroBusca && !c.nome.toLowerCase().includes(filtroBusca.toLowerCase()) && !(c.email||'').toLowerCase().includes(filtroBusca.toLowerCase())) return false;
+    if (statusAtivos.length && !statusAtivos.includes(c.status)) return false;
+    if (tagsAtivas.length) {
+      const nomes = c.tags.map(t => t.nome);
+      if (!tagsAtivas.some(t => nomes.includes(t))) return false;
+    }
+    return true;
+  });
+
+  return `
+    <div class="flex justify-end gap-2 mb-1">
+      <button class="btn btn-outline btn-sm"><i data-lucide="tag" class="w-3.5 h-3.5"></i> Gerenciar tags</button>
+      <button class="btn btn-outline btn-sm"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar</button>
+      <button class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo cliente</button>
+    </div>
+    <div class="card p-4 space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dim2"></i>
+          <input class="input pl-9" placeholder="Buscar por nome ou email..." value="${filtroBusca}" oninput="filtroBusca=this.value;goto('clientes')">
+        </div>
+        <span class="text-[11px] text-dim ml-auto mono">${lista.length} <span class="text-dim2">de ${CLIENTES.length}</span></span>
+        ${(filtroBusca || tagsAtivas.length || statusAtivos.length) ? `<button class="btn btn-ghost btn-sm" onclick="filtroBusca='';tagsAtivas=[];statusAtivos=[];goto('clientes')"><i data-lucide="x" class="w-3 h-3"></i> Limpar</button>` : ''}
+      </div>
+      <div class="border-t border-line pt-4 space-y-3">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-dim2 mb-2 font-semibold">Status</div>
+          <div class="flex flex-wrap gap-1.5">
+            ${['ATIVO','PROSPECT','INATIVO','CHURNED'].map(s => {
+              const sel = statusAtivos.includes(s);
+              return `<button class="chip" style="${sel ? 'background:#7E30E1;color:white;border-color:#7E30E1' : 'border-color:#2A2A3A;color:#9696A8'}" onclick="${sel ? `statusAtivos=statusAtivos.filter(x=>x!=='${s}')` : `statusAtivos.push('${s}')`};goto('clientes')">${s.toLowerCase()}</button>`;
+            }).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-dim2 mb-2 font-semibold">Tags</div>
+          <div class="flex flex-wrap gap-1.5">
+            ${TAGS_GLOBAIS.map(t => {
+              const sel = tagsAtivas.includes(t.nome);
+              return `<button class="chip" style="${sel ? `background:${t.cor};color:#fff;border-color:${t.cor}` : `border-color:${t.cor}40;color:${t.cor}`}" onclick="${sel ? `tagsAtivas=tagsAtivas.filter(x=>x!=='${t.nome}')` : `tagsAtivas.push('${t.nome}')`};goto('clientes')">${t.nome}</button>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <table class="w-full text-[13px]">
+        <thead>
+          <tr class="text-left text-dim text-[11px] border-b border-line">
+            <th class="px-4 py-2.5 font-medium">Cliente</th>
+            <th class="px-4 py-2.5 font-medium">Status</th>
+            <th class="px-4 py-2.5 font-medium">Tags</th>
+            <th class="px-4 py-2.5 font-medium">Email</th>
+            <th class="px-4 py-2.5 font-medium text-right">Mensal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${lista.map((c,i) => `
+            <tr class="hover:bg-ink-850/60 ${i < lista.length-1 ? 'border-b border-line' : ''}">
+              <td class="px-4 py-3 font-medium"><a class="hover:text-sal-400 cursor-pointer transition" onclick="goto('detalhe')">${c.nome}</a></td>
+              <td class="px-4 py-3">${statusBadge(c.status)}</td>
+              <td class="px-4 py-3"><div class="flex flex-wrap gap-1">${tagsRow(c.tags)}</div></td>
+              <td class="px-4 py-3 text-dim text-[12px]">${c.email}</td>
+              <td class="px-4 py-3 text-right mono text-[12.5px]">${fmtBRL(c.valor)}</td>
+              <td class="px-4 py-3 text-right"><a onclick="goto('detalhe')" class="text-sal-400 text-[12px] cursor-pointer hover:underline">Detalhes →</a></td>
+            </tr>`).join('')}
+          ${lista.length === 0 ? `<tr><td colspan="6" class="text-center text-dim py-12">Nenhum cliente bate com os filtros.</td></tr>` : ''}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DETALHE CLIENTE
+// ═══════════════════════════════════════════════════════════════════
+function renderDetalhe() {
+  return `
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <div class="h-12 w-12 rounded-xl flex items-center justify-center font-display font-semibold text-[18px]" style="background:linear-gradient(135deg,#7E30E1 0%,#54199F 100%);color:white">PS</div>
+        <div>
+          <div class="display text-[18px] font-semibold tracking-tight">Pipeline Services</div>
+          <div class="flex items-center gap-2 mt-1">${tagsRow([{nome:"Cliente Ativo",cor:"#10B981"},{nome:"Renovação Próxima",cor:"#F59E0B"}])}</div>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-outline btn-sm"><i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Pasta no Drive</button>
+        <button class="btn btn-outline btn-sm"><i data-lucide="mic" class="w-3.5 h-3.5"></i> Nova reunião</button>
+        <button class="btn btn-primary btn-sm"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Editar</button>
+        <button class="btn btn-icon" title="Excluir" style="color:#F87171"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+
+    <div class="tab-strip">
+      <span class="tab active">Visão Geral</span>
+      <span class="tab">Posts <span class="text-dim2 ml-1">8</span></span>
+      <span class="tab">Projetos <span class="text-dim2 ml-1">3</span></span>
+      <span class="tab">Tarefas <span class="text-dim2 ml-1">5</span></span>
+      <span class="tab">Reuniões <span class="text-dim2 ml-1">12</span></span>
+      <span class="tab">Contratos <span class="text-dim2 ml-1">1</span></span>
+      <span class="tab">Financeiro</span>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="card p-5 md:col-span-2 space-y-5">
+        <div class="grid md:grid-cols-2 gap-x-8 gap-y-4 text-[13px]">
+          ${info('CNPJ', '12.345.678/0001-90')}
+          ${info('Email', 'rh@pipeline.com.br')}
+          ${info('Telefone', '(51) 3232-1234')}
+          ${info('Endereço', 'Av. Ipiranga, 6681 — Porto Alegre/RS')}
+          ${info('Pasta Drive', 'Vinculada · Pipeline Services')}
+          ${info('Início do contrato', '01/06/2025')}
+        </div>
+        <div class="border-t border-line pt-4">
+          <div class="text-[11px] uppercase tracking-wider text-dim2 font-semibold mb-2">Notas</div>
+          <p class="text-[13px] leading-relaxed">Redução de contrato prevista para junho. Marcar reunião em maio para discutir escopo. Cliente sinalizou interesse em pacote de SEO além do tráfego pago atual.</p>
+        </div>
+      </div>
+      <div class="card p-5 space-y-4">
+        <div>
+          <div class="text-[11px] uppercase tracking-wider text-dim2 font-semibold mb-3">Atividade recente</div>
+          <div class="space-y-3 text-[12.5px]">
+            <div class="flex gap-2.5"><div class="w-1.5 h-1.5 rounded-full bg-sal mt-1.5 shrink-0"></div><div><div>Reunião <span class="text-sal-400">"Renovação contratual"</span></div><div class="text-[11px] text-dim mono">há 2 horas</div></div></div>
+            <div class="flex gap-2.5"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0"></div><div><div>Post agendado <span class="text-paper">"Lançamento Q2"</span></div><div class="text-[11px] text-dim mono">ontem</div></div></div>
+            <div class="flex gap-2.5"><div class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></div><div><div>Tarefa criada <span class="text-paper">"Briefing renovação"</span></div><div class="text-[11px] text-dim mono">2 dias atrás</div></div></div>
+            <div class="flex gap-2.5"><div class="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div><div><div>Lançamento financeiro <span class="text-paper">+R$ 4.200</span></div><div class="text-[11px] text-dim mono">3 dias atrás</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function info(l, v) { return `<div><div class="text-[10.5px] uppercase tracking-wider text-dim2 font-semibold">${l}</div><div class="mt-1">${v}</div></div>`; }
+
+// ═══════════════════════════════════════════════════════════════════
+// REUNIÕES
+// ═══════════════════════════════════════════════════════════════════
+const REUNIOES = [
+  { id:'r1', titulo:'Renovação contratual — Pipeline Services', cliente:'Pipeline Services', data:'02/05/2026', hora:'14:00', dur:'1h24', participantes:['Marcelo Salgado','Ana Pipeline','Roberto Pipeline'], tags:['Contrato','Renovação'], status:'transcrito', acao:3 },
+  { id:'r2', titulo:'Briefing campanha Dia dos Namorados', cliente:'Galeria Chaves', data:'30/04/2026', hora:'10:00', dur:'48m', participantes:['Marcelo Salgado','Júlia Chaves'], tags:['Briefing','Campanha'], status:'transcrito', acao:5 },
+  { id:'r3', titulo:'Aprovação criativo Reels', cliente:'Lindóia Shopping', data:'29/04/2026', hora:'15:30', dur:'32m', participantes:['Marcelo Salgado','Patrícia Lindóia','Caio (designer)'], tags:['Aprovação'], status:'transcrito', acao:2 },
+  { id:'r4', titulo:'Reunião mensal de performance', cliente:'Tavi Papelaria', data:'28/04/2026', hora:'09:00', dur:'1h05', participantes:['Marcelo Salgado','Tavi','Bruna (analista)'], tags:['Performance','Mensal'], status:'transcrito', acao:4 },
+  { id:'r5', titulo:'Onboarding — Café Veloso', cliente:'Café Veloso', data:'25/04/2026', hora:'14:00', dur:'1h12', participantes:['Marcelo Salgado','Sandra Veloso'], tags:['Onboarding','Prospect'], status:'gravando', acao:0 },
+  { id:'r6', titulo:'Workshop interno: novo posicionamento', cliente:'—', data:'24/04/2026', hora:'14:00', dur:'2h05', participantes:['Marcelo Salgado','Time SAL (5)'], tags:['Interno','Workshop'], status:'transcrito', acao:8 },
+];
+
+function renderReunioes() {
+  return `
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-2">
+        <div class="tab-strip">
+          <span class="tab active">Todas</span>
+          <span class="tab">Esta semana</span>
+          <span class="tab">Este mês</span>
+          <span class="tab">Por cliente</span>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-outline btn-sm"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload áudio</button>
+        <button class="btn btn-outline btn-sm"><i data-lucide="link" class="w-3.5 h-3.5"></i> Conectar Meet/Zoom</button>
+        <button class="btn btn-primary btn-sm"><i data-lucide="mic" class="w-3.5 h-3.5"></i> Gravar agora</button>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-3">
+      ${kpi('Reuniões este mês', '18', 'mic', '+5 vs mês ant.', 'good')}
+      ${kpi('Horas gravadas', '24h 38m', 'clock', null)}
+      ${kpi('Action items extraídos', '47', 'check-circle', '12 pendentes', 'bad')}
+      ${kpi('Clientes atendidos', '7', 'users', null)}
+    </div>
+
+    <div class="card overflow-hidden">
+      <table class="w-full text-[13px]">
+        <thead>
+          <tr class="text-left text-dim text-[11px] border-b border-line">
+            <th class="px-4 py-2.5 font-medium">Reunião</th>
+            <th class="px-4 py-2.5 font-medium">Cliente</th>
+            <th class="px-4 py-2.5 font-medium">Data</th>
+            <th class="px-4 py-2.5 font-medium">Duração</th>
+            <th class="px-4 py-2.5 font-medium">Participantes</th>
+            <th class="px-4 py-2.5 font-medium">Tags</th>
+            <th class="px-4 py-2.5 font-medium">Status</th>
+            <th class="px-4 py-2.5 font-medium text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${REUNIOES.map((r,i) => `
+            <tr class="hover:bg-ink-850/60 ${i < REUNIOES.length-1 ? 'border-b border-line' : ''} cursor-pointer" onclick="goto('reuniaoDetalhe')">
+              <td class="px-4 py-3 font-medium">
+                <div class="flex items-center gap-2.5">
+                  <div class="h-7 w-7 rounded-md flex items-center justify-center" style="background:rgba(126,48,225,0.12)"><i data-lucide="mic" class="w-3.5 h-3.5 text-sal-400"></i></div>
+                  <div class="hover:text-sal-400 transition">${r.titulo}</div>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-dim text-[12px]">${r.cliente}</td>
+              <td class="px-4 py-3 mono text-[12px]">${r.data}<span class="text-dim2"> · ${r.hora}</span></td>
+              <td class="px-4 py-3 mono text-[12px]">${r.dur}</td>
+              <td class="px-4 py-3 text-[12px] text-dim">${r.participantes.length} pessoas</td>
+              <td class="px-4 py-3"><div class="flex flex-wrap gap-1">${r.tags.map(t => `<span class="badge badge-outline">${t}</span>`).join('')}</div></td>
+              <td class="px-4 py-3">${r.status === 'gravando' ? '<span class="badge badge-destructive flex items-center gap-1"><span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span> Gravando</span>' : '<span class="badge badge-success"><i data-lucide="check" class="w-2.5 h-2.5 mr-0.5 inline"></i>Transcrito</span>'}</td>
+              <td class="px-4 py-3 text-right text-[12px]">
+                ${r.acao > 0 ? `<span class="badge badge-sal">${r.acao} ações</span>` : '<span class="text-dim2">—</span>'}
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderReuniaoDetalhe() {
+  return `
+    <div class="flex justify-end gap-2">
+      <button class="btn btn-outline btn-sm"><i data-lucide="share-2" class="w-3.5 h-3.5"></i> Compartilhar</button>
+      <button class="btn btn-outline btn-sm"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar</button>
+      <button class="btn btn-outline btn-sm"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Reprocessar com IA</button>
+    </div>
+
+    <div class="grid md:grid-cols-[1fr_360px] gap-5">
+      <!-- Coluna principal: transcrição -->
+      <div class="space-y-4">
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <i data-lucide="users" class="w-3.5 h-3.5 text-dim"></i>
+              <span class="text-[12px] text-dim">Marcelo Salgado, Ana Pipeline, Roberto Pipeline</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="btn-icon"><i data-lucide="play" class="w-3.5 h-3.5"></i></button>
+              <button class="btn-icon"><i data-lucide="rewind" class="w-3.5 h-3.5"></i></button>
+              <span class="text-[11px] mono text-dim ml-1">00:00 / 1:24:13</span>
+            </div>
+          </div>
+          <div class="h-12 bg-ink-850 rounded-md flex items-end gap-px p-1.5 overflow-hidden">
+            ${Array.from({length:120}, () => `<div class="flex-1 bg-sal-600 rounded-sm" style="height:${20 + Math.random()*80}%;opacity:${0.3 + Math.random()*0.5}"></div>`).join('')}
+          </div>
+        </div>
+
+        <div class="tab-strip">
+          <span class="tab active">Transcrição</span>
+          <span class="tab">Resumo IA</span>
+          <span class="tab">Notas</span>
+          <span class="tab">Capítulos</span>
+        </div>
+
+        <div class="card p-6">
+          <div class="relative mb-4">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dim2"></i>
+            <input class="input pl-9 input-mini" placeholder="Buscar na transcrição..." />
+          </div>
+
+          <div class="space-y-1">
+            ${transcriptBlock('00:00:12', 'Marcelo Salgado', 'Bom dia, Ana e Roberto. Obrigado por separarem esse horário hoje. O foco da nossa conversa é alinhar a renovação do contrato que vence em 15 de maio.', '#7E30E1')}
+            ${transcriptBlock('00:00:34', 'Ana Pipeline', 'Bom dia, Marcelo. Estamos com a expectativa de discutir alguns pontos sobre o escopo. O Roberto trouxe os números da retenção do trimestre.', '#F59E0B')}
+            ${transcriptBlock('00:01:02', 'Roberto Pipeline', 'Pois é. Os resultados foram bons no geral, mas internamente decidimos reduzir o investimento em conteúdo orgânico para focar mais em performance pago.', '#10B981')}
+            ${transcriptBlock('00:01:48', 'Marcelo Salgado', 'Entendi. Posso sugerir uma alternativa? Reduzimos o pacote atual em 20% e migramos parte do orçamento para Meta Ads. Teríamos um ganho médio de ROAS de 4.8x baseado no histórico.', '#7E30E1')}
+            ${transcriptBlock('00:02:35', 'Ana Pipeline', 'Isso me parece interessante. Você consegue me mandar uma proposta formal até sexta com essa nova divisão?', '#F59E0B')}
+            ${transcriptBlock('00:02:51', 'Marcelo Salgado', 'Claro. Mando até quinta com três cenários: o atual, o reduzido com migração, e um híbrido que mantém o pacote orgânico mas inclui uma campanha de Black Friday separada.', '#7E30E1')}
+            ${transcriptBlock('00:03:30', 'Roberto Pipeline', 'Perfeito. E sobre o KPI de conversão na landing page, tem novidade?', '#10B981')}
+            ${transcriptBlock('00:03:45', 'Marcelo Salgado', 'Subiu de 2.1% para 3.4% após o redesign. Ainda há espaço — minha recomendação é testar uma versão mais focada em prova social. Posso incluir esse teste A/B no escopo novo.', '#7E30E1')}
+            <div class="text-center text-[11px] text-dim2 py-2">— continua por mais 1h20 —</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar: action items + capítulos -->
+      <aside class="space-y-4">
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-[13px] font-semibold flex items-center gap-2"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-sal-400"></i> Resumo IA</div>
+            <button class="btn-icon"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button>
+          </div>
+          <p class="text-[12.5px] leading-relaxed text-dim">Cliente <strong class="text-paper">Pipeline Services</strong> deseja renovar com escopo reduzido (20% menor), migrando parte do orçamento de orgânico para tráfego pago Meta Ads. Marcelo apresentará 3 cenários de proposta até quinta-feira. ROAS atual médio de <span class="mono text-paper">4.8x</span>; conversão de landing subiu para <span class="mono text-paper">3.4%</span>.</p>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-[13px] font-semibold flex items-center gap-2"><i data-lucide="check-square" class="w-3.5 h-3.5 text-sal-400"></i> Action items</div>
+            <span class="badge badge-sal">3</span>
+          </div>
+          <div class="space-y-2.5">
+            ${[
+              ['Enviar proposta com 3 cenários', 'Marcelo · até quinta', false],
+              ['Confirmar redução de 20% no escopo', 'Ana · após receber proposta', false],
+              ['Configurar teste A/B na landing', 'Marcelo · semana 3', false],
+            ].map(([t,m,c]) => `
+              <div class="flex items-start gap-2.5 group hover:bg-ink-850 -mx-2 px-2 py-1.5 rounded-md transition cursor-pointer">
+                <input type="checkbox" ${c?'checked':''} class="mt-0.5 accent-sal-600">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[12.5px] ${c?'line-through text-dim':''}">${t}</div>
+                  <div class="text-[10.5px] text-dim2 mt-0.5">${m}</div>
+                </div>
+                <button class="btn-icon opacity-0 group-hover:opacity-100"><i data-lucide="external-link" class="w-3 h-3"></i></button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-[13px] font-semibold flex items-center gap-2"><i data-lucide="bookmark" class="w-3.5 h-3.5 text-dim"></i> Capítulos</div>
+          </div>
+          <div class="space-y-2 text-[12px]">
+            ${[
+              ['00:00', 'Abertura e contexto'],
+              ['01:48', 'Proposta de migração'],
+              ['12:30', 'Análise de KPIs'],
+              ['28:14', 'Discussão de orçamento'],
+              ['52:08', 'Próximos passos'],
+              ['1:18:42', 'Encerramento'],
+            ].map(([t,n]) => `
+              <div class="flex items-center justify-between py-1 border-b border-line/50 last:border-0 hover:text-sal-400 cursor-pointer transition">
+                <span class="mono text-[10.5px] text-dim">${t}</span>
+                <span class="ml-3 flex-1 truncate">${n}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </aside>
+    </div>
+  `;
+}
+
+function transcriptBlock(time, speaker, text, color) {
+  return `
+    <div class="transcript-block flex gap-3">
+      <span class="transcript-time mono shrink-0 mt-0.5 w-16">${time}</span>
+      <div class="flex-1 min-w-0">
+        <div class="transcript-speaker mb-0.5" style="color:${color}">${speaker}</div>
+        <div class="text-[13.5px] leading-relaxed">${text}</div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// NOTAS (Obsidian-style)
+// ═══════════════════════════════════════════════════════════════════
+const NOTAS = {
+  'Estratégia 2026.md': { pasta:'Estratégia', mod:'há 2 horas', tags:['#estratégia','#planejamento'], conteudo:`# Estratégia 2026
+
+## Norte estratégico
+A SAL precisa **deixar de ser uma agência de execução** para se posicionar como [[Parceira Estratégica]] dos clientes. O foco em 2026 é construir cases mensuráveis #cases.
+
+## Pilares do ano
+- **Performance auditável** — todo cliente recebe dashboard do [[Looker Studio]] mensal
+- **Conteúdo de autoridade** — pelo menos 3 posts de pilar por mês em cada vertical
+- **Retenção via valor** — meta de churn anual abaixo de 8%
+
+## Iniciativas Q2
+1. Lançamento do produto SAL Insights
+2. Reformulação completa do site
+3. Captação de 2 novos clientes [[ICP Ideal]]
+
+> "Sem mensuração, é só achismo." — anotação do workshop interno
+
+## Links relacionados
+[[Workshop interno: novo posicionamento]] · [[Pipeline Services - estratégia]] · [[Roadmap produto]]
+` },
+  'Pipeline Services - estratégia.md': { pasta:'Clientes', mod:'ontem', tags:['#cliente','#renovação'], conteudo:'# Pipeline Services\n\nNotas sobre a estratégia para a renovação do contrato em maio...' },
+  'Roadmap produto.md': { pasta:'Estratégia', mod:'3 dias atrás', tags:['#produto'], conteudo:'# Roadmap...' },
+  'Reunião 02/05 — Pipeline.md': { pasta:'Reuniões', mod:'há 2 horas', tags:['#reunião','#pipeline'], conteudo:'# Reunião Pipeline...' },
+  'ICP Ideal.md': { pasta:'Estratégia', mod:'1 semana', tags:['#estratégia'], conteudo:'# Perfil de Cliente Ideal...' },
+  'Ideias campanha Black Friday.md': { pasta:'Inbox', mod:'2 semanas', tags:['#ideia','#bf'], conteudo:'# Black Friday...' },
+};
+
+let notaAtiva = 'Estratégia 2026.md';
+
+function renderNotas() {
+  const pastas = {};
+  Object.entries(NOTAS).forEach(([nome, n]) => {
+    pastas[n.pasta] = pastas[n.pasta] || [];
+    pastas[n.pasta].push(nome);
+  });
+  const nota = NOTAS[notaAtiva];
+
+  return `
+    <div class="grid grid-cols-[220px_280px_1fr] gap-0 card overflow-hidden" style="height:calc(100vh - 200px)">
+      <!-- Árvore de pastas -->
+      <div class="border-r border-line bg-ink-900/40 overflow-y-auto">
+        <div class="p-3 border-b border-line">
+          <button class="btn btn-primary btn-sm w-full"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Nova nota</button>
+        </div>
+        <div class="p-2">
+          ${Object.entries(pastas).map(([pasta, notas]) => `
+            <div class="mb-1">
+              <div class="flex items-center gap-1.5 px-2 py-1.5 text-[11px] font-semibold text-dim uppercase tracking-wider">
+                <i data-lucide="folder" class="w-3 h-3"></i> ${pasta} <span class="ml-auto text-dim2 normal-case tracking-normal">${notas.length}</span>
+              </div>
+              ${notas.map(n => `
+                <div onclick="notaAtiva='${n}';goto('notas')" class="flex items-center gap-1.5 px-3 py-1.5 ml-3 text-[12px] rounded-md cursor-pointer ${notaAtiva===n?'bg-sal/15 text-sal-400':'hover:bg-ink-850 text-dim'}">
+                  <i data-lucide="file" class="w-3 h-3 shrink-0"></i><span class="truncate">${n.replace('.md','')}</span>
+                </div>
+              `).join('')}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Lista de notas (em ordem cronológica) -->
+      <div class="border-r border-line overflow-y-auto">
+        <div class="p-3 border-b border-line">
+          <div class="relative">
+            <i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-dim2"></i>
+            <input class="input input-mini pl-8" placeholder="Buscar..." />
+          </div>
+        </div>
+        <div class="divide-y divide-line">
+          ${Object.entries(NOTAS).map(([nome, n]) => `
+            <div onclick="notaAtiva='${nome}';goto('notas')" class="px-4 py-3 cursor-pointer ${notaAtiva===nome?'bg-sal/10 border-l-2 border-l-sal':'hover:bg-ink-850'}">
+              <div class="font-medium text-[13px] truncate">${nome.replace('.md','')}</div>
+              <div class="text-[11px] text-dim mt-0.5 line-clamp-2">${n.conteudo.split('\n').filter(l=>l.trim()&&!l.startsWith('#'))[0] || ''}</div>
+              <div class="flex items-center gap-2 mt-1.5">
+                <span class="text-[10px] text-dim2 mono">${n.mod}</span>
+                ${n.tags.slice(0,2).map(t => `<span class="text-[10px] note-tag">${t}</span>`).join(' ')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Editor + preview -->
+      <div class="flex flex-col">
+        <div class="px-5 py-2.5 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-dim"></i>
+            <span class="text-[13px] font-medium">${notaAtiva.replace('.md','')}</span>
+            <span class="text-[10px] text-dim2 mono ml-2">${nota.mod}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="tab-strip" style="padding:2px"><span class="tab" style="padding:4px 8px;font-size:11px">Edição</span><span class="tab active" style="padding:4px 8px;font-size:11px">Preview</span><span class="tab" style="padding:4px 8px;font-size:11px">Split</span></div>
+            <button class="btn-icon"><i data-lucide="bookmark" class="w-3.5 h-3.5"></i></button>
+            <button class="btn-icon"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+        <div class="overflow-y-auto p-8 prose prose-invert max-w-none">
+          ${renderMarkdown(nota.conteudo)}
+        </div>
+        <div class="border-t border-line px-5 py-2 flex items-center justify-between text-[11px] text-dim2">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1"><i data-lucide="link-2" class="w-3 h-3"></i> 4 backlinks</span>
+            <span class="flex items-center gap-1"><i data-lucide="file" class="w-3 h-3"></i> 312 palavras</span>
+          </div>
+          <div class="flex items-center gap-2">
+            ${nota.tags.map(t => `<span class="note-tag">${t}</span>`).join(' ')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderMarkdown(md) {
+  return md
+    .replace(/^### (.*)$/gm, '<h3 class="display text-[15px] font-semibold mt-5 mb-2">$1</h3>')
+    .replace(/^## (.*)$/gm, '<h2 class="display text-[18px] font-semibold mt-6 mb-3 tracking-tight">$1</h2>')
+    .replace(/^# (.*)$/gm, '<h1 class="display text-[28px] font-bold mt-2 mb-4 tracking-tight">$1</h1>')
+    .replace(/^> (.*)$/gm, '<blockquote class="border-l-2 border-sal pl-4 py-1 my-3 italic text-dim">$1</blockquote>')
+    .replace(/^- (.*)$/gm, '<li class="ml-5 list-disc text-[13.5px] leading-relaxed mb-1">$1</li>')
+    .replace(/^(\d+)\. (.*)$/gm, '<li class="ml-5 list-decimal text-[13.5px] leading-relaxed mb-1">$2</li>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-paper font-semibold">$1</strong>')
+    .replace(/\[\[(.*?)\]\]/g, '<a class="note-link cursor-pointer">$1</a>')
+    .replace(/(#[\wÀ-ÿ]+)/g, '<span class="note-tag">$1</span>')
+    .split('\n\n').map(p => p.startsWith('<') ? p : `<p class="text-[13.5px] leading-relaxed mb-3">${p}</p>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MAPAS MENTAIS (Excalidraw-style)
+// ═══════════════════════════════════════════════════════════════════
+function renderMapas() {
+  return `
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-2">
+        <select class="input input-mini" style="width:auto"><option>Estratégia 2026 — Reposicionamento</option></select>
+        <span class="text-[11px] text-dim mono">salvo · há 3 minutos</span>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-outline btn-sm"><i data-lucide="users" class="w-3.5 h-3.5"></i> Compartilhar</button>
+        <button class="btn btn-outline btn-sm"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar PNG</button>
+        <button class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo mapa</button>
+      </div>
+    </div>
+
+    <div class="card overflow-hidden relative" style="height:calc(100vh - 230px)">
+      <!-- Toolbar lateral -->
+      <div class="absolute left-3 top-3 z-10 card-elevated p-1.5 flex flex-col gap-0.5" style="border-radius:10px">
+        ${[
+          ['mouse-pointer-2','Selecionar', true],
+          ['hand','Mover', false],
+          ['square','Retângulo', false],
+          ['circle','Círculo', false],
+          ['type','Texto', false],
+          ['minus','Linha', false],
+          ['move-right','Seta', false],
+          ['pen-tool','Desenho livre', false],
+          ['sticky-note','Sticky note', false],
+          ['image','Imagem', false],
+        ].map(([icon, title, active]) => `
+          <button class="btn-icon ${active?'bg-sal/15 text-sal-400':''}" title="${title}"><i data-lucide="${icon}" class="w-4 h-4"></i></button>
+        `).join('')}
+      </div>
+
+      <!-- Painel de propriedades direito -->
+      <div class="absolute right-3 top-3 z-10 card-elevated p-3 w-56" style="border-radius:10px">
+        <div class="text-[11px] uppercase tracking-wider text-dim2 font-semibold mb-2">Estilo do nó</div>
+        <div class="space-y-3 text-[12px]">
+          <div>
+            <div class="text-dim mb-1">Cor</div>
+            <div class="flex gap-1">
+              ${['#7E30E1','#10B981','#F59E0B','#EF4444','#3B82F6','#EC4899','#14B8A6','#9696A8'].map(c => `<button class="w-5 h-5 rounded-full border-2 ${c==='#7E30E1'?'border-paper':'border-transparent'}" style="background:${c}"></button>`).join('')}
+            </div>
+          </div>
+          <div>
+            <div class="text-dim mb-1">Borda</div>
+            <div class="flex gap-1">
+              ${['Sólida','Tracejada','Pontilhada'].map(s => `<button class="btn-outline btn-sm" style="font-size:11px;padding:3px 7px">${s}</button>`).join('')}
+            </div>
+          </div>
+          <div>
+            <div class="text-dim mb-1">Fonte</div>
+            <div class="flex gap-1">
+              ${['Mão livre','Sans','Mono'].map((s,i) => `<button class="btn-outline btn-sm ${i===1?'bg-sal/15 border-sal-600/40':''}" style="font-size:11px;padding:3px 7px">${s}</button>`).join('')}
+            </div>
+          </div>
+          <div class="border-t border-line pt-3 flex justify-between">
+            <button class="btn-icon" title="Duplicar"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+            <button class="btn-icon" title="Excluir"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zoom controls -->
+      <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 card-elevated px-2 py-1 flex items-center gap-1" style="border-radius:10px">
+        <button class="btn-icon"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button>
+        <span class="text-[11px] mono px-2">100%</span>
+        <button class="btn-icon"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>
+        <div class="w-px h-4 bg-line mx-1"></div>
+        <button class="btn-icon" title="Centralizar"><i data-lucide="maximize" class="w-3.5 h-3.5"></i></button>
+      </div>
+
+      <!-- Canvas SVG -->
+      <svg id="mind-canvas" class="w-full h-full" style="background-image: radial-gradient(circle, #1F1F2D 1px, transparent 1px); background-size: 24px 24px;">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#9696A8"/>
+          </marker>
+          <marker id="arrow-sal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#B794F4"/>
+          </marker>
+        </defs>
+        <!-- Conexões -->
+        <g id="connections" stroke="#9696A8" stroke-width="1.5" fill="none" stroke-dasharray="0">
+          <path d="M 480 220 C 380 220 380 140 280 140" marker-end="url(#arrow-sal)" stroke="#B794F4"/>
+          <path d="M 480 240 C 380 240 380 240 280 240" marker-end="url(#arrow-sal)" stroke="#B794F4"/>
+          <path d="M 480 260 C 380 260 380 340 280 340" marker-end="url(#arrow-sal)" stroke="#B794F4"/>
+          <path d="M 620 220 C 720 220 720 140 820 140" marker-end="url(#arrow)"/>
+          <path d="M 620 240 C 720 240 720 240 820 240" marker-end="url(#arrow)"/>
+          <path d="M 620 260 C 720 260 720 340 820 340" marker-end="url(#arrow)"/>
+          <path d="M 280 140 C 280 60 580 60 580 130" stroke-dasharray="4 3" stroke="#6B6B7B"/>
+          <path d="M 820 240 C 920 240 920 440 720 440" stroke-dasharray="4 3" stroke="#6B6B7B"/>
+        </g>
+
+        <!-- Nó central -->
+        <g class="mm-node" transform="translate(480, 200)">
+          <rect width="140" height="80" rx="14" fill="#7E30E1" stroke="#B794F4" stroke-width="2" />
+          <text x="70" y="38" text-anchor="middle" fill="white" font-family="Inter Tight" font-size="14" font-weight="700">SAL Estratégia</text>
+          <text x="70" y="56" text-anchor="middle" fill="#E9DCFC" font-family="Inter" font-size="11">2026</text>
+        </g>
+
+        <!-- Nós laterais esquerda: ENTRADAS -->
+        ${mmNode(140, 110, 140, 60, 'Cases', 'mensuráveis', '#10B981')}
+        ${mmNode(140, 210, 140, 60, 'Auditoria', 'de performance', '#10B981')}
+        ${mmNode(140, 310, 140, 60, 'Conteúdo', 'de autoridade', '#10B981')}
+
+        <!-- Nós laterais direita: SAÍDAS -->
+        ${mmNode(820, 110, 140, 60, 'Retenção', '> 92% anual', '#F59E0B')}
+        ${mmNode(820, 210, 140, 60, 'Ticket médio', '+R$ 1.500', '#F59E0B')}
+        ${mmNode(820, 310, 140, 60, 'Novos clientes', '2 ICP/trimestre', '#F59E0B')}
+
+        <!-- Sticky note canto superior -->
+        <g class="mm-node" transform="translate(540, 50)">
+          <rect width="80" height="80" rx="3" fill="#FBBF24" transform="rotate(-2 40 40)" />
+          <text x="40" y="34" text-anchor="middle" fill="#0E0E14" font-family="Inter" font-size="10" font-weight="600" transform="rotate(-2 40 40)">Norte:</text>
+          <text x="40" y="50" text-anchor="middle" fill="#0E0E14" font-family="Inter" font-size="10" transform="rotate(-2 40 40)">Parceira</text>
+          <text x="40" y="64" text-anchor="middle" fill="#0E0E14" font-family="Inter" font-size="10" font-weight="600" transform="rotate(-2 40 40)">Estratégica</text>
+        </g>
+
+        <!-- Bloco extra inferior direito -->
+        <g class="mm-node" transform="translate(620, 410)">
+          <rect width="200" height="60" rx="10" fill="transparent" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="6 3"/>
+          <text x="100" y="28" text-anchor="middle" fill="#60A5FA" font-family="Inter" font-size="12" font-weight="600">Iniciativa Q3</text>
+          <text x="100" y="46" text-anchor="middle" fill="#9696A8" font-family="Inter" font-size="10">Lançamento SAL Insights</text>
+        </g>
+
+        <!-- Legenda -->
+        <g transform="translate(20, 540)">
+          <text x="0" y="0" fill="#6B6B7B" font-family="Inter" font-size="10" font-weight="600" text-transform="uppercase">PILARES</text>
+          <circle cx="6" cy="18" r="5" fill="#10B981"/><text x="18" y="22" fill="#9696A8" font-family="Inter" font-size="11">Entrada</text>
+          <circle cx="6" cy="38" r="5" fill="#F59E0B"/><text x="18" y="42" fill="#9696A8" font-family="Inter" font-size="11">Resultado</text>
+          <circle cx="6" cy="58" r="5" fill="#7E30E1"/><text x="18" y="62" fill="#9696A8" font-family="Inter" font-size="11">Norte central</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="text-[11px] text-dim2 text-center">
+      Arraste os nós para reorganizar · Duplo clique para editar · <span class="kbd">Espaço</span> + arrastar para mover o canvas · <span class="kbd">⌘ +</span> / <span class="kbd">⌘ -</span> zoom
+    </div>
+  `;
+}
+
+function mmNode(x, y, w, h, title, subtitle, color) {
+  return `<g class="mm-node" transform="translate(${x}, ${y})">
+    <rect width="${w}" height="${h}" rx="10" fill="${color}22" stroke="${color}" stroke-width="1.5" />
+    <text x="${w/2}" y="${h/2 - 4}" text-anchor="middle" fill="${color}" font-family="Inter Tight" font-size="13" font-weight="600">${title}</text>
+    <text x="${w/2}" y="${h/2 + 14}" text-anchor="middle" fill="#9696A8" font-family="Inter" font-size="11">${subtitle}</text>
+  </g>`;
+}
+
+// Drag-and-drop simples para os nós SVG
+function initMindMap() {
+  const svg = document.getElementById('mind-canvas');
+  if (!svg) return;
+  let dragging = null, offset = {x:0,y:0};
+  svg.querySelectorAll('.mm-node').forEach(node => {
+    node.addEventListener('mousedown', e => {
+      const m = node.getAttribute('transform').match(/translate\((-?[\d.]+),\s*(-?[\d.]+)\)/);
+      const tx = m ? +m[1] : 0, ty = m ? +m[2] : 0;
+      dragging = node;
+      offset = { x: e.clientX - tx, y: e.clientY - ty };
+      node.style.cursor = 'grabbing';
+    });
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    dragging.setAttribute('transform', `translate(${e.clientX - offset.x}, ${e.clientY - offset.y})`);
+  });
+  document.addEventListener('mouseup', () => { if (dragging) dragging.style.cursor='grab'; dragging = null; });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EDITORIAL
+// ═══════════════════════════════════════════════════════════════════
+function renderEditorial() {
+  const dias = []; for (let i = 1; i <= 35; i++) dias.push(i);
+  const posts = {3:[{c:'Galeria',cor:'#7E30E1'}], 5:[{c:'Lindóia',cor:'#10B981'},{c:'Tavi',cor:'#3B82F6'}], 8:[{c:'Pipeline',cor:'#F59E0B'}], 12:[{c:'Galeria',cor:'#7E30E1'}], 15:[{c:'Lindóia',cor:'#10B981'},{c:'Vannucci',cor:'#EC4899'}], 18:[{c:'Tavi',cor:'#3B82F6'}], 22:[{c:'Pipeline',cor:'#F59E0B'},{c:'Rua da Praia',cor:'#14B8A6'}], 25:[{c:'Galeria',cor:'#7E30E1'}], 28:[{c:'CPT',cor:'#EF4444'}], 30:[{c:'Lindóia',cor:'#10B981'}]};
+  return `
+    <div class="flex flex-wrap gap-2 items-center justify-between">
+      <div class="flex gap-2 items-center">
+        <div class="tab-strip"><span class="tab active">Mês</span><span class="tab">Semana</span><span class="tab">Lista</span></div>
+        <div class="w-px h-5 bg-line mx-1"></div>
+        <select class="input input-mini" style="width:auto"><option>Todos os clientes</option></select>
+        <select class="input input-mini" style="width:auto"><option>Todos status</option></select>
+      </div>
+      <button class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo post</button>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <button class="btn-icon"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+        <div class="display text-[15px] font-semibold">Maio · 2026</div>
+        <button class="btn-icon"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+      </div>
+      <div class="grid grid-cols-7 gap-px text-xs bg-line rounded-lg overflow-hidden">
+        ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d => `<div class="bg-ink-900 p-2.5 text-center text-dim text-[11px] font-medium">${d}</div>`).join('')}
+        ${dias.map(d => {
+          const p = posts[d] || [];
+          const today = d === 3;
+          return `
+            <div class="bg-ink-900 min-h-[100px] p-2 ${today ? 'ring-1 ring-sal/40' : ''} hover:bg-ink-850 transition cursor-pointer">
+              <div class="text-[11px] ${today ? 'text-sal-400 font-semibold' : 'text-dim'}">${d}</div>
+              <div class="space-y-1 mt-1.5">
+                ${p.map(post => `<div class="text-[10px] rounded px-1.5 py-1 text-white truncate font-medium" style="background:${post.cor}">${post.c}</div>`).join('')}
+              </div>
+            </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="flex gap-4 text-[11px] text-dim flex-wrap items-center justify-center">
+      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-[#6B6B7B]"></span>Rascunho</span>
+      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-[#3B82F6]"></span>Copy pronta</span>
+      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-[#7E30E1]"></span>Design pronto</span>
+      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-[#F59E0B]"></span>Agendado</span>
+      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-[#10B981]"></span>Publicado</span>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// KANBAN
+// ═══════════════════════════════════════════════════════════════════
+function renderKanban() {
+  const cols = [
+    {label: 'Briefing', cor:'#6B6B7B', cards: [{n:'Campanha Dia dos Namorados', c:'Galeria Chaves', p:'NORMAL', d:'15/05'}, {n:'Reformulação landing page', c:'Pipeline Services', p:'ALTA', d:'20/05'}]},
+    {label: 'Produção', cor:'#3B82F6', cards: [{n:'Vídeo institucional', c:'Tavi Papelaria', p:'ALTA', d:'10/05'}, {n:'Carrossel coleção inverno', c:'Lindóia Shopping', p:'NORMAL', d:'12/05'}, {n:'Identidade visual evento', c:'CPT', p:'URGENTE', d:'08/05'}]},
+    {label: 'Revisão', cor:'#7E30E1', cards: [{n:'Roteiro Reels', c:'Canal Vannucci', p:'NORMAL', d:'09/05'}]},
+    {label: 'Aprovação', cor:'#F59E0B', cards: [{n:'Newsletter mensal', c:'Rua da Praia', p:'BAIXA', d:'14/05'}]},
+    {label: 'Entregue', cor:'#10B981', cards: [{n:'Posts mês passado', c:'Galeria Chaves', p:'NORMAL', d:'30/04'}, {n:'Story-set abril', c:'Lindóia', p:'NORMAL', d:'30/04'}]},
+  ];
+  const prio = {URGENTE:'destructive', ALTA:'warning', NORMAL:'muted', BAIXA:'muted'};
+  return `
+    <div class="flex justify-end mb-1"><button class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo projeto</button></div>
+    <div class="grid grid-cols-5 gap-3 overflow-x-auto pb-4" style="min-width:1100px">
+      ${cols.map(col => `
+        <div class="card p-2 min-h-[420px]" style="background:rgba(19,19,28,0.4)">
+          <div class="flex items-center gap-2 px-2 py-2 mb-2">
+            <span class="w-2 h-2 rounded-full" style="background:${col.cor}"></span>
+            <span class="text-[11px] font-semibold uppercase tracking-wider">${col.label}</span>
+            <span class="text-[11px] mono text-dim2 ml-auto">${col.cards.length}</span>
+            <button class="btn-icon" style="padding:3px"><i data-lucide="plus" class="w-3 h-3"></i></button>
+          </div>
+          <div class="space-y-2">
+            ${col.cards.map(c => `
+              <div class="card-elevated p-3 space-y-2 cursor-grab hover:border-sal-600/40 transition">
+                <div class="font-medium text-[13px] leading-snug">${c.n}</div>
+                <div class="flex items-center gap-1 flex-wrap">
+                  <span class="badge badge-${prio[c.p]}">${c.p.toLowerCase()}</span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-dim">
+                  <span class="truncate">${c.c}</span>
+                  <span class="mono">${c.d}/26</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAREFAS
+// ═══════════════════════════════════════════════════════════════════
+function renderTarefas() {
+  const tarefas = [
+    {t:'Aprovar copy de campanha Dia das Mães', c:'Galeria Chaves', p:'URGENTE', d:'02/05/2026 18:00', conc:false, atras:true, ag:false, check:[{t:'Revisar texto principal', c:true},{t:'Conferir CTA', c:false}]},
+    {t:'Pauta Reels semanal', c:'Canal Vannucci', p:'ALTA', d:'04/05/2026 09:00', conc:false, atras:false, ag:true, check:[]},
+    {t:'Briefing renovação contrato', c:'Pipeline Services', p:'ALTA', d:'05/05/2026 14:00', conc:false, atras:false, ag:false, check:[]},
+    {t:'Editar vídeo institucional', c:'Tavi Papelaria', p:'NORMAL', d:'07/05/2026 17:00', conc:false, atras:false, ag:false, check:[{t:'Cortar takes ruins', c:true},{t:'Adicionar trilha', c:true},{t:'Exportar 1080p', c:false}]},
+    {t:'Atualizar relatório SEO mensal', c:'Lindóia Shopping', p:'NORMAL', d:'29/04/2026 12:00', conc:true, atras:false, ag:false, check:[]},
+  ];
+  const prio = {URGENTE:'destructive', ALTA:'warning', NORMAL:'muted', BAIXA:'muted'};
+  return `
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div class="tab-strip"><span class="tab">Hoje</span><span class="tab">Esta semana</span><span class="tab active">Todas</span></div>
+      <div class="flex items-center gap-2">
+        <select class="input input-mini" style="width:auto"><option>Todos os clientes</option></select>
+        <button class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Nova tarefa</button>
+      </div>
+    </div>
+    <div class="space-y-2">
+      ${tarefas.map(t => `
+        <div class="card p-4 ${t.atras ? 'border-l-2 border-l-red-500' : ''} hover:border-line2 transition group">
+          <div class="flex items-start gap-3">
+            <button class="mt-0.5 h-4.5 w-4.5 rounded border flex items-center justify-center shrink-0 transition ${t.conc ? 'bg-sal border-sal' : 'border-line2 hover:border-sal'}" style="height:18px;width:18px">
+              ${t.conc ? '<i data-lucide="check" class="w-3 h-3 text-white"></i>' : ''}
+            </button>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-medium text-[13.5px] ${t.conc ? 'line-through text-dim' : ''}">${t.t}</span>
+                <span class="badge badge-${prio[t.p]}">${t.p.toLowerCase()}</span>
+                <span class="badge badge-outline">${t.c}</span>
+                ${t.atras ? '<span class="badge badge-destructive">Atrasada</span>' : ''}
+                ${t.ag ? '<span class="badge badge-info"><i data-lucide="calendar" class="w-2.5 h-2.5 inline mr-0.5"></i>Agendada</span>' : ''}
+              </div>
+              ${t.check.length ? `<div class="mt-3 space-y-1.5">${t.check.map(it => `<div class="flex items-center gap-2 text-[12px]"><input type="checkbox" ${it.c?'checked':''} class="accent-sal-600"><span class="${it.c?'line-through text-dim':''}">${it.t}</span></div>`).join('')}</div>` : ''}
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <span class="text-[11px] mono text-dim mr-2">${t.d}</span>
+              <button class="btn-icon opacity-0 group-hover:opacity-100"><i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i></button>
+              <button class="btn-icon opacity-0 group-hover:opacity-100"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FINANCEIRO
+// ═══════════════════════════════════════════════════════════════════
+function renderFinanceiro() {
+  const meses = ['Dez','Jan','Fev','Mar','Abr','Mai'];
+  const r = [13200,15500,16800,17100,17500,17800];
+  const d = [4200,5100,4800,5500,4900,5300];
+  const max = Math.max(...r);
+  return `
+    <div class="flex items-center justify-between">
+      <div class="tab-strip"><span class="tab active">Pessoa Jurídica</span><span class="tab">Pessoa Física</span></div>
+      <button class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo lançamento</button>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      ${kpi('MRR contratos', fmtBRL(17800), 'arrow-up-right', '+12.5%', 'good')}
+      ${kpi('Receita do mês', fmtBRL(17800), 'trending-up', null)}
+      ${kpi('Despesa do mês', fmtBRL(5300), 'trending-down', null)}
+      ${kpi('Lucro / projeção 3m', fmtBRL(12500), 'target', `≈ ${fmtBRL(37500)}`, 'good')}
+    </div>
+    <div class="card p-5">
+      <div class="text-[13.5px] font-semibold mb-1">Receita vs Despesa</div>
+      <div class="text-[11px] text-dim mb-4">Últimos 6 meses</div>
+      <div class="flex items-end justify-around gap-4 h-56">
+        ${meses.map((m,i) => `
+          <div class="flex flex-col items-center gap-1 flex-1 group">
+            <div class="w-full flex gap-1.5 items-end" style="height:200px">
+              <div class="flex-1 rounded-t-md transition group-hover:opacity-80" style="height:${(r[i]/max)*180}px;background:linear-gradient(180deg,#34D399 0%,#10B981 100%)"></div>
+              <div class="flex-1 rounded-t-md transition group-hover:opacity-80" style="height:${(d[i]/max)*180}px;background:linear-gradient(180deg,#F87171 0%,#DC2626 100%)"></div>
+            </div>
+            <span class="text-[10px] text-dim2">${m}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="flex gap-4 justify-center text-[11px] text-dim mt-4">
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-sm"></span>Receita</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-red-500 rounded-sm"></span>Despesa</span>
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <table class="w-full text-[13px]">
+        <thead><tr class="text-left text-[11px] text-dim border-b border-line"><th class="px-4 py-2.5">Data</th><th class="px-4 py-2.5">Descrição</th><th class="px-4 py-2.5">Cliente</th><th class="px-4 py-2.5">Categoria</th><th class="px-4 py-2.5">Tipo</th><th class="px-4 py-2.5 text-right">Valor</th></tr></thead>
+        <tbody>
+          ${[
+            ['05/05', 'Mensalidade Pipeline Services', 'Pipeline Services', 'Mensalidade', 'RECEITA', 4200, 1],
+            ['05/05', 'Mensalidade Lindóia Shopping', 'Lindóia Shopping', 'Mensalidade', 'RECEITA', 3800, 1],
+            ['03/05', 'Anúncios Meta Ads — Galeria', 'Galeria Chaves', 'Anúncios', 'DESPESA', 1200, 0],
+            ['02/05', 'Salário designer', '—', 'Salários', 'DESPESA', 3500, 1],
+            ['02/05', 'Mensalidade Galeria Chaves', 'Galeria Chaves', 'Mensalidade', 'RECEITA', 2500, 1],
+          ].map(([data,desc,c,cat,tipo,v,rec],i,a) => `
+            <tr class="hover:bg-ink-850 ${i<a.length-1?'border-b border-line':''}">
+              <td class="px-4 py-3 mono text-[12px]">${data}</td>
+              <td class="px-4 py-3 font-medium">${desc} ${rec ? '<span class="text-[10px] text-dim2 ml-1">recorrente</span>' : ''}</td>
+              <td class="px-4 py-3 text-dim text-[12px]">${c}</td>
+              <td class="px-4 py-3 text-dim text-[12px]">${cat}</td>
+              <td class="px-4 py-3"><span class="badge badge-${tipo==='RECEITA'?'success':'destructive'}">${tipo.toLowerCase()}</span></td>
+              <td class="px-4 py-3 text-right mono ${tipo==='RECEITA'?'text-emerald-400':'text-red-400'}">${tipo==='RECEITA'?'+':'-'}${fmtBRL(v)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONTRATOS
+// ═══════════════════════════════════════════════════════════════════
+function renderContratos() {
+  const contratos = [
+    {c:'Pipeline Services', i:'01/06/2025', f:'15/05/2026', v:4200, s:'ATIVO', vence:12, pdf:true},
+    {c:'Tavi Papelaria', i:'01/06/2025', f:'28/05/2026', v:1800, s:'ATIVO', vence:25, pdf:true},
+    {c:'Galeria Chaves', i:'01/08/2025', f:'31/07/2026', v:2500, s:'ATIVO', vence:89, pdf:true},
+    {c:'Lindóia Shopping', i:'01/09/2025', f:'31/08/2026', v:3800, s:'ATIVO', vence:120, pdf:false},
+    {c:'Conhecer Transf.', i:'01/01/2026', f:'31/12/2026', v:1500, s:'ATIVO', vence:243, pdf:true},
+    {c:'Canal Vannucci', i:'01/02/2026', f:'31/01/2027', v:1200, s:'ATIVO', vence:274, pdf:false},
+    {c:'Rua da Praia', i:'01/03/2026', f:'28/02/2027', v:2800, s:'EM_RENOVACAO', vence:301, pdf:true},
+  ];
+  return `
+    <div class="flex justify-end"><button class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Novo contrato</button></div>
+    <div class="card overflow-hidden">
+      <table class="w-full text-[13px]">
+        <thead><tr class="text-left text-[11px] text-dim border-b border-line">
+          <th class="px-4 py-2.5">Cliente</th><th class="px-4 py-2.5">Período</th><th class="px-4 py-2.5 text-right">Valor</th><th class="px-4 py-2.5">Status</th><th class="px-4 py-2.5">Vence em</th><th class="px-4 py-2.5">PDF</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${contratos.map((c,i,a) => {
+            const badgeCor = c.vence<=30 ? 'destructive' : c.vence<=60 ? 'warning' : c.vence<=90 ? 'muted' : 'success';
+            return `<tr class="hover:bg-ink-850 ${i<a.length-1?'border-b border-line':''}">
+              <td class="px-4 py-3 font-medium">${c.c}</td>
+              <td class="px-4 py-3 text-[11.5px] text-dim mono">${c.i} → ${c.f}</td>
+              <td class="px-4 py-3 text-right mono">${fmtBRL(c.v)}</td>
+              <td class="px-4 py-3">${statusBadge(c.s)}</td>
+              <td class="px-4 py-3"><span class="badge badge-${badgeCor}">${c.vence}d</span></td>
+              <td class="px-4 py-3">${c.pdf ? '<a class="text-sal-400 text-[11.5px] flex items-center gap-1 hover:underline cursor-pointer"><i data-lucide="file-text" class="w-3 h-3"></i> Abrir</a>' : '<span class="text-[11.5px] text-dim2">—</span>'}</td>
+              <td class="px-4 py-3 text-right"><button class="btn-icon"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DRIVE
+// ═══════════════════════════════════════════════════════════════════
+function renderDrive() {
+  const itens = [
+    {n:'Clientes', tipo:'folder'},
+    {n:'Contratos', tipo:'folder'},
+    {n:'Marketing 2026', tipo:'folder'},
+    {n:'Galeria Chaves', tipo:'folder'},
+    {n:'Lindóia Shopping', tipo:'folder'},
+    {n:'Pipeline Services', tipo:'folder'},
+    {n:'Apresentação Comercial v3.pdf', tipo:'pdf'},
+    {n:'Briefing Vannucci.docx', tipo:'doc'},
+    {n:'Logo SAL transparente.png', tipo:'img'},
+    {n:'Manual da Marca.pdf', tipo:'pdf'},
+  ];
+  const icones = {folder:['folder','#7E30E1'], pdf:['file-type','#F87171'], doc:['file-text','#60A5FA'], img:['image','#34D399']};
+  return `
+    <div class="flex items-center gap-2 flex-wrap">
+      <button class="btn btn-outline btn-sm" disabled style="opacity:0.5"><i data-lucide="arrow-up" class="w-3.5 h-3.5"></i> Voltar</button>
+      <div class="text-[12px] text-dim mono">/Meu Drive</div>
+      <div class="ml-auto flex gap-2">
+        <div class="relative"><i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dim2"></i><input class="input input-mini pl-8" placeholder="Buscar arquivos..." style="width:240px"></div>
+        <button class="btn btn-outline btn-sm"><i data-lucide="folder-plus" class="w-3.5 h-3.5"></i> Nova pasta</button>
+        <button class="btn btn-primary btn-sm"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      ${itens.map(it => `
+        <div class="card card-hover p-4 cursor-pointer group">
+          <div class="flex flex-col items-center gap-2.5">
+            <div class="h-12 w-12 rounded-lg flex items-center justify-center group-hover:scale-105 transition" style="background:${icones[it.tipo][1]}15">
+              <i data-lucide="${icones[it.tipo][0]}" class="w-6 h-6" style="color:${icones[it.tipo][1]}"></i>
+            </div>
+            <div class="text-[12px] font-medium text-center break-words leading-tight">${it.n}</div>
+            <div class="text-[10px] text-dim2 mono">02/05/2026</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// AGENDA
+// ═══════════════════════════════════════════════════════════════════
+function renderAgenda() {
+  return `
+    <div class="grid lg:grid-cols-[1fr_320px] gap-5">
+      <div class="space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <select class="input input-mini" style="width:auto"><option>Agenda principal</option></select>
+          <div class="flex items-center gap-2">
+            <div class="tab-strip"><span class="tab active">Mês</span><span class="tab">Semana</span><span class="tab">Dia</span><span class="tab">Agenda</span></div>
+            <button class="btn btn-primary btn-sm">Novo evento</button>
+          </div>
+        </div>
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <button class="btn-icon"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+            <div class="display text-[15px] font-semibold">Maio 2026</div>
+            <button class="btn-icon"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+          </div>
+          <div class="grid grid-cols-7 gap-px text-xs bg-line rounded-lg overflow-hidden" style="height:520px">
+            ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d => `<div class="bg-ink-900 p-2 text-center text-dim text-[11px] font-medium">${d}</div>`).join('')}
+            ${Array.from({length:35}, (_,i) => {
+              const d = i+1;
+              const evs = {3:['Reunião Tavi'], 4:['Aprovação Lindóia'], 5:['Renovação Pipeline'], 8:['Reunião CPT'], 12:['Workshop interno'], 15:['Apresentação Rua da Praia'], 18:['Reunião Galeria','Demo Vannucci'], 22:['Renovação prazo'], 28:['Aprovação mensal']}[d] || [];
+              return `<div class="bg-ink-900 p-1.5 hover:bg-ink-850 transition cursor-pointer ${d===3?'ring-1 ring-sal/40':''}">
+                <div class="text-[11px] ${d===3?'text-sal-400 font-semibold':'text-dim'}">${d}</div>
+                ${evs.map(e => `<div class="text-[10px] rounded px-1.5 py-1 truncate mt-1 font-medium" style="background:rgba(126,48,225,0.85);color:white">${e}</div>`).join('')}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="card p-5">
+        <div class="text-[13.5px] font-semibold mb-4">Esta semana</div>
+        <div class="space-y-3.5 text-[13px]">
+          ${[['Reunião briefing — Tavi','Hoje · 14:00'],['Aprovação carrossel — Lindóia','04/05 · 10:00'],['Renovação Pipeline','05/05 · 16:00'],['Reunião CPT','06/05 · 09:00'],['Workshop time interno','07/05 · 14:00']].map(([t,d]) => `<div class="border-l-2 border-sal pl-3"><div class="font-medium">${t}</div><div class="text-[11px] text-dim mono mt-0.5">${d}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REDES SOCIAIS
+// ═══════════════════════════════════════════════════════════════════
+function renderRedes() {
+  const meses = ['Jan','Fev','Mar','Abr','Mai'];
+  const seg = [4200, 4310, 4480, 4720, 5050];
+  const eng = [320, 412, 580, 720, 980];
+  const max2 = Math.max(...eng);
+  return `
+    <div class="card p-4 flex flex-wrap gap-3 items-center">
+      <select class="input input-mini" style="width:240px"><option>Galeria Chaves</option></select>
+      <select class="input input-mini" style="width:160px"><option>INSTAGRAM</option></select>
+      <button class="btn btn-outline btn-sm ml-auto"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar PDF</button>
+    </div>
+    <div class="card p-5">
+      <div class="text-[13.5px] font-semibold mb-3">Adicionar / atualizar métricas mensais</div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        ${['Ano','Mês','Seguidores','Alcance','Impressões','Engajamento','Posts','Stories','Reels'].map(l => `<div><label class="text-[10px] uppercase tracking-wider text-dim2 font-semibold">${l}</label><input class="input input-mini mt-1.5" placeholder="0"></div>`).join('')}
+        <div class="flex items-end"><button class="btn btn-primary btn-sm w-full">Salvar</button></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      ${comp('Seguidores', '5.050', '+7.0%', true)}
+      ${comp('Alcance', '128.400', '+18.2%', true)}
+      ${comp('Engajamento', '980', '+36.1%', true)}
+      ${comp('Posts publicados', '12', '0%', null)}
+    </div>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="card p-5">
+        <div class="text-[13.5px] font-semibold mb-1">Evolução de seguidores</div>
+        <div class="text-[11px] text-dim mb-3">Últimos 5 meses</div>
+        ${lineChart(meses, seg, '#7E30E1')}
+      </div>
+      <div class="card p-5">
+        <div class="text-[13.5px] font-semibold mb-1">Engajamento por mês</div>
+        <div class="text-[11px] text-dim mb-3">Reações + comentários + shares</div>
+        <div class="flex items-end justify-around gap-3 h-48">
+          ${eng.map((v,i) => `<div class="flex flex-col items-center gap-1 flex-1 group"><div class="w-full rounded-t-md transition group-hover:opacity-80" style="height:${(v/max2)*150}px;background:linear-gradient(180deg,#9F6EE8 0%,#7E30E1 100%)"></div><span class="text-[10px] text-dim2">${meses[i]}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+function comp(l, v, delta, up) {
+  const cor = up===null?'#9696A8':up?'#34D399':'#F87171';
+  return `<div class="card p-4">
+    <div class="text-[11px] text-dim font-medium">${l}</div>
+    <div class="mt-2 display text-[24px] font-semibold tracking-tight">${v}</div>
+    ${delta ? `<div class="text-[11px] mt-0.5 mono flex items-center gap-1" style="color:${cor}">${up===null?'':up?'<i data-lucide="arrow-up" class="w-3 h-3"></i>':'<i data-lucide="arrow-down" class="w-3 h-3"></i>'} ${delta}</div>` : ''}
+  </div>`;
+}
+function lineChart(labels, values, color) {
+  const max = Math.max(...values);
+  const w = 400, h = 160, pad = 24;
+  const xs = (i) => pad + i * (w - pad*2) / (values.length - 1);
+  const ys = (v) => h - pad - (v/max) * (h - pad*2);
+  const path = values.map((v,i) => (i===0?'M':'L') + ' ' + xs(i) + ' ' + ys(v)).join(' ');
+  const area = path + ` L ${xs(values.length-1)} ${h-pad} L ${xs(0)} ${h-pad} Z`;
+  return `<svg viewBox="0 0 ${w} ${h}" class="w-full h-44">
+    <defs><linearGradient id="grad-${color.slice(1)}" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.4"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#grad-${color.slice(1)})"/>
+    <path d="${path}" stroke="${color}" stroke-width="2" fill="none"/>
+    ${values.map((v,i) => `<circle cx="${xs(i)}" cy="${ys(v)}" r="3.5" fill="${color}" stroke="#0E0E14" stroke-width="2"/>`).join('')}
+    ${labels.map((l,i) => `<text x="${xs(i)}" y="${h-6}" text-anchor="middle" font-size="10" fill="#9696A8" font-family="Inter">${l}</text>`).join('')}
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SEO
+// ═══════════════════════════════════════════════════════════════════
+function renderSeo() {
+  const meses = ['Jan','Fev','Mar','Abr','Mai'];
+  const cliques = [820, 980, 1120, 1380, 1640];
+  const score = 72;
+  const cor = score >= 70 ? '#34D399' : score >= 40 ? '#FBBF24' : '#F87171';
+  return `
+    <div class="card p-4 flex flex-wrap gap-3 items-center">
+      <select class="input input-mini" style="width:240px"><option>Galeria Chaves</option></select>
+      <button class="btn btn-outline btn-sm ml-auto"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar PDF</button>
+    </div>
+    <div class="card p-5">
+      <div class="text-[13.5px] font-semibold mb-3">Métricas mensais</div>
+      <div class="grid grid-cols-2 md:grid-cols-7 gap-3">
+        ${['Ano','Mês','Posição média','Cliques','Impressões','CTR','Keywords'].map(l => `<div><label class="text-[10px] uppercase tracking-wider text-dim2 font-semibold">${l}</label><input class="input input-mini mt-1.5"></div>`).join('')}
+      </div>
+      <div class="text-right mt-3"><button class="btn btn-primary btn-sm">Salvar</button></div>
+    </div>
+    <div class="grid md:grid-cols-[1fr_280px] gap-4">
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          ${comp('Posição média', '5.4', '-12.3%', true)}
+          ${comp('Cliques orgânicos', '1.640', '+18.8%', true)}
+          ${comp('Impressões', '32.400', '+22.1%', true)}
+          ${comp('CTR', '5.06%', '+0.4pt', true)}
+        </div>
+        <div class="card p-5"><div class="text-[13.5px] font-semibold mb-1">Cliques orgânicos</div><div class="text-[11px] text-dim mb-3">Últimos 5 meses</div>${lineChart(meses, cliques, '#7E30E1')}</div>
+      </div>
+      <div class="card p-5">
+        <div class="text-[13.5px] font-semibold mb-3">Score SEO</div>
+        <div class="flex flex-col items-center justify-center pb-2">
+          <div class="relative w-44 h-44">
+            <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+              <circle cx="60" cy="60" r="50" stroke="#1F1F2D" stroke-width="10" fill="none"/>
+              <circle cx="60" cy="60" r="50" stroke="${cor}" stroke-width="10" fill="none" stroke-dasharray="${(score/100)*314} 314" stroke-linecap="round"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="display text-[36px] font-semibold">${score}</span>
+              <span class="text-[10px] text-dim2">de 100</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-dim text-center mt-3 leading-relaxed">Posição (40%) · CTR (30%) · Crescimento MoM (30%)</p>
+        </div>
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="p-5 border-b border-line"><div class="text-[13.5px] font-semibold">Keywords monitoradas</div></div>
+      <table class="w-full text-[13px]">
+        <thead><tr class="text-left text-[11px] text-dim border-b border-line"><th class="px-4 py-2.5">Keyword</th><th class="px-4 py-2.5">Pos. atual</th><th class="px-4 py-2.5">Anterior</th><th class="px-4 py-2.5">Δ</th><th class="px-4 py-2.5">Volume</th></tr></thead>
+        <tbody>
+          ${[['galeria chaves porto alegre',2,4,2,2400],['shopping centro poa',5,8,3,1900],['comércio centro porto alegre',12,18,6,3200],['lojas centro poa',15,14,-1,800]].map(([k,a,p,d,v],i,arr) => `
+            <tr class="hover:bg-ink-850 ${i<arr.length-1?'border-b border-line':''}">
+              <td class="px-4 py-3 font-medium">${k}</td>
+              <td class="px-4 py-3 mono">${a}</td>
+              <td class="px-4 py-3 mono text-dim">${p}</td>
+              <td class="px-4 py-3"><span class="badge badge-${d>0?'success':d<0?'destructive':'muted'}">${d>0?'+'+d:d}</span></td>
+              <td class="px-4 py-3 mono">${fmtNum(v)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TRÁFEGO PAGO
+// ═══════════════════════════════════════════════════════════════════
+function renderTrafego() {
+  const camps = [
+    {m:'Mai',a:2026, p:'META_ADS', n:'Dia das Mães — Conversão', inv:1800, conv:42, cpa:42.85, roas:4.8},
+    {m:'Mai',a:2026, p:'GOOGLE_ADS', n:'Performance Max — Vendas', inv:1200, conv:28, cpa:42.85, roas:5.2},
+    {m:'Mai',a:2026, p:'META_ADS', n:'Reels engajamento', inv:600, conv:8, cpa:75, roas:1.9},
+    {m:'Abr',a:2026, p:'TIKTOK_ADS', n:'Branding TikTok jovens', inv:900, conv:6, cpa:150, roas:0.8},
+    {m:'Abr',a:2026, p:'META_ADS', n:'Páscoa — Lookalike', inv:1500, conv:31, cpa:48.39, roas:3.6},
+  ];
+  const platTotais = {};
+  camps.forEach(c => { platTotais[c.p] = (platTotais[c.p]||0) + c.inv; });
+  const totalInv = Object.values(platTotais).reduce((s,v)=>s+v,0);
+  const cores = {META_ADS:'#7E30E1',GOOGLE_ADS:'#3B82F6',TIKTOK_ADS:'#10B981',YOUTUBE_ADS:'#EF4444',LINKEDIN_ADS:'#F59E0B'};
+  return `
+    <div class="card p-4 flex items-center gap-3 flex-wrap">
+      <select class="input input-mini" style="width:240px"><option>Galeria Chaves</option></select>
+      <button class="btn btn-outline btn-sm ml-auto"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar PDF</button>
+    </div>
+    <div class="card p-5">
+      <div class="text-[13.5px] font-semibold mb-3">Nova campanha</div>
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+        ${['Ano','Mês','Plataforma'].map(l => `<div><label class="text-[10px] uppercase tracking-wider text-dim2 font-semibold">${l}</label><input class="input input-mini mt-1.5"></div>`).join('')}
+        <div class="md:col-span-3"><label class="text-[10px] uppercase tracking-wider text-dim2 font-semibold">Nome da campanha</label><input class="input input-mini mt-1.5"></div>
+        ${['Investimento','Impressões','Cliques','Conversões','CPA','ROAS','CPM','CPC médio'].map(l => `<div><label class="text-[10px] uppercase tracking-wider text-dim2 font-semibold">${l}</label><input class="input input-mini mt-1.5"></div>`).join('')}
+      </div>
+      <div class="mt-3"><label class="text-[10px] uppercase tracking-wider text-dim2 font-semibold">Insights e próximas ações</label><textarea class="input mt-1.5" rows="2"></textarea></div>
+      <div class="text-right mt-3"><button class="btn btn-primary btn-sm">Salvar campanha</button></div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      ${kpi('Investimento total', fmtBRL(6000), 'wallet', null)}
+      ${kpi('Conversões', '115', 'target', null)}
+      ${kpi('ROAS médio', '3.26x', 'trending-up', '+0.4 vs ant.', 'good')}
+      ${kpi('CPA médio', fmtBRL(71.81), 'dollar-sign', null)}
+    </div>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="card p-5">
+        <div class="text-[13.5px] font-semibold mb-1">ROAS por plataforma</div>
+        <div class="text-[11px] text-dim mb-3">Média do período</div>
+        <div class="flex items-end justify-around gap-3 h-56">
+          ${['META_ADS','GOOGLE_ADS','TIKTOK_ADS'].map(p => {
+            const cs = camps.filter(c => c.p===p);
+            const avg = cs.length ? cs.reduce((s,c)=>s+c.roas,0)/cs.length : 0;
+            const ratio = (avg/6)*180;
+            return `<div class="flex flex-col items-center gap-1 flex-1 group"><div class="w-full rounded-t-md group-hover:opacity-80 transition" style="height:${ratio}px;background:linear-gradient(180deg,${cores[p]}cc 0%,${cores[p]} 100%)"></div><span class="text-[10px] text-dim2">${p.replace('_ADS','')}</span><span class="text-[11px] mono text-paper">${avg.toFixed(2)}x</span></div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="card p-5">
+        <div class="text-[13.5px] font-semibold mb-1">Distribuição de investimento</div>
+        <div class="text-[11px] text-dim mb-3">Por plataforma</div>
+        ${(() => {
+          let acc = 0;
+          const segs = Object.entries(platTotais).map(([p,v]) => {
+            const start = acc/totalInv*360; acc += v; const end = acc/totalInv*360;
+            return `<circle cx="100" cy="100" r="55" fill="transparent" stroke="${cores[p]}" stroke-width="22" stroke-dasharray="${(end-start)/360*345.6} 345.6" stroke-dashoffset="${-start/360*345.6}" transform="rotate(-90 100 100)"/>`;
+          }).join('');
+          return `<div class="flex items-center justify-around"><div class="relative"><svg viewBox="0 0 200 200" class="w-40 h-40">${segs}</svg><div class="absolute inset-0 flex flex-col items-center justify-center"><div class="text-[10px] text-dim2 uppercase tracking-wider">Total</div><div class="display font-semibold text-[16px]">${fmtBRL(totalInv).replace(',00','')}</div></div></div><div class="space-y-1.5 text-[11px]">${Object.entries(platTotais).map(([p,v]) => `<div class="flex items-center gap-2"><span class="inline-block w-2.5 h-2.5 rounded-sm" style="background:${cores[p]}"></span><span class="text-dim">${p.replace('_ADS','')}</span><span class="mono ml-3">${fmtBRL(v).replace(',00','')}</span></div>`).join('')}</div></div>`;
+        })()}
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="p-5 border-b border-line"><div class="text-[13.5px] font-semibold">Campanhas</div></div>
+      <table class="w-full text-[13px]">
+        <thead><tr class="text-left text-[11px] text-dim border-b border-line"><th class="px-4 py-2.5">Mês</th><th class="px-4 py-2.5">Plataforma</th><th class="px-4 py-2.5">Nome</th><th class="px-4 py-2.5 text-right">Invest.</th><th class="px-4 py-2.5 text-right">Conv.</th><th class="px-4 py-2.5 text-right">CPA</th><th class="px-4 py-2.5">ROAS</th></tr></thead>
+        <tbody>
+          ${camps.map((c,i,a) => {
+            const roasCor = c.roas>3?'success':c.roas>1.5?'warning':'destructive';
+            return `<tr class="hover:bg-ink-850 ${i<a.length-1?'border-b border-line':''}">
+              <td class="px-4 py-3 mono text-[11.5px]">${c.m}/${c.a}</td>
+              <td class="px-4 py-3"><span class="badge badge-outline">${c.p.replace('_',' ')}</span></td>
+              <td class="px-4 py-3 font-medium">${c.n}</td>
+              <td class="px-4 py-3 text-right mono">${fmtBRL(c.inv)}</td>
+              <td class="px-4 py-3 text-right mono">${c.conv}</td>
+              <td class="px-4 py-3 text-right mono">${fmtBRL(c.cpa)}</td>
+              <td class="px-4 py-3"><span class="badge badge-${roasCor}">${c.roas.toFixed(2)}x</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// Init
+goto('dashboard');
+</script>
+
+</body>
+</html>

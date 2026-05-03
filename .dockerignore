@@ -1,0 +1,23 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+
+# Docs e configs locais (não vão pra imagem)
+*.md
+.vscode
+.idea
+
+# Volumes e dados que ficam fora da imagem
+postgres-data
+backups
+certbot
+
+# Preview standalone (não vai pra produção)
+preview
+
+# Memory do Claude Code (workspace local)
+.claude
