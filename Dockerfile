@@ -56,8 +56,8 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Healthcheck de container
-HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD wget --quiet --spider http://localhost:3000/api/mcp || exit 1
+# Sem HEALTHCHECK no container: o Traefik 3 filtra containers em "starting",
+# e o standalone do Next não tem rota HEAD pública pra checar com --spider sem auth.
+# A saúde da app é monitorada via uptime externo (UptimeRobot, etc.).
 
 CMD ["node", "server.js"]
