@@ -6,7 +6,13 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   return apiHandler(async () => {
     await requireAuth();
     const data = eventoSchema.partial().parse(await req.json());
-    return updateEvent({ eventId: params.id, ...data });
+    return updateEvent({
+      eventId: params.id,
+      titulo: data.titulo ?? undefined,
+      descricao: data.descricao ?? undefined,
+      inicio: data.inicio ?? undefined,
+      fim: data.fim ?? undefined,
+    });
   });
 }
 
