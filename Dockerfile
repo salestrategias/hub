@@ -43,13 +43,13 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Prisma: schema + client gerado + CLI para migrate/push em runtime
+# Prisma: schema + client gerado para a app rodar
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
-# Symlink do CLI prisma — necessário pra `npx prisma` funcionar no runtime
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+
+# Prisma CLI global — usado pelo command do compose (db push / migrate deploy)
+RUN npm install -g prisma@5.22.0 && rm -rf /root/.npm
 
 USER nextjs
 EXPOSE 3000
