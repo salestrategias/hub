@@ -17,7 +17,8 @@ import {
 import { contratoSchema, type ContratoInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { formatBRL, formatDate, diffDias } from "@/lib/utils";
-import { Plus, Trash2, FileText, ExternalLink } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
+import { Plus, Trash2, FileText, ExternalLink, FileSignature } from "lucide-react";
 import { DriveFilePicker } from "@/components/drive-file-picker";
 
 type Contrato = {
@@ -94,7 +95,15 @@ export function ContratosClient({
                 );
               })}
               {contratos.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">Sem contratos.</TableCell></TableRow>
+                <TableRow>
+                  <TableCell colSpan={7} className="p-0">
+                    <EmptyState
+                      icon={FileSignature}
+                      titulo="Nenhum contrato cadastrado"
+                      descricao="Vincule contratos PDF do Drive aos clientes. O sistema avisa automaticamente 30 dias antes do vencimento na sua agenda."
+                    />
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>

@@ -17,7 +17,8 @@ import {
 import { lancamentoSchema, type LancamentoInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { formatBRL, formatDate, MES_NOMES } from "@/lib/utils";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Wallet } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 
 type Lanc = {
@@ -114,7 +115,16 @@ export function FinanceiroClient({
                     <Row key={l.id} l={l} />
                   ))}
                   {filtrados.length === 0 && (
-                    <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">Sem lançamentos.</TableCell></TableRow>
+                    <TableRow>
+                      <TableCell colSpan={7} className="p-0">
+                        <EmptyState
+                          icon={Wallet}
+                          titulo={`Nenhum lançamento ${tab}`}
+                          descricao={`Adicione receitas e despesas da entidade ${tab} para acompanhar MRR, lucro e projeção.`}
+                          variante="compact"
+                        />
+                      </TableCell>
+                    </TableRow>
                   )}
                 </TableBody>
               </Table>

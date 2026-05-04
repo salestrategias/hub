@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TagsBadges, type Tag } from "@/components/tag-picker";
+import { EmptyState } from "@/components/empty-state";
 import { formatBRL, cn } from "@/lib/utils";
-import { Search, X } from "lucide-react";
+import { Search, X, Users, FilterX } from "lucide-react";
 
 type Cliente = {
   id: string;
@@ -177,9 +178,26 @@ export function ClientesList({ clientes, tags }: { clientes: Cliente[]; tags: Ta
                 </TableRow>
               ))}
               {filtrados.length === 0 && (
-                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                  {algumFiltro ? "Nenhum cliente bate com os filtros." : "Nenhum cliente cadastrado."}
-                </TableCell></TableRow>
+                <TableRow>
+                  <TableCell colSpan={6} className="p-0">
+                    {algumFiltro ? (
+                      <EmptyState
+                        icon={FilterX}
+                        titulo="Nenhum cliente bate com os filtros"
+                        descricao="Ajuste os filtros ou limpe-os para ver todos os clientes cadastrados."
+                        acaoLabel="Limpar filtros"
+                        acaoOnClick={limpar}
+                        variante="compact"
+                      />
+                    ) : (
+                      <EmptyState
+                        icon={Users}
+                        titulo="Nenhum cliente cadastrado"
+                        descricao="Comece criando o primeiro cliente da sua agência. Você pode adicionar clientes ativos, prospects e organizar com tags."
+                      />
+                    )}
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>

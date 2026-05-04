@@ -8,6 +8,7 @@ import {
   Mic, FileText, GitBranch, Cpu, Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
 
 type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
 type NavGroup = { label: string; items: NavItem[] };
@@ -82,6 +83,9 @@ export function Sidebar() {
             <div className="text-[10px] text-muted-foreground/70 mt-0.5 uppercase tracking-wider">Estratégias de Marketing</div>
           </div>
         </Link>
+        <div className="mt-3.5">
+          <SidebarSearchTrigger />
+        </div>
       </div>
       <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
         {groups.map((g) => (

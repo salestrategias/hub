@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Mic, Clock, CheckCircle, Users } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 import { formatDateTime } from "@/lib/utils";
 
 type Reuniao = {
@@ -96,8 +97,12 @@ export function ReunioesList({
               ))}
               {reunioes.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-12">
-                    Sem reuniões cadastradas. Use o botão acima para gravar a primeira.
+                  <TableCell colSpan={8} className="p-0">
+                    <EmptyState
+                      icon={Mic}
+                      titulo="Nenhuma reunião registrada"
+                      descricao="Capture decisões, action items e contexto de negociação. Você pode subir um áudio, importar transcrição ou criar manualmente."
+                    />
                   </TableCell>
                 </TableRow>
               )}

@@ -17,7 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { tarefaSchema, type TarefaInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { formatDate, diffDias, cn } from "@/lib/utils";
-import { Plus, Trash2, CalendarPlus, Check } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
+import { Plus, Trash2, CalendarPlus, Check, ListChecks, FilterX } from "lucide-react";
 
 type CheckItem = { id: string; texto: string; concluido: boolean; ordem: number };
 type Tarefa = {
@@ -93,7 +94,24 @@ export function TarefasClient({
 
       <div className="space-y-3">
         {filtradas.length === 0 && (
-          <Card><CardContent className="py-10 text-center text-muted-foreground text-sm">Nenhuma tarefa.</CardContent></Card>
+          <Card>
+            <CardContent className="p-0">
+              {tarefas.length === 0 ? (
+                <EmptyState
+                  icon={ListChecks}
+                  titulo="Nenhuma tarefa criada"
+                  descricao="Organize entregas, briefings, follow-ups. Use prioridades, datas e checklists para destrinchar trabalho complexo."
+                />
+              ) : (
+                <EmptyState
+                  icon={FilterX}
+                  titulo="Nada nesse filtro"
+                  descricao={tab === "hoje" ? "Você não tem tarefas pra hoje. Aproveita." : "Nenhuma tarefa bate com a combinação de filtros atual."}
+                  variante="compact"
+                />
+              )}
+            </CardContent>
+          </Card>
         )}
         {filtradas.map((t) => (
           <TarefaCard key={t.id} tarefa={t} onChange={() => router.refresh()} />

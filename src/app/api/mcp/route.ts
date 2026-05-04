@@ -6,18 +6,35 @@ import type { JsonRpcRequest, JsonRpcResponse } from "@/lib/mcp/types";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, Mcp-Session-Id",
-  "Access-Control-Expose-Headers": "Mcp-Session-Id",
-};
-
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: CORS_HEADERS });
+/**
+ * CORS deliberadamente PERMISSIVO porque clientes legítimos do MCP
+ * (Claude Desktop / Claude Code / scripts servidor a servidor) NÃO enviam
+ * o header `Origin` — ou enviam origins arbitrárias específicas do binário.
+ *
+ * O que protege o endpoint NÃO é a origem; é o Bearer token (validado em verifyMcpToken).
+ * Bloquear por origin daria falso ganho de segurança e quebraria clientes válidos.
+ *
+ * Browser malicioso atacando esse endpoint precisaria do token; sem o token
+ * a API retorna 401 antes de ler o body.
+ */
+function corsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("origin");
+  return {
+    // Reflete a origin que veio (ou wildcard se não houver) — não compromete segurança
+    // pois autorização é por token, não por origin
+    "Access-Control-Allow-Origin": origin ?? "*",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, Mcp-Session-Id",
+    "Access-Control-Expose-Headers": "Mcp-Session-Id",
+    "Vary": "Origin",
+  };
 }
 
-export async function GET() {
+export async function OPTIONS(req: Request) {
+  return new Response(null, { status: 204, headers: corsHeaders(req) });
+}
+
+export async function GET(req: Request) {
   // Endpoint informativo — útil para testar conectividade no browser
   return Response.json(
     {
@@ -27,7 +44,7 @@ export async function GET() {
       transport: "Streamable HTTP",
       docs: "Envie mensagens JSON-RPC 2.0 via POST com header Authorization: Bearer <token>",
     },
-    { headers: CORS_HEADERS }
+    { headers: corsHeaders(req) }
   );
 }
 
@@ -37,7 +54,7 @@ export async function POST(req: Request) {
   if (!ctx) {
     return Response.json(
       { jsonrpc: "2.0", id: null, error: { code: JSON_RPC_ERRORS.UNAUTHORIZED, message: "Token MCP inválido ou ausente" } },
-      { status: 401, headers: CORS_HEADERS }
+      { status: 401, headers: corsHeaders(req) }
     );
   }
 
@@ -48,7 +65,7 @@ export async function POST(req: Request) {
   } catch {
     return Response.json(
       { jsonrpc: "2.0", id: null, error: { code: JSON_RPC_ERRORS.PARSE, message: "JSON inválido" } },
-      { status: 400, headers: CORS_HEADERS }
+      { status: 400, headers: corsHeaders(req) }
     );
   }
 
@@ -63,8 +80,8 @@ export async function POST(req: Request) {
 
   // 4. Resposta: objeto único se entrada única, array se batch, 204 se só notificações
   if (responses.length === 0) {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return new Response(null, { status: 204, headers: corsHeaders(req) });
   }
   const payload = Array.isArray(body) ? responses : responses[0];
-  return Response.json(payload, { headers: CORS_HEADERS });
+  return Response.json(payload, { headers: corsHeaders(req) });
 }
