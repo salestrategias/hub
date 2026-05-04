@@ -12,8 +12,9 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma
 
-# Usa npm ci se houver lock; cai para npm install em primeiro deploy
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+# Usa npm ci se houver lock; cai para npm install em primeiro deploy.
+# --legacy-peer-deps necessário porque eslint-config-next@14 ainda exige eslint@8.
+RUN if [ -f package-lock.json ]; then npm ci --legacy-peer-deps; else npm install --legacy-peer-deps; fi
 
 # ───── Stage 2: builder (build do Next.js) ───────────────────────
 FROM node:20-alpine AS builder

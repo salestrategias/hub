@@ -7,7 +7,7 @@ import {
   Activity, LogIn, LogOut, KeyRound, UserCog, Cpu, ShieldAlert, Globe,
   Smartphone, Monitor, Tablet,
 } from "lucide-react";
-import { parseUserAgent } from "@/lib/activity-log";
+import { parseUserAgent } from "@/lib/user-agent";
 
 type Tipo =
   | "LOGIN_OK" | "LOGIN_FALHOU" | "MUDANCA_SENHA" | "MUDANCA_PERFIL"
