@@ -7,16 +7,16 @@ async function main() {
   // ─── Usuário admin ─────────────────────────────────────────────
   const passwordHash = await bcrypt.hash("sal@2024", 10);
   await prisma.user.upsert({
-    where: { email: "admin@sal.com.br" },
-    update: { passwordHash },
+    where: { email: "marcelo@salestrategias.com.br" },
+    update: { passwordHash, name: "Marcelo Freitas", role: "ADMIN" },
     create: {
-      email: "admin@sal.com.br",
-      name: "Admin SAL",
+      email: "marcelo@salestrategias.com.br",
+      name: "Marcelo Freitas",
       passwordHash,
       role: "ADMIN",
     },
   });
-  console.log("✓ Usuário admin@sal.com.br criado/atualizado (senha: sal@2024)");
+  console.log("✓ Usuário marcelo@salestrategias.com.br criado/atualizado (senha: sal@2024)");
 
   // ─── Tags padrão ───────────────────────────────────────────────
   const tagsPadrao = [
