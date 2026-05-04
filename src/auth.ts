@@ -60,11 +60,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         logActivity({ userId: user.id, tipo: "LOGIN_OK", ip, userAgent: ua, meta: { provider: "credentials" } });
 
+        // NÃO retornamos `image` aqui — Auth.js v5 copia automaticamente o image
+        // do user pro JWT, e dataURL grande estoura o cookie (erro 431).
+        // O avatar é buscado direto do banco em server components.
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          image: user.image,
           role: user.role,
         };
       },
