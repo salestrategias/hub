@@ -71,8 +71,9 @@ export function PerfilForm({ user }: { user: User }) {
       return;
     }
     toast.success("Perfil atualizado");
-    // Atualiza JWT via NextAuth para refletir nome/foto na sessão imediatamente
-    await update({ name: nome.trim(), image: foto });
+    // Foto NÃO vai pro JWT (cookie tem limite ~4KB, dataURL grande estoura → erro 431).
+    // Atualizamos só o nome na sessão; o avatar é re-buscado do banco no próximo render.
+    await update({ name: nome.trim() });
     router.refresh();
   }
 

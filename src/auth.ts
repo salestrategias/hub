@@ -114,23 +114,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = (user as { id: string }).id;
         token.role = (user as { role?: "ADMIN" | "MEMBER" }).role ?? "MEMBER";
         token.name = (user as { name?: string | null }).name ?? null;
-        token.picture = (user as { image?: string | null }).image ?? null;
+        // ATENÇÃO: NÃO armazenamos `image` no JWT — o avatar é dataURL grande
+        // (~30-100KB). Cookie tem limite ~4KB → estoura → erro 431.
+        // O avatar é buscado direto do banco em server components quando necessário.
       }
-      // useSession().update({...}) propaga campos passados aqui
+      // useSession().update({...}) propaga apenas o nome; image vem do banco.
       if (trigger === "update" && triggerSession) {
-        const s = triggerSession as { name?: string | null; image?: string | null };
+        const s = triggerSession as { name?: string | null };
         if (s.name !== undefined) token.name = s.name;
-        if (s.image !== undefined) token.picture = s.image;
       }
-      // Em cada request com token: re-lê do banco se faltar campos cruciais (defesa em profundidade)
-      if (token.id && (!token.name || token.picture === undefined)) {
+      // Defesa em profundidade: re-lê nome e role do banco se faltar.
+      if (token.id && !token.name) {
         const fresh = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { name: true, image: true, role: true },
+          select: { name: true, role: true },
         });
         if (fresh) {
           token.name = fresh.name;
-          token.picture = fresh.image;
           token.role = fresh.role;
         }
       }
@@ -141,7 +141,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = (token.role as "ADMIN" | "MEMBER") ?? "MEMBER";
         session.user.name = (token.name as string | null) ?? session.user.name;
-        session.user.image = (token.picture as string | null) ?? session.user.image;
+        // session.user.image NÃO vem do token — server components buscam direto.
       }
       return session;
     },

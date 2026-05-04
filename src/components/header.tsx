@@ -1,13 +1,25 @@
 import Link from "next/link";
 import { auth, signOut } from "@/auth";
+import { prisma } from "@/lib/db";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { LogOut, Bell, HelpCircle } from "lucide-react";
 
 export async function Header({ title, subtitle }: { title?: string; subtitle?: string }) {
   const session = await auth();
+
+  // Avatar é dataURL grande — não cabe em cookie (limite ~4KB → erro 431).
+  // Buscamos do banco separadamente pra não inflar o JWT da sessão.
+  let image: string | null = null;
+  if (session?.user?.id) {
+    const u = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { image: true },
+    });
+    image = u?.image ?? null;
+  }
+
   const initial = (session?.user?.name ?? session?.user?.email ?? "?").charAt(0).toUpperCase();
-  const image = session?.user?.image;
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-4 glass border-b border-border px-8 py-3.5">
