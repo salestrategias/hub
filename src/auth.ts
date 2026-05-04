@@ -25,6 +25,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
+  // Necessário em produção atrás de proxy reverso (Traefik/Nginx). Sem isso,
+  // Auth.js v5 retorna UntrustedHost: "Host must be trusted" mesmo com NEXTAUTH_URL setado.
+  trustHost: true,
   providers: [
     Credentials({
       name: "Credenciais",
