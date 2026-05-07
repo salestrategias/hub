@@ -48,7 +48,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
             data: new Date(),
             notasLivres: conteudo,
             clienteId: cliente?.id ?? null,
-            status: "PLANEJADA",
+            // ReuniaoStatus = GRAVANDO | PROCESSANDO | TRANSCRITA | GRAVADA.
+            // Reunião criada de template ainda não tem áudio nem transcrição,
+            // então vai como GRAVADA (mesmo default da criação manual).
+            status: "GRAVADA",
             participantes: [],
             tagsLivres: template.categoria ? [template.categoria] : [],
           },

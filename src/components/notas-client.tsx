@@ -92,15 +92,15 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
 
   return (
     <Card className="overflow-hidden p-0" style={{ height: "calc(100vh - 200px)" }}>
-      <div className="grid grid-cols-[220px_300px_1fr] h-full">
-        {/* Coluna 1: Pastas */}
-        <div className="border-r border-border bg-card/40 overflow-y-auto">
-          <div className="p-3 border-b border-border">
+      <div className="grid grid-cols-[220px_300px_1fr] h-full min-h-0">
+        {/* Coluna 1: Pastas (header fixo + lista scrollable) */}
+        <div className="border-r border-border bg-card/40 flex flex-col min-h-0">
+          <div className="p-3 border-b border-border shrink-0">
             <Button onClick={() => setPickerOpen(true)} className="w-full" size="sm">
               <Plus className="h-3.5 w-3.5" /> Nova nota
             </Button>
           </div>
-          <div className="p-2">
+          <div className="p-2 flex-1 overflow-y-auto">
             {Object.entries(pastas).map(([pasta, ns]) => (
               <div key={pasta} className="mb-1">
                 <div className="flex items-center gap-1.5 px-2 py-1.5 text-[10.5px] font-semibold text-muted-foreground uppercase tracking-wider">
@@ -125,15 +125,15 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
           </div>
         </div>
 
-        {/* Coluna 2: Lista */}
-        <div className="border-r border-border overflow-y-auto">
-          <div className="p-3 border-b border-border">
+        {/* Coluna 2: Lista (header fixo + lista scrollable) */}
+        <div className="border-r border-border flex flex-col min-h-0">
+          <div className="p-3 border-b border-border shrink-0">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
               <Input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar..." className="pl-7 h-8 text-xs" />
             </div>
           </div>
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-border flex-1 overflow-y-auto">
             {filtradas.map((n) => (
               <div
                 key={n.id}
@@ -163,7 +163,7 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
         </div>
 
         {/* Coluna 3: Editor (WYSIWYG, dispensa toggle preview/split — Notion-style) */}
-        <div className="flex flex-col min-w-0">
+        <div className="flex flex-col min-w-0 min-h-0">
           {ativa ? (
             <NotaEditor
               key={ativa.id}
