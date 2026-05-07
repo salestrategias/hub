@@ -7,7 +7,7 @@ import { HideValuesToggle } from "@/components/hide-values-toggle";
 import { Button } from "@/components/ui/button";
 import { LogOut, HelpCircle } from "lucide-react";
 
-export async function Header({ title, subtitle }: { title?: string; subtitle?: string }) {
+export async function Header({ title, subtitle }: { title?: string; subtitle?: React.ReactNode }) {
   const session = await auth();
 
   // Avatar é dataURL grande — não cabe em cookie (limite ~4KB → erro 431).
