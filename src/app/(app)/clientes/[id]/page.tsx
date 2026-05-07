@@ -15,17 +15,21 @@ import { BacklinksPanel } from "@/components/backlinks-panel";
 import { MoneyValue } from "@/components/money-value";
 
 import { buildClienteInsights } from "@/lib/cliente-insights";
+import { buildClienteMarketing } from "@/lib/cliente-marketing";
+import { buildClienteDocumentos } from "@/lib/cliente-documentos";
 import { HealthScore } from "@/components/cliente-detalhe/health-score";
 import { ClienteKpis } from "@/components/cliente-detalhe/cliente-kpis";
 import { MrrSparkline } from "@/components/cliente-detalhe/mrr-sparkline";
 import { AtividadeChart } from "@/components/cliente-detalhe/atividade-chart";
 import { ClienteTimeline } from "@/components/cliente-detalhe/cliente-timeline";
+import { MarketingPerformance } from "@/components/cliente-detalhe/marketing-performance";
+import { DocumentosCliente } from "@/components/cliente-detalhe/documentos-cliente";
 
 export const dynamic = "force-dynamic";
 
 export default async function ClienteDetalhePage({ params }: { params: { id: string } }) {
-  // Busca em paralelo: cliente full (pra header/edição) + insights agregados
-  const [cliente, insights] = await Promise.all([
+  // Busca em paralelo: cliente full + insights + marketing + documentos
+  const [cliente, insights, marketing, documentos] = await Promise.all([
     prisma.cliente.findUnique({
       where: { id: params.id },
       include: {
@@ -38,6 +42,8 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
       },
     }),
     buildClienteInsights(params.id),
+    buildClienteMarketing(params.id),
+    buildClienteDocumentos(params.id),
   ]);
 
   if (!cliente || !insights) notFound();
@@ -96,10 +102,27 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
 
       <AtividadeChart data={insights.atividadeSemanas} />
 
+      {/* Documentos & Drive (esquerda) | Backlinks (direita) */}
       <div className="grid lg:grid-cols-[1fr_320px] gap-3">
-        <ClienteTimeline eventos={insights.timeline} />
-        <BacklinksPanel type="CLIENTE" id={cliente.id} title="Mencionado em" hideWhenEmpty />
+        <DocumentosCliente
+          clienteId={cliente.id}
+          clienteNome={cliente.nome}
+          driveFolderUrl={cliente.googleDriveFolderUrl}
+          briefings={documentos.briefings}
+          outrasNotas={documentos.outrasNotas}
+        />
+        <BacklinksPanel type="CLIENTE" id={cliente.id} title="Outras referências" hideWhenEmpty />
       </div>
+
+      {/* Marketing performance (full width, 3 tabs internas) */}
+      <MarketingPerformance
+        trafegoPago={marketing.trafegoPago}
+        redes={marketing.redes}
+        seo={marketing.seo}
+        clienteId={cliente.id}
+      />
+
+      <ClienteTimeline eventos={insights.timeline} />
 
       {/* ─── TABS (deep dive existentes) ────────────────────────── */}
       <Tabs defaultValue="overview">
