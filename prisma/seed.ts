@@ -259,9 +259,17 @@ Galeria Chaves, Lindóia Shopping, Tavi.
     console.log("✓ Mapa mental exemplo criado");
   }
 
+  // ─── Templates built-in ────────────────────────────────────────
+  try {
+    const { seedTemplates } = await import("../src/lib/templates-builtin");
+    await seedTemplates(prisma);
+  } catch (e) {
+    console.warn("⚠ Falha ao seedar templates built-in (continuando):", e);
+  }
+
   console.log("\n──────────────────────────────────────");
   console.log("✅ Seed completo");
-  console.log("Login:    admin@sal.com.br");
+  console.log("Login:    marcelo@salestrategias.com.br");
   console.log("Senha:    sal@2024");
   console.log("──────────────────────────────────────");
 }

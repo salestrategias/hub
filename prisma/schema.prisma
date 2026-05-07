@@ -665,3 +665,48 @@ enum MentionEntity {
   CONTRATO
   NOTA
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Templates — esqueletos pré-prontos pra Notas, Reuniões e Briefings
+//
+// Built-ins (criadoPor = null) são populados via seed e vêm com o
+// sistema. Usuários podem criar próprios templates ou clonar os
+// built-ins. Variáveis no formato {{var}} são expandidas no momento
+// da instanciação (ver src/lib/template-variables.ts).
+// ─────────────────────────────────────────────────────────────────────
+model Template {
+  id            String       @id @default(cuid())
+  nome          String
+  descricao     String?      @db.Text
+
+  tipo          TemplateTipo
+  categoria     String?      // "Onboarding", "Operacional", "Estratégia"
+  icone         String?      // emoji ou nome lucide ("FileText", "Mic", "📋")
+  cor           String?      // hex pra badge
+
+  conteudo      String       @db.Text  // JSON BlockNote serializado
+
+  // null = template do sistema (built-in via seed). Vincular a User permite
+  // saber quem criou e (no futuro) compartilhamento granular.
+  criadoPor     String?
+  // Sem FK explícita pra simplificar (User não tem relacionamento reverso
+  // que precise rastrear templates). Cleanup manual se um user for excluído.
+
+  compartilhado Boolean      @default(true)
+  quantidadeUsos Int         @default(0)
+  ultimoUso     DateTime?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([tipo, compartilhado])
+  @@index([criadoPor])
+}
+
+enum TemplateTipo {
+  NOTA
+  REUNIAO
+  BRIEFING
+  TAREFA
+  PROJETO
+}

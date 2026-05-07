@@ -232,3 +232,24 @@ export const mindMapSchema = z.object({
 export type MindMapInput = z.infer<typeof mindMapSchema>;
 export type MindMapNode = z.infer<typeof mindMapNodeSchema>;
 export type MindMapEdge = z.infer<typeof mindMapEdgeSchema>;
+
+// ─── Template ──────────────────────────────────────────────────────
+export const templateSchema = z.object({
+  nome: z.string().min(1, "Nome obrigatório").max(120),
+  descricao: z.string().max(500).optional().nullable(),
+  tipo: z.enum(["NOTA", "REUNIAO", "BRIEFING", "TAREFA", "PROJETO"]),
+  categoria: z.string().max(60).optional().nullable(),
+  icone: z.string().max(40).optional().nullable(),
+  cor: z.string().max(20).optional().nullable(),
+  conteudo: z.string().default(""),
+  compartilhado: z.boolean().default(true),
+});
+export type TemplateInput = z.infer<typeof templateSchema>;
+
+export const templateInstanciarSchema = z.object({
+  /** Contexto opcional (cliente associado, etc) pra expandir variáveis. */
+  clienteId: z.string().optional().nullable(),
+  /** Overrides — ex: `{ titulo: "Custom" }` se quiser sobrescrever campos do template */
+  overrides: z.record(z.string()).optional(),
+});
+export type TemplateInstanciarInput = z.infer<typeof templateInstanciarSchema>;

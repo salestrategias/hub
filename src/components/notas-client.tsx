@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/toast";
 import { Plus, File, Folder, FileText, Search, Trash2, Star, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BlockEditor } from "@/components/editor";
+import { TemplatePicker } from "@/components/template-picker";
 
 type Nota = {
   id: string;
@@ -24,6 +25,7 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
   const [notas, setNotas] = useState(initial);
   const [ativaId, setAtivaId] = useState<string | null>(initial[0]?.id ?? null);
   const [busca, setBusca] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const router = useRouter();
 
   const ativa = notas.find((n) => n.id === ativaId);
@@ -45,7 +47,7 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
     return m;
   }, [notas]);
 
-  async function novaNota() {
+  async function novaNotaEmBranco() {
     // Conteúdo inicial em formato BlockNote — primeiro bloco vazio é "começa a escrever".
     const initialBlocks: PartialBlock[] = [
       { type: "heading", props: { level: 1 }, content: "Nova nota" } as PartialBlock,
@@ -60,6 +62,18 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
     const nova: Nota = await res.json();
     setNotas([nova, ...notas]);
     setAtivaId(nova.id);
+  }
+
+  async function novaNotaDeTemplate(result: { id: string; redirect: string }) {
+    // Template criou a nota no backend. Recarrega lista do servidor.
+    const res = await fetch("/api/notas");
+    if (res.ok) {
+      const todas: Nota[] = await res.json();
+      setNotas(todas);
+      setAtivaId(result.id);
+    } else {
+      router.refresh();
+    }
   }
 
   async function excluir(id: string) {
@@ -82,7 +96,9 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
         {/* Coluna 1: Pastas */}
         <div className="border-r border-border bg-card/40 overflow-y-auto">
           <div className="p-3 border-b border-border">
-            <Button onClick={novaNota} className="w-full" size="sm"><Plus className="h-3.5 w-3.5" /> Nova nota</Button>
+            <Button onClick={() => setPickerOpen(true)} className="w-full" size="sm">
+              <Plus className="h-3.5 w-3.5" /> Nova nota
+            </Button>
           </div>
           <div className="p-2">
             {Object.entries(pastas).map(([pasta, ns]) => (
@@ -164,6 +180,14 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
           )}
         </div>
       </div>
+      <TemplatePicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        tipos={["NOTA", "BRIEFING"]}
+        onBlank={novaNotaEmBranco}
+        onPicked={novaNotaDeTemplate}
+        blankLabel="Nota em branco"
+      />
     </Card>
   );
 }
