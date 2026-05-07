@@ -13,8 +13,8 @@ type AtividadeItem = {
 };
 
 type StatusBreakdown = {
-  rascunho: number;
-  aprovado: number;
+  emProducao: number;
+  agendado: number;
   publicado: number;
   total: number;
 };
@@ -62,13 +62,13 @@ function PostsBreakdown({ posts }: { posts: StatusBreakdown }) {
         {posts.total > 0 ? (
           <>
             <div className="h-2 rounded-full bg-secondary overflow-hidden flex">
-              <div className="bg-amber-500/70" style={{ width: `${pct(posts.rascunho)}%` }} title={`${posts.rascunho} rascunho`} />
-              <div className="bg-blue-500/70" style={{ width: `${pct(posts.aprovado)}%` }} title={`${posts.aprovado} aprovado`} />
+              <div className="bg-amber-500/70" style={{ width: `${pct(posts.emProducao)}%` }} title={`${posts.emProducao} em produção`} />
+              <div className="bg-blue-500/70" style={{ width: `${pct(posts.agendado)}%` }} title={`${posts.agendado} agendado`} />
               <div className="bg-emerald-500/70" style={{ width: `${pct(posts.publicado)}%` }} title={`${posts.publicado} publicado`} />
             </div>
             <div className="grid grid-cols-3 text-[10.5px] gap-1">
-              <Lane color="bg-amber-500/70" label="Rascunho" value={posts.rascunho} />
-              <Lane color="bg-blue-500/70" label="Aprovado" value={posts.aprovado} />
+              <Lane color="bg-amber-500/70" label="Em produção" value={posts.emProducao} />
+              <Lane color="bg-blue-500/70" label="Agendado" value={posts.agendado} />
               <Lane color="bg-emerald-500/70" label="Publicado" value={posts.publicado} />
             </div>
           </>

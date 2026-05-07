@@ -119,7 +119,7 @@ export default async function DashboardPage() {
     prisma.post.findMany({
       where: {
         dataPublicacao: { gte: inicioHoje, lt: fimHoje },
-        status: { in: ["APROVADO", "RASCUNHO"] },
+        status: { in: ["AGENDADO", "DESIGN_PRONTO"] },
       },
       include: { cliente: { select: { nome: true } } },
       take: 6,
@@ -259,10 +259,13 @@ export default async function DashboardPage() {
     .sort((a, b) => b.diasAtraso - a.diasAtraso)
     .slice(0, 6);
 
+  // Breakdown coerente com PostStatus (RASCUNHO | COPY_PRONTA | DESIGN_PRONTO | AGENDADO | PUBLICADO).
+  // Agrupamos os 3 estágios de produção (rascunho/copy/design) num só pra leitura rápida.
+  const find = (s: string) => postsBreakdown.find((g) => g.status === s)?._count._all ?? 0;
   const postsBreakdownData = {
-    rascunho: postsBreakdown.find((g) => g.status === "RASCUNHO")?._count._all ?? 0,
-    aprovado: postsBreakdown.find((g) => g.status === "APROVADO")?._count._all ?? 0,
-    publicado: postsBreakdown.find((g) => g.status === "PUBLICADO")?._count._all ?? 0,
+    emProducao: find("RASCUNHO") + find("COPY_PRONTA") + find("DESIGN_PRONTO"),
+    agendado: find("AGENDADO"),
+    publicado: find("PUBLICADO"),
     total: postsBreakdown.reduce((s, g) => s + g._count._all, 0),
   };
 

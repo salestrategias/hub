@@ -191,7 +191,10 @@ async function coletarPostsHoje(seeds: NotificacaoSeed[], hoje: string): Promise
   const posts = await prisma.post.findMany({
     where: {
       dataPublicacao: { gte: inicio, lt: fim },
-      status: { in: ["APROVADO", "RASCUNHO"] },
+      // PostStatus = RASCUNHO | COPY_PRONTA | DESIGN_PRONTO | AGENDADO | PUBLICADO.
+      // Notificamos para o que está pronto (DESIGN_PRONTO) ou agendado mas
+      // ainda não publicado.
+      status: { in: ["AGENDADO", "DESIGN_PRONTO"] },
     },
     include: { cliente: { select: { nome: true } } },
     take: 20,
