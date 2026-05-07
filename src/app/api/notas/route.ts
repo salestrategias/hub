@@ -1,6 +1,7 @@
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { notaSchema } from "@/lib/schemas";
+import { syncMentionsFromValue } from "@/lib/mentions";
 
 export async function GET(req: Request) {
   return apiHandler(async () => {
@@ -29,6 +30,9 @@ export async function POST(req: Request) {
   return apiHandler(async () => {
     await requireAuth();
     const data = notaSchema.parse(await req.json());
-    return prisma.nota.create({ data });
+    const nota = await prisma.nota.create({ data });
+    // Fire-and-forget — sync de mentions não bloqueia a resposta
+    void syncMentionsFromValue({ sourceType: "NOTA", sourceId: nota.id }, nota.conteudo);
+    return nota;
   });
 }

@@ -1,6 +1,7 @@
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { tarefaSchema } from "@/lib/schemas";
+import { syncMentionsFromValue } from "@/lib/mentions";
 
 export async function GET(req: Request) {
   return apiHandler(async () => {
@@ -31,6 +32,8 @@ export async function POST(req: Request) {
     await requireAuth();
     const body = await req.json();
     const data = tarefaSchema.parse(body);
-    return prisma.tarefa.create({ data });
+    const tarefa = await prisma.tarefa.create({ data });
+    void syncMentionsFromValue({ sourceType: "TAREFA", sourceId: tarefa.id }, tarefa.descricao);
+    return tarefa;
   });
 }

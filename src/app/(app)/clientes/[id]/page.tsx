@@ -10,6 +10,8 @@ import { ClienteDeleteButton } from "@/components/cliente-delete-button";
 import { TagsBadges } from "@/components/tag-picker";
 import { formatBRL, formatDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { BlockRenderer } from "@/components/editor";
+import { BacklinksPanel } from "@/components/backlinks-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -63,14 +65,26 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
         </TabsList>
 
         <TabsContent value="overview">
-          <Card><CardContent className="p-6 grid md:grid-cols-2 gap-6 text-sm">
-            <Info label="CNPJ" value={cliente.cnpj} />
-            <Info label="Email" value={cliente.email} />
-            <Info label="Telefone" value={cliente.telefone} />
-            <Info label="Endereço" value={cliente.endereco} />
-            <Info label="Pasta Drive" value={cliente.googleDriveFolderUrl ? "Vinculada" : "Não vinculada"} />
-            <Info label="Notas" value={cliente.notas} />
-          </CardContent></Card>
+          <div className="grid md:grid-cols-[1fr_320px] gap-5">
+            <div className="space-y-5">
+              <Card><CardContent className="p-6 grid md:grid-cols-2 gap-6 text-sm">
+                <Info label="CNPJ" value={cliente.cnpj} />
+                <Info label="Email" value={cliente.email} />
+                <Info label="Telefone" value={cliente.telefone} />
+                <Info label="Endereço" value={cliente.endereco} />
+                <Info label="Pasta Drive" value={cliente.googleDriveFolderUrl ? "Vinculada" : "Não vinculada"} />
+              </CardContent></Card>
+              {cliente.notas && (
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Notas</div>
+                    <BlockRenderer value={cliente.notas} className="text-sm" />
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+            <BacklinksPanel type="CLIENTE" id={cliente.id} title="Mencionado em" />
+          </div>
         </TabsContent>
 
         <TabsContent value="posts">

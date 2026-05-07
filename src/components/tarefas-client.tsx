@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +17,7 @@ import { tarefaSchema, type TarefaInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { formatDate, diffDias, cn } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
+import { RichTextField, BlockRenderer } from "@/components/editor";
 import { Plus, Trash2, CalendarPlus, Check, ListChecks, FilterX } from "lucide-react";
 
 type CheckItem = { id: string; texto: string; concluido: boolean; ordem: number };
@@ -171,7 +171,14 @@ function TarefaCard({ tarefa, onChange }: { tarefa: Tarefa; onChange: () => void
               {atrasada && <Badge variant="destructive">Atrasada</Badge>}
               {tarefa.googleEventId && <Badge variant="success">Agendada</Badge>}
             </div>
-            {tarefa.descricao && <p className="text-xs text-muted-foreground mt-1">{tarefa.descricao}</p>}
+            {tarefa.descricao && (
+              <BlockRenderer
+                value={tarefa.descricao}
+                maxBlocks={2}
+                truncateChars={180}
+                className="text-xs text-muted-foreground mt-1"
+              />
+            )}
             <Checklist tarefaId={tarefa.id} items={tarefa.checklist} onChange={onChange} />
           </div>
 
@@ -281,7 +288,12 @@ function NovaTarefa({ clientes, projetos }: { clientes: { id: string; nome: stri
           </div>
           <div className="space-y-1.5">
             <Label>Descrição</Label>
-            <Textarea rows={3} {...register("descricao")} />
+            <RichTextField
+              value={watch("descricao") ?? ""}
+              onChange={(blocks) => setValue("descricao", JSON.stringify(blocks))}
+              placeholder="Detalhes da tarefa, briefing, links..."
+              minHeight="100px"
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

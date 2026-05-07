@@ -1,6 +1,7 @@
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { clienteSchema } from "@/lib/schemas";
+import { syncMentionsFromValue } from "@/lib/mentions";
 
 export async function GET() {
   return apiHandler(async () => {
@@ -17,12 +18,14 @@ export async function POST(req: Request) {
     await requireAuth();
     const body = await req.json();
     const { tagIds, ...data } = clienteSchema.parse(body);
-    return prisma.cliente.create({
+    const cliente = await prisma.cliente.create({
       data: {
         ...data,
         tags: tagIds?.length ? { connect: tagIds.map((id) => ({ id })) } : undefined,
       },
       include: { tags: true },
     });
+    void syncMentionsFromValue({ sourceType: "CLIENTE", sourceId: cliente.id }, cliente.notas);
+    return cliente;
   });
 }

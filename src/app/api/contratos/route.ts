@@ -2,6 +2,7 @@ import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { contratoSchema } from "@/lib/schemas";
 import { tryCreateEvent } from "@/lib/google-calendar";
+import { syncMentionsFromValue } from "@/lib/mentions";
 
 export async function GET() {
   return apiHandler(async () => {
@@ -34,6 +35,8 @@ export async function POST(req: Request) {
       googleEventId = ev?.id ?? null;
     }
 
-    return prisma.contrato.create({ data: { ...data, googleEventId } });
+    const contrato = await prisma.contrato.create({ data: { ...data, googleEventId } });
+    void syncMentionsFromValue({ sourceType: "CONTRATO", sourceId: contrato.id }, contrato.observacoes);
+    return contrato;
   });
 }

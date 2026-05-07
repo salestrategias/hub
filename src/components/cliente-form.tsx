@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextField } from "@/components/editor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { clienteSchema, type ClienteInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
@@ -97,7 +97,12 @@ export function ClienteFormButton({ initial, id }: { initial?: Partial<ClienteIn
               <Input {...register("endereco")} />
             </Field>
             <Field label="Notas" className="col-span-2">
-              <Textarea rows={3} {...register("notas")} />
+              <RichTextField
+                value={watch("notas") ?? ""}
+                onChange={(blocks) => setValue("notas", JSON.stringify(blocks))}
+                placeholder="Histórico, contexto, decisões importantes..."
+                minHeight="120px"
+              />
             </Field>
             <Field label="Tags" className="col-span-2">
               <TagPicker selectedIds={tagIds} onChange={(ids) => setValue("tagIds", ids, { shouldDirty: true })} />

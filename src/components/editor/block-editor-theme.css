@@ -1,0 +1,175 @@
+/* ─────────────────────────────────────────────────────────────────
+   Tema BlockNote alinhado à paleta SAL.
+   Sobrescreve as CSS vars do @blocknote/mantine no dark mode.
+   ───────────────────────────────────────────────────────────────── */
+
+[data-block-editor] .bn-container {
+  --bn-colors-editor-background: transparent;
+  --bn-colors-editor-text: hsl(var(--foreground));
+  --bn-colors-menu-background: hsl(var(--card));
+  --bn-colors-menu-text: hsl(var(--foreground));
+  --bn-colors-tooltip-background: hsl(var(--popover));
+  --bn-colors-tooltip-text: hsl(var(--popover-foreground));
+  --bn-colors-hovered-background: hsl(var(--accent));
+  --bn-colors-hovered-text: hsl(var(--accent-foreground));
+  --bn-colors-selected-background: rgba(126, 48, 225, 0.15);
+  --bn-colors-selected-text: hsl(var(--foreground));
+  --bn-colors-disabled-background: transparent;
+  --bn-colors-disabled-text: hsl(var(--muted-foreground));
+  --bn-colors-shadow: rgba(0, 0, 0, 0.4);
+  --bn-colors-border: hsl(var(--border));
+  --bn-colors-side-menu: hsl(var(--muted-foreground));
+  --bn-colors-highlights-gray-background: rgba(150, 150, 168, 0.18);
+  --bn-colors-highlights-gray-text: hsl(var(--foreground));
+  --bn-font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  --bn-border-radius: 8px;
+}
+
+/* Padding interno mais generoso, alinhado com nosso layout */
+[data-block-editor] .bn-editor {
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+/* Headings com a fonte de display da SAL */
+[data-block-editor] .bn-block h1,
+[data-block-editor] .bn-block h2,
+[data-block-editor] .bn-block h3 {
+  font-family: var(--font-inter-tight), var(--font-inter), Inter, sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+[data-block-editor] .bn-block h1 { font-size: 28px; margin-top: 1.5rem; }
+[data-block-editor] .bn-block h2 { font-size: 22px; margin-top: 1.25rem; }
+[data-block-editor] .bn-block h3 { font-size: 17px; margin-top: 1rem; font-weight: 600; }
+
+/* Code blocks com fonte mono e fundo sutil */
+[data-block-editor] .bn-block pre {
+  background: hsl(var(--secondary)) !important;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  font-family: var(--font-mono), JetBrains Mono, monospace;
+  font-size: 13px;
+}
+[data-block-editor] .bn-block code {
+  background: hsl(var(--secondary));
+  border: 1px solid hsl(var(--border));
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono), JetBrains Mono, monospace;
+  font-size: 12.5px;
+}
+
+/* Quote estilo Notion com border-left SAL purple */
+[data-block-editor] .bn-block blockquote {
+  border-left: 3px solid #7E30E1;
+  padding-left: 1rem;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Slash menu com tema SAL */
+[data-block-editor] .bn-suggestion-menu,
+[data-block-editor] .mantine-Menu-dropdown {
+  background: hsl(var(--popover)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.03) inset !important;
+  border-radius: 10px !important;
+  padding: 4px !important;
+}
+
+[data-block-editor] .bn-suggestion-menu-item:hover,
+[data-block-editor] .bn-suggestion-menu-item[aria-selected="true"] {
+  background: rgba(126, 48, 225, 0.15) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Drag handle (ícone "⋮⋮" à esquerda do bloco) */
+[data-block-editor] .bn-drag-handle,
+[data-block-editor] .mantine-ActionIcon-root {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.7;
+  transition: opacity 0.15s, color 0.15s;
+}
+[data-block-editor] .bn-drag-handle:hover,
+[data-block-editor] .mantine-ActionIcon-root:hover {
+  opacity: 1;
+  color: #B794F4 !important;
+  background: rgba(126, 48, 225, 0.1) !important;
+}
+
+/* Placeholder do primeiro bloco vazio */
+[data-block-editor] .bn-block .ProseMirror-trailingBreak ~ p:empty:before,
+[data-block-editor] .bn-block p.is-empty:first-child:before {
+  content: attr(data-placeholder);
+  color: hsl(var(--muted-foreground));
+  opacity: 0.6;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* Foco e seleção sem outline azul padrão do browser */
+[data-block-editor] .bn-editor .ProseMirror:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Toolbar flutuante (formatação inline) */
+[data-block-editor] .bn-formatting-toolbar,
+[data-block-editor] .mantine-Paper-root {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 8px !important;
+}
+
+/* Inline mark — bold/italic/underline com cor SAL pra destaque */
+[data-block-editor] .bn-block strong,
+[data-block-editor] .bn-block b {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+/* Link: cor accent SAL */
+[data-block-editor] .bn-block a {
+  color: #B794F4;
+  text-decoration: underline;
+  text-decoration-color: rgba(183, 148, 244, 0.4);
+  text-underline-offset: 2px;
+}
+[data-block-editor] .bn-block a:hover {
+  text-decoration-color: #B794F4;
+}
+
+/* Tabela com bordas sutis no padrão SAL */
+[data-block-editor] .bn-block table {
+  border-collapse: collapse;
+}
+[data-block-editor] .bn-block table th,
+[data-block-editor] .bn-block table td {
+  border: 1px solid hsl(var(--border));
+  padding: 6px 10px;
+}
+[data-block-editor] .bn-block table th {
+  background: hsl(var(--secondary));
+  font-weight: 600;
+}
+
+/* Checkbox (todo list) com check colorido SAL */
+[data-block-editor] .bn-block input[type="checkbox"] {
+  accent-color: #7E30E1;
+  cursor: pointer;
+}
+
+/* Listas mais respiradas */
+[data-block-editor] .bn-block ul,
+[data-block-editor] .bn-block ol {
+  margin-block: 0.25rem;
+}
+
+/* Modo readonly — esconde drag handle e + button */
+[data-block-editor]:has(.bn-container[data-readonly="true"]) .bn-drag-handle,
+[data-block-editor]:has(.bn-container[data-readonly="true"]) .bn-add-block-button {
+  display: none;
+}

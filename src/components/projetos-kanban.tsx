@@ -11,7 +11,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextField } from "@/components/editor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { projetoSchema, type ProjetoInput } from "@/lib/schemas";
@@ -144,7 +144,15 @@ function NovoProjeto({ clientes }: { clientes: { id: string; nome: string }[] })
         <DialogHeader><DialogTitle>Novo projeto</DialogTitle></DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div className="space-y-1.5"><Label>Nome*</Label><Input {...register("nome")} /></div>
-          <div className="space-y-1.5"><Label>Descrição</Label><Textarea rows={3} {...register("descricao")} /></div>
+          <div className="space-y-1.5">
+            <Label>Descrição</Label>
+            <RichTextField
+              value={watch("descricao") ?? ""}
+              onChange={(blocks) => setValue("descricao", JSON.stringify(blocks))}
+              placeholder="Escopo, briefing, deliverables..."
+              minHeight="100px"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Cliente</Label>

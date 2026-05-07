@@ -1,6 +1,7 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
+import type { PartialBlock } from "@blocknote/core";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/toast";
 import { Sparkles, CheckSquare, Bookmark, Search, Plus, Trash2, ExternalLink, Share2, Download, Play, Rewind, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BlockEditor, BlockRenderer } from "@/components/editor";
+import { BacklinksPanel } from "@/components/backlinks-panel";
 
 type Block = { id: string; ordem: number; timestamp: number; speaker: string; speakerCor: string | null; texto: string };
 type Action = { id: string; texto: string; responsavel: string | null; prazo: string | null; concluido: boolean };
@@ -129,13 +132,13 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
             <TabsContent value="resumo">
               <Card>
                 <CardContent className="p-6">
-                  {reuniao.resumoIA ? (
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{reuniao.resumoIA}</p>
-                  ) : (
-                    <div className="text-center py-10 text-sm text-muted-foreground">
-                      Resumo IA ainda não gerado. Clique em "Reprocessar com IA" para gerar.
-                    </div>
-                  )}
+                  <ReuniaoFieldEditor
+                    reuniaoId={reuniao.id}
+                    field="resumoIA"
+                    initial={reuniao.resumoIA}
+                    placeholder="Resumo gerado pela IA aparece aqui. Você pode editar livremente."
+                    emptyHint="Resumo IA ainda não gerado. Clique em &quot;Reprocessar com IA&quot; ou comece a digitar."
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -143,11 +146,12 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
             <TabsContent value="notas">
               <Card>
                 <CardContent className="p-6">
-                  {reuniao.notasLivres ? (
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{reuniao.notasLivres}</p>
-                  ) : (
-                    <div className="text-center py-10 text-sm text-muted-foreground">Sem notas adicionadas.</div>
-                  )}
+                  <ReuniaoFieldEditor
+                    reuniaoId={reuniao.id}
+                    field="notasLivres"
+                    initial={reuniao.notasLivres}
+                    placeholder="Anotações livres da reunião — digite / para abrir o menu de blocos."
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -184,7 +188,12 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
                 <Button size="icon" variant="ghost" className="h-6 w-6"><RefreshCw className="h-3 w-3" /></Button>
               </div>
               {reuniao.resumoIA ? (
-                <p className="text-[12.5px] leading-relaxed text-muted-foreground line-clamp-6">{reuniao.resumoIA}</p>
+                <BlockRenderer
+                  value={reuniao.resumoIA}
+                  maxBlocks={4}
+                  truncateChars={320}
+                  className="text-[12.5px] leading-relaxed"
+                />
               ) : (
                 <p className="text-xs text-muted-foreground italic">Sem resumo. Clique em "Reprocessar com IA".</p>
               )}
@@ -240,7 +249,59 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
               </CardContent>
             </Card>
           )}
+
+          <BacklinksPanel type="REUNIAO" id={reuniao.id} hideWhenEmpty />
         </aside>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Edita um campo de texto da reunião (resumoIA ou notasLivres) usando BlockEditor.
+ * Auto-save debounce 700ms — atualiza via PATCH /api/reunioes/:id.
+ */
+function ReuniaoFieldEditor({
+  reuniaoId,
+  field,
+  initial,
+  placeholder,
+  emptyHint,
+}: {
+  reuniaoId: string;
+  field: "resumoIA" | "notasLivres";
+  initial: string | null;
+  placeholder: string;
+  emptyHint?: string;
+}) {
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+  const saving = useRef<NodeJS.Timeout | null>(null);
+  const valueRef = useRef<string>(initial ?? "");
+
+  function handleChange(blocks: PartialBlock[]) {
+    const json = JSON.stringify(blocks);
+    valueRef.current = json;
+    if (saving.current) clearTimeout(saving.current);
+    saving.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/reunioes/${reuniaoId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ [field]: json }),
+        });
+        if (res.ok) setSavedAt(new Date().toISOString());
+      } catch {
+        toast.error("Falha ao salvar");
+      }
+    }, 700);
+  }
+
+  return (
+    <div className="space-y-2">
+      <BlockEditor value={initial} onChange={handleChange} placeholder={placeholder} minHeight="240px" />
+      <div className="flex items-center justify-between text-[10.5px] text-muted-foreground/70">
+        {!initial && emptyHint ? <span>{emptyHint}</span> : <span />}
+        {savedAt ? <span className="font-mono">salvo às {new Date(savedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span> : <span />}
       </div>
     </div>
   );

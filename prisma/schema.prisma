@@ -618,3 +618,50 @@ enum PlataformaAds {
   YOUTUBE_ADS
   LINKEDIN_ADS
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Mentions — sistema de @ inline + backlinks automáticos
+//
+// Relação polimórfica leve: cada vez que um documento (Nota, Reuniao,
+// Tarefa, Projeto, Cliente, Contrato) menciona outra entidade via @,
+// uma linha é gravada aqui. Permite render de backlinks ("o que
+// referencia este cliente?") sem varrer textos JSON.
+//
+// Sync acontece quando o documento é salvo:
+//   1. extractMentions(blocks) varre blocos por inlineContent type=mention
+//   2. syncMentions diff'a contra existing rows (insere novas, deleta órfãs)
+//
+// Não usamos FK porque source/target podem ser de tabelas diferentes;
+// integridade é cuidada via cascade no source (quando documento morre,
+// suas mentions outbound morrem junto via job/trigger). Mentions inbound
+// para entidade deletada ficam órfãs e são filtradas no fetch.
+// ─────────────────────────────────────────────────────────────────────
+model Mention {
+  id String @id @default(cuid())
+
+  // De onde a menção foi feita (documento que contém o @)
+  sourceType MentionEntity
+  sourceId   String
+  // Trecho de contexto opcional (ex: 80 chars ao redor do @) para preview
+  context    String? @db.Text
+
+  // O que foi mencionado
+  targetType MentionEntity
+  targetId   String
+
+  createdAt DateTime @default(now())
+
+  @@unique([sourceType, sourceId, targetType, targetId])
+  @@index([targetType, targetId])
+  @@index([sourceType, sourceId])
+}
+
+enum MentionEntity {
+  CLIENTE
+  REUNIAO
+  POST
+  PROJETO
+  TAREFA
+  CONTRATO
+  NOTA
+}

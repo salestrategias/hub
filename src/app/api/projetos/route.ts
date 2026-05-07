@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { projetoSchema } from "@/lib/schemas";
 import { createFolder } from "@/lib/google-drive";
 import { tryCreateEvent } from "@/lib/google-calendar";
+import { syncMentionsFromValue } from "@/lib/mentions";
 
 export async function GET() {
   return apiHandler(async () => {
@@ -51,6 +52,8 @@ export async function POST(req: Request) {
       googleEventId = ev?.id ?? null;
     }
 
-    return prisma.projeto.create({ data: { ...data, ...driveData, googleEventId } });
+    const projeto = await prisma.projeto.create({ data: { ...data, ...driveData, googleEventId } });
+    void syncMentionsFromValue({ sourceType: "PROJETO", sourceId: projeto.id }, projeto.descricao);
+    return projeto;
   });
 }

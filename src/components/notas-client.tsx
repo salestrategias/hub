@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { PartialBlock } from "@blocknote/core";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/components/ui/toast";
 import { Plus, File, Folder, FileText, Search, Trash2, Star, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BlockEditor } from "@/components/editor";
 
 type Nota = {
   id: string;
@@ -22,7 +24,6 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
   const [notas, setNotas] = useState(initial);
   const [ativaId, setAtivaId] = useState<string | null>(initial[0]?.id ?? null);
   const [busca, setBusca] = useState("");
-  const [modo, setModo] = useState<"preview" | "edit" | "split">("preview");
   const router = useRouter();
 
   const ativa = notas.find((n) => n.id === ativaId);
@@ -30,7 +31,9 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
   const filtradas = useMemo(() => {
     if (!busca.trim()) return notas;
     const q = busca.toLowerCase();
-    return notas.filter((n) => n.titulo.toLowerCase().includes(q) || n.conteudo.toLowerCase().includes(q));
+    return notas.filter((n) =>
+      n.titulo.toLowerCase().includes(q) || extractPreview(n.conteudo, 500).toLowerCase().includes(q)
+    );
   }, [notas, busca]);
 
   const pastas = useMemo(() => {
@@ -43,16 +46,20 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
   }, [notas]);
 
   async function novaNota() {
+    // Conteúdo inicial em formato BlockNote — primeiro bloco vazio é "começa a escrever".
+    const initialBlocks: PartialBlock[] = [
+      { type: "heading", props: { level: 1 }, content: "Nova nota" } as PartialBlock,
+      { type: "paragraph", content: "" } as PartialBlock,
+    ];
     const res = await fetch("/api/notas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ titulo: "Nova nota", pasta: "Inbox", conteudo: "# Nova nota\n\nComece a escrever..." }),
+      body: JSON.stringify({ titulo: "Nova nota", pasta: "Inbox", conteudo: JSON.stringify(initialBlocks) }),
     });
     if (!res.ok) { toast.error("Erro ao criar"); return; }
     const nova: Nota = await res.json();
     setNotas([nova, ...notas]);
     setAtivaId(nova.id);
-    setModo("edit");
   }
 
   async function excluir(id: string) {
@@ -125,7 +132,7 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
                   <span className="truncate">{n.titulo}</span>
                 </div>
                 <div className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
-                  {n.conteudo.split("\n").filter((l) => l.trim() && !l.startsWith("#"))[0] ?? ""}
+                  {extractPreview(n.conteudo, 140)}
                 </div>
                 <div className="flex items-center gap-2 mt-1.5">
                   <span className="text-[10px] text-muted-foreground/60 font-mono">{relTime(n.updatedAt)}</span>
@@ -139,14 +146,12 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
           </div>
         </div>
 
-        {/* Coluna 3: Editor + Preview */}
+        {/* Coluna 3: Editor (WYSIWYG, dispensa toggle preview/split — Notion-style) */}
         <div className="flex flex-col min-w-0">
           {ativa ? (
             <NotaEditor
               key={ativa.id}
               nota={ativa}
-              modo={modo}
-              setModo={setModo}
               onChange={atualizarLocal}
               onDelete={() => excluir(ativa.id)}
               onTrocaPasta={() => router.refresh()}
@@ -164,21 +169,21 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
 }
 
 function NotaEditor({
-  nota, modo, setModo, onChange, onDelete, onTrocaPasta,
+  nota, onChange, onDelete,
 }: {
   nota: Nota;
-  modo: "preview" | "edit" | "split";
-  setModo: (m: "preview" | "edit" | "split") => void;
   onChange: (p: Partial<Nota>) => void;
   onDelete: () => void;
   onTrocaPasta: () => void;
 }) {
   const [titulo, setTitulo] = useState(nota.titulo);
-  const [conteudo, setConteudo] = useState(nota.conteudo);
   const [tagsInput, setTagsInput] = useState(nota.tags.join(", "));
+  const [favorita, setFavorita] = useState(nota.favorita);
+  const conteudoRef = useRef<string>(nota.conteudo);
+  const [stats, setStats] = useState(() => computeStats(nota.conteudo));
   const saving = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-save com debounce 600ms
+  // Auto-save com debounce 600ms — escopo: titulo, tags, favorita, conteudo (ref)
   useEffect(() => {
     if (saving.current) clearTimeout(saving.current);
     saving.current = setTimeout(async () => {
@@ -186,13 +191,30 @@ function NotaEditor({
       await fetch(`/api/notas/${nota.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titulo, conteudo, tags }),
+        body: JSON.stringify({ titulo, conteudo: conteudoRef.current, tags, favorita }),
       });
-      onChange({ titulo, conteudo, tags, updatedAt: new Date().toISOString() });
+      onChange({ titulo, conteudo: conteudoRef.current, tags, favorita, updatedAt: new Date().toISOString() });
     }, 600);
     return () => { if (saving.current) clearTimeout(saving.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [titulo, conteudo, tagsInput]);
+  }, [titulo, tagsInput, favorita]);
+
+  function handleEditorChange(blocks: PartialBlock[]) {
+    const json = JSON.stringify(blocks);
+    conteudoRef.current = json;
+    setStats(computeStats(json));
+    // Mesma janela de debounce que o resto
+    if (saving.current) clearTimeout(saving.current);
+    saving.current = setTimeout(async () => {
+      const tags = tagsInput.split(",").map((t) => t.trim()).filter(Boolean);
+      await fetch(`/api/notas/${nota.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ titulo, conteudo: json, tags, favorita }),
+      });
+      onChange({ titulo, conteudo: json, tags, favorita, updatedAt: new Date().toISOString() });
+    }, 600);
+  }
 
   return (
     <>
@@ -207,44 +229,35 @@ function NotaEditor({
           <span className="text-[10px] text-muted-foreground/60 font-mono shrink-0">{relTime(nota.updatedAt)}</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="inline-flex p-0.5 bg-secondary rounded-md gap-0.5">
-            {(["edit", "preview", "split"] as const).map((m) => (
-              <button
-                key={m}
-                onClick={() => setModo(m)}
-                className={cn(
-                  "px-2 py-1 text-[11px] rounded transition",
-                  modo === m ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {m === "edit" ? "Edição" : m === "preview" ? "Preview" : "Split"}
-              </button>
-            ))}
-          </div>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-7 w-7"
+            onClick={() => setFavorita(!favorita)}
+            title={favorita ? "Remover dos favoritos" : "Marcar como favorita"}
+          >
+            <Star className={cn("h-3.5 w-3.5", favorita ? "fill-amber-400 text-amber-400" : "")} />
+          </Button>
           <Button size="icon" variant="ghost" className="h-7 w-7"><Bookmark className="h-3.5 w-3.5" /></Button>
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onDelete}><Trash2 className="h-3.5 w-3.5" /></Button>
         </div>
       </div>
 
-      <div className={cn("flex-1 min-h-0 grid", modo === "split" ? "grid-cols-2" : "grid-cols-1")}>
-        {modo !== "preview" && (
-          <textarea
-            value={conteudo}
-            onChange={(e) => setConteudo(e.target.value)}
-            className="w-full h-full bg-transparent p-8 text-[13.5px] leading-relaxed font-mono outline-none resize-none border-r border-border"
-            placeholder="# Título da nota&#10;&#10;Comece a escrever em markdown.&#10;Use [[wikilinks]] para conectar e #tags para organizar."
-            spellCheck={false}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="max-w-3xl mx-auto px-8 py-6">
+          <BlockEditor
+            value={nota.conteudo}
+            onChange={handleEditorChange}
+            placeholder="Comece a escrever ou digite / para abrir o menu de blocos..."
+            minHeight="60vh"
           />
-        )}
-        {modo !== "edit" && (
-          <div className="overflow-y-auto p-8" dangerouslySetInnerHTML={{ __html: renderMarkdown(conteudo) }} />
-        )}
+        </div>
       </div>
 
       <div className="border-t border-border px-5 py-2 flex items-center justify-between text-[11px] text-muted-foreground gap-3">
         <div className="flex items-center gap-3 shrink-0">
-          <span>{conteudo.split(/\s+/).filter(Boolean).length} palavras</span>
-          <span>{conteudo.length} caracteres</span>
+          <span>{stats.words} palavras</span>
+          <span>{stats.chars} caracteres</span>
         </div>
         <div className="flex items-center gap-2 flex-1 justify-end">
           <span className="text-muted-foreground">tags:</span>
@@ -260,53 +273,61 @@ function NotaEditor({
   );
 }
 
-// Markdown renderer simples (subset comum). Escapa HTML do usuário antes de processar.
-function renderMarkdown(md: string): string {
-  const escapeHtml = (s: string) =>
-    s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+/**
+ * Extrai texto puro para preview/busca. Funciona com 3 formatos:
+ *  - JSON BlockNote (string que começa com `[`)
+ *  - markdown legado (qualquer outra string)
+ *  - vazio
+ *
+ * Pula títulos (linhas começadas com `#`) na heurística de markdown,
+ * para que o snippet seja o primeiro parágrafo de fato.
+ */
+function extractPreview(conteudo: string, maxLen: number): string {
+  if (!conteudo) return "";
+  const trimmed = conteudo.trim();
+  if (trimmed.startsWith("[")) {
+    try {
+      const blocks = JSON.parse(trimmed) as PartialBlock[];
+      const text = blocks
+        .filter((b) => b.type !== "heading")
+        .map(extractBlockText)
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+      return text.slice(0, maxLen);
+    } catch {
+      // cai pra markdown
+    }
+  }
+  return (
+    conteudo
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith("#"))[0] ?? ""
+  ).slice(0, maxLen);
+}
 
-  // Sanitização de URL: rejeita javascript:/data:/vbscript: que poderiam virar XSS em <a href>
-  const safeUrl = (raw: string) => {
-    const u = raw.trim().toLowerCase();
-    if (u.startsWith("javascript:") || u.startsWith("data:") || u.startsWith("vbscript:")) return "#";
-    return escapeHtml(raw);
+function extractBlockText(block: PartialBlock): string {
+  const c = (block as { content?: unknown }).content;
+  if (typeof c === "string") return c;
+  if (Array.isArray(c)) {
+    return c
+      .map((seg) => {
+        if (typeof seg === "string") return seg;
+        const t = (seg as { text?: string }).text;
+        return typeof t === "string" ? t : "";
+      })
+      .join("");
+  }
+  return "";
+}
+
+function computeStats(conteudo: string): { words: number; chars: number } {
+  const text = extractPreview(conteudo, 100000);
+  return {
+    words: text.split(/\s+/).filter(Boolean).length,
+    chars: text.length,
   };
-
-  // 1) Escapa todo o markdown bruto antes de qualquer transformação — previne <script>, on*=, etc.
-  let html = escapeHtml(md);
-
-  // 2) Code blocks (já estão escapados, só envelopa)
-  html = html.replace(/```([\s\S]*?)```/g, (_, code) =>
-    `<pre class="bg-secondary border border-border rounded-md p-3 my-3 text-xs font-mono overflow-x-auto"><code>${code}</code></pre>`
-  );
-
-  // 3) Block-level
-  html = html
-    .replace(/^### (.*)$/gm, '<h3 class="font-display text-[16px] font-semibold mt-5 mb-2">$1</h3>')
-    .replace(/^## (.*)$/gm, '<h2 class="font-display text-[20px] font-semibold mt-6 mb-3 tracking-tight">$1</h2>')
-    .replace(/^# (.*)$/gm, '<h1 class="font-display text-[28px] font-bold mt-2 mb-4 tracking-tight">$1</h1>')
-    .replace(/^&gt; (.*)$/gm, '<blockquote class="border-l-2 border-primary pl-4 py-1 my-3 italic text-muted-foreground">$1</blockquote>')
-    .replace(/^- \[ \] (.*)$/gm, '<div class="flex items-center gap-2 my-1"><input type="checkbox" class="accent-primary" /> <span>$1</span></div>')
-    .replace(/^- \[x\] (.*)$/gim, '<div class="flex items-center gap-2 my-1"><input type="checkbox" checked class="accent-primary" /> <span class="line-through text-muted-foreground">$1</span></div>')
-    .replace(/^- (.*)$/gm, '<li class="ml-5 list-disc text-[13.5px] leading-relaxed mb-1">$1</li>')
-    .replace(/^(\d+)\. (.*)$/gm, '<li class="ml-5 list-decimal text-[13.5px] leading-relaxed mb-1">$2</li>');
-
-  // 4) Inline
-  html = html
-    .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold">$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    .replace(/`([^`]+)`/g, '<code class="bg-secondary px-1.5 py-0.5 rounded font-mono text-xs">$1</code>')
-    .replace(/\[\[([^\]]+)\]\]/g, '<a class="note-link">$1</a>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) =>
-      `<a href="${safeUrl(url)}" rel="noopener noreferrer" target="_blank" class="text-sal-400 underline">${label}</a>`
-    )
-    .replace(/(^|\s)(#[\wÀ-ÿ-]+)/g, '$1<span class="note-tag">$2</span>');
-
-  // 5) Parágrafos
-  return html
-    .split(/\n\n+/)
-    .map((p) => p.startsWith("<") ? p : `<p class="text-[13.5px] leading-relaxed mb-3">${p.replace(/\n/g, "<br/>")}</p>`)
-    .join("");
 }
 
 function relTime(iso: string): string {

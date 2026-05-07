@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextField } from "@/components/editor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose,
@@ -169,7 +169,16 @@ function NovoContrato({ clientes }: { clientes: { id: string; nome: string }[] }
             <div className="space-y-1.5"><Label>Fim*</Label><Input type="date" {...register("dataFim")} /></div>
             <div className="space-y-1.5"><Label>Multa rescisória</Label><Input {...register("multaRescisoria")} placeholder="Ex: 50% do remanescente" /></div>
             <div className="space-y-1.5"><Label>Reajuste</Label><Input {...register("reajuste")} placeholder="IGP-M" /></div>
-            <div className="space-y-1.5 col-span-2"><Label>Observações</Label><Textarea rows={2} {...register("observacoes")} /></div>
+            <div className="space-y-1.5 col-span-2">
+              <Label>Observações</Label>
+              <RichTextField
+                value={watch("observacoes") ?? ""}
+                onChange={(blocks) => setValue("observacoes", JSON.stringify(blocks))}
+                placeholder="Cláusulas adicionais, contexto comercial, anotações..."
+                minHeight="80px"
+                compact
+              />
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label>Arquivo PDF no Drive (opcional)</Label>
