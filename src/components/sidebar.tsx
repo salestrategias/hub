@@ -97,10 +97,15 @@ export function Sidebar() {
               {g.items.map((item) => {
                 const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 const Icon = item.icon;
+                // Rotas admin têm auth/role check + acesso a filesystem;
+                // prefetch RSC nelas pode gerar 404 cosmético no DevTools.
+                // Desabilitamos pra evitar ruído + economizar payload.
+                const isPrivilegedRoute = item.href.startsWith("/admin");
                 return (
                   <li key={item.href}>
                     <Link
                       href={item.href}
+                      prefetch={isPrivilegedRoute ? false : undefined}
                       className={cn(
                         "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors font-medium",
                         active
