@@ -18,6 +18,8 @@ import { toast } from "@/components/ui/toast";
 import { formatDate, diffDias, cn } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { RichTextField, BlockRenderer } from "@/components/editor";
+import { TarefaSheet } from "@/components/sheets/tarefa-sheet";
+import { useEntitySheet } from "@/components/entity-sheet";
 import { Plus, Trash2, CalendarPlus, Check, ListChecks, FilterX } from "lucide-react";
 
 type CheckItem = { id: string; texto: string; concluido: boolean; ordem: number };
@@ -50,6 +52,7 @@ export function TarefasClient({
   const [tab, setTab] = useState("todas");
   const [filtroCliente, setFiltroCliente] = useState<string>("");
   const router = useRouter();
+  const sheet = useEntitySheet("tarefa");
 
   const filtradas = useMemo(() => {
     const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
@@ -114,14 +117,42 @@ export function TarefasClient({
           </Card>
         )}
         {filtradas.map((t) => (
-          <TarefaCard key={t.id} tarefa={t} onChange={() => router.refresh()} />
+          <TarefaCard
+            key={t.id}
+            tarefa={t}
+            onChange={() => router.refresh()}
+            onOpen={() => sheet.open(t.id)}
+            ativa={sheet.id === t.id}
+          />
         ))}
       </div>
+
+      <TarefaSheet
+        tarefaId={sheet.id}
+        open={sheet.isOpen}
+        onOpenChange={(o) => {
+          if (!o) sheet.close();
+          // Refresca lista quando fecha (caso tenha editado algo que altera ordem/agrupamento)
+          if (!o) router.refresh();
+        }}
+        clientes={clientes}
+        projetos={projetos}
+      />
     </div>
   );
 }
 
-function TarefaCard({ tarefa, onChange }: { tarefa: Tarefa; onChange: () => void }) {
+function TarefaCard({
+  tarefa,
+  onChange,
+  onOpen,
+  ativa,
+}: {
+  tarefa: Tarefa;
+  onChange: () => void;
+  onOpen: () => void;
+  ativa: boolean;
+}) {
   const atrasada = !tarefa.concluida && tarefa.dataEntrega && diffDias(tarefa.dataEntrega) < 0;
 
   async function toggle() {
@@ -148,11 +179,22 @@ function TarefaCard({ tarefa, onChange }: { tarefa: Tarefa; onChange: () => void
   }
 
   return (
-    <Card className={cn(atrasada && "border-destructive/50")}>
+    <Card
+      onClick={onOpen}
+      className={cn(
+        "cursor-pointer transition hover:border-primary/40",
+        atrasada && "border-destructive/50",
+        ativa && "border-primary bg-sal-600/[0.04]"
+      )}
+    >
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
+          {/* Checkbox NÃO propaga click — toggle direto sem abrir sheet */}
           <button
-            onClick={toggle}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggle();
+            }}
             className={cn(
               "mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center shrink-0",
               tarefa.concluida ? "bg-primary border-primary" : "border-muted-foreground/40"
@@ -179,10 +221,14 @@ function TarefaCard({ tarefa, onChange }: { tarefa: Tarefa; onChange: () => void
                 className="text-xs text-muted-foreground mt-1"
               />
             )}
-            <Checklist tarefaId={tarefa.id} items={tarefa.checklist} onChange={onChange} />
+            {/* Checklist click NÃO abre sheet (também tem inputs interativos dentro) */}
+            <div onClick={(e) => e.stopPropagation()}>
+              <Checklist tarefaId={tarefa.id} items={tarefa.checklist} onChange={onChange} />
+            </div>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
+          {/* Ações: NÃO propagar pra não abrir sheet ao clicar */}
+          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
             <span className="text-xs font-mono text-muted-foreground mr-2">
               {tarefa.dataEntrega ? formatDate(tarefa.dataEntrega) : "—"}
             </span>

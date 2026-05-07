@@ -8,7 +8,24 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     await requireAuth();
     return prisma.cliente.findUniqueOrThrow({
       where: { id: params.id },
-      include: { tags: true },
+      include: {
+        tags: true,
+        posts: {
+          orderBy: { dataPublicacao: "desc" },
+          take: 20,
+          select: { id: true, titulo: true, status: true, dataPublicacao: true },
+        },
+        tarefas: {
+          orderBy: [{ concluida: "asc" }, { dataEntrega: "asc" }],
+          take: 20,
+          select: { id: true, titulo: true, concluida: true, prioridade: true, dataEntrega: true },
+        },
+        contratos: {
+          orderBy: { dataInicio: "desc" },
+          take: 5,
+          select: { id: true, status: true, dataInicio: true, dataFim: true, valor: true },
+        },
+      },
     });
   });
 }

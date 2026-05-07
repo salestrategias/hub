@@ -18,6 +18,8 @@ import { projetoSchema, type ProjetoInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { formatDate, cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
+import { ProjetoSheet } from "@/components/sheets/projeto-sheet";
+import { useEntitySheet } from "@/components/entity-sheet";
 
 type ProjetoStatus = "BRIEFING" | "PRODUCAO" | "REVISAO" | "APROVACAO" | "ENTREGUE";
 type Card = {
@@ -45,6 +47,7 @@ export function ProjetosKanban({
 }: { projetos: Card[]; clientes: { id: string; nome: string }[] }) {
   const [cards, setCards] = useState(initial);
   const router = useRouter();
+  const sheet = useEntitySheet("projeto");
 
   async function onDragEnd(r: DropResult) {
     if (!r.destination) return;
@@ -88,7 +91,14 @@ export function ProjetosKanban({
                         <Draggable draggableId={c.id} index={i} key={c.id}>
                           {(p, s) => (
                             <div ref={p.innerRef} {...p.draggableProps} {...p.dragHandleProps}>
-                              <Card className={cn("transition-shadow", s.isDragging && "shadow-2xl ring-2 ring-primary")}>
+                              <Card
+                                onClick={() => sheet.open(c.id)}
+                                className={cn(
+                                  "transition cursor-pointer hover:border-primary/40",
+                                  s.isDragging && "shadow-2xl ring-2 ring-primary",
+                                  sheet.id === c.id && "border-primary bg-sal-600/[0.04]"
+                                )}
+                              >
                                 <CardContent className="p-3 space-y-2">
                                   <div className="font-medium text-sm">{c.nome}</div>
                                   <div className="flex items-center gap-1 flex-wrap">
@@ -114,6 +124,17 @@ export function ProjetosKanban({
           })}
         </div>
       </DragDropContext>
+
+      <ProjetoSheet
+        projetoId={sheet.id}
+        open={sheet.isOpen}
+        onOpenChange={(o) => {
+          if (!o) sheet.close();
+          // Refresh ao fechar pra que mudanças de status apareçam na coluna certa
+          if (!o) router.refresh();
+        }}
+        clientes={clientes}
+      />
     </div>
   );
 }

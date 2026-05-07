@@ -4,6 +4,20 @@ import { tarefaSchema } from "@/lib/schemas";
 import { tryDeleteEvent } from "@/lib/google-calendar";
 import { syncMentionsFromValue, deleteMentionsOf } from "@/lib/mentions";
 
+export async function GET(_: Request, { params }: { params: { id: string } }) {
+  return apiHandler(async () => {
+    await requireAuth();
+    return prisma.tarefa.findUniqueOrThrow({
+      where: { id: params.id },
+      include: {
+        cliente: { select: { id: true, nome: true } },
+        projeto: { select: { id: true, nome: true } },
+        checklist: { orderBy: { ordem: "asc" } },
+      },
+    });
+  });
+}
+
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
     await requireAuth();

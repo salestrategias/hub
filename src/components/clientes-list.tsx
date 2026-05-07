@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TagsBadges, type Tag } from "@/components/tag-picker";
 import { EmptyState } from "@/components/empty-state";
+import { ClienteSheet } from "@/components/sheets/cliente-sheet";
+import { useEntitySheet } from "@/components/entity-sheet";
 import { formatBRL, cn } from "@/lib/utils";
-import { Search, X, Users, FilterX } from "lucide-react";
+import { Search, X, Users, FilterX, ExternalLink } from "lucide-react";
 
 type Cliente = {
   id: string;
@@ -33,6 +35,7 @@ export function ClientesList({ clientes, tags }: { clientes: Cliente[]; tags: Ta
   const [tagsSelecionadas, setTagsSelecionadas] = useState<string[]>([]);
   const [statusSelecionados, setStatusSelecionados] = useState<Cliente["status"][]>([]);
   const [modoTag, setModoTag] = useState<"qualquer" | "todas">("qualquer");
+  const sheet = useEntitySheet("cliente");
 
   const filtrados = useMemo(() => {
     const q = busca.trim().toLowerCase();
@@ -147,6 +150,12 @@ export function ClientesList({ clientes, tags }: { clientes: Cliente[]; tags: Ta
         </CardContent>
       </Card>
 
+      <ClienteSheet
+        clienteId={sheet.id}
+        open={sheet.isOpen}
+        onOpenChange={(o) => (o ? undefined : sheet.close())}
+      />
+
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -162,18 +171,29 @@ export function ClientesList({ clientes, tags }: { clientes: Cliente[]; tags: Ta
             </TableHeader>
             <TableBody>
               {filtrados.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell className="font-medium">
-                    <Link href={`/clientes/${c.id}`} className="hover:text-primary">{c.nome}</Link>
-                  </TableCell>
+                <TableRow
+                  key={c.id}
+                  onClick={() => sheet.open(c.id)}
+                  className={cn(
+                    "cursor-pointer transition-colors group",
+                    sheet.id === c.id && "bg-sal-600/[0.06]"
+                  )}
+                >
+                  <TableCell className="font-medium">{c.nome}</TableCell>
                   <TableCell>
                     <Badge variant={STATUS_COLORS[c.status]}>{c.status.toLowerCase()}</Badge>
                   </TableCell>
                   <TableCell><TagsBadges tags={c.tags} /></TableCell>
                   <TableCell className="text-muted-foreground text-sm">{c.email ?? "—"}</TableCell>
                   <TableCell className="text-right font-mono text-sm">{formatBRL(c.valorContratoMensal)}</TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/clientes/${c.id}`} className="text-primary text-sm hover:underline">Detalhes →</Link>
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <Link
+                      href={`/clientes/${c.id}`}
+                      className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary text-xs opacity-0 group-hover:opacity-100 transition"
+                      title="Abrir página completa"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))}
