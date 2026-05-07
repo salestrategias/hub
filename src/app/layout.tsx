@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NextAuthProvider } from "@/components/session-provider";
+import { HideValuesProvider } from "@/components/hide-values-provider";
 import { Toaster } from "@/components/ui/toast";
 import "./globals.css";
 
@@ -20,9 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${inter.variable} ${interTight.variable} ${jetbrains.variable} font-sans antialiased`}>
         <NextAuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-            {children}
-            <Toaster />
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+            <HideValuesProvider>
+              {children}
+              <Toaster />
+            </HideValuesProvider>
           </ThemeProvider>
         </NextAuthProvider>
       </body>

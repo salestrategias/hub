@@ -28,9 +28,10 @@ model User {
   googleTokenExpiresAt   DateTime?
   googleScope            String?  @db.Text
 
-  accounts   Account[]
-  sessions   Session[]
-  atividades AtividadeConta[]
+  accounts      Account[]
+  sessions      Session[]
+  atividades    AtividadeConta[]
+  notificacoes  Notificacao[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -709,4 +710,52 @@ enum TemplateTipo {
   BRIEFING
   TAREFA
   PROJETO
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Notificações — alertas in-app (sininho + dashboard)
+//
+// Geração on-demand: quando user abre o dashboard ou o sininho, o backend
+// chama `gerarNotificacoes(userId)` que varre regras (contratos vencendo,
+// tarefas atrasadas, etc) e cria/atualiza linhas idempotentemente.
+//
+// Idempotência: cada notificação tem uma `chave` única por (user, tipo,
+// entidade, dia), pra mesma regra não duplicar entre runs.
+// ─────────────────────────────────────────────────────────────────────
+model Notificacao {
+  id          String           @id @default(cuid())
+  tipo        TipoNotificacao
+  titulo      String
+  descricao   String?
+  href        String?          // rota pra navegar ao clicar
+
+  // Contexto polimórfico — entidade que disparou a notificação
+  entidadeTipo String?         // "CONTRATO", "TAREFA", "REUNIAO", etc
+  entidadeId   String?
+
+  // Chave de idempotência: combina tipo + entidade + dia (YYYY-MM-DD).
+  // Permite "contrato X vence em 30 dias" gerar 1 notificação por dia,
+  // mas não duplicar se o mesmo dia ainda continuar.
+  chave        String
+
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  lida      Boolean   @default(false)
+  lidaEm    DateTime?
+
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, chave])
+  @@index([userId, lida, createdAt])
+  @@index([entidadeTipo, entidadeId])
+}
+
+enum TipoNotificacao {
+  CONTRATO_VENCENDO
+  ACTION_ITEM_ATRASADO
+  TAREFA_ATRASADA
+  REUNIAO_HOJE
+  POST_HOJE
+  SISTEMA
 }

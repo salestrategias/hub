@@ -2,8 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────────────────
+   Tema SAL — paleta unificada via CSS vars (HSL).
+   Todos os componentes shadcn/ui herdam destas vars.
+   Dark é o default; .light troca via class.
+   ───────────────────────────────────────────────────────────────────── */
 @layer base {
-  :root {
+  :root,
+  .dark {
     --background: 240 25% 5%;
     --foreground: 240 14% 92%;
     --card: 240 22% 9%;
@@ -24,28 +30,41 @@
     --input: 240 20% 15%;
     --ring: 268 76% 53%;
     --radius: 0.625rem;
+
+    /* Tema-aware extras (não fazem parte do shadcn padrão) */
+    --glass-bg: rgba(14, 14, 20, 0.7);
+    --scrollbar-thumb: 240 20% 22%;
+    --scrollbar-thumb-hover: 240 18% 32%;
+    --bg-glow-1: rgba(126, 48, 225, 0.12);
+    --bg-glow-2: rgba(126, 48, 225, 0.06);
   }
 
   .light {
-    --background: 0 0% 100%;
-    --foreground: 240 25% 8%;
+    --background: 240 30% 98%;
+    --foreground: 240 30% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 240 25% 8%;
+    --card-foreground: 240 30% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 25% 8%;
-    --primary: 268 76% 53%;
+    --popover-foreground: 240 30% 10%;
+    --primary: 268 70% 48%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 20% 96%;
-    --secondary-foreground: 240 25% 12%;
-    --muted: 240 20% 96%;
-    --muted-foreground: 240 8% 45%;
-    --accent: 240 20% 96%;
-    --accent-foreground: 240 25% 12%;
-    --destructive: 0 72% 51%;
+    --secondary: 240 30% 95%;
+    --secondary-foreground: 240 25% 14%;
+    --muted: 240 30% 95%;
+    --muted-foreground: 240 12% 38%;
+    --accent: 240 30% 95%;
+    --accent-foreground: 240 25% 14%;
+    --destructive: 0 72% 48%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 14% 90%;
-    --input: 240 14% 90%;
-    --ring: 268 76% 53%;
+    --border: 240 16% 88%;
+    --input: 240 16% 88%;
+    --ring: 268 70% 48%;
+
+    --glass-bg: rgba(255, 255, 255, 0.78);
+    --scrollbar-thumb: 240 14% 78%;
+    --scrollbar-thumb-hover: 240 14% 65%;
+    --bg-glow-1: rgba(126, 48, 225, 0.06);
+    --bg-glow-2: rgba(126, 48, 225, 0.03);
   }
 }
 
@@ -55,19 +74,26 @@
     @apply bg-background text-foreground;
     font-feature-settings: "cv11", "ss01", "ss03", "calt" 1;
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(126, 48, 225, 0.12), transparent 70%),
-      radial-gradient(ellipse 60% 40% at 95% 100%, rgba(126, 48, 225, 0.06), transparent 70%);
+      radial-gradient(ellipse 80% 50% at 50% -20%, var(--bg-glow-1), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 95% 100%, var(--bg-glow-2), transparent 70%);
     background-attachment: fixed;
     min-height: 100vh;
   }
 }
 
+/* Seleção de texto: preserva identidade SAL nos dois temas */
 ::selection { background: #7E30E1; color: white; }
 
+/* Scrollbar custom: cores via vars HSL pra adaptar ao tema */
 *::-webkit-scrollbar { width: 6px; height: 6px; }
 *::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb { background: #2A2A3A; border-radius: 3px; }
-*::-webkit-scrollbar-thumb:hover { background: #3A3A4D; }
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--scrollbar-thumb));
+  border-radius: 3px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--scrollbar-thumb-hover));
+}
 
 /* react-big-calendar overrides */
 .rbc-calendar { @apply text-foreground; }
@@ -85,9 +111,11 @@
 
 .note-tag { color: #7E30E1; font-weight: 500; }
 .note-link { color: #B794F4; border-bottom: 1px dotted #7E30E1; cursor: pointer; }
+.light .note-link { color: #6921C4; border-bottom-color: #7E30E1; }
 
+/* Glass header — bg adapta ao tema via var */
 .glass {
-  background: rgba(14, 14, 20, 0.7);
+  background: var(--glass-bg);
   backdrop-filter: saturate(160%) blur(14px);
   -webkit-backdrop-filter: saturate(160%) blur(14px);
 }
@@ -100,4 +128,10 @@
   background: hsl(var(--secondary));
   border: 1px solid hsl(var(--border));
   color: hsl(var(--muted-foreground));
+}
+
+/* Pill de mention — ajuste sutil pra light theme */
+.light .mention-pill {
+  background: rgba(126, 48, 225, 0.08) !important;
+  color: #6921C4 !important;
 }

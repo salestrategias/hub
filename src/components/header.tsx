@@ -2,8 +2,10 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/db";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificacoesBell } from "@/components/notificacoes-bell";
+import { HideValuesToggle } from "@/components/hide-values-toggle";
 import { Button } from "@/components/ui/button";
-import { LogOut, Bell, HelpCircle } from "lucide-react";
+import { LogOut, HelpCircle } from "lucide-react";
 
 export async function Header({ title, subtitle }: { title?: string; subtitle?: string }) {
   const session = await auth();
@@ -28,7 +30,8 @@ export async function Header({ title, subtitle }: { title?: string; subtitle?: s
         {subtitle && <p className="text-[12px] text-muted-foreground mt-1.5">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" aria-label="Notificações"><Bell className="h-4 w-4" /></Button>
+        <HideValuesToggle />
+        <NotificacoesBell />
         <Button variant="ghost" size="icon" aria-label="Ajuda"><HelpCircle className="h-4 w-4" /></Button>
         <ThemeToggle />
         {session?.user && (
