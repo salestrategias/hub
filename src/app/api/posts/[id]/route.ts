@@ -2,6 +2,17 @@ import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { postSchema } from "@/lib/schemas";
 import { tryCreateEvent, tryDeleteEvent, tryUpdateEvent } from "@/lib/google-calendar";
+import { syncMentionsFromValue, deleteMentionsOf } from "@/lib/mentions";
+
+export async function GET(_: Request, { params }: { params: { id: string } }) {
+  return apiHandler(async () => {
+    await requireAuth();
+    return prisma.post.findUniqueOrThrow({
+      where: { id: params.id },
+      include: { cliente: { select: { id: true, nome: true } } },
+    });
+  });
+}
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
@@ -34,7 +45,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       await tryUpdateEvent({ eventId: atual.googleEventId, titulo: `[Post] ${titulo}`, inicio: dataPub, fim });
     }
 
-    return prisma.post.update({ where: { id: params.id }, data: { ...data, googleEventId } });
+    const updated = await prisma.post.update({ where: { id: params.id }, data: { ...data, googleEventId } });
+    if (data.legenda !== undefined) {
+      void syncMentionsFromValue({ sourceType: "POST", sourceId: params.id }, data.legenda);
+    }
+    return updated;
   });
 }
 
@@ -44,6 +59,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
     const p = await prisma.post.findUnique({ where: { id: params.id } });
     if (p?.googleEventId) await tryDeleteEvent({ eventId: p.googleEventId });
     await prisma.post.delete({ where: { id: params.id } });
+    void deleteMentionsOf({ sourceType: "POST", sourceId: params.id });
     return { ok: true };
   });
 }

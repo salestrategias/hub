@@ -2,6 +2,7 @@ import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { postSchema } from "@/lib/schemas";
 import { tryCreateEvent } from "@/lib/google-calendar";
+import { syncMentionsFromValue } from "@/lib/mentions";
 
 export async function GET() {
   return apiHandler(async () => {
@@ -32,6 +33,8 @@ export async function POST(req: Request) {
       googleEventId = ev?.id ?? null;
     }
 
-    return prisma.post.create({ data: { ...data, googleEventId } });
+    const post = await prisma.post.create({ data: { ...data, googleEventId } });
+    void syncMentionsFromValue({ sourceType: "POST", sourceId: post.id }, post.legenda);
+    return post;
   });
 }

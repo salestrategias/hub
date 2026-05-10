@@ -11,14 +11,17 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
 import { postSchema, type PostInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
+import { RichTextField } from "@/components/editor";
+import { PostSheet } from "@/components/sheets/post-sheet";
+import { useEntitySheet } from "@/components/entity-sheet";
+import type { PartialBlock } from "@blocknote/core";
 
 const locales = { "pt-BR": ptBR };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
@@ -47,11 +50,13 @@ const STATUS_COR: Record<Post["status"], string> = {
 export function EditorialCalendarClient({
   posts, clientes,
 }: { posts: Post[]; clientes: { id: string; nome: string }[] }) {
+  const router = useRouter();
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
-  const [editing, setEditing] = useState<Post | null>(null);
   const [creating, setCreating] = useState(false);
   const [defaultDate, setDefaultDate] = useState<Date | null>(null);
+  // Edição via Sheet (peek mode) — URL state via ?post=<id>
+  const sheet = useEntitySheet("post");
 
   const filtrados = posts.filter((p) =>
     (!filtroCliente || p.clienteId === filtroCliente) &&
@@ -108,7 +113,7 @@ export function EditorialCalendarClient({
             next: "Próximo", previous: "Anterior", today: "Hoje",
             month: "Mês", week: "Semana", day: "Dia", agenda: "Agenda", noEventsInRange: "Sem posts no período",
           }}
-          onSelectEvent={(e) => setEditing(e.resource as Post)}
+          onSelectEvent={(e) => sheet.open((e.resource as Post).id)}
           onSelectSlot={(slot) => { setDefaultDate(slot.start as Date); setCreating(true); }}
           selectable
           eventPropGetter={(e) => {
@@ -119,67 +124,63 @@ export function EditorialCalendarClient({
       </div>
 
       {creating && (
-        <PostFormDialog
+        <NovoPostDialog
           open={creating}
           onOpenChange={setCreating}
           clientes={clientes}
           defaultDate={defaultDate}
         />
       )}
-      {editing && (
-        <PostFormDialog
-          open={!!editing}
-          onOpenChange={(v) => !v && setEditing(null)}
-          clientes={clientes}
-          post={editing}
-        />
-      )}
+
+      <PostSheet
+        postId={sheet.id}
+        open={sheet.isOpen}
+        onOpenChange={(o) => {
+          if (!o) sheet.close();
+          // Refresh ao fechar — calendário precisa refletir mudanças de
+          // status, data, etc
+          if (!o) router.refresh();
+        }}
+        clientes={clientes}
+      />
     </div>
   );
 }
 
-function PostFormDialog({
-  open, onOpenChange, clientes, post, defaultDate,
+/**
+ * Dialog de criação de post.
+ * Edição vive no PostSheet (peek mode) — esse dialog é só pra criar.
+ */
+function NovoPostDialog({
+  open, onOpenChange, clientes, defaultDate,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   clientes: { id: string; nome: string }[];
-  post?: Post;
   defaultDate?: Date | null;
 }) {
   const router = useRouter();
-  const isEdit = !!post;
   const { register, handleSubmit, watch, setValue, formState: { isSubmitting } } = useForm<PostInput>({
     resolver: zodResolver(postSchema),
     defaultValues: {
-      titulo: post?.titulo ?? "",
-      legenda: post?.legenda ?? "",
-      pilar: post?.pilar ?? "",
-      formato: post?.formato ?? "FEED",
-      status: post?.status ?? "RASCUNHO",
-      clienteId: post?.clienteId ?? clientes[0]?.id ?? "",
-      dataPublicacao: post ? new Date(post.dataPublicacao) : defaultDate ?? new Date(),
+      titulo: "",
+      legenda: "",
+      pilar: "",
+      formato: "FEED",
+      status: "RASCUNHO",
+      clienteId: clientes[0]?.id ?? "",
+      dataPublicacao: defaultDate ?? new Date(),
     },
   });
 
   async function onSubmit(values: PostInput) {
-    const url = isEdit ? `/api/posts/${post!.id}` : "/api/posts";
-    const method = isEdit ? "PATCH" : "POST";
-    const res = await fetch(url, {
-      method,
+    const res = await fetch("/api/posts", {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
     });
     if (!res.ok) { toast.error("Erro ao salvar"); return; }
-    toast.success(isEdit ? "Post atualizado" : "Post criado");
-    onOpenChange(false);
-    router.refresh();
-  }
-
-  async function excluir() {
-    if (!confirm("Excluir este post?")) return;
-    await fetch(`/api/posts/${post!.id}`, { method: "DELETE" });
-    toast.success("Post excluído");
+    toast.success("Post criado");
     onOpenChange(false);
     router.refresh();
   }
@@ -187,10 +188,18 @@ function PostFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl">
-        <DialogHeader><DialogTitle>{isEdit ? "Editar post" : "Novo post"}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Novo post</DialogTitle></DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div className="space-y-1.5"><Label>Título*</Label><Input {...register("titulo")} /></div>
-          <div className="space-y-1.5"><Label>Legenda</Label><Textarea rows={4} {...register("legenda")} /></div>
+          <div className="space-y-1.5">
+            <Label>Legenda</Label>
+            <RichTextField
+              value={watch("legenda") ?? ""}
+              onChange={(blocks: PartialBlock[]) => setValue("legenda", JSON.stringify(blocks))}
+              placeholder="Copy do post — / abre blocos, @ menciona entidades..."
+              minHeight="100px"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label>Pilar</Label><Input {...register("pilar")} placeholder="Ex: Educacional, Vendas" /></div>
             <div className="space-y-1.5">
@@ -234,17 +243,8 @@ function PostFormDialog({
             <p className="text-xs text-muted-foreground">Ao salvar como Agendado, um evento será criado na sua Google Agenda.</p>
           )}
           <DialogFooter className="justify-between">
-            <div>
-              {isEdit && (
-                <Button type="button" variant="destructive" onClick={excluir}>
-                  <Trash2 className="h-4 w-4" /> Excluir
-                </Button>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-              <Button type="submit" disabled={isSubmitting}>Salvar</Button>
-            </div>
+            <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
+            <Button type="submit" disabled={isSubmitting}>Criar</Button>
           </DialogFooter>
         </form>
       </DialogContent>
