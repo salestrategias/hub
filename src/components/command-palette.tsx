@@ -32,7 +32,7 @@ const STATIC_COMMANDS: StaticCommand[] = [
   {
     id: "act-quick-capture",
     label: "Captura rápida",
-    hint: "anotar algo sem mudar de página",
+    hint: "tecla C · anota sem mudar de página",
     icon: Zap,
     event: "sal-hub:quick-capture-open",
     group: "Ação",

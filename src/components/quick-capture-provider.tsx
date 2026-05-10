@@ -22,8 +22,14 @@ const QuickCaptureModal = dynamic(
  * sem perder o contexto.
  *
  * Atalho:
- *   - Cmd+Shift+N (Mac)
- *   - Ctrl+Shift+N (Win/Linux)
+ *   - `C` (sozinho, quando foco não está em input/textarea/contenteditable)
+ *   - Botão ⚡ no header (sempre)
+ *   - Command Palette → "Captura rápida" (sempre)
+ *
+ * Por que `C` e não `Ctrl+Shift+N`: Edge/Chrome/Firefox usam Ctrl+Shift+N
+ * pra janela anônima — atalho reservado, não interceptável de forma
+ * confiável. `C` (de "capture") segue convenção Linear/Notion/GitHub:
+ * tecla única quando o usuário NÃO está digitando.
  *
  * Rascunho persiste em localStorage (key `sal-hub-quick-capture-draft`)
  * — se fechar acidentalmente (sem salvar), o conteúdo volta na próxima
@@ -44,8 +50,7 @@ export function QuickCaptureProvider({ children }: { children: React.ReactNode }
   const abrir = useCallback(() => setOpen(true), []);
   const fechar = useCallback(() => setOpen(false), []);
 
-  // Atalho global. Ignora quando algum input/textarea/contenteditable
-  // já está em foco em outro modal pra evitar conflito.
+  // Atalho global: `C` sozinho quando o foco NÃO está em texto.
   useEffect(() => {
     function isEditing(): boolean {
       const el = document.activeElement;
@@ -58,15 +63,16 @@ export function QuickCaptureProvider({ children }: { children: React.ReactNode }
     }
 
     function onKey(e: KeyboardEvent) {
-      const isMod = e.metaKey || e.ctrlKey;
-      if (!isMod || !e.shiftKey) return;
-      if (e.key.toLowerCase() !== "n") return;
+      // Ignora qualquer combinação com modifier — só queremos tecla solta
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // Só dispara em `c` minúsculo. Shift+C aciona o navegador em alguns
+      // contextos, e maiúscula geralmente vem com Shift, então filtra.
+      if (e.key !== "c" && e.key !== "C") return;
+      if (e.key === "C" && e.shiftKey) return;
 
-      // Permite abertura mesmo se outro modal/editor estiver aberto —
-      // mas se a tecla está sendo digitada em input, deixa o usuário.
-      // Cmd+Shift+N é incomum em browsers (não conflita com new private window
-      // em Chrome — esse é Cmd+Shift+N no Mac mas só ativo no menu, e nosso
-      // preventDefault impede).
+      // Se está digitando algo, deixa passar.
+      if (isEditing()) return;
+
       e.preventDefault();
       e.stopPropagation();
       setOpen((v) => !v);
