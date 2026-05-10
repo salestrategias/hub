@@ -3,6 +3,7 @@ import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NextAuthProvider } from "@/components/session-provider";
 import { HideValuesProvider } from "@/components/hide-values-provider";
+import { QuickCaptureProvider } from "@/components/quick-capture-provider";
 import { Toaster } from "@/components/ui/toast";
 import "./globals.css";
 
@@ -23,8 +24,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <NextAuthProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
             <HideValuesProvider>
-              {children}
-              <Toaster />
+              <QuickCaptureProvider>
+                {children}
+                <Toaster />
+              </QuickCaptureProvider>
             </HideValuesProvider>
           </ThemeProvider>
         </NextAuthProvider>

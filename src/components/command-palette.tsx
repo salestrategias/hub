@@ -5,7 +5,7 @@ import {
   Search, ArrowRight, Users, Mic, FileText, ListChecks, FolderKanban,
   CalendarDays, FileSignature, Wallet, BarChart3, GitBranch, Plus,
   LayoutDashboard, FolderOpen, CalendarRange, Cpu, Database, User,
-  CornerDownLeft, ArrowUp, ArrowDown,
+  CornerDownLeft, ArrowUp, ArrowDown, Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,12 +19,25 @@ type StaticCommand = {
   label: string;
   hint?: string;
   icon: typeof LayoutDashboard;
-  href: string;
-  group: "Ir para" | "Criar";
+  /** Destino quando é navegação. */
+  href?: string;
+  /** Nome de um custom event a disparar quando é ação (ex: abrir modal). Tem precedência sobre href. */
+  event?: string;
+  group: "Ir para" | "Criar" | "Ação";
   keywords: string[];
 };
 
 const STATIC_COMMANDS: StaticCommand[] = [
+  // Ações rápidas
+  {
+    id: "act-quick-capture",
+    label: "Captura rápida",
+    hint: "anotar algo sem mudar de página",
+    icon: Zap,
+    event: "sal-hub:quick-capture-open",
+    group: "Ação",
+    keywords: ["quick", "capture", "anotar", "nota rapida", "inbox", "ideia"],
+  },
   // Ir para
   { id: "go-dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/", group: "Ir para", keywords: ["home", "inicio", "kpi"] },
   { id: "go-clientes", label: "Clientes", icon: Users, href: "/clientes", group: "Ir para", keywords: ["crm"] },
@@ -68,7 +81,9 @@ type Item = {
   label: string;
   hint?: string;
   icon: typeof LayoutDashboard;
-  href: string;
+  href?: string;
+  /** Custom event a disparar (alternativa a href). */
+  event?: string;
 };
 
 /* ────────────────────────────────────────────────────────────
@@ -155,7 +170,15 @@ export function CommandPalette() {
       const all: Item[] = [];
       for (const group of Object.keys(grouped)) {
         for (const c of grouped[group]) {
-          all.push({ id: c.id, group: c.group, label: c.label, hint: c.hint, icon: c.icon, href: c.href });
+          all.push({
+            id: c.id,
+            group: c.group,
+            label: c.label,
+            hint: c.hint,
+            icon: c.icon,
+            href: c.href,
+            event: c.event,
+          });
         }
       }
       // Filtra por query simples se houver 1 char
@@ -226,7 +249,15 @@ export function CommandPalette() {
   const select = useCallback(
     (item: Item) => {
       setOpen(false);
-      router.push(item.href);
+      if (item.event) {
+        // Custom event — outro provider/listener trata (ex: quick-capture)
+        // Defer ao próximo tick pra que o close anime sem competir com o novo modal
+        setTimeout(() => window.dispatchEvent(new CustomEvent(item.event!)), 0);
+        return;
+      }
+      if (item.href) {
+        router.push(item.href);
+      }
     },
     [router, setOpen]
   );

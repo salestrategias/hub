@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificacoesBell } from "@/components/notificacoes-bell";
 import { HideValuesToggle } from "@/components/hide-values-toggle";
+import { QuickCaptureTrigger } from "@/components/quick-capture-trigger";
 import { Button } from "@/components/ui/button";
 import { LogOut, HelpCircle } from "lucide-react";
 
@@ -30,6 +31,7 @@ export async function Header({ title, subtitle }: { title?: string; subtitle?: R
         {subtitle && <p className="text-[12px] text-muted-foreground mt-1.5">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-1">
+        <QuickCaptureTrigger />
         <HideValuesToggle />
         <NotificacoesBell />
         <Button variant="ghost" size="icon" aria-label="Ajuda"><HelpCircle className="h-4 w-4" /></Button>
