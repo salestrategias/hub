@@ -1,7 +1,21 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { QuickCaptureModal } from "@/components/quick-capture-modal";
+import dynamic from "next/dynamic";
 import { QUICK_CAPTURE_OPEN_EVENT } from "@/lib/quick-capture";
+
+/**
+ * Modal carregado dinamicamente sem SSR.
+ *
+ * Por quê: o modal usa BlockEditor (BlockNote), que tem deps com hooks
+ * de browser e quebra durante prerender estático de páginas que herdam
+ * deste root layout (`/login`, `/_not-found`). Como o modal só é
+ * relevante depois que o usuário aperta o atalho, lazy load é seguro
+ * e melhora também o initial bundle do app.
+ */
+const QuickCaptureModal = dynamic(
+  () => import("@/components/quick-capture-modal").then((m) => ({ default: m.QuickCaptureModal })),
+  { ssr: false }
+);
 
 /**
  * Quick Capture — atalho global pra anotar algo em qualquer página
