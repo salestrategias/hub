@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import { Zap, Folder, Loader2, ArrowRight } from "lucide-react";
-import { QUICK_CAPTURE_DRAFT_KEY } from "@/components/quick-capture-provider";
+import { QUICK_CAPTURE_DRAFT_KEY } from "@/lib/quick-capture";
 
 type Draft = {
   titulo: string;

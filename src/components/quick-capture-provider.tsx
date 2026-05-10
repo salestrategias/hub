@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { QuickCaptureModal } from "@/components/quick-capture-modal";
+import { QUICK_CAPTURE_OPEN_EVENT } from "@/lib/quick-capture";
 
 /**
  * Quick Capture — atalho global pra anotar algo em qualquer página
@@ -22,8 +23,6 @@ type Ctx = {
 };
 
 const QuickCaptureContext = createContext<Ctx | null>(null);
-
-export const QUICK_CAPTURE_DRAFT_KEY = "sal-hub-quick-capture-draft";
 
 export function QuickCaptureProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -64,10 +63,10 @@ export function QuickCaptureProvider({ children }: { children: React.ReactNode }
     }
 
     window.addEventListener("keydown", onKey);
-    window.addEventListener("sal-hub:quick-capture-open", onCustomOpen);
+    window.addEventListener(QUICK_CAPTURE_OPEN_EVENT, onCustomOpen);
     return () => {
       window.removeEventListener("keydown", onKey);
-      window.removeEventListener("sal-hub:quick-capture-open", onCustomOpen);
+      window.removeEventListener(QUICK_CAPTURE_OPEN_EVENT, onCustomOpen);
     };
   }, []);
 
