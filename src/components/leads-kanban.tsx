@@ -27,6 +27,7 @@ import { ConverterLeadDialog } from "@/components/converter-lead-dialog";
 import { MoneyInput } from "@/components/money-input";
 import { ImportarLeadsDialog } from "@/components/importar-leads-dialog";
 import { cn } from "@/lib/utils";
+import { exportarCsv, timestampArquivo, type Coluna } from "@/lib/csv-export";
 import {
   Plus,
   Search,
@@ -37,6 +38,7 @@ import {
   Tag as TagIcon,
   TrendingUp,
   Upload,
+  Download,
 } from "lucide-react";
 
 export type LeadCard = {
@@ -118,6 +120,38 @@ export function LeadsKanban({
     );
   }, [cards, busca]);
 
+  function exportar() {
+    // Exporta o conjunto atualmente visível (respeita busca). Colunas
+    // refletem o que aparece no kanban + dados de conversão + scores
+    // — exatamente o que Marcelo precisa pra trabalhar em planilha ou
+    // subir como custom audience.
+    const colunas: Coluna<LeadCard>[] = [
+      { header: "Empresa", get: (l) => l.empresa },
+      { header: "Contato", get: (l) => l.contatoNome ?? "" },
+      { header: "Email", get: (l) => l.contatoEmail ?? "" },
+      { header: "Telefone", get: (l) => l.contatoTelefone ?? "" },
+      { header: "Segmento", get: (l) => l.segmento ?? "" },
+      { header: "Porte", get: (l) => l.porte ?? "" },
+      { header: "Origem", get: (l) => l.origem ?? "" },
+      { header: "Status", get: (l) => COLUNAS.find((c) => c.key === l.status)?.label ?? l.status },
+      { header: "Prioridade", get: (l) => l.prioridade },
+      { header: "Valor estimado (mensal)", get: (l) => l.valorEstimadoMensal ?? "" },
+      { header: "Duração (meses)", get: (l) => l.duracaoEstimadaMeses ?? "" },
+      { header: "Score", get: (l) => l.score },
+      { header: "Próxima ação", get: (l) => l.proximaAcao ?? "" },
+      { header: "Próxima ação em", get: (l) => l.proximaAcaoEm ? new Date(l.proximaAcaoEm).toLocaleDateString("pt-BR") : "" },
+      { header: "Tags", get: (l) => l.tags.join(", ") },
+      { header: "Cliente vinculado", get: (l) => l.clienteNome ?? "" },
+      { header: "Convertido em", get: (l) => l.convertidoEm ? new Date(l.convertidoEm).toLocaleDateString("pt-BR") : "" },
+      { header: "Motivo perdido", get: (l) => l.motivoPerdido ?? "" },
+      { header: "Total propostas", get: (l) => l.totalPropostas },
+      { header: "Atualizado em", get: (l) => new Date(l.updatedAt).toLocaleString("pt-BR") },
+    ];
+    const sufixo = busca.trim() ? `-filtrado` : "";
+    exportarCsv(`leads-sal${sufixo}-${timestampArquivo()}.csv`, filtrados, colunas);
+    toast.success(`${filtrados.length} lead(s) exportado(s)`);
+  }
+
   async function onDragEnd(r: DropResult) {
     if (!r.destination) return;
     const novoStatus = r.destination.droppableId as LeadStatus;
@@ -178,6 +212,9 @@ export function LeadsKanban({
         <span className="text-xs text-muted-foreground ml-auto">
           {totalAtivos} ativos · {cards.length - totalAtivos} finalizados
         </span>
+        <Button variant="outline" onClick={exportar} size="sm" disabled={filtrados.length === 0}>
+          <Download className="h-4 w-4" /> Exportar
+        </Button>
         <Button variant="outline" onClick={() => setImportando(true)} size="sm">
           <Upload className="h-4 w-4" /> Importar
         </Button>
