@@ -309,6 +309,10 @@ export const leadSchema = z.object({
   proximaAcaoEm: z.coerce.date().optional().nullable(),
   tags: z.array(z.string()).default([]),
   motivoPerdido: z.string().max(1000).optional().nullable().or(z.literal("")),
+  // Score: automático (gerado server-side) ou manual (override do usuário).
+  // Aceita null pra "voltar pro automático".
+  score: z.coerce.number().int().min(0).max(100).optional(),
+  scoreManual: z.coerce.number().int().min(0).max(100).optional().nullable(),
 });
 export type LeadInput = z.infer<typeof leadSchema>;
 
