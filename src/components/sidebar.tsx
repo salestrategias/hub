@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
-  Mic, FileText, GitBranch, Cpu, Database, Sparkles,
+  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
@@ -34,10 +34,11 @@ const groups: NavGroup[] = [
     ],
   },
   {
-    label: "Financeiro",
+    label: "Comercial",
     items: [
-      { label: "Financeiro", href: "/financeiro", icon: Wallet },
+      { label: "Propostas", href: "/propostas", icon: Send },
       { label: "Contratos", href: "/contratos", icon: FileSignature },
+      { label: "Financeiro", href: "/financeiro", icon: Wallet },
     ],
   },
   {

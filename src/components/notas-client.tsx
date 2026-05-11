@@ -10,6 +10,8 @@ import { Plus, File, Folder, FileText, Search, Trash2, Star, Bookmark } from "lu
 import { cn } from "@/lib/utils";
 import { BlockEditor } from "@/components/editor";
 import { TemplatePicker } from "@/components/template-picker";
+import { ShareDialog } from "@/components/share-dialog";
+import { Share2 } from "lucide-react";
 
 type Nota = {
   id: string;
@@ -203,6 +205,7 @@ function NotaEditor({
   const [titulo, setTitulo] = useState(nota.titulo);
   const [tagsInput, setTagsInput] = useState(nota.tags.join(", "));
   const [favorita, setFavorita] = useState(nota.favorita);
+  const [shareOpen, setShareOpen] = useState(false);
   const conteudoRef = useRef<string>(nota.conteudo);
   const [stats, setStats] = useState(() => computeStats(nota.conteudo));
   const saving = useRef<NodeJS.Timeout | null>(null);
@@ -262,6 +265,15 @@ function NotaEditor({
           >
             <Star className={cn("h-3.5 w-3.5", favorita ? "fill-amber-400 text-amber-400" : "")} />
           </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-7 w-7"
+            onClick={() => setShareOpen(true)}
+            title="Compartilhar publicamente"
+          >
+            <Share2 className="h-3.5 w-3.5" />
+          </Button>
           <Button size="icon" variant="ghost" className="h-7 w-7"><Bookmark className="h-3.5 w-3.5" /></Button>
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onDelete}><Trash2 className="h-3.5 w-3.5" /></Button>
         </div>
@@ -293,6 +305,16 @@ function NotaEditor({
           />
         </div>
       </div>
+
+      {shareOpen && (
+        <ShareDialog
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+          entidadeTipo={nota.pasta === "Briefings" ? "BRIEFING" : "NOTA"}
+          entidadeId={nota.id}
+          entidadeNome={nota.titulo}
+        />
+      )}
     </>
   );
 }

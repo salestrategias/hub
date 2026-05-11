@@ -32,6 +32,8 @@ model User {
   sessions      Session[]
   atividades    AtividadeConta[]
   notificacoes  Notificacao[]
+  propostas     Proposta[]
+  shares        PublicShare[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -136,6 +138,7 @@ model Cliente {
   metasRede    MetaRede[]
   tags         Tag[]          @relation("ClienteTags")
   reunioes     Reuniao[]
+  propostas    Proposta[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -757,5 +760,125 @@ enum TipoNotificacao {
   TAREFA_ATRASADA
   REUNIAO_HOJE
   POST_HOJE
+  PROPOSTA_VISTA
+  PROPOSTA_ACEITA
+  PROPOSTA_RECUSADA
   SISTEMA
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Propostas comerciais — geradas como link público pro cliente
+//
+// Numeração: `YYYY-NNN` (ex: 2026-001), incrementa por ano via lógica
+// no POST (não FK pra evitar lock; volume baixo).
+//
+// Cada seção é JSON BlockNote serializado. PDF é gerado on-demand via
+// @react-pdf/renderer.
+//
+// Share: shareToken inline (não usa PublicShare). Cliente acessa
+// `/p/proposta/{token}`. Aceite/recusa registrados via POST sem auth
+// (autenticado pelo token).
+// ─────────────────────────────────────────────────────────────────────
+model Proposta {
+  id              String         @id @default(cuid())
+  numero          String         @unique  // "2026-001"
+  titulo          String
+
+  // Cliente — opcional (pode mandar proposta pra prospect sem cliente cadastrado)
+  clienteId       String?
+  cliente         Cliente?       @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  clienteNome     String         // snapshot — preserva mesmo se cliente for editado/deletado
+  clienteEmail    String?
+
+  // Conteúdo (cada um JSON BlockNote)
+  capa            String?        @db.Text
+  diagnostico     String?        @db.Text
+  objetivo        String?        @db.Text
+  escopo          String?        @db.Text
+  cronograma      String?        @db.Text
+  investimento    String?        @db.Text
+  proximosPassos  String?        @db.Text
+  termos          String?        @db.Text
+
+  // Comercial
+  valorMensal     Decimal?       @db.Decimal(12, 2)
+  valorTotal      Decimal?       @db.Decimal(12, 2)
+  duracaoMeses    Int?
+  validadeDias    Int            @default(30)
+
+  // Status
+  status          PropostaStatus @default(RASCUNHO)
+  enviadaEm       DateTime?
+  vistaEm         DateTime?
+  aceitaEm        DateTime?
+  recusadaEm      DateTime?
+  recusaMotivo    String?        @db.Text
+
+  // Share público
+  shareToken      String?        @unique
+  shareExpiraEm   DateTime?
+  shareSenha      String?        // bcrypt hash, opcional
+  shareViews      Int            @default(0)
+
+  // Aceite digital
+  aceiteIp        String?
+  aceiteUa        String?
+
+  // Audit
+  criadoPor       String
+  user            User           @relation(fields: [criadoPor], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([clienteId, status])
+  @@index([status, updatedAt])
+  @@index([shareToken])
+}
+
+enum PropostaStatus {
+  RASCUNHO
+  ENVIADA
+  VISTA
+  ACEITA
+  RECUSADA
+  EXPIRADA
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Compartilhamento público genérico — gera link read-only com expiração
+// pra Notas, Briefings, Relatórios. Polimórfico via entidadeTipo/Id.
+//
+// Propostas têm seu próprio share inline (acima) porque tem fluxo
+// específico (aceite, recusa). Esse model serve pra conteúdo de
+// leitura simples.
+// ─────────────────────────────────────────────────────────────────────
+model PublicShare {
+  id              String         @id @default(cuid())
+  token           String         @unique
+  entidadeTipo    ShareEntidade
+  entidadeId      String
+
+  expiraEm        DateTime?      // null = nunca expira
+  senha           String?        // bcrypt hash opcional
+
+  views           Int            @default(0)
+  primeiroAcesso  DateTime?
+  ultimoAcesso    DateTime?
+
+  podeBaixarPdf   Boolean        @default(true)
+
+  criadoPor       String
+  user            User           @relation(fields: [criadoPor], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime       @default(now())
+
+  @@index([entidadeTipo, entidadeId])
+}
+
+enum ShareEntidade {
+  NOTA
+  BRIEFING
+  REUNIAO
+  RELATORIO
 }

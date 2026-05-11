@@ -253,3 +253,46 @@ export const templateInstanciarSchema = z.object({
   overrides: z.record(z.string()).optional(),
 });
 export type TemplateInstanciarInput = z.infer<typeof templateInstanciarSchema>;
+
+// ─── Proposta ──────────────────────────────────────────────────────
+export const propostaSchema = z.object({
+  titulo: z.string().min(1).max(200),
+  clienteId: z.string().optional().nullable(),
+  clienteNome: z.string().min(1).max(200),
+  clienteEmail: z.string().email().optional().nullable().or(z.literal("")),
+  capa: z.string().default(""),
+  diagnostico: z.string().default(""),
+  objetivo: z.string().default(""),
+  escopo: z.string().default(""),
+  cronograma: z.string().default(""),
+  investimento: z.string().default(""),
+  proximosPassos: z.string().default(""),
+  termos: z.string().default(""),
+  valorMensal: z.coerce.number().nonnegative().optional().nullable(),
+  valorTotal: z.coerce.number().nonnegative().optional().nullable(),
+  duracaoMeses: z.coerce.number().int().positive().optional().nullable(),
+  validadeDias: z.coerce.number().int().positive().max(365).default(30),
+});
+export type PropostaInput = z.infer<typeof propostaSchema>;
+
+export const propostaEnviarSchema = z.object({
+  /** Sobrescreve validadeDias da proposta. Opcional. */
+  validadeDias: z.coerce.number().int().positive().max(365).optional(),
+  /** Senha opcional pra proteger o link público. */
+  senha: z.string().min(4).max(40).optional().or(z.literal("")),
+});
+export type PropostaEnviarInput = z.infer<typeof propostaEnviarSchema>;
+
+export const propostaRecusarSchema = z.object({
+  motivo: z.string().max(500).optional(),
+});
+
+// ─── PublicShare ───────────────────────────────────────────────────
+export const publicShareSchema = z.object({
+  entidadeTipo: z.enum(["NOTA", "BRIEFING", "REUNIAO", "RELATORIO"]),
+  entidadeId: z.string().min(1),
+  expiraEm: z.coerce.date().optional().nullable(),
+  senha: z.string().min(4).max(40).optional().or(z.literal("")),
+  podeBaixarPdf: z.boolean().default(true),
+});
+export type PublicShareInput = z.infer<typeof publicShareSchema>;
