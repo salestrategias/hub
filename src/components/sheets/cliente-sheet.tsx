@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Users, Trash2, ListChecks, FileText, Link2 } from "lucide-react";
+import { Users, Trash2, ListChecks, FileText, Link2, BarChart3 } from "lucide-react";
 import { EntitySheet } from "@/components/entity-sheet";
+import { RelatorioMensalDialog } from "@/components/relatorio-mensal-dialog";
 import { InlineField } from "@/components/inline-field";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,7 @@ export function ClienteSheet({
   const [cliente, setCliente] = useState<ClienteFull | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [relatorioOpen, setRelatorioOpen] = useState(false);
 
   useEffect(() => {
     if (!clienteId || !open) return;
@@ -107,6 +109,7 @@ export function ClienteSheet({
   const statusColor = STATUS_COLOR[status];
 
   return (
+    <>
     <EntitySheet
       open={open}
       onOpenChange={onOpenChange}
@@ -131,6 +134,9 @@ export function ClienteSheet({
         <>
           <Button variant="ghost" size="sm" onClick={excluir} className="text-destructive hover:text-destructive">
             <Trash2 className="h-3.5 w-3.5" /> Excluir
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setRelatorioOpen(true)}>
+            <BarChart3 className="h-3.5 w-3.5" /> Relatório do mês
           </Button>
           <span className="text-[10.5px] text-muted-foreground/70">
             Edição salva automaticamente
@@ -297,6 +303,16 @@ export function ClienteSheet({
         </Tabs>
       )}
     </EntitySheet>
+
+    {cliente && (
+      <RelatorioMensalDialog
+        open={relatorioOpen}
+        onOpenChange={setRelatorioOpen}
+        clienteId={cliente.id}
+        clienteNome={cliente.nome}
+      />
+    )}
+    </>
   );
 }
 

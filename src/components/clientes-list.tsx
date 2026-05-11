@@ -10,8 +10,9 @@ import { TagsBadges, type Tag } from "@/components/tag-picker";
 import { EmptyState } from "@/components/empty-state";
 import { ClienteSheet } from "@/components/sheets/cliente-sheet";
 import { useEntitySheet } from "@/components/entity-sheet";
+import { RelatorioMensalDialog } from "@/components/relatorio-mensal-dialog";
 import { formatBRL, cn } from "@/lib/utils";
-import { Search, X, Users, FilterX, ExternalLink } from "lucide-react";
+import { Search, X, Users, FilterX, ExternalLink, BarChart3 } from "lucide-react";
 
 type Cliente = {
   id: string;
@@ -35,6 +36,7 @@ export function ClientesList({ clientes, tags }: { clientes: Cliente[]; tags: Ta
   const [tagsSelecionadas, setTagsSelecionadas] = useState<string[]>([]);
   const [statusSelecionados, setStatusSelecionados] = useState<Cliente["status"][]>([]);
   const [modoTag, setModoTag] = useState<"qualquer" | "todas">("qualquer");
+  const [relatorioCliente, setRelatorioCliente] = useState<{ id: string; nome: string } | null>(null);
   const sheet = useEntitySheet("cliente");
 
   const filtrados = useMemo(() => {
@@ -156,6 +158,15 @@ export function ClientesList({ clientes, tags }: { clientes: Cliente[]; tags: Ta
         onOpenChange={(o) => (o ? undefined : sheet.close())}
       />
 
+      {relatorioCliente && (
+        <RelatorioMensalDialog
+          open={!!relatorioCliente}
+          onOpenChange={(o) => !o && setRelatorioCliente(null)}
+          clienteId={relatorioCliente.id}
+          clienteNome={relatorioCliente.nome}
+        />
+      )}
+
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -187,13 +198,23 @@ export function ClientesList({ clientes, tags }: { clientes: Cliente[]; tags: Ta
                   <TableCell className="text-muted-foreground text-sm">{c.email ?? "—"}</TableCell>
                   <TableCell className="text-right font-mono text-sm">{formatBRL(c.valorContratoMensal)}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                    <Link
-                      href={`/clientes/${c.id}`}
-                      className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary text-xs opacity-0 group-hover:opacity-100 transition"
-                      title="Abrir página completa"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </Link>
+                    <div className="inline-flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
+                      <button
+                        type="button"
+                        onClick={() => setRelatorioCliente({ id: c.id, nome: c.nome })}
+                        className="text-muted-foreground hover:text-primary"
+                        title="Gerar relatório do mês"
+                      >
+                        <BarChart3 className="h-3.5 w-3.5" />
+                      </button>
+                      <Link
+                        href={`/clientes/${c.id}`}
+                        className="text-muted-foreground hover:text-primary"
+                        title="Abrir página completa"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
