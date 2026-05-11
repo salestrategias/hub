@@ -10,9 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { metricaRedeSchema, type MetricaRedeInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { ArrowDown, ArrowUp, Download, Users, BarChart3 } from "lucide-react";
+import { ArrowDown, ArrowUp, Download, Upload, Users, BarChart3 } from "lucide-react";
 import { formatNumber, MES_NOMES } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
+import { ImportarRelatorioDialog } from "@/components/importar-relatorio-dialog";
+import { IntegracoesSheetsCard } from "@/components/integracoes-sheets-card";
+import type { ParsedCsv } from "@/lib/csv-parser";
 
 type Metrica = MetricaRedeInput & { id: string };
 const REDES: MetricaRedeInput["rede"][] = ["INSTAGRAM", "FACEBOOK", "LINKEDIN", "TIKTOK", "YOUTUBE"];
@@ -21,15 +24,20 @@ export function RedesSociaisClient({ clientes }: { clientes: { id: string; nome:
   const [clienteId, setClienteId] = useState("");
   const [rede, setRede] = useState<MetricaRedeInput["rede"]>("INSTAGRAM");
   const [metricas, setMetricas] = useState<Metrica[]>([]);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importPreview, setImportPreview] = useState<{ integracaoId: string; parsed: ParsedCsv } | undefined>();
 
   useEffect(() => {
     setClienteId(localStorage.getItem("salhub.report.clienteId") ?? "");
   }, []);
 
-  useEffect(() => {
+  async function recarregar() {
     if (!clienteId) return;
-    fetch(`/api/relatorios/redes?clienteId=${clienteId}`).then((r) => r.json()).then((d) => Array.isArray(d) && setMetricas(d));
-  }, [clienteId]);
+    const r = await fetch(`/api/relatorios/redes?clienteId=${clienteId}`);
+    const d = await r.json();
+    if (Array.isArray(d)) setMetricas(d);
+  }
+  useEffect(() => { recarregar(); /* eslint-disable-next-line */ }, [clienteId]);
 
   const filtradas = useMemo(() => metricas.filter((m) => m.rede === rede).sort((a, b) => a.ano - b.ano || a.mes - b.mes), [metricas, rede]);
   const ultima = filtradas[filtradas.length - 1];
@@ -53,9 +61,14 @@ export function RedesSociaisClient({ clientes }: { clientes: { id: string; nome:
           <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>{REDES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
         </Select>
-        <Button variant="outline" onClick={exportarPdf} disabled={!clienteId} className="ml-auto">
-          <Download className="h-4 w-4" /> Exportar PDF
-        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="outline" onClick={() => { setImportPreview(undefined); setImportOpen(true); }} disabled={!clienteId}>
+            <Upload className="h-4 w-4" /> Importar dados
+          </Button>
+          <Button variant="outline" onClick={exportarPdf} disabled={!clienteId}>
+            <Download className="h-4 w-4" /> Exportar PDF
+          </Button>
+        </div>
       </CardContent></Card>
 
       {!clienteId && (
@@ -68,6 +81,12 @@ export function RedesSociaisClient({ clientes }: { clientes: { id: string; nome:
 
       {clienteId && (
         <>
+          <IntegracoesSheetsCard
+            clienteId={clienteId}
+            fonte="REDES"
+            onSyncPreview={(p) => { setImportPreview(p); setImportOpen(true); }}
+          />
+
           <FormularioMensal clienteId={clienteId} rede={rede} onSaved={(m) => {
             const i = metricas.findIndex((x) => x.id === m.id);
             if (i >= 0) { const cp = [...metricas]; cp[i] = m; setMetricas(cp); }
@@ -149,6 +168,15 @@ export function RedesSociaisClient({ clientes }: { clientes: { id: string; nome:
           )}
         </>
       )}
+
+      <ImportarRelatorioDialog
+        open={importOpen}
+        onOpenChange={(o) => { setImportOpen(o); if (!o) setImportPreview(undefined); }}
+        clienteId={clienteId}
+        fonte="REDES"
+        initialPreview={importPreview}
+        onImported={recarregar}
+      />
     </div>
   );
 }

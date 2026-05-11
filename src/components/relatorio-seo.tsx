@@ -13,9 +13,12 @@ import { Badge } from "@/components/ui/badge";
 import { metricaSeoSchema, seoKeywordSchema, type MetricaSeoInput, type SeoKeywordInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { ResponsiveContainer, AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { Download, Trash2, ArrowUp, ArrowDown, Users } from "lucide-react";
+import { Download, Trash2, ArrowUp, ArrowDown, Users, Upload } from "lucide-react";
 import { formatNumber, MES_NOMES } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
+import { ImportarRelatorioDialog } from "@/components/importar-relatorio-dialog";
+import { IntegracoesSheetsCard } from "@/components/integracoes-sheets-card";
+import type { ParsedCsv } from "@/lib/csv-parser";
 
 type Metrica = MetricaSeoInput & { id: string };
 type Keyword = SeoKeywordInput & { id: string };
@@ -24,6 +27,8 @@ export function SeoClient({ clientes }: { clientes: { id: string; nome: string }
   const [clienteId, setClienteId] = useState("");
   const [metricas, setMetricas] = useState<Metrica[]>([]);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importPreview, setImportPreview] = useState<{ integracaoId: string; parsed: ParsedCsv } | undefined>();
 
   useEffect(() => {
     setClienteId(localStorage.getItem("salhub.report.clienteId") ?? "");
@@ -59,9 +64,14 @@ export function SeoClient({ clientes }: { clientes: { id: string; nome: string }
           <SelectTrigger className="w-[260px]"><SelectValue placeholder="Cliente" /></SelectTrigger>
           <SelectContent>{clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
         </Select>
-        <Button variant="outline" disabled={!clienteId} onClick={() => window.open(`/api/relatorios/seo/pdf?clienteId=${clienteId}`, "_blank")} className="ml-auto">
-          <Download className="h-4 w-4" /> Exportar PDF
-        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="outline" disabled={!clienteId} onClick={() => { setImportPreview(undefined); setImportOpen(true); }}>
+            <Upload className="h-4 w-4" /> Importar dados
+          </Button>
+          <Button variant="outline" disabled={!clienteId} onClick={() => window.open(`/api/relatorios/seo/pdf?clienteId=${clienteId}`, "_blank")}>
+            <Download className="h-4 w-4" /> Exportar PDF
+          </Button>
+        </div>
       </CardContent></Card>
 
       {!clienteId && (
@@ -74,6 +84,12 @@ export function SeoClient({ clientes }: { clientes: { id: string; nome: string }
 
       {clienteId && (
         <>
+          <IntegracoesSheetsCard
+            clienteId={clienteId}
+            fonte="SEO"
+            onSyncPreview={(p) => { setImportPreview(p); setImportOpen(true); }}
+          />
+
           <FormularioMensal clienteId={clienteId} onSaved={() => recarregar()} />
 
           <div className="grid md:grid-cols-[1fr_280px] gap-4">
@@ -115,6 +131,15 @@ export function SeoClient({ clientes }: { clientes: { id: string; nome: string }
           <ObservacoesBloco clienteId={clienteId} ultima={ultima} onSaved={recarregar} />
         </>
       )}
+
+      <ImportarRelatorioDialog
+        open={importOpen}
+        onOpenChange={(o) => { setImportOpen(o); if (!o) setImportPreview(undefined); }}
+        clienteId={clienteId}
+        fonte="SEO"
+        initialPreview={importPreview}
+        onImported={recarregar}
+      />
     </div>
   );
 }

@@ -141,6 +141,7 @@ model Cliente {
   reunioes     Reuniao[]
   propostas    Proposta[]
   lead         Lead?          // lead que virou esse cliente (relação reversa 1:1)
+  integracoesSheets IntegracaoSheets[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1011,4 +1012,44 @@ enum FormatoSAL {
   NEWSLETTER
   BLOG_POST
   AD_CREATIVE
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Integração Sheets — vínculo manual com planilha pública do Google
+//
+// Marcelo torna a planilha pública (qualquer pessoa com link → leitor),
+// cola URL aqui, sistema lê via /export?format=csv e popula as métricas
+// no banco. Não usa OAuth — planilha PRECISA ser pública (URL share).
+//
+// Sincronização é manual ("Sincronizar agora") — sem cron no MVP.
+// `ultimaSync` registra última execução, `totalLinhas` mostra contador
+// pra Marcelo conferir se a importação bateu com o que viu na planilha.
+//
+// `fonte` define qual destino: REDES → MetricaRede, SEO → MetricaSeo,
+// TRAFEGO → CampanhaPaga. Cada destino tem mapeador próprio em
+// lib/relatorio-mapeadores.ts.
+// ─────────────────────────────────────────────────────────────────────
+model IntegracaoSheets {
+  id           String           @id @default(cuid())
+  clienteId    String
+  cliente      Cliente          @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  fonte        FonteRelatorio
+  sheetUrl     String           @db.Text   // URL pública (qualquer formato Google aceita)
+  rotulo       String?          // ex: "Meta Ads — Q1 2026"
+  ultimaSync   DateTime?
+  totalLinhas  Int              @default(0)
+  ultimoErro   String?          @db.Text   // mensagem se a última sync falhou
+  ativo        Boolean          @default(true)
+  criadoPor    String
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([clienteId, fonte])
+}
+
+enum FonteRelatorio {
+  REDES
+  SEO
+  TRAFEGO
 }

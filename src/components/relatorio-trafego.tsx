@@ -13,9 +13,12 @@ import { Badge } from "@/components/ui/badge";
 import { campanhaPagaSchema, type CampanhaPagaInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { Download, Trash2, Users } from "lucide-react";
+import { Download, Trash2, Users, Upload } from "lucide-react";
 import { formatBRL, formatNumber, MES_NOMES } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
+import { ImportarRelatorioDialog } from "@/components/importar-relatorio-dialog";
+import { IntegracoesSheetsCard } from "@/components/integracoes-sheets-card";
+import type { ParsedCsv } from "@/lib/csv-parser";
 
 type Camp = CampanhaPagaInput & { id: string };
 const PLATS: CampanhaPagaInput["plataforma"][] = ["META_ADS", "GOOGLE_ADS", "TIKTOK_ADS", "YOUTUBE_ADS", "LINKEDIN_ADS"];
@@ -24,6 +27,8 @@ const COLORS = ["#F59E0B", "#3B82F6", "#10B981", "#EF4444", "#8B5CF6"];
 export function TrafegoClient({ clientes }: { clientes: { id: string; nome: string }[] }) {
   const [clienteId, setClienteId] = useState("");
   const [camps, setCamps] = useState<Camp[]>([]);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importPreview, setImportPreview] = useState<{ integracaoId: string; parsed: ParsedCsv } | undefined>();
 
   useEffect(() => {
     setClienteId(localStorage.getItem("salhub.report.clienteId") ?? "");
@@ -68,9 +73,14 @@ export function TrafegoClient({ clientes }: { clientes: { id: string; nome: stri
           <SelectTrigger className="w-[260px]"><SelectValue placeholder="Cliente" /></SelectTrigger>
           <SelectContent>{clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
         </Select>
-        <Button variant="outline" disabled={!clienteId} onClick={() => window.open(`/api/relatorios/trafego/pdf?clienteId=${clienteId}`, "_blank")} className="ml-auto">
-          <Download className="h-4 w-4" /> Exportar PDF
-        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="outline" disabled={!clienteId} onClick={() => { setImportPreview(undefined); setImportOpen(true); }}>
+            <Upload className="h-4 w-4" /> Importar dados
+          </Button>
+          <Button variant="outline" disabled={!clienteId} onClick={() => window.open(`/api/relatorios/trafego/pdf?clienteId=${clienteId}`, "_blank")}>
+            <Download className="h-4 w-4" /> Exportar PDF
+          </Button>
+        </div>
       </CardContent></Card>
 
       {!clienteId && (
@@ -83,6 +93,12 @@ export function TrafegoClient({ clientes }: { clientes: { id: string; nome: stri
 
       {clienteId && (
         <>
+          <IntegracoesSheetsCard
+            clienteId={clienteId}
+            fonte="TRAFEGO"
+            onSyncPreview={(p) => { setImportPreview(p); setImportOpen(true); }}
+          />
+
           <NovaCampanha clienteId={clienteId} onSaved={recarregar} />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Kpi label="Investimento total" value={formatBRL(totais.inv)} />
@@ -151,6 +167,15 @@ export function TrafegoClient({ clientes }: { clientes: { id: string; nome: stri
           </CardContent></Card>
         </>
       )}
+
+      <ImportarRelatorioDialog
+        open={importOpen}
+        onOpenChange={(o) => { setImportOpen(o); if (!o) setImportPreview(undefined); }}
+        clienteId={clienteId}
+        fonte="TRAFEGO"
+        initialPreview={importPreview}
+        onImported={recarregar}
+      />
     </div>
   );
 }

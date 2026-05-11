@@ -352,6 +352,36 @@ export const conteudoSalSchema = z.object({
 });
 export type ConteudoSalInput = z.infer<typeof conteudoSalSchema>;
 
+// ─── Importação de relatórios ─────────────────────────────────────
+// Dado bruto vindo do front: linhas já parseadas em JS objects, com
+// chaves correspondentes às colunas normalizadas (lower-case sem
+// espaços) do CSV. Validação fina (campos obrigatórios por fonte) é
+// feita no mapeador, não aqui — aqui só garantimos shape básico.
+export const importarRelatorioSchema = z.object({
+  clienteId: z.string().min(1, "Cliente obrigatório"),
+  fonte: z.enum(["REDES", "SEO", "TRAFEGO"]),
+  /** Rows já normalizadas (chaves snake_case lower) vindas do parser */
+  rows: z.array(z.record(z.string(), z.union([z.string(), z.number(), z.null()]))).min(1, "Cole pelo menos 1 linha"),
+  /** Opcional: vincular a uma integração de Sheets (registra ultimaSync) */
+  integracaoId: z.string().optional().nullable(),
+  /** Modo de gravação: upsert (default — chave natural) ou append (sempre cria) */
+  modo: z.enum(["upsert", "append"]).default("upsert"),
+});
+export type ImportarRelatorioInput = z.infer<typeof importarRelatorioSchema>;
+
+// ─── Integração Sheets ─────────────────────────────────────────────
+export const integracaoSheetsSchema = z.object({
+  clienteId: z.string().min(1, "Cliente obrigatório"),
+  fonte: z.enum(["REDES", "SEO", "TRAFEGO"]),
+  sheetUrl: z
+    .string()
+    .url("URL inválida")
+    .refine((u) => u.includes("docs.google.com/spreadsheets"), "Use URL do Google Sheets"),
+  rotulo: z.string().max(120).optional().nullable().or(z.literal("")),
+  ativo: z.boolean().default(true),
+});
+export type IntegracaoSheetsInput = z.infer<typeof integracaoSheetsSchema>;
+
 // ─── PublicShare ───────────────────────────────────────────────────
 export const publicShareSchema = z.object({
   entidadeTipo: z.enum(["NOTA", "BRIEFING", "REUNIAO", "RELATORIO"]),
