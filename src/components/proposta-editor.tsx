@@ -456,10 +456,15 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
 }
 
 /**
- * Modal "Gerar com IA" — Marcelo descreve a proposta em linguagem
- * natural, escolhe tom de voz, e o Claude preenche as 8 seções
- * automaticamente. Respeita o que já existe (não sobrescreve por
- * default).
+ * Modal "Gerar com Claude (modo Max)" — 3 etapas, custo zero, copy-paste
+ * entre Hub e Claude Desktop/Web:
+ *
+ *   1. Contexto: descreve oportunidade + tom de voz
+ *   2. Copiar prompt: Hub monta prompt completo, mostra com "Copiar"
+ *      e link "Abrir Claude". Marcelo cola, recebe JSON
+ *   3. Aplicar: cola resposta JSON, Hub parseia + grava nas 8 seções
+ *
+ * Sem chamada de API programática — usa o Claude Max que ele já paga.
  */
 function GerarComIaDialog({
   propostaId,
@@ -472,132 +477,307 @@ function GerarComIaDialog({
   onClose: () => void;
   onGenerated: () => void;
 }) {
+  const [etapa, setEtapa] = useState<1 | 2 | 3>(1);
+
+  // Etapa 1
   const [prompt, setPrompt] = useState("");
   const [tom, setTom] = useState<"formal" | "consultivo" | "direto" | "premium">("consultivo");
-  const [sobrescrever, setSobrescrever] = useState(false);
-  const [gerando, setGerando] = useState(false);
+  const [preparando, setPreparando] = useState(false);
 
-  async function gerar() {
+  // Etapa 2
+  const [promptCompleto, setPromptCompleto] = useState("");
+  const [copiado, setCopiado] = useState(false);
+
+  // Etapa 3
+  const [resposta, setResposta] = useState("");
+  const [sobrescrever, setSobrescrever] = useState(false);
+  const [aplicando, setAplicando] = useState(false);
+
+  async function preparar() {
     if (prompt.trim().length < 20) {
       toast.error("Descreva melhor a oportunidade (mínimo 20 caracteres)");
       return;
     }
-    setGerando(true);
+    setPreparando(true);
     try {
-      const res = await fetch(`/api/propostas/${propostaId}/gerar-com-ia`, {
+      const res = await fetch(`/api/propostas/${propostaId}/preparar-ia`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt.trim(), tom, sobrescrever }),
+        body: JSON.stringify({ prompt: prompt.trim(), tom }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err?.error ?? "Falha");
       }
       const data = await res.json();
-      toast.success(`${data.secoesAtualizadas.length} seções preenchidas`, {
-        description: `${data.usage.inputTokens} → ${data.usage.outputTokens} tokens`,
+      setPromptCompleto(data.promptCompleto);
+      setEtapa(2);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro");
+    } finally {
+      setPreparando(false);
+    }
+  }
+
+  async function copiarPrompt() {
+    try {
+      await navigator.clipboard.writeText(promptCompleto);
+      setCopiado(true);
+      toast.success("Prompt copiado");
+      setTimeout(() => setCopiado(false), 2500);
+    } catch {
+      toast.error("Falha ao copiar — selecione e copie manualmente");
+    }
+  }
+
+  async function aplicar() {
+    if (resposta.trim().length < 20) {
+      toast.error("Cole o JSON que o Claude retornou");
+      return;
+    }
+    setAplicando(true);
+    try {
+      const res = await fetch(`/api/propostas/${propostaId}/aplicar-ia`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resposta: resposta.trim(), sobrescrever }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error ?? "Falha");
+      }
+      const data = await res.json();
+      const total = data.secoesAtualizadas.length;
+      const ignoradas = data.secoesIgnoradas.length;
+      toast.success(
+        `${total} ${total === 1 ? "seção preenchida" : "seções preenchidas"}`,
+        ignoradas > 0
+          ? { description: `${ignoradas} ignoradas (já preenchidas — marque "sobrescrever" pra forçar)` }
+          : undefined
+      );
       onGenerated();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro");
     } finally {
-      setGerando(false);
+      setAplicando(false);
     }
   }
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-sal-400" />
-            Gerar proposta com IA
+            Gerar com Claude
+            <span className="text-[10.5px] font-mono text-muted-foreground ml-2">etapa {etapa} de 3</span>
           </DialogTitle>
           <p className="text-[11px] text-muted-foreground mt-1">
-            Cliente: <span className="font-medium">{clienteNome}</span>. O Claude vai preencher as 8 seções baseado na sua descrição abaixo.
+            Cliente: <span className="font-medium">{clienteNome}</span>. Usa seu plano Claude Max
+            (custo zero) — copia/cola entre Hub e Claude.
           </p>
+
+          <div className="flex items-center gap-1.5 mt-3">
+            {[1, 2, 3].map((n) => (
+              <div
+                key={n}
+                className={cn(
+                  "h-1 flex-1 rounded-full transition-colors",
+                  etapa >= (n as 1 | 2 | 3) ? "bg-sal-500" : "bg-secondary"
+                )}
+              />
+            ))}
+          </div>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="flex items-center justify-between">
-              <span>Descreva a oportunidade</span>
-              <span className="text-[10px] text-muted-foreground/70 font-mono">
-                {prompt.length}/4000
-              </span>
-            </Label>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder={
-                "Ex: Cliente é uma rede de 12 farmácias em Porto Alegre, faturamento R$ 80M/ano. Hoje só fazem Instagram orgânico sem estratégia. Querem aumentar venda direta no app deles e melhorar reconhecimento de marca local. Briefing inicial: 3 reuniões já feitas, R$ 8k/mês de investimento, contrato 12 meses, foco em tráfego pago Meta + Google + gestão completa de redes."
-              }
-              rows={8}
-              maxLength={4000}
-              className="w-full rounded-md border border-border bg-background/40 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
-              autoFocus
-            />
-            <p className="text-[10.5px] text-muted-foreground/70">
-              Quanto mais contexto, melhor o resultado. Inclua: tipo do negócio, escopo desejado, valores, prazo, dores específicas, canais.
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Tom de voz</Label>
-            <Select value={tom} onValueChange={(v) => setTom(v as typeof tom)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="consultivo">Consultivo (default) · mid-market</SelectItem>
-                <SelectItem value="formal">Formal · corporativo / B2B tradicional</SelectItem>
-                <SelectItem value="direto">Direto · startup / digital nativo</SelectItem>
-                <SelectItem value="premium">Premium · alto padrão / luxo</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="rounded-md border border-border bg-secondary/30 p-3">
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={sobrescrever}
-                onChange={(e) => setSobrescrever(e.target.checked)}
-                className="accent-sal-600 mt-0.5"
-              />
-              <div>
-                <div className="text-[12.5px] font-medium">Sobrescrever seções já preenchidas</div>
-                <div className="text-[10.5px] text-muted-foreground">
-                  Por default, a IA só preenche o que está vazio. Marque pra regenerar tudo.
-                </div>
+        <div className="flex-1 overflow-y-auto -mx-6 px-6">
+          {etapa === 1 && (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="flex items-center justify-between">
+                  <span>1. Descreva a oportunidade</span>
+                  <span className="text-[10px] text-muted-foreground/70 font-mono">
+                    {prompt.length}/4000
+                  </span>
+                </Label>
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder={
+                    "Ex: Cliente é uma rede de 12 farmácias em Porto Alegre, faturamento R$ 80M/ano. Hoje só fazem Instagram orgânico sem estratégia. Querem aumentar venda direta no app deles e melhorar reconhecimento de marca local. Briefing inicial: 3 reuniões já feitas, R$ 8k/mês de investimento, contrato 12 meses, foco em tráfego pago Meta + Google + gestão completa de redes."
+                  }
+                  rows={9}
+                  maxLength={4000}
+                  className="w-full rounded-md border border-border bg-background/40 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                  autoFocus
+                />
+                <p className="text-[10.5px] text-muted-foreground/70">
+                  Inclua: tipo do negócio, escopo desejado, valores, prazo, dores específicas, canais.
+                </p>
               </div>
-            </label>
-          </div>
 
-          <div className="text-[10.5px] text-muted-foreground/70 bg-secondary/30 rounded-md p-2.5 border-l-2 border-sal-600/30">
-            ⚡ Usa Claude (Anthropic). Custa ~$0.02–0.05 por proposta gerada. Configure{" "}
-            <code className="font-mono bg-secondary px-1 rounded">ANTHROPIC_API_KEY</code> no
-            servidor pra ativar.
-          </div>
+              <div className="space-y-1.5">
+                <Label>Tom de voz</Label>
+                <Select value={tom} onValueChange={(v) => setTom(v as typeof tom)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="consultivo">Consultivo (default) · mid-market</SelectItem>
+                    <SelectItem value="formal">Formal · corporativo / B2B tradicional</SelectItem>
+                    <SelectItem value="direto">Direto · startup / digital nativo</SelectItem>
+                    <SelectItem value="premium">Premium · alto padrão / luxo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {etapa === 2 && (
+            <div className="space-y-3">
+              <div>
+                <Label className="mb-1.5 block">2. Copia o prompt e cola no Claude</Label>
+                <p className="text-[11.5px] text-muted-foreground leading-relaxed mb-2">
+                  Abre o Claude (Desktop ou Web — usa seu Max, sem custo extra). Cola esse texto inteiro.
+                  Espera ele responder com o JSON. Volta aqui e clica em "Já tenho a resposta".
+                </p>
+              </div>
+
+              <div className="relative">
+                <textarea
+                  value={promptCompleto}
+                  readOnly
+                  rows={12}
+                  onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+                  className="w-full rounded-md border border-border bg-secondary/40 px-3 py-2 text-[11px] font-mono resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={copiarPrompt}
+                  className="absolute top-2 right-2 h-7 text-[11px]"
+                >
+                  {copiado ? (
+                    <>
+                      <CheckCircle2 className="h-3 w-3" /> Copiado
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" /> Copiar
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <div className="flex gap-2 flex-wrap">
+                <Button asChild size="sm" variant="outline">
+                  <a href="https://claude.ai/new" target="_blank" rel="noreferrer">
+                    <ExternalLink className="h-3 w-3" /> Abrir Claude.ai
+                  </a>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <a href="claude://new" target="_blank" rel="noreferrer">
+                    <ExternalLink className="h-3 w-3" /> Abrir Claude Desktop
+                  </a>
+                </Button>
+              </div>
+
+              <div className="text-[10.5px] text-muted-foreground/70 bg-secondary/30 rounded-md p-2.5 border-l-2 border-sal-600/30">
+                💡 Dica: o Claude vai retornar um bloco JSON com 8 seções. Copia
+                <strong> tudo</strong> que ele responder e cola no próximo passo —
+                a gente extrai o JSON automaticamente.
+              </div>
+            </div>
+          )}
+
+          {etapa === 3 && (
+            <div className="space-y-3">
+              <div>
+                <Label className="mb-1.5 block">3. Cola a resposta do Claude</Label>
+                <p className="text-[11.5px] text-muted-foreground leading-relaxed mb-2">
+                  Pode ser o JSON puro ou o texto inteiro (com ```json...``` envolvendo) —
+                  achamos o bloco automaticamente.
+                </p>
+              </div>
+
+              <textarea
+                value={resposta}
+                onChange={(e) => setResposta(e.target.value)}
+                placeholder={'```json\n{\n  "capa": "...",\n  "diagnostico": "...",\n  ...\n}\n```'}
+                rows={10}
+                className="w-full rounded-md border border-border bg-background/40 px-3 py-2 text-[12px] font-mono resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                autoFocus
+              />
+
+              <div className="rounded-md border border-border bg-secondary/30 p-3">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={sobrescrever}
+                    onChange={(e) => setSobrescrever(e.target.checked)}
+                    className="accent-sal-600 mt-0.5"
+                  />
+                  <div>
+                    <div className="text-[12.5px] font-medium">Sobrescrever seções já preenchidas</div>
+                    <div className="text-[10.5px] text-muted-foreground">
+                      Por default só preenche o que está vazio. Marque pra regenerar tudo.
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          )}
         </div>
 
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline" disabled={gerando}>
-              Cancelar
-            </Button>
-          </DialogClose>
-          <Button onClick={gerar} disabled={gerando || prompt.trim().length < 20}>
-            {gerando ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Gerando... (10-30s)
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-3.5 w-3.5" /> Gerar
-              </>
+        <DialogFooter className="flex-row justify-between sm:justify-between">
+          <div>
+            {etapa > 1 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEtapa((e) => (e === 3 ? 2 : 1))}
+                disabled={preparando || aplicando}
+              >
+                ← Voltar
+              </Button>
             )}
-          </Button>
+          </div>
+          <div className="flex gap-2">
+            <DialogClose asChild>
+              <Button variant="outline" disabled={preparando || aplicando}>
+                Cancelar
+              </Button>
+            </DialogClose>
+            {etapa === 1 && (
+              <Button onClick={preparar} disabled={preparando || prompt.trim().length < 20}>
+                {preparando ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" /> Preparando...
+                  </>
+                ) : (
+                  <>Gerar prompt →</>
+                )}
+              </Button>
+            )}
+            {etapa === 2 && (
+              <Button onClick={() => setEtapa(3)}>
+                Já tenho a resposta →
+              </Button>
+            )}
+            {etapa === 3 && (
+              <Button onClick={aplicar} disabled={aplicando || resposta.trim().length < 20}>
+                {aplicando ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" /> Aplicando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5" /> Aplicar na proposta
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
