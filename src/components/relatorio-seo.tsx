@@ -13,8 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { metricaSeoSchema, seoKeywordSchema, type MetricaSeoInput, type SeoKeywordInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { ResponsiveContainer, AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { Download, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Download, Trash2, ArrowUp, ArrowDown, Users } from "lucide-react";
 import { formatNumber, MES_NOMES } from "@/lib/utils";
+import { EmptyState } from "@/components/empty-state";
 
 type Metrica = MetricaSeoInput & { id: string };
 type Keyword = SeoKeywordInput & { id: string };
@@ -63,7 +64,13 @@ export function SeoClient({ clientes }: { clientes: { id: string; nome: string }
         </Button>
       </CardContent></Card>
 
-      {!clienteId && <Card><CardContent className="py-12 text-center text-muted-foreground text-sm">Selecione um cliente.</CardContent></Card>}
+      {!clienteId && (
+        <EmptyState
+          icon={Users}
+          titulo="Selecione um cliente"
+          descricao="Escolha um cliente acima pra ver posição média, cliques orgânicos, CTR, evolução mensal e ranking de keywords."
+        />
+      )}
 
       {clienteId && (
         <>

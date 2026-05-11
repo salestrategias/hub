@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Folder, FileText, Image as ImageIcon, FileType2, ArrowUp, Search, FolderPlus, Link2, ExternalLink } from "lucide-react";
+import { Folder, FileText, Image as ImageIcon, FileType2, ArrowUp, Search, FolderPlus, Link2, ExternalLink, FolderOpen, FileX2 } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type DriveFile = {
   id: string;
@@ -116,7 +118,28 @@ export function DriveBrowser({ clientes }: { clientes: { id: string; nome: strin
       )}
 
       {loading ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground text-sm">Carregando...</CardContent></Card>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4 space-y-2">
+                <Skeleton className="h-10 w-10 mx-auto" />
+                <Skeleton className="h-3 w-4/5 mx-auto" />
+                <Skeleton className="h-2.5 w-2/5 mx-auto" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : files.length === 0 ? (
+        <EmptyState
+          icon={busca ? FileX2 : FolderOpen}
+          titulo={busca ? `Nada com "${busca}"` : "Pasta vazia"}
+          descricao={
+            busca
+              ? "Tenta outros termos ou volta pra raiz e navega manualmente."
+              : "Crie uma nova pasta no botão acima, ou volte um nível pra navegar em outra parte do Drive."
+          }
+          variante="compact"
+        />
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {files.map((f) => (
@@ -127,9 +150,6 @@ export function DriveBrowser({ clientes }: { clientes: { id: string; nome: strin
               onLink={() => setVincularDialog(f)}
             />
           ))}
-          {files.length === 0 && (
-            <div className="col-span-full text-center text-muted-foreground text-sm py-12">Pasta vazia.</div>
-          )}
         </div>
       )}
 

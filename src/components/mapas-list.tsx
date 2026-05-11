@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, GitBranch, Trash2 } from "lucide-react";
 import { toast } from "@/components/ui/toast";
+import { EmptyState } from "@/components/empty-state";
 
 type MapaResumo = {
   id: string;
@@ -49,6 +50,19 @@ export function MapasList({ mapas }: { mapas: MapaResumo[] }) {
     router.refresh();
   }
 
+  if (mapas.length === 0) {
+    return (
+      <EmptyState
+        icon={GitBranch}
+        titulo="Nenhum mapa mental criado ainda"
+        descricao="Faça brainstorming visual estilo Excalidraw: arrasta caixinhas, conecta com setas, organiza ideias. Útil pra planejar campanhas, sessões com cliente ou mapear pilares de conteúdo."
+        acaoLabel="Criar primeiro mapa"
+        acaoIcon={Plus}
+        acaoOnClick={novoMapa}
+      />
+    );
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex justify-end">
@@ -80,15 +94,6 @@ export function MapasList({ mapas }: { mapas: MapaResumo[] }) {
             </CardContent>
           </Card>
         ))}
-        {mapas.length === 0 && (
-          <Card className="md:col-span-3">
-            <CardContent className="py-16 text-center">
-              <GitBranch className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">Nenhum mapa mental criado ainda.</p>
-              <Button onClick={novoMapa} className="mt-4"><Plus className="h-4 w-4" /> Criar o primeiro</Button>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );

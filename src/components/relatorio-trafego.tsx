@@ -13,8 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { campanhaPagaSchema, type CampanhaPagaInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { Download, Trash2 } from "lucide-react";
+import { Download, Trash2, Users } from "lucide-react";
 import { formatBRL, formatNumber, MES_NOMES } from "@/lib/utils";
+import { EmptyState } from "@/components/empty-state";
 
 type Camp = CampanhaPagaInput & { id: string };
 const PLATS: CampanhaPagaInput["plataforma"][] = ["META_ADS", "GOOGLE_ADS", "TIKTOK_ADS", "YOUTUBE_ADS", "LINKEDIN_ADS"];
@@ -72,7 +73,13 @@ export function TrafegoClient({ clientes }: { clientes: { id: string; nome: stri
         </Button>
       </CardContent></Card>
 
-      {!clienteId && <Card><CardContent className="py-12 text-center text-muted-foreground text-sm">Selecione um cliente.</CardContent></Card>}
+      {!clienteId && (
+        <EmptyState
+          icon={Users}
+          titulo="Selecione um cliente"
+          descricao="Escolha um cliente acima pra acompanhar investimento, conversões, ROAS, CPA por plataforma (Meta, Google, TikTok, YouTube, LinkedIn Ads) e ranking de campanhas."
+        />
+      )}
 
       {clienteId && (
         <>

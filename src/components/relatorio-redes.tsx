@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { metricaRedeSchema, type MetricaRedeInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { ArrowDown, ArrowUp, Download } from "lucide-react";
+import { ArrowDown, ArrowUp, Download, Users, BarChart3 } from "lucide-react";
 import { formatNumber, MES_NOMES } from "@/lib/utils";
+import { EmptyState } from "@/components/empty-state";
 
 type Metrica = MetricaRedeInput & { id: string };
 const REDES: MetricaRedeInput["rede"][] = ["INSTAGRAM", "FACEBOOK", "LINKEDIN", "TIKTOK", "YOUTUBE"];
@@ -57,7 +58,13 @@ export function RedesSociaisClient({ clientes }: { clientes: { id: string; nome:
         </Button>
       </CardContent></Card>
 
-      {!clienteId && <Card><CardContent className="py-12 text-center text-muted-foreground text-sm">Selecione um cliente.</CardContent></Card>}
+      {!clienteId && (
+        <EmptyState
+          icon={Users}
+          titulo="Selecione um cliente"
+          descricao="Escolha um cliente acima pra ver as métricas mensais de cada rede social, comparativo mês a mês e exportar relatório em PDF."
+        />
+      )}
 
       {clienteId && (
         <>
@@ -66,6 +73,15 @@ export function RedesSociaisClient({ clientes }: { clientes: { id: string; nome:
             if (i >= 0) { const cp = [...metricas]; cp[i] = m; setMetricas(cp); }
             else setMetricas([...metricas, m]);
           }} />
+
+          {filtradas.length === 0 && (
+            <EmptyState
+              icon={BarChart3}
+              titulo={`Sem métricas de ${rede.toLowerCase()} para ${cliente?.nome ?? "este cliente"}`}
+              descricao="Preencha o formulário acima com os dados do mês corrente. Conforme você adiciona registros mensais, gráficos comparativos e histórico aparecem aqui automaticamente."
+              variante="compact"
+            />
+          )}
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Comparativo label="Seguidores" atual={ultima?.seguidores} anterior={penultima?.seguidores} />
