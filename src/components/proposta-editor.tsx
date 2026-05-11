@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import { InlineField } from "@/components/inline-field";
@@ -32,6 +33,8 @@ import {
   PenLine,
   RefreshCw,
   Lock,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -56,6 +59,8 @@ type PropostaFull = {
   valorTotal: number | null;
   duracaoMeses: number | null;
   validadeDias: number;
+  logoUrl: string | null;
+  corPrimaria: string | null;
   status: PropostaStatus;
   shareToken: string | null;
   shareExpiraEm: string | null;
@@ -111,6 +116,7 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
   const router = useRouter();
   const [proposta, setProposta] = useState(initial);
   const [enviarOpen, setEnviarOpen] = useState(false);
+  const [iaOpen, setIaOpen] = useState(false);
 
   async function patchProposta(patch: Record<string, unknown>) {
     const res = await fetch(`/api/propostas/${proposta.id}`, {
@@ -209,6 +215,14 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
         )}
 
         <div className="ml-auto flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIaOpen(true)}
+            className="text-sal-400 border-sal-600/40 hover:bg-sal-600/10"
+          >
+            <Sparkles className="h-3.5 w-3.5" /> Gerar com IA
+          </Button>
           <Button variant="outline" size="sm" onClick={abrirPdf}>
             <Download className="h-3.5 w-3.5" /> PDF
           </Button>
@@ -333,6 +347,19 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
             </CardContent>
           </Card>
 
+          <IdentidadeVisualCard
+            logoUrl={proposta.logoUrl}
+            corPrimaria={proposta.corPrimaria ?? "#7E30E1"}
+            onLogoChange={(url) => {
+              setProposta((p) => ({ ...p, logoUrl: url }));
+              void patchProposta({ logoUrl: url });
+            }}
+            onCorChange={(cor) => {
+              setProposta((p) => ({ ...p, corPrimaria: cor }));
+              void patchProposta({ corPrimaria: cor });
+            }}
+          />
+
           <Card className="bg-secondary/30">
             <CardContent className="p-4 space-y-2 text-[11px] text-muted-foreground">
               <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
@@ -392,6 +419,18 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
         </Tabs>
       </div>
 
+      {iaOpen && (
+        <GerarComIaDialog
+          propostaId={proposta.id}
+          clienteNome={proposta.clienteNome}
+          onClose={() => setIaOpen(false)}
+          onGenerated={() => {
+            setIaOpen(false);
+            router.refresh();
+          }}
+        />
+      )}
+
       {enviarOpen && (
         <EnviarDialog
           propostaId={proposta.id}
@@ -414,6 +453,325 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
       )}
     </div>
   );
+}
+
+/**
+ * Modal "Gerar com IA" — Marcelo descreve a proposta em linguagem
+ * natural, escolhe tom de voz, e o Claude preenche as 8 seções
+ * automaticamente. Respeita o que já existe (não sobrescreve por
+ * default).
+ */
+function GerarComIaDialog({
+  propostaId,
+  clienteNome,
+  onClose,
+  onGenerated,
+}: {
+  propostaId: string;
+  clienteNome: string;
+  onClose: () => void;
+  onGenerated: () => void;
+}) {
+  const [prompt, setPrompt] = useState("");
+  const [tom, setTom] = useState<"formal" | "consultivo" | "direto" | "premium">("consultivo");
+  const [sobrescrever, setSobrescrever] = useState(false);
+  const [gerando, setGerando] = useState(false);
+
+  async function gerar() {
+    if (prompt.trim().length < 20) {
+      toast.error("Descreva melhor a oportunidade (mínimo 20 caracteres)");
+      return;
+    }
+    setGerando(true);
+    try {
+      const res = await fetch(`/api/propostas/${propostaId}/gerar-com-ia`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt.trim(), tom, sobrescrever }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error ?? "Falha");
+      }
+      const data = await res.json();
+      toast.success(`${data.secoesAtualizadas.length} seções preenchidas`, {
+        description: `${data.usage.inputTokens} → ${data.usage.outputTokens} tokens`,
+      });
+      onGenerated();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro");
+    } finally {
+      setGerando(false);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-sal-400" />
+            Gerar proposta com IA
+          </DialogTitle>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            Cliente: <span className="font-medium">{clienteNome}</span>. O Claude vai preencher as 8 seções baseado na sua descrição abaixo.
+          </p>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="flex items-center justify-between">
+              <span>Descreva a oportunidade</span>
+              <span className="text-[10px] text-muted-foreground/70 font-mono">
+                {prompt.length}/4000
+              </span>
+            </Label>
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={
+                "Ex: Cliente é uma rede de 12 farmácias em Porto Alegre, faturamento R$ 80M/ano. Hoje só fazem Instagram orgânico sem estratégia. Querem aumentar venda direta no app deles e melhorar reconhecimento de marca local. Briefing inicial: 3 reuniões já feitas, R$ 8k/mês de investimento, contrato 12 meses, foco em tráfego pago Meta + Google + gestão completa de redes."
+              }
+              rows={8}
+              maxLength={4000}
+              className="w-full rounded-md border border-border bg-background/40 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+              autoFocus
+            />
+            <p className="text-[10.5px] text-muted-foreground/70">
+              Quanto mais contexto, melhor o resultado. Inclua: tipo do negócio, escopo desejado, valores, prazo, dores específicas, canais.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Tom de voz</Label>
+            <Select value={tom} onValueChange={(v) => setTom(v as typeof tom)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="consultivo">Consultivo (default) · mid-market</SelectItem>
+                <SelectItem value="formal">Formal · corporativo / B2B tradicional</SelectItem>
+                <SelectItem value="direto">Direto · startup / digital nativo</SelectItem>
+                <SelectItem value="premium">Premium · alto padrão / luxo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="rounded-md border border-border bg-secondary/30 p-3">
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={sobrescrever}
+                onChange={(e) => setSobrescrever(e.target.checked)}
+                className="accent-sal-600 mt-0.5"
+              />
+              <div>
+                <div className="text-[12.5px] font-medium">Sobrescrever seções já preenchidas</div>
+                <div className="text-[10.5px] text-muted-foreground">
+                  Por default, a IA só preenche o que está vazio. Marque pra regenerar tudo.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <div className="text-[10.5px] text-muted-foreground/70 bg-secondary/30 rounded-md p-2.5 border-l-2 border-sal-600/30">
+            ⚡ Usa Claude (Anthropic). Custa ~$0.02–0.05 por proposta gerada. Configure{" "}
+            <code className="font-mono bg-secondary px-1 rounded">ANTHROPIC_API_KEY</code> no
+            servidor pra ativar.
+          </div>
+        </div>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline" disabled={gerando}>
+              Cancelar
+            </Button>
+          </DialogClose>
+          <Button onClick={gerar} disabled={gerando || prompt.trim().length < 20}>
+            {gerando ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Gerando... (10-30s)
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-3.5 w-3.5" /> Gerar
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * Card de identidade visual: logo (upload ou URL) + cor primária.
+ * Logo é comprimido pra ~256x96 antes de virar dataURL pra caber no banco
+ * sem inflar (mesma técnica do avatar).
+ */
+function IdentidadeVisualCard({
+  logoUrl,
+  corPrimaria,
+  onLogoChange,
+  onCorChange,
+}: {
+  logoUrl: string | null;
+  corPrimaria: string;
+  onLogoChange: (url: string | null) => void;
+  onCorChange: (cor: string) => void;
+}) {
+  const PRESETS = [
+    "#7E30E1", // SAL purple (default)
+    "#10B981", // emerald
+    "#3B82F6", // blue
+    "#F59E0B", // amber
+    "#EC4899", // pink
+    "#14B8A6", // teal
+    "#EF4444", // red
+    "#0F172A", // slate
+  ];
+
+  async function handleFile(file: File) {
+    if (file.size > 2_000_000) {
+      toast.error("Imagem grande demais — máximo 2MB");
+      return;
+    }
+    try {
+      const dataUrl = await comprimirImagem(file, 256, 96);
+      onLogoChange(dataUrl);
+    } catch {
+      toast.error("Falha ao processar imagem");
+    }
+  }
+
+  return (
+    <Card>
+      <CardContent className="p-4 space-y-3">
+        <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold">
+          Identidade visual
+        </div>
+
+        {/* Logo */}
+        <div className="space-y-1.5">
+          <Label className="text-[11px]">Logo</Label>
+          <div className="flex items-center gap-2">
+            <div
+              className="h-12 w-24 rounded-md border border-border bg-background/40 flex items-center justify-center overflow-hidden shrink-0"
+              style={logoUrl ? { background: "#FFFFFF" } : undefined}
+            >
+              {logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={logoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
+              ) : (
+                <span className="text-[10px] text-muted-foreground/60">Sem logo</span>
+              )}
+            </div>
+            <div className="flex-1 flex flex-col gap-1">
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void handleFile(f);
+                  }}
+                />
+                <Button asChild size="sm" variant="outline" className="w-full text-[11px] h-7">
+                  <span>{logoUrl ? "Trocar imagem" : "Enviar imagem"}</span>
+                </Button>
+              </label>
+              {logoUrl && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="w-full text-[10px] h-6 text-destructive hover:text-destructive"
+                  onClick={() => onLogoChange(null)}
+                >
+                  Remover logo
+                </Button>
+              )}
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground/70">
+            Recomendado: PNG transparente, ~256×96px. Aparece na capa e PDF.
+          </p>
+        </div>
+
+        {/* Cor primária */}
+        <div className="space-y-1.5">
+          <Label className="text-[11px]">Cor primária</Label>
+          <div className="flex gap-1.5 flex-wrap">
+            {PRESETS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => onCorChange(c)}
+                className={cn(
+                  "h-7 w-7 rounded-md border-2 transition",
+                  corPrimaria === c ? "border-foreground scale-110" : "border-border"
+                )}
+                style={{ background: c }}
+                title={c}
+              />
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={corPrimaria}
+              onChange={(e) => onCorChange(e.target.value)}
+              className="h-7 w-12 rounded border border-border cursor-pointer bg-transparent"
+              title="Custom"
+            />
+            <input
+              type="text"
+              value={corPrimaria}
+              onChange={(e) => {
+                const v = e.target.value.toUpperCase();
+                if (/^#[0-9A-F]{6}$/.test(v)) onCorChange(v);
+              }}
+              className="font-mono text-[11px] w-20 rounded border border-border bg-background/40 px-2 py-1"
+              maxLength={7}
+            />
+            <span className="text-[10px] text-muted-foreground">aplicada na capa, separadores e CTAs</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/**
+ * Comprime imagem em canvas até maxW × maxH preservando aspect ratio,
+ * exporta como dataURL JPEG 85% (ou PNG se tiver transparência aparente).
+ */
+async function comprimirImagem(file: File, maxW: number, maxH: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const ratio = Math.min(maxW / img.width, maxH / img.height, 1);
+        const w = img.width * ratio;
+        const h = img.height * ratio;
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("Canvas indisponível"));
+        ctx.drawImage(img, 0, 0, w, h);
+        // PNG preserva transparência; JPEG é menor mas perde alpha
+        const isPng = file.type === "image/png";
+        const url = canvas.toDataURL(isPng ? "image/png" : "image/jpeg", 0.85);
+        resolve(url);
+      };
+      img.onerror = () => reject(new Error("Imagem inválida"));
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error("Falha ao ler arquivo"));
+    reader.readAsDataURL(file);
+  });
 }
 
 function EnviarDialog({

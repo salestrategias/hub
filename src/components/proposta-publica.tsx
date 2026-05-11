@@ -22,6 +22,8 @@ type PropostaPublicaData = {
   titulo: string;
   clienteNome: string;
   clienteEmail: string | null;
+  logoUrl: string | null;
+  corPrimaria: string | null;
   capa: string | null;
   diagnostico: string | null;
   objetivo: string | null;
@@ -170,16 +172,36 @@ export function PropostaPublica({ token }: { token: string }) {
   const aceita = proposta.status === "ACEITA";
   const recusada = proposta.status === "RECUSADA";
   const decidida = aceita || recusada;
+  const corPrim = proposta.corPrimaria ?? "#7E30E1";
+  const corPrimEscura = escurecer(corPrim, 0.3);
+  const corPrimClara = clarear(corPrim, 0.4);
 
   return (
     <>
-      <div className="proposta-publica">
+      <div
+        className="proposta-publica"
+        style={
+          {
+            // Custom properties consumidas pelo CSS global abaixo
+            ["--cor-primaria" as string]: corPrim,
+            ["--cor-primaria-escura" as string]: corPrimEscura,
+            ["--cor-primaria-clara" as string]: corPrimClara,
+          } as React.CSSProperties
+        }
+      >
         {/* Capa */}
         <section className="capa">
           <div className="capa-inner">
             <div className="capa-brand">
-              <span className="brand-mark">SAL</span>
-              <span className="brand-sub">Estratégias de Marketing</span>
+              {proposta.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={proposta.logoUrl} alt="Logo" className="capa-logo" />
+              ) : (
+                <>
+                  <span className="brand-mark">SAL</span>
+                  <span className="brand-sub">Estratégias de Marketing</span>
+                </>
+              )}
             </div>
             <div className="capa-content">
               <span className="capa-numero">Proposta {proposta.numero}</span>
@@ -350,10 +372,11 @@ export function PropostaPublica({ token }: { token: string }) {
           z-index: 1;
         }
         .capa-brand { display: flex; align-items: baseline; gap: 10px; }
+        .capa-logo { max-height: 64px; max-width: 240px; object-fit: contain; }
         .brand-mark {
           font-size: 40px;
           font-weight: 800;
-          background: linear-gradient(90deg, #B794F4 0%, #7E30E1 100%);
+          background: linear-gradient(90deg, #B794F4 0%, var(--cor-primaria) 100%);
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
@@ -368,7 +391,7 @@ export function PropostaPublica({ token }: { token: string }) {
         .capa-content { display: flex; flex-direction: column; gap: 12px; }
         .capa-numero { font-size: 11px; color: #9696A8; letter-spacing: 4px; text-transform: uppercase; }
         .capa-titulo { font-size: 48px; font-weight: 700; color: #FFFFFF; line-height: 1.1; margin: 0; letter-spacing: -0.02em; }
-        .capa-separador { width: 80px; height: 4px; background: #7E30E1; margin: 24px 0; border-radius: 2px; }
+        .capa-separador { width: 80px; height: 4px; background: var(--cor-primaria); margin: 24px 0; border-radius: 2px; }
         .capa-label { font-size: 11px; color: #9696A8; letter-spacing: 3px; text-transform: uppercase; }
         .capa-cliente { font-size: 28px; font-weight: 600; color: #FFFFFF; margin: 0; }
         .capa-bottom {
@@ -387,7 +410,7 @@ export function PropostaPublica({ token }: { token: string }) {
         .secao-inner { max-width: 720px; margin: 0 auto; }
         .secao-label {
           font-size: 11px;
-          color: #7E30E1;
+          color: var(--cor-primaria);
           letter-spacing: 3px;
           text-transform: uppercase;
           font-weight: 600;
@@ -411,7 +434,7 @@ export function PropostaPublica({ token }: { token: string }) {
 
         .resumo-invest {
           background: linear-gradient(135deg, rgba(126,48,225,0.08) 0%, rgba(126,48,225,0.02) 100%);
-          border-left: 4px solid #7E30E1;
+          border-left: 4px solid var(--cor-primaria);
           padding: 24px;
           border-radius: 8px;
           margin-bottom: 24px;
@@ -429,7 +452,7 @@ export function PropostaPublica({ token }: { token: string }) {
         .resumo-invest-item .valor {
           font-size: 28px;
           font-weight: 700;
-          color: #7E30E1;
+          color: var(--cor-primaria);
           margin-top: 4px;
           font-family: var(--font-inter-tight), var(--font-inter);
           letter-spacing: -0.02em;
@@ -731,4 +754,35 @@ function hasContent(jsonOrText: string): boolean {
 
 function formatBRL(n: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n);
+}
+
+/**
+ * Escurece um hex `#RRGGBB` multiplicando cada canal por (1 - factor).
+ * Usado pra gerar a variante "escura" da cor primária (gradiente da capa).
+ */
+function escurecer(hex: string, factor: number): string {
+  return ajustar(hex, -factor);
+}
+
+function clarear(hex: string, factor: number): string {
+  return ajustar(hex, factor);
+}
+
+function ajustar(hex: string, delta: number): string {
+  const m = hex.match(/^#([0-9a-f]{6})$/i);
+  if (!m) return hex;
+  const v = parseInt(m[1], 16);
+  let r = (v >> 16) & 0xff;
+  let g = (v >> 8) & 0xff;
+  let b = v & 0xff;
+  if (delta < 0) {
+    r = Math.max(0, Math.round(r * (1 + delta)));
+    g = Math.max(0, Math.round(g * (1 + delta)));
+    b = Math.max(0, Math.round(b * (1 + delta)));
+  } else {
+    r = Math.min(255, Math.round(r + (255 - r) * delta));
+    g = Math.min(255, Math.round(g + (255 - g) * delta));
+    b = Math.min(255, Math.round(b + (255 - b) * delta));
+  }
+  return `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
 }

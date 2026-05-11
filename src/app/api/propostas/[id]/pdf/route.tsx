@@ -1,5 +1,5 @@
 import React from "react";
-import { renderToStream, Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { renderToStream, Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import {
@@ -65,18 +65,27 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       ? proposta.shareExpiraEm.toLocaleDateString("pt-BR")
       : `${proposta.validadeDias} dias após envio`;
 
+    const corPrim = proposta.corPrimaria ?? "#7E30E1";
+
     const doc = (
       <Document>
         {/* Capa */}
         <Page size="A4" style={styles.capa}>
           <View style={styles.capaTop}>
-            <Text style={styles.brand}>SAL</Text>
-            <Text style={styles.brandSub}>Estratégias de Marketing</Text>
+            {proposta.logoUrl ? (
+              // eslint-disable-next-line jsx-a11y/alt-text
+              <Image src={proposta.logoUrl} style={styles.capaLogo} />
+            ) : (
+              <>
+                <Text style={styles.brand}>SAL</Text>
+                <Text style={styles.brandSub}>Estratégias de Marketing</Text>
+              </>
+            )}
           </View>
           <View style={styles.capaCenter}>
             <Text style={styles.capaNumero}>Proposta {proposta.numero}</Text>
             <Text style={styles.capaTitulo}>{proposta.titulo}</Text>
-            <View style={styles.capaSeparador} />
+            <View style={[styles.capaSeparador, { backgroundColor: corPrim }]} />
             <Text style={styles.capaPara}>Preparado para</Text>
             <Text style={styles.capaCliente}>{proposta.clienteNome}</Text>
           </View>
@@ -95,8 +104,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {/* Capa custom (se preenchida) */}
         {proposta.capa && extrairTextoDeBlocos(expandirSecaoProposta(proposta.capa, ctx)) && (
           <Page size="A4" style={styles.page}>
-            <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} />
-            <Text style={styles.h1}>Apresentação</Text>
+            <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
+            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>Apresentação</Text>
             <Conteudo texto={extrairTextoDeBlocos(expandirSecaoProposta(proposta.capa, ctx))} />
             <PageFooter />
           </Page>
@@ -108,28 +117,28 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
           if (!texto.trim()) return null;
           return (
             <Page key={i} size="A4" style={styles.page}>
-              <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} />
-              <Text style={styles.h1}>{s.label}</Text>
+              <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
+              <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{s.label}</Text>
 
               {/* Card de números na seção "Investimento" */}
               {s.label === "Investimento" && (proposta.valorMensal || proposta.valorTotal) && (
-                <View style={styles.investBox}>
+                <View style={[styles.investBox, { borderLeftColor: corPrim, backgroundColor: hexAlpha(corPrim, 0.08) }]}>
                   {proposta.valorMensal && (
                     <View style={styles.investItem}>
                       <Text style={styles.investLabel}>Investimento mensal</Text>
-                      <Text style={styles.investValor}>{formatBRL(Number(proposta.valorMensal))}</Text>
+                      <Text style={[styles.investValor, { color: corPrim }]}>{formatBRL(Number(proposta.valorMensal))}</Text>
                     </View>
                   )}
                   {proposta.valorTotal && (
                     <View style={styles.investItem}>
                       <Text style={styles.investLabel}>Valor total</Text>
-                      <Text style={styles.investValor}>{formatBRL(Number(proposta.valorTotal))}</Text>
+                      <Text style={[styles.investValor, { color: corPrim }]}>{formatBRL(Number(proposta.valorTotal))}</Text>
                     </View>
                   )}
                   {proposta.duracaoMeses && (
                     <View style={styles.investItem}>
                       <Text style={styles.investLabel}>Duração</Text>
-                      <Text style={styles.investValor}>{proposta.duracaoMeses} meses</Text>
+                      <Text style={[styles.investValor, { color: corPrim }]}>{proposta.duracaoMeses} meses</Text>
                     </View>
                   )}
                 </View>
@@ -162,13 +171,24 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
 // ─── Componentes auxiliares ──────────────────────────────────────
 
-function PageHeader({ numero, cliente }: { numero: string; cliente: string }) {
+function PageHeader({ numero, cliente, cor }: { numero: string; cliente: string; cor: string }) {
   return (
     <View style={styles.pageHeader} fixed>
-      <Text style={styles.pageHeaderBrand}>SAL · Proposta {numero}</Text>
+      <Text style={[styles.pageHeaderBrand, { color: cor }]}>Proposta {numero}</Text>
       <Text style={styles.pageHeaderCliente}>{cliente}</Text>
     </View>
   );
+}
+
+/** Converte hex + alpha em rgba pra usar em backgrounds suaves (react-pdf não tem color-mix) */
+function hexAlpha(hex: string, alpha: number): string {
+  const m = hex.match(/^#([0-9a-f]{6})$/i);
+  if (!m) return `rgba(126, 48, 225, ${alpha})`;
+  const v = parseInt(m[1], 16);
+  const r = (v >> 16) & 0xff;
+  const g = (v >> 8) & 0xff;
+  const b = v & 0xff;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function PageFooter() {
@@ -236,7 +256,8 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "space-between",
   },
-  capaTop: { flexDirection: "row", alignItems: "baseline", gap: 8 },
+  capaTop: { flexDirection: "row", alignItems: "center", gap: 8 },
+  capaLogo: { maxHeight: 56, maxWidth: 200, objectFit: "contain" },
   brand: { fontSize: 36, fontWeight: 700, color: "#B794F4", letterSpacing: 2 },
   brandSub: { fontSize: 9, color: "#9696A8", textTransform: "uppercase", letterSpacing: 2, marginLeft: 4 },
   capaCenter: { marginTop: 80 },

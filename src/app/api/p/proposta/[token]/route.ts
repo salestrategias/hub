@@ -125,6 +125,8 @@ async function handlePublic(token: string, senhaProvida: string | null) {
     titulo: expandirSecaoProposta(proposta.titulo, ctx),
     clienteNome: proposta.clienteNome,
     clienteEmail: proposta.clienteEmail,
+    logoUrl: proposta.logoUrl,
+    corPrimaria: proposta.corPrimaria,
     capa: expandirSecaoProposta(proposta.capa, ctx),
     diagnostico: expandirSecaoProposta(proposta.diagnostico, ctx),
     objetivo: expandirSecaoProposta(proposta.objetivo, ctx),

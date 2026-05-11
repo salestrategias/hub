@@ -272,6 +272,8 @@ export const propostaSchema = z.object({
   valorTotal: z.coerce.number().nonnegative().optional().nullable(),
   duracaoMeses: z.coerce.number().int().positive().optional().nullable(),
   validadeDias: z.coerce.number().int().positive().max(365).default(30),
+  logoUrl: z.string().max(500_000).optional().nullable().or(z.literal("")),
+  corPrimaria: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Cor inválida (use formato #RRGGBB)").optional().nullable().or(z.literal("")),
 });
 export type PropostaInput = z.infer<typeof propostaSchema>;
 

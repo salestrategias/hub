@@ -806,6 +806,10 @@ model Proposta {
   duracaoMeses    Int?
   validadeDias    Int            @default(30)
 
+  // Customização visual
+  logoUrl         String?        @db.Text   // dataURL ou URL externa
+  corPrimaria     String?        // hex (#7E30E1 default no front)
+
   // Status
   status          PropostaStatus @default(RASCUNHO)
   enviadaEm       DateTime?
