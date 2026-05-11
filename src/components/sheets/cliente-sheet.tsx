@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Users, Trash2, ListChecks, FileText, Link2, BarChart3 } from "lucide-react";
+import { Users, Trash2, ListChecks, FileText, Link2, BarChart3, Rocket, Loader2 } from "lucide-react";
 import { EntitySheet } from "@/components/entity-sheet";
 import { RelatorioMensalDialog } from "@/components/relatorio-mensal-dialog";
 import { InlineField } from "@/components/inline-field";
@@ -28,6 +28,7 @@ type ClienteFull = {
   valorContratoMensal: string | number;
   notas: string | null;
   googleDriveFolderUrl: string | null;
+  onboardingFeitoEm: string | null;
   tags: { id: string; nome: string; cor: string | null }[];
   posts: { id: string; titulo: string | null; status: string; dataPublicacao: string }[];
   tarefas: { id: string; titulo: string; concluida: boolean; prioridade: string; dataEntrega: string | null }[];
@@ -62,6 +63,40 @@ export function ClienteSheet({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [relatorioOpen, setRelatorioOpen] = useState(false);
+  const [rodandoOnboarding, setRodandoOnboarding] = useState(false);
+
+  async function rodarOnboarding() {
+    if (!clienteId || !cliente) return;
+    const jaFeito = !!cliente.onboardingFeitoEm;
+    const msg = jaFeito
+      ? `O onboarding desse cliente já foi feito em ${new Date(cliente.onboardingFeitoEm!).toLocaleDateString("pt-BR")}.\n\nRodar de novo cria um SEGUNDO projeto "Onboarding" com as mesmas tarefas. Continuar?`
+      : `Vai criar:\n• Pasta no Google Drive (se houver auth)\n• Projeto "Onboarding · ${cliente.nome}"\n• 7 tarefas padrão com prazos escalonados\n\nContinuar?`;
+    if (!confirm(msg)) return;
+    setRodandoOnboarding(true);
+    try {
+      const res = await fetch(`/api/clientes/${clienteId}/onboarding`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ forcar: jaFeito }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data?.error ?? "Falha ao executar onboarding");
+        return;
+      }
+      const partes: string[] = [];
+      if (data.projetoCriado) partes.push("projeto criado");
+      if (data.tarefasCriadas > 0) partes.push(`${data.tarefasCriadas} tarefa(s)`);
+      if (data.pastaDriveCriada) partes.push("pasta Drive");
+      if (data.pastaDriveErro) partes.push(`(Drive: ${data.pastaDriveErro})`);
+      toast.success(partes.length > 0 ? `Onboarding: ${partes.join(" · ")}` : "Onboarding executado");
+      router.refresh();
+      // Recarrega o cliente pra refletir onboardingFeitoEm
+      fetch(`/api/clientes/${clienteId}`).then((r) => r.json()).then(setCliente).catch(() => {});
+    } finally {
+      setRodandoOnboarding(false);
+    }
+  }
 
   useEffect(() => {
     if (!clienteId || !open) return;
@@ -134,6 +169,24 @@ export function ClienteSheet({
         <>
           <Button variant="ghost" size="sm" onClick={excluir} className="text-destructive hover:text-destructive">
             <Trash2 className="h-3.5 w-3.5" /> Excluir
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={rodarOnboarding}
+            disabled={rodandoOnboarding}
+            title={
+              cliente?.onboardingFeitoEm
+                ? `Onboarding executado em ${new Date(cliente.onboardingFeitoEm).toLocaleDateString("pt-BR")}. Clique pra re-executar.`
+                : "Cria pasta Drive + projeto Onboarding + tarefas iniciais"
+            }
+          >
+            {rodandoOnboarding ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Rocket className="h-3.5 w-3.5" />
+            )}
+            {cliente?.onboardingFeitoEm ? "Re-executar onboarding" : "Rodar onboarding"}
           </Button>
           <Button variant="outline" size="sm" onClick={() => setRelatorioOpen(true)}>
             <BarChart3 className="h-3.5 w-3.5" /> Relatório do mês

@@ -126,6 +126,11 @@ model Cliente {
   googleDriveFolderId   String?
   googleDriveFolderUrl  String?
 
+  // Onboarding automático — marcado depois que pasta Drive + projeto
+  // Onboarding + tarefas iniciais foram criados pra esse cliente.
+  // Idempotência: triggers verificam se != null antes de re-executar.
+  onboardingFeitoEm     DateTime?
+
   posts        Post[]
   projetos     Projeto[]
   tarefas      Tarefa[]
@@ -1057,4 +1062,33 @@ enum FonteRelatorio {
   REDES
   SEO
   TRAFEGO
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Configuração global do sistema — pattern singleton (id fixo = "default").
+//
+// Vai crescendo conforme aparecem decisões que precisam ser persistidas
+// fora de env vars (porque user quer editar pela UI sem deploy). Hoje
+// só guarda preferências do onboarding de cliente; pode-se adicionar
+// outros campos depois.
+//
+// Convenção: sempre upsert via `where: { id: "default" }`. UI lê/escreve
+// a row única. Migration cria a linha via seed se não existir.
+// ─────────────────────────────────────────────────────────────────────
+model Configuracao {
+  id String @id @default("default")
+
+  // ── Onboarding: onde criar pastas dos clientes ──────────────────
+  // Tipo:
+  //  - "meu_drive" → cria em Meu Drive pessoal do user logado
+  //  - "shared_drive" → cria na raiz do Shared Drive identificado por `onboardingDriveId`
+  //  - "pasta" → cria dentro da pasta `onboardingDriveParentId` (em qualquer drive)
+  onboardingDestinoTipo  String  @default("shared_drive")
+  onboardingDriveId      String?           // ID do Shared Drive selecionado
+  onboardingDriveNome    String?           // nome cacheado pra UI (não fonte da verdade)
+  onboardingParentId     String?           // ID de pasta (se destino="pasta")
+  onboardingParentNome   String?           // nome cacheado pra UI
+
+  atualizadoEm DateTime @updatedAt
+  atualizadoPor String?
 }

@@ -63,7 +63,6 @@ _(nada agendado — escolher da lista abaixo)_
 ## 🟣 Visão maior (1-2 semanas cada)
 
 - [ ] **Calendário unificado** (`G` global) — tarefas + posts + reuniões + contratos vencendo + propostas expirando, drag-drop pra reagendar
-- [ ] **Onboarding automático de cliente** — quando lead vira cliente (GANHO), sistema cria automático: pasta no Drive, projeto "Onboarding" com tarefas padrão, lançamento financeiro do primeiro mês
 - [ ] **Health score de cliente** — score 0-100 combinando tempo de contrato, MRR vs ticket inicial, frequência de reuniões, tarefas atrasadas, status de pagamento → antecipa churn
 - [ ] **WhatsApp Business integrado** — Z-API ou WhatsApp Cloud API, histórico do cliente mostra [Reunião] + [Email] + [WhatsApp] na timeline
 - [ ] **Dashboards customizáveis** — drag-drop de widgets (MRR, pipeline, tarefas, gráficos) pra montar tela do dia-a-dia
@@ -85,6 +84,8 @@ _(nada agendado — escolher da lista abaixo)_
 ## ✅ Concluído
 
 ### 2026-05-11
+- ✅ **Suporte a Shared Drives (Drives Compartilhados)** — refactor de `lib/google-drive.ts` com `supportsAllDrives` + `includeItemsFromAllDrives` em todas as chamadas, nova função `listSharedDrives()`, endpoint `/api/drive/drives`, seletor de drive no `DriveBrowser`. Backwards compatible (defaults pra Meu Drive).
+- ✅ **Onboarding automático de cliente** — trigger em 3 entry points (criar cliente ATIVO, promover PROSPECT→ATIVO, converter lead GANHO). Cria pasta Drive + projeto "Onboarding" + 7 tarefas padrão com prazos escalonados. Idempotente via `onboardingFeitoEm`. Botão manual no cliente-sheet pra re-executar.
 - ✅ **Relatório mensal automático por cliente (PDF)** — botão no cliente-sheet + quick action na lista, gera PDF com métricas das redes, SEO, tráfego pago, conteúdo e operacional, com comparativo MoM
 - ✅ **Faturamento recorrente automático** — gera mensalidade dos clientes ATIVO no /financeiro, idempotente, com botão manual
 - ✅ **Backend de notificações por email** (Resend) — código pronto, só falta config externa (ver "Em espera" acima)

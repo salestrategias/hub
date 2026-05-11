@@ -1,6 +1,7 @@
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { leadConverterSchema } from "@/lib/schemas";
+import { executarOnboardingSilencioso } from "@/lib/onboarding-cliente";
 
 /**
  * Converte um Lead em Cliente, marcando o lead como GANHO.
@@ -111,6 +112,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         },
       })
       .catch(() => undefined);
+
+    // Onboarding automático — pasta Drive, projeto "Onboarding" com
+    // tarefas padrão. Fire-and-forget: se falhar, não bloqueia a
+    // resposta. Marcelo pode re-rodar manualmente pelo botão no sheet.
+    // Atribuído ao responsável do lead (não ao user que clicou converter,
+    // pra preservar ownership do trabalho operacional).
+    void executarOnboardingSilencioso(clienteId, lead.responsavel);
 
     return { ok: true, clienteId, clienteNome };
   });

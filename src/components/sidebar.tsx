@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
-  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send, TrendingUp,
+  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send, TrendingUp, Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
@@ -66,6 +66,7 @@ const groups: NavGroup[] = [
   {
     label: "Administração",
     items: [
+      { label: "Configurações", href: "/admin/configuracoes", icon: Settings },
       { label: "Claude / MCP", href: "/admin/mcp", icon: Cpu },
       { label: "Backups", href: "/admin/backups", icon: Database },
     ],

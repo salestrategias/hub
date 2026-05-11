@@ -2,6 +2,7 @@ import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { clienteSchema } from "@/lib/schemas";
 import { syncMentionsFromValue, deleteMentionsOf } from "@/lib/mentions";
+import { executarOnboardingSilencioso } from "@/lib/onboarding-cliente";
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
@@ -32,9 +33,16 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
-    await requireAuth();
+    const user = await requireAuth();
     const body = await req.json();
     const { tagIds, ...data } = clienteSchema.partial().parse(body);
+
+    // Snapshot ANTES de atualizar — pra detectar transição pra ATIVO
+    const anterior = await prisma.cliente.findUnique({
+      where: { id: params.id },
+      select: { status: true, onboardingFeitoEm: true },
+    });
+
     const updated = await prisma.cliente.update({
       where: { id: params.id },
       data: {
@@ -46,6 +54,15 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (data.notas !== undefined) {
       void syncMentionsFromValue({ sourceType: "CLIENTE", sourceId: params.id }, data.notas);
     }
+
+    // Dispara onboarding se cliente acabou de virar ATIVO e ainda não
+    // foi onboardado. Trigger comum: PROSPECT promovido manualmente
+    // (sem passar pelo pipeline de leads).
+    const virouAtivo = anterior?.status !== "ATIVO" && updated.status === "ATIVO";
+    if (virouAtivo && !anterior?.onboardingFeitoEm) {
+      void executarOnboardingSilencioso(params.id, user.id);
+    }
+
     return updated;
   });
 }
