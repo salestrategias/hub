@@ -1,6 +1,7 @@
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { leadSchema } from "@/lib/schemas";
+import { calcularLeadScore } from "@/lib/lead-score";
 import type { LeadStatus } from "@prisma/client";
 
 const STATUS_VALIDOS: LeadStatus[] = [
@@ -62,8 +63,20 @@ export async function POST(req: Request) {
     const user = await requireAuth();
     const data = leadSchema.parse(await req.json());
 
+    // Calcula score inicial (sem updatedAt real ainda, usa now)
+    const score = calcularLeadScore({
+      contatoEmail: data.contatoEmail ?? null,
+      contatoTelefone: data.contatoTelefone ?? null,
+      notas: data.notas ?? null,
+      valorEstimadoMensal: data.valorEstimadoMensal ?? null,
+      proximaAcaoEm: data.proximaAcaoEm ?? null,
+      status: data.status,
+      origem: data.origem ?? null,
+      updatedAt: new Date(),
+    }).total;
+
     return prisma.lead.create({
-      data: { ...data, responsavel: user.id },
+      data: { ...data, responsavel: user.id, score },
     });
   });
 }

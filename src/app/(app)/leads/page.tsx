@@ -48,6 +48,8 @@ export default async function LeadsPage() {
           clienteNome: l.cliente?.nome ?? null,
           convertidoEm: l.convertidoEm?.toISOString() ?? null,
           motivoPerdido: l.motivoPerdido,
+          score: l.score,
+          scoreManual: l.scoreManual,
           totalPropostas: l._count.propostas,
           updatedAt: l.updatedAt.toISOString(),
         }))}

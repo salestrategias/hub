@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/components/ui/toast";
 import { Sparkles, UserPlus, Link2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MoneyInput } from "@/components/money-input";
 import type { LeadCard } from "@/components/leads-kanban";
 
 /**
@@ -42,9 +43,7 @@ export function ConverterLeadDialog({
 }) {
   const [modo, setModo] = useState<"novo" | "existente">("novo");
   const [clienteId, setClienteId] = useState("");
-  const [valor, setValor] = useState(
-    lead.valorEstimadoMensal ? String(lead.valorEstimadoMensal) : ""
-  );
+  const [valor, setValor] = useState<number | null>(lead.valorEstimadoMensal ?? null);
   const [convertendo, setConvertendo] = useState(false);
 
   async function converter() {
@@ -60,7 +59,7 @@ export function ConverterLeadDialog({
         body: JSON.stringify({
           modo,
           clienteId: modo === "existente" ? clienteId : null,
-          valorContratoMensal: valor ? Number(valor) : null,
+          valorContratoMensal: valor,
         }),
       });
       if (!res.ok) {
@@ -148,13 +147,7 @@ export function ConverterLeadDialog({
               </div>
               <div className="space-y-1.5 pt-2 border-t border-border/40">
                 <Label className="text-[11px]">Valor contratado (mensal)</Label>
-                <Input
-                  type="number"
-                  value={valor}
-                  onChange={(e) => setValor(e.target.value)}
-                  placeholder="3500"
-                  step={100}
-                />
+                <MoneyInput value={valor} onChange={setValor} placeholder="3.500" />
                 <p className="text-[10px] text-muted-foreground/70">
                   Pré-preenchido com a estimativa do lead. Ajuste com o valor final negociado.
                 </p>
@@ -181,13 +174,7 @@ export function ConverterLeadDialog({
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px]">Novo valor mensal (opcional)</Label>
-                <Input
-                  type="number"
-                  value={valor}
-                  onChange={(e) => setValor(e.target.value)}
-                  placeholder="Deixe vazio pra manter o atual"
-                  step={100}
-                />
+                <MoneyInput value={valor} onChange={setValor} placeholder="Deixe vazio pra manter o atual" />
                 <p className="text-[10px] text-muted-foreground/70">
                   Se preencher, atualiza o `valorContratoMensal` do cliente. Útil pra upsell.
                 </p>

@@ -24,6 +24,7 @@ import { MoneyValue } from "@/components/money-value";
 import { LeadSheet } from "@/components/sheets/lead-sheet";
 import { useEntitySheet } from "@/components/entity-sheet";
 import { ConverterLeadDialog } from "@/components/converter-lead-dialog";
+import { MoneyInput } from "@/components/money-input";
 import { cn } from "@/lib/utils";
 import {
   Plus,
@@ -56,6 +57,8 @@ export type LeadCard = {
   clienteNome: string | null;
   convertidoEm: string | null;
   motivoPerdido: string | null;
+  score: number;
+  scoreManual: number | null;
   totalPropostas: number;
   updatedAt: string;
 };
@@ -178,7 +181,9 @@ export function LeadsKanban({
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-7 gap-3 min-w-[1400px] overflow-x-auto pb-4">
+        {/* Wrapper externo permite scroll horizontal sem vazar pra body inteiro */}
+        <div className="overflow-x-auto pb-4 -mx-8 px-8">
+          <div className="grid grid-cols-7 gap-3 min-w-[1400px]">
           {COLUNAS.map((col) => {
             const lista = filtrados.filter((c) => c.status === col.key);
             const valorTotal = lista.reduce((s, c) => s + (c.valorEstimadoMensal ?? 0), 0);
@@ -242,6 +247,7 @@ export function LeadsKanban({
               </Droppable>
             );
           })}
+          </div>
         </div>
       </DragDropContext>
 
@@ -317,11 +323,14 @@ function LeadCardItem({
           <div className="font-medium text-[13px] leading-tight min-w-0 truncate">
             {lead.empresa}
           </div>
-          {lead.prioridade !== "NORMAL" && lead.prioridade !== "BAIXA" && (
-            <Badge variant="outline" className="text-[9px] uppercase shrink-0 px-1.5">
-              {PRIO_LABEL[lead.prioridade]}
-            </Badge>
-          )}
+          <div className="flex items-center gap-1 shrink-0">
+            <ScoreBadge score={lead.scoreManual ?? lead.score} />
+            {lead.prioridade !== "NORMAL" && lead.prioridade !== "BAIXA" && (
+              <Badge variant="outline" className="text-[9px] uppercase px-1.5">
+                {PRIO_LABEL[lead.prioridade]}
+              </Badge>
+            )}
+          </div>
         </div>
 
         {lead.contatoNome && (
@@ -396,6 +405,26 @@ function LeadCardItem({
   );
 }
 
+/**
+ * Badge compacto do lead score. Cor conforme classe (alto/médio/baixo).
+ * Mostra o número grande pra Marcelo rapidamente saber quais leads são
+ * "mais quentes" no kanban.
+ */
+function ScoreBadge({ score }: { score: number }) {
+  const classe = score >= 70 ? "alto" : score >= 40 ? "medio" : "baixo";
+  const cor =
+    classe === "alto" ? "#10B981" : classe === "medio" ? "#F59E0B" : "#9696A8";
+  return (
+    <span
+      className="inline-flex items-center gap-0.5 text-[9.5px] font-mono font-bold px-1.5 py-0.5 rounded shrink-0"
+      style={{ background: `${cor}22`, color: cor }}
+      title={`Lead score: ${score}/100 (${classe})`}
+    >
+      {score}
+    </span>
+  );
+}
+
 function NovoLeadDialog({
   open,
   onOpenChange,
@@ -409,7 +438,7 @@ function NovoLeadDialog({
   const [contatoEmail, setContatoEmail] = useState("");
   const [contatoTelefone, setContatoTelefone] = useState("");
   const [origem, setOrigem] = useState("");
-  const [valorMensal, setValorMensal] = useState("");
+  const [valorMensal, setValorMensal] = useState<number | null>(null);
   const [prioridade, setPrioridade] = useState<Prioridade>("NORMAL");
   const [salvando, setSalvando] = useState(false);
 
@@ -429,7 +458,7 @@ function NovoLeadDialog({
           contatoEmail: contatoEmail.trim() || null,
           contatoTelefone: contatoTelefone.trim() || null,
           origem: origem.trim() || null,
-          valorEstimadoMensal: valorMensal ? Number(valorMensal) : null,
+          valorEstimadoMensal: valorMensal,
           prioridade,
           status: "NOVO",
         }),
@@ -481,7 +510,7 @@ function NovoLeadDialog({
             </div>
             <div className="space-y-1.5">
               <Label>Valor estimado/mês</Label>
-              <Input type="number" step={100} value={valorMensal} onChange={(e) => setValorMensal(e.target.value)} placeholder="3500" />
+              <MoneyInput value={valorMensal} onChange={setValorMensal} placeholder="3.500" />
             </div>
             <div className="space-y-1.5 col-span-2">
               <Label>Prioridade</Label>

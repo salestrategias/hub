@@ -1,10 +1,12 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LeadStatus, LeadPorte, Prioridade, PropostaStatus } from "@prisma/client";
 import type { PartialBlock } from "@blocknote/core";
-import { TrendingUp, Trash2, Sparkles, FileSignature, Mail, Phone, Tag as TagIcon } from "lucide-react";
+import { TrendingUp, Trash2, Sparkles, FileSignature, Mail, Phone, Target, RotateCcw } from "lucide-react";
+import { calcularLeadScore } from "@/lib/lead-score";
+import { cn } from "@/lib/utils";
 import { EntitySheet } from "@/components/entity-sheet";
 import { InlineField } from "@/components/inline-field";
 import { Button } from "@/components/ui/button";
@@ -16,6 +18,8 @@ import type { LeadCard } from "@/components/leads-kanban";
 
 type LeadFull = LeadCard & {
   notas: string | null;
+  // Datas brutas (vindas como string ISO do server) que o breakdown precisa
+  createdAt: string;
   propostas: Array<{
     id: string;
     numero: string;
@@ -238,12 +242,10 @@ export function LeadSheet({
               size="sm"
             />
             <InlineField
-              type="number"
+              type="money"
               label="Valor estimado /mês"
               value={lead.valorEstimadoMensal ?? 0}
-              onSave={(v) => patchLead({ valorEstimadoMensal: Number(v) || null })}
-              prefix="R$"
-              step={100}
+              onSave={(v) => patchLead({ valorEstimadoMensal: v === "" ? null : Number(v) })}
               size="sm"
             />
             <InlineField
@@ -280,6 +282,9 @@ export function LeadSheet({
               className="col-span-2"
             />
           </div>
+
+          {/* Lead score */}
+          <LeadScoreCard lead={lead} onSetManual={(v) => patchLead({ scoreManual: v })} />
 
           {/* Contato */}
           <div className="rounded-md border border-border bg-background/40 p-3 space-y-2">
@@ -412,6 +417,161 @@ export function LeadSheet({
         </div>
       )}
     </EntitySheet>
+  );
+}
+
+/**
+ * Card visual do lead score: número grande colorido por classe (alto/médio/baixo)
+ * + breakdown calculado client-side (mesma lógica do server pra coerência) +
+ * opção de override manual.
+ *
+ * Override manual: se Marcelo achar que o lead é mais quente do que o score
+ * automático diz, define um número fixo. Pra voltar pro automático, clica
+ * em "voltar ao auto".
+ */
+function LeadScoreCard({
+  lead,
+  onSetManual,
+}: {
+  lead: LeadFull;
+  onSetManual: (v: number | null) => Promise<void>;
+}) {
+  const [editando, setEditando] = useState(false);
+  const [valor, setValor] = useState(lead.scoreManual ?? lead.score);
+
+  // Recalcula client-side pra mostrar breakdown ao vivo (sem hit no server)
+  const breakdown = useMemo(
+    () =>
+      calcularLeadScore({
+        contatoEmail: lead.contatoEmail,
+        contatoTelefone: lead.contatoTelefone,
+        notas: lead.notas,
+        valorEstimadoMensal: lead.valorEstimadoMensal,
+        proximaAcaoEm: lead.proximaAcaoEm,
+        status: lead.status,
+        origem: lead.origem,
+        updatedAt: lead.updatedAt,
+      }),
+    [lead]
+  );
+
+  const scoreFinal = lead.scoreManual ?? breakdown.total;
+  const isManual = lead.scoreManual !== null && lead.scoreManual !== undefined;
+  const classe = scoreFinal >= 70 ? "alto" : scoreFinal >= 40 ? "medio" : "baixo";
+  const cor = classe === "alto" ? "#10B981" : classe === "medio" ? "#F59E0B" : "#9696A8";
+  const classeLabel = classe === "alto" ? "Quente" : classe === "medio" ? "Morno" : "Frio";
+
+  async function salvarManual() {
+    await onSetManual(Math.max(0, Math.min(100, valor)));
+    setEditando(false);
+  }
+
+  async function resetarAuto() {
+    await onSetManual(null);
+  }
+
+  return (
+    <div
+      className="rounded-md border p-3 space-y-3"
+      style={{ borderColor: `${cor}44`, background: `${cor}08` }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Target className="h-3.5 w-3.5" style={{ color: cor }} />
+          <span className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold">
+            Lead score
+          </span>
+          {isManual && (
+            <span className="text-[9px] uppercase font-mono text-muted-foreground/70 bg-secondary px-1.5 py-0.5 rounded">
+              manual
+            </span>
+          )}
+        </div>
+        {isManual && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-6 text-[10px] gap-1"
+            onClick={resetarAuto}
+            title="Voltar ao cálculo automático"
+          >
+            <RotateCcw className="h-2.5 w-2.5" /> auto
+          </Button>
+        )}
+      </div>
+
+      <div className="flex items-baseline gap-3">
+        <span className="font-display text-[40px] font-bold tabular-nums leading-none" style={{ color: cor }}>
+          {scoreFinal}
+        </span>
+        <div>
+          <div className="text-[14px] font-semibold" style={{ color: cor }}>
+            {classeLabel}
+          </div>
+          <div className="text-[10px] text-muted-foreground/70">de 100</div>
+        </div>
+        {!editando && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setEditando(true)}
+            className="ml-auto h-6 text-[10px]"
+          >
+            ajustar
+          </Button>
+        )}
+      </div>
+
+      {editando && (
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={valor}
+            onChange={(e) => setValor(Number(e.target.value))}
+            className="flex-1 accent-sal-600"
+          />
+          <input
+            type="number"
+            min={0}
+            max={100}
+            value={valor}
+            onChange={(e) => setValor(Number(e.target.value))}
+            className="w-14 rounded border border-border bg-background px-1.5 py-1 text-[11px] font-mono text-center"
+          />
+          <Button size="sm" className="h-7 text-[10px]" onClick={salvarManual}>
+            salvar
+          </Button>
+          <Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => { setEditando(false); setValor(lead.scoreManual ?? breakdown.total); }}>
+            cancelar
+          </Button>
+        </div>
+      )}
+
+      {/* Breakdown — só mostra se NÃO está em modo manual (manual sobrescreve a lógica) */}
+      {!isManual && breakdown.items.length > 0 && (
+        <div className="space-y-0.5 pt-1 border-t border-border/40">
+          {breakdown.items.map((it, i) => (
+            <div key={i} className="flex items-center justify-between text-[10.5px]">
+              <span className="text-muted-foreground truncate flex-1">
+                {it.label}
+                {it.detalhe && <span className="text-muted-foreground/60 ml-1">· {it.detalhe}</span>}
+              </span>
+              <span
+                className={cn(
+                  "font-mono tabular-nums shrink-0",
+                  it.delta > 0 ? "text-emerald-400" : it.delta < 0 ? "text-rose-400" : "text-muted-foreground/60"
+                )}
+              >
+                {it.delta > 0 ? "+" : ""}
+                {it.delta}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

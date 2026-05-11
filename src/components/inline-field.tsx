@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MoneyInput } from "@/components/money-input";
+import { parseBRNumber } from "@/lib/number-br";
 
 type InlineFieldStatus = "idle" | "saving" | "saved" | "error";
 
@@ -54,12 +56,21 @@ type InlineDateProps = CommonProps & {
   value: string | null;
 };
 
+type InlineMoneyProps = CommonProps & {
+  type: "money";
+  value: number;
+  /** Casas decimais. Default 0 (R$ 2.500). Use 2 pra centavos. */
+  decimals?: number;
+  prefix?: string;
+};
+
 type InlineFieldProps =
   | InlineTextProps
   | InlineNumberProps
   | InlineTextareaProps
   | InlineSelectProps
-  | InlineDateProps;
+  | InlineDateProps
+  | InlineMoneyProps;
 
 /**
  * Campo de formulário com auto-save debounced.
@@ -187,6 +198,15 @@ export function InlineField(props: InlineFieldProps) {
             sizeClass,
             status === "error" && "border-destructive"
           )}
+        />
+      ) : props.type === "money" ? (
+        <MoneyInput
+          value={internal === "" ? null : parseBRNumber(internal)}
+          onChange={(n) => trigger(n === null ? "" : String(n))}
+          placeholder={props.placeholder}
+          prefix={props.prefix ?? "R$"}
+          decimals={props.decimals ?? 0}
+          disabled={props.readOnly}
         />
       ) : props.type === "number" ? (
         <div className="relative">

@@ -931,6 +931,10 @@ model Lead {
   // Tags livres
   tags                  String[]
 
+  // Lead score 0-100. `scoreManual` (se preenchido) sobrescreve o cálculo.
+  score                 Int        @default(0)
+  scoreManual           Int?
+
   // Conversão
   clienteId             String?    @unique // null até converter
   cliente               Cliente?   @relation(fields: [clienteId], references: [id], onDelete: SetNull)

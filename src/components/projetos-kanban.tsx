@@ -68,7 +68,7 @@ export function ProjetosKanban({
     <div className="space-y-4">
       <div className="flex justify-end"><NovoProjeto clientes={clientes} /></div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-5 gap-3 min-w-[1100px] overflow-x-auto pb-4">
+        <div className="overflow-x-auto pb-4 -mx-8 px-8"><div className="grid grid-cols-5 gap-3 min-w-[1100px]">
           {COLUNAS.map((col) => {
             const lista = cards.filter((c) => c.status === col.key);
             return (
@@ -122,7 +122,7 @@ export function ProjetosKanban({
               </Droppable>
             );
           })}
-        </div>
+        </div></div>
       </DragDropContext>
 
       <ProjetoSheet
