@@ -34,6 +34,7 @@ model User {
   notificacoes  Notificacao[]
   propostas     Proposta[]
   shares        PublicShare[]
+  leads         Lead[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -139,6 +140,7 @@ model Cliente {
   tags         Tag[]          @relation("ClienteTags")
   reunioes     Reuniao[]
   propostas    Proposta[]
+  lead         Lead?          // lead que virou esse cliente (relação reversa 1:1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -828,6 +830,10 @@ model Proposta {
   aceiteIp        String?
   aceiteUa        String?
 
+  // Vinculo opcional a um Lead (pipeline pré-cliente)
+  leadId          String?
+  lead            Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
   // Audit
   criadoPor       String
   user            User           @relation(fields: [criadoPor], references: [id], onDelete: Cascade)
@@ -838,6 +844,7 @@ model Proposta {
   @@index([clienteId, status])
   @@index([status, updatedAt])
   @@index([shareToken])
+  @@index([leadId])
 }
 
 enum PropostaStatus {
@@ -885,4 +892,78 @@ enum ShareEntidade {
   BRIEFING
   REUNIAO
   RELATORIO
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Lead — pipeline pré-cliente (oportunidade comercial estilo HubSpot)
+//
+// Fluxo: lead chega → atravessa estágios → quando fecha "GANHO",
+// converte em Cliente (entidade já existente). O campo `clienteId` é
+// populado nessa conversão e cria a ligação histórica.
+//
+// Propostas podem ser vinculadas a um lead via `leadId` (ver Proposta).
+// ─────────────────────────────────────────────────────────────────────
+model Lead {
+  id                    String     @id @default(cuid())
+
+  // Identidade
+  empresa               String
+  contatoNome           String?
+  contatoEmail          String?
+  contatoTelefone       String?
+  segmento              String?    // "Restaurante", "E-commerce", "SaaS B2B"
+  porte                 LeadPorte?
+  origem                String?    // texto livre: "Indicação Pipeline", "Google", "Evento X"
+
+  // Pipeline
+  status                LeadStatus @default(NOVO)
+  prioridade            Prioridade @default(NORMAL)
+
+  // Comercial estimado
+  valorEstimadoMensal   Decimal?   @db.Decimal(12, 2)
+  duracaoEstimadaMeses  Int?
+
+  // Contexto rico
+  notas                 String?    @db.Text  // JSON BlockNote
+  proximaAcao           String?    // "Ligar quinta", "Mandar caso A"
+  proximaAcaoEm         DateTime?
+
+  // Tags livres
+  tags                  String[]
+
+  // Conversão
+  clienteId             String?    @unique // null até converter
+  cliente               Cliente?   @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  convertidoEm          DateTime?
+  motivoPerdido         String?    @db.Text
+
+  // Propostas vinculadas (1:N)
+  propostas             Proposta[]
+
+  // Responsável
+  responsavel           String
+  user                  User       @relation(fields: [responsavel], references: [id], onDelete: Cascade)
+
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  @@index([status, responsavel])
+  @@index([clienteId])
+  @@index([status, updatedAt])
+}
+
+enum LeadStatus {
+  NOVO
+  QUALIFICACAO
+  DIAGNOSTICO
+  PROPOSTA_ENVIADA
+  NEGOCIACAO
+  GANHO
+  PERDIDO
+}
+
+enum LeadPorte {
+  SMALL    // micro/pequena
+  MID      // média
+  LARGE    // grande
 }

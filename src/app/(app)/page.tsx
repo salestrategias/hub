@@ -6,6 +6,7 @@ import { DashboardHoje } from "@/components/dashboard/dashboard-hoje";
 import { DashboardAtencao } from "@/components/dashboard/dashboard-atencao";
 import { DashboardPulse } from "@/components/dashboard/dashboard-pulse";
 import { DashboardCharts } from "@/components/dashboard-charts";
+import { DashboardComercial } from "@/components/dashboard/dashboard-comercial";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,12 @@ export default async function DashboardPage() {
   const inicio12m = new Date(inicioMes);
   inicio12m.setMonth(inicio12m.getMonth() - 11);
 
+  // Janelas comerciais
+  const inicio30d = new Date(agora);
+  inicio30d.setDate(inicio30d.getDate() - 30);
+  const inicioTrimestre = new Date(agora);
+  inicioTrimestre.setMonth(inicioTrimestre.getMonth() - 3);
+
   // ─── Queries em paralelo ───────────────────────────────────────
   const [
     contratosAtivos,
@@ -68,6 +75,12 @@ export default async function DashboardPage() {
     postsRecentes,
     receitaPorCliente,
     lanc12m,
+    leadsAtivos,
+    leadsGanhosTrimestre,
+    leadsPorStatusGroup,
+    propostasAtivasCount,
+    propostasAceitas30dCount,
+    propostasRecusadas30dCount,
   ] = await Promise.all([
     // KPIs
     prisma.contrato.findMany({
@@ -189,6 +202,36 @@ export default async function DashboardPage() {
     prisma.lancamento.findMany({
       where: { tipo: "RECEITA", data: { gte: inicio12m } },
       select: { data: true, valor: true },
+    }),
+    // Pipeline comercial — leads ativos (não GANHO/PERDIDO)
+    prisma.lead.findMany({
+      where: { status: { notIn: ["GANHO", "PERDIDO"] } },
+      select: { id: true, status: true, valorEstimadoMensal: true },
+    }),
+    // Leads ganhos no último trimestre (pra ticket médio + tempo médio de fechamento)
+    prisma.lead.findMany({
+      where: { status: "GANHO", convertidoEm: { gte: inicioTrimestre } },
+      select: {
+        valorEstimadoMensal: true,
+        createdAt: true,
+        convertidoEm: true,
+        cliente: { select: { valorContratoMensal: true } },
+      },
+    }),
+    // Group by status pra mini funil + count total
+    prisma.lead.groupBy({
+      by: ["status"],
+      _count: { _all: true },
+    }),
+    // Propostas ativas: enviadas + vistas + negociação (não decididas)
+    prisma.proposta.count({
+      where: { status: { in: ["ENVIADA", "VISTA"] } },
+    }),
+    prisma.proposta.count({
+      where: { status: "ACEITA", aceitaEm: { gte: inicio30d } },
+    }),
+    prisma.proposta.count({
+      where: { status: "RECUSADA", recusadaEm: { gte: inicio30d } },
     }),
   ]);
 
@@ -327,6 +370,67 @@ export default async function DashboardPage() {
     .filter((c) => Number(c.valor) > 0)
     .map((c) => ({ name: c.cliente?.nome ?? "(s/c)", value: Number(c.valor) }));
 
+  // ─── Cálculos comerciais (pipeline + conversão) ─────────────────
+  const pipelineValor = leadsAtivos.reduce(
+    (s, l) => s + (l.valorEstimadoMensal ? Number(l.valorEstimadoMensal) : 0),
+    0
+  );
+  const pipelineCount = leadsAtivos.length;
+
+  // Ticket médio: usa valorContratoMensal do cliente convertido (real) ou valor estimado do lead
+  const ganhosCount = leadsGanhosTrimestre.length;
+  const ticketMedioGanho =
+    ganhosCount > 0
+      ? leadsGanhosTrimestre.reduce(
+          (s, l) =>
+            s +
+            (l.cliente?.valorContratoMensal
+              ? Number(l.cliente.valorContratoMensal)
+              : l.valorEstimadoMensal
+              ? Number(l.valorEstimadoMensal)
+              : 0),
+          0
+        ) / ganhosCount
+      : 0;
+
+  // Tempo médio de fechamento: dias entre createdAt e convertidoEm
+  const tempoMedioFechamentoDias =
+    ganhosCount > 0
+      ? Math.round(
+          leadsGanhosTrimestre.reduce((s, l) => {
+            if (!l.convertidoEm) return s;
+            const dias = Math.floor((l.convertidoEm.getTime() - l.createdAt.getTime()) / 86_400_000);
+            return s + dias;
+          }, 0) / ganhosCount
+        )
+      : 0;
+
+  // Taxa de conversão = ganhos / decididos (ganhos + perdidos do trimestre)
+  const totalDecididos = leadsPorStatusGroup
+    .filter((g) => g.status === "GANHO" || g.status === "PERDIDO")
+    .reduce((s, g) => s + g._count._all, 0);
+  const totalGanhos = leadsPorStatusGroup.find((g) => g.status === "GANHO")?._count._all ?? 0;
+  const taxaConversao = totalDecididos > 0 ? totalGanhos / totalDecididos : 0;
+
+  // Funil — agrega valor por status (só estágios ativos)
+  type StatusKey = "NOVO" | "QUALIFICACAO" | "DIAGNOSTICO" | "PROPOSTA_ENVIADA" | "NEGOCIACAO";
+  const valorPorStatus = new Map<StatusKey, number>();
+  for (const l of leadsAtivos) {
+    const v = l.valorEstimadoMensal ? Number(l.valorEstimadoMensal) : 0;
+    valorPorStatus.set(l.status as StatusKey, (valorPorStatus.get(l.status as StatusKey) ?? 0) + v);
+  }
+  const countPorStatus = new Map<StatusKey, number>();
+  for (const g of leadsPorStatusGroup) {
+    countPorStatus.set(g.status as StatusKey, g._count._all);
+  }
+  const leadsPorStatus = (["NOVO", "QUALIFICACAO", "DIAGNOSTICO", "PROPOSTA_ENVIADA", "NEGOCIACAO"] as StatusKey[]).map(
+    (status) => ({
+      status,
+      count: countPorStatus.get(status) ?? 0,
+      valor: valorPorStatus.get(status) ?? 0,
+    })
+  );
+
   return (
     <>
       <Header />
@@ -364,6 +468,19 @@ export default async function DashboardPage() {
           posts={postsBreakdownData}
           tarefasAbertas={tarefasAbertas}
           tarefasConcluidasMes={tarefasConcluidasMes}
+        />
+
+        <DashboardComercial
+          pipelineValor={pipelineValor}
+          pipelineCount={pipelineCount}
+          leadsPorStatus={leadsPorStatus}
+          taxaConversao={taxaConversao}
+          ganhosTrimestre={ganhosCount}
+          ticketMedioGanho={ticketMedioGanho}
+          tempoMedioFechamentoDias={tempoMedioFechamentoDias}
+          propostasAtivas={propostasAtivasCount}
+          propostasAceitas30d={propostasAceitas30dCount}
+          propostasRecusadas30d={propostasRecusadas30dCount}
         />
 
         <div className="animate-slide-up" style={{ animationDelay: "300ms" }}>

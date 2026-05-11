@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
-  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send,
+  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send, TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
@@ -36,6 +36,7 @@ const groups: NavGroup[] = [
   {
     label: "Comercial",
     items: [
+      { label: "Pipeline", href: "/leads", icon: TrendingUp },
       { label: "Propostas", href: "/propostas", icon: Send },
       { label: "Contratos", href: "/contratos", icon: FileSignature },
       { label: "Financeiro", href: "/financeiro", icon: Wallet },

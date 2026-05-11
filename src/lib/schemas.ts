@@ -289,6 +289,42 @@ export const propostaRecusarSchema = z.object({
   motivo: z.string().max(500).optional(),
 });
 
+// ─── Lead (pipeline pré-cliente) ──────────────────────────────────
+export const leadSchema = z.object({
+  empresa: z.string().min(1, "Empresa obrigatória").max(200),
+  contatoNome: z.string().max(120).optional().nullable().or(z.literal("")),
+  contatoEmail: z.string().email().optional().nullable().or(z.literal("")),
+  contatoTelefone: z.string().max(40).optional().nullable().or(z.literal("")),
+  segmento: z.string().max(80).optional().nullable().or(z.literal("")),
+  porte: z.enum(["SMALL", "MID", "LARGE"]).optional().nullable(),
+  origem: z.string().max(120).optional().nullable().or(z.literal("")),
+  status: z
+    .enum(["NOVO", "QUALIFICACAO", "DIAGNOSTICO", "PROPOSTA_ENVIADA", "NEGOCIACAO", "GANHO", "PERDIDO"])
+    .default("NOVO"),
+  prioridade: z.enum(["URGENTE", "ALTA", "NORMAL", "BAIXA"]).default("NORMAL"),
+  valorEstimadoMensal: z.coerce.number().nonnegative().optional().nullable(),
+  duracaoEstimadaMeses: z.coerce.number().int().positive().max(120).optional().nullable(),
+  notas: z.string().default(""),
+  proximaAcao: z.string().max(200).optional().nullable().or(z.literal("")),
+  proximaAcaoEm: z.coerce.date().optional().nullable(),
+  tags: z.array(z.string()).default([]),
+  motivoPerdido: z.string().max(1000).optional().nullable().or(z.literal("")),
+});
+export type LeadInput = z.infer<typeof leadSchema>;
+
+export const leadConverterSchema = z.object({
+  /**
+   * Modo de conversão:
+   *  - `novo` → cria Cliente novo usando dados do lead
+   *  - `existente` → vincula a um cliente já cadastrado (clienteId obrigatório)
+   */
+  modo: z.enum(["novo", "existente"]),
+  clienteId: z.string().optional().nullable(),
+  /** Override do valor contratado. Default = lead.valorEstimadoMensal */
+  valorContratoMensal: z.coerce.number().nonnegative().optional().nullable(),
+});
+export type LeadConverterInput = z.infer<typeof leadConverterSchema>;
+
 // ─── PublicShare ───────────────────────────────────────────────────
 export const publicShareSchema = z.object({
   entidadeTipo: z.enum(["NOTA", "BRIEFING", "REUNIAO", "RELATORIO"]),
