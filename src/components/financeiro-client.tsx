@@ -17,9 +17,10 @@ import {
 import { lancamentoSchema, type LancamentoInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { formatBRL, formatDate, MES_NOMES } from "@/lib/utils";
-import { Plus, Trash2, Wallet } from "lucide-react";
+import { Plus, Trash2, Wallet, Download } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { exportarCsv, timestampArquivo, type Coluna } from "@/lib/csv-export";
 
 type Lanc = {
   id: string;
@@ -48,6 +49,35 @@ export function FinanceiroClient({
   const lucro = receitaMes - despesaMes;
   const projecao3 = lucro * 3;
 
+  function exportar() {
+    // Extrato no estilo bancário: data, descrição, categoria, cliente,
+    // tipo, valor com sinal (+ receita / − despesa) e flag de recorrente.
+    // Marcelo abre no Excel/Sheets e usa SUM() pra saldo acumulado,
+    // tabela dinâmica por categoria, etc.
+    const colunas: Coluna<Lanc>[] = [
+      { header: "Data", get: (l) => new Date(l.data).toLocaleDateString("pt-BR") },
+      { header: "Descrição", get: (l) => l.descricao },
+      { header: "Categoria", get: (l) => l.categoria ?? "" },
+      { header: "Cliente", get: (l) => l.clienteNome ?? "" },
+      { header: "Tipo", get: (l) => (l.tipo === "RECEITA" ? "Receita" : "Despesa") },
+      // Valor com sinal — extrato bancário style. Excel reconhece como número
+      // mesmo com vírgula decimal porque o separador da planilha será `;`.
+      {
+        header: "Valor (R$)",
+        get: (l) => {
+          const sinal = l.tipo === "RECEITA" ? 1 : -1;
+          // pt-BR: 2500.5 → "2500,50" (sem milhar — facilita SUM no Excel)
+          return (sinal * l.valor).toFixed(2).replace(".", ",");
+        },
+      },
+      { header: "Recorrente", get: (l) => (l.recorrente ? "Sim" : "Não") },
+      { header: "Entidade", get: (l) => l.entidade },
+    ];
+    const filename = `extrato-${tab.toLowerCase()}-${timestampArquivo()}.csv`;
+    exportarCsv(filename, filtrados, colunas);
+    toast.success(`${filtrados.length} lançamento(s) exportado(s)`);
+  }
+
   const series = useMemo(() => {
     const data: { mes: string; receita: number; despesa: number }[] = [];
     for (let i = 5; i >= 0; i--) {
@@ -68,7 +98,12 @@ export function FinanceiroClient({
             <TabsTrigger value="PJ">Pessoa Jurídica</TabsTrigger>
             <TabsTrigger value="PF">Pessoa Física</TabsTrigger>
           </TabsList>
-          <NovoLancamento clientes={clientes} entidade={tab} />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={exportar} disabled={filtrados.length === 0}>
+              <Download className="h-4 w-4" /> Exportar extrato
+            </Button>
+            <NovoLancamento clientes={clientes} entidade={tab} />
+          </div>
         </div>
 
         <TabsContent value={tab} className="space-y-4">
