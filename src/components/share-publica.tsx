@@ -50,6 +50,8 @@ export function SharePublica({ token }: { token: string }) {
           setLoading(false);
           return;
         }
+        // Senha validada (ou nunca pedida) — sai do modo de senha
+        setPrecisaSenha(false);
         setData(d);
       } catch (e) {
         setErro(e instanceof Error ? e.message : "Erro");
