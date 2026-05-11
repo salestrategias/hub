@@ -12,7 +12,16 @@ export const authConfig: NextAuthConfig = {
         path.startsWith("/login") ||
         path.startsWith("/api/auth") ||
         path.startsWith("/_next") ||
-        path === "/favicon.ico";
+        path === "/favicon.ico" ||
+        // Conteúdo público (cliente acessa via link compartilhado):
+        // - /p/* — páginas públicas (proposta, share genérico)
+        // - /api/p/* — APIs que servem o conteúdo público
+        // - /api/propostas/:id/aceitar e /recusar — autenticadas por token, não sessão
+        // - /api/propostas/:id/pdf?token=... — download público do PDF
+        path.startsWith("/p/") ||
+        path.startsWith("/api/p/") ||
+        /^\/api\/propostas\/[^/]+\/(aceitar|recusar)$/.test(path) ||
+        (/^\/api\/propostas\/[^/]+\/pdf$/.test(path) && request.nextUrl.searchParams.has("token"));
       if (isPublic) return true;
       return isLoggedIn;
     },
