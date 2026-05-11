@@ -750,6 +750,11 @@ model Notificacao {
   lida      Boolean   @default(false)
   lidaEm    DateTime?
 
+  // Quando true, já mandamos email pro user — evita dispatch duplicado
+  // mesmo se gerarNotificacoes rodar várias vezes no dia (a chave já é
+  // idempotente, mas reforço extra por segurança).
+  enviadaPorEmail Boolean @default(false)
+
   createdAt DateTime  @default(now())
 
   @@unique([userId, chave])

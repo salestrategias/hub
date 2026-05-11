@@ -19,6 +19,8 @@
  */
 import { prisma } from "@/lib/db";
 import type { TipoNotificacao } from "@prisma/client";
+import { enviarEmail } from "@/lib/email";
+import { renderNotificacaoEmail, TIPOS_QUE_DISPARAM_EMAIL } from "@/lib/email-templates";
 
 type NotificacaoSeed = {
   tipo: TipoNotificacao;
@@ -56,7 +58,79 @@ export async function gerarNotificacoes(userId: string): Promise<{ criadas: numb
     skipDuplicates: true,
   });
 
+  // Dispara emails pra notificações críticas que ainda não foram emailadas.
+  // Roda fire-and-forget — se falhar (Resend down, sem env, etc), os
+  // registros in-app continuam válidos. Não bloqueia o caller.
+  if (result.count > 0) {
+    void enviarEmailsPendentes(userId).catch((err) =>
+      console.error("[notificacoes] falha ao enviar emails:", err)
+    );
+  }
+
   return { criadas: result.count, existentes: seeds.length - result.count };
+}
+
+/**
+ * Busca notificações novas (não-emailadas) de tipos críticos pro user
+ * e dispara email. Marca `enviadaPorEmail=true` ao sucesso pra não
+ * duplicar.
+ *
+ * Não-bloqueante: roda em background relativamente ao gerarNotificacoes.
+ * Falhas de envio são logadas mas a notificação NÃO é re-tentada (evita
+ * loop infinito se o email do user tá errado).
+ */
+async function enviarEmailsPendentes(userId: string): Promise<void> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, name: true },
+  });
+  if (!user?.email) return;
+
+  const pendentes = await prisma.notificacao.findMany({
+    where: {
+      userId,
+      enviadaPorEmail: false,
+      tipo: { in: TIPOS_QUE_DISPARAM_EMAIL },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 10, // safety cap: máximo 10 emails por execução
+  });
+
+  for (const n of pendentes) {
+    const tpl = renderNotificacaoEmail({
+      tipo: n.tipo,
+      titulo: n.titulo,
+      descricao: n.descricao,
+      href: n.href,
+    });
+
+    const res = await enviarEmail({
+      to: user.email,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+    });
+
+    if (res.ok) {
+      await prisma.notificacao.update({
+        where: { id: n.id },
+        data: { enviadaPorEmail: true },
+      });
+    } else {
+      // Se foi falta de config (sem_api_key, sem_from), marca como
+      // enviada mesmo assim — caso contrário a fila cresce indefinidamente
+      // até Marcelo configurar o Resend. Quando configurar, as antigas
+      // ficam "perdidas" mas as novas vão. Trade-off consciente.
+      if (res.motivo === "sem_api_key" || res.motivo === "sem_from") {
+        await prisma.notificacao.update({
+          where: { id: n.id },
+          data: { enviadaPorEmail: true },
+        });
+      }
+      // Se foi erro_envio (Resend rejeitou), deixa pra retry numa próxima
+      // execução do gerarNotificacoes (a notificação fica pendente).
+    }
+  }
 }
 
 // ─── Regras ──────────────────────────────────────────────────────

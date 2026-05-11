@@ -17,7 +17,7 @@ import {
 import { lancamentoSchema, type LancamentoInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { formatBRL, formatDate, MES_NOMES } from "@/lib/utils";
-import { Plus, Trash2, Wallet, Download } from "lucide-react";
+import { Plus, Trash2, Wallet, Download, RefreshCw } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { exportarCsv, timestampArquivo, type Coluna } from "@/lib/csv-export";
@@ -39,6 +39,38 @@ export function FinanceiroClient({
   lancamentos, clientes, mrr,
 }: { lancamentos: Lanc[]; clientes: { id: string; nome: string }[]; mrr: number }) {
   const [tab, setTab] = useState<"PJ" | "PF">("PJ");
+  const router = useRouter();
+  const [processandoFaturamento, setProcessandoFaturamento] = useState(false);
+
+  async function gerarFaturamento() {
+    const hoje = new Date();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const ano = hoje.getFullYear();
+    if (!confirm(`Gerar mensalidade de ${mes}/${ano} pra todos clientes ATIVO com valor de contrato > 0?\n\nClientes já faturados nesse mês são pulados automaticamente.`)) return;
+    setProcessandoFaturamento(true);
+    try {
+      const res = await fetch("/api/financeiro/processar-faturamento", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data?.error ?? "Falha ao gerar faturamento");
+        return;
+      }
+      if (data.criados > 0) {
+        toast.success(`${data.criados} mensalidade(s) gerada(s) · ${data.jaExistiam} já existia(m)`);
+        router.refresh();
+      } else if (data.jaExistiam > 0) {
+        toast.success(`Mês já estava completo — ${data.jaExistiam} mensalidade(s) presente(s)`);
+      } else {
+        toast.error("Nenhuma mensalidade gerada — confira se há clientes ATIVO com valor > 0");
+      }
+    } finally {
+      setProcessandoFaturamento(false);
+    }
+  }
 
   const filtrados = useMemo(() => lancamentos.filter((l) => l.entidade === tab), [lancamentos, tab]);
 
@@ -99,6 +131,10 @@ export function FinanceiroClient({
             <TabsTrigger value="PF">Pessoa Física</TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={gerarFaturamento} disabled={processandoFaturamento} title="Cria a mensalidade do mês corrente pra todos clientes ATIVO. Idempotente — clientes já faturados são pulados.">
+              <RefreshCw className={`h-4 w-4 ${processandoFaturamento ? "animate-spin" : ""}`} />
+              {processandoFaturamento ? "Gerando..." : "Gerar faturamento"}
+            </Button>
             <Button variant="outline" onClick={exportar} disabled={filtrados.length === 0}>
               <Download className="h-4 w-4" /> Exportar extrato
             </Button>

@@ -1,10 +1,16 @@
 import { prisma } from "@/lib/db";
 import { PageShell } from "@/components/page-shell";
 import { FinanceiroClient } from "@/components/financeiro-client";
+import { processarFaturamentoSilencioso } from "@/lib/faturamento-recorrente";
 
 export const dynamic = "force-dynamic";
 
 export default async function FinanceiroPage() {
+  // Lazy trigger: garante que o mês corrente já tem mensalidades dos
+  // clientes ATIVO geradas antes de carregar a lista. Idempotente —
+  // rodar 2x no mesmo mês é no-op. Silencioso pra não quebrar a página.
+  await processarFaturamentoSilencioso();
+
   const [lancamentos, clientes, clientesAtivos] = await Promise.all([
     prisma.lancamento.findMany({
       include: { cliente: { select: { nome: true } } },
