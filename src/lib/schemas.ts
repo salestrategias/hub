@@ -316,6 +316,22 @@ export const leadSchema = z.object({
 });
 export type LeadInput = z.infer<typeof leadSchema>;
 
+// Importação de leads em batch via CSV (Meta Lead Ads, etc).
+// Mesmo shape do importarRelatorioSchema mas destino é Lead.
+export const importarLeadsSchema = z.object({
+  rows: z.array(z.record(z.string(), z.union([z.string(), z.number(), z.null()]))).min(1, "Cole pelo menos 1 linha"),
+  /** Sobrescreve campo `origem` em todos os leads importados (opcional). */
+  origemOverride: z.string().max(120).optional().nullable().or(z.literal("")),
+  /**
+   * Modo de gravação:
+   *  - `pular` (default): se email já existe, ignora a linha
+   *  - `atualizar`: se email já existe, faz merge (campos vazios são preenchidos)
+   *  - `criar_sempre`: cria novo lead mesmo se email duplicado
+   */
+  modo: z.enum(["pular", "atualizar", "criar_sempre"]).default("pular"),
+});
+export type ImportarLeadsInput = z.infer<typeof importarLeadsSchema>;
+
 export const leadConverterSchema = z.object({
   /**
    * Modo de conversão:

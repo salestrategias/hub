@@ -25,6 +25,7 @@ import { LeadSheet } from "@/components/sheets/lead-sheet";
 import { useEntitySheet } from "@/components/entity-sheet";
 import { ConverterLeadDialog } from "@/components/converter-lead-dialog";
 import { MoneyInput } from "@/components/money-input";
+import { ImportarLeadsDialog } from "@/components/importar-leads-dialog";
 import { cn } from "@/lib/utils";
 import {
   Plus,
@@ -35,6 +36,7 @@ import {
   ArrowRight,
   Tag as TagIcon,
   TrendingUp,
+  Upload,
 } from "lucide-react";
 
 export type LeadCard = {
@@ -100,6 +102,7 @@ export function LeadsKanban({
   const [cards, setCards] = useState(initial);
   const [busca, setBusca] = useState("");
   const [criando, setCriando] = useState(false);
+  const [importando, setImportando] = useState(false);
   const [converter, setConverter] = useState<LeadCard | null>(null);
   const sheet = useEntitySheet("lead");
 
@@ -175,6 +178,9 @@ export function LeadsKanban({
         <span className="text-xs text-muted-foreground ml-auto">
           {totalAtivos} ativos · {cards.length - totalAtivos} finalizados
         </span>
+        <Button variant="outline" onClick={() => setImportando(true)} size="sm">
+          <Upload className="h-4 w-4" /> Importar
+        </Button>
         <Button onClick={() => setCriando(true)} size="sm">
           <Plus className="h-4 w-4" /> Novo lead
         </Button>
@@ -289,6 +295,14 @@ export function LeadsKanban({
       )}
 
       {criando && <NovoLeadDialog open={criando} onOpenChange={setCriando} />}
+
+      {importando && (
+        <ImportarLeadsDialog
+          open={importando}
+          onOpenChange={setImportando}
+          onImported={() => router.refresh()}
+        />
+      )}
     </div>
   );
 }
