@@ -971,3 +971,44 @@ enum LeadPorte {
   MID      // média
   LARGE    // grande
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Conteúdo SAL — planejamento de marketing da própria agência
+//
+// Modulo dedicado, separado de Post (editorial dos clientes). Cobre
+// 9 formatos (redes, newsletter, blog, ad). Status reusa PostStatus
+// pra manter consistência de workflow.
+//
+// `pilar` é texto livre (não enum) pra Marcelo experimentar pilares
+// editoriais conforme estratégia evolui.
+// ─────────────────────────────────────────────────────────────────────
+model ConteudoSAL {
+  id              String       @id @default(cuid())
+  titulo          String
+  copy            String?      @db.Text  // JSON BlockNote
+  briefing        String?      @db.Text  // contexto/motivação
+  formato         FormatoSAL
+  status          PostStatus   @default(RASCUNHO)
+  pilar           String?      // "Autoridade", "Educacional", etc — livre
+  dataPublicacao  DateTime
+  url             String?      // link pra peça publicada
+  googleEventId   String?      // sync com Agenda quando agendado
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([dataPublicacao])
+  @@index([status, pilar])
+}
+
+enum FormatoSAL {
+  INSTAGRAM_FEED
+  INSTAGRAM_STORIES
+  INSTAGRAM_REELS
+  LINKEDIN
+  TIKTOK
+  YOUTUBE
+  NEWSLETTER
+  BLOG_POST
+  AD_CREATIVE
+}

@@ -329,6 +329,29 @@ export const leadConverterSchema = z.object({
 });
 export type LeadConverterInput = z.infer<typeof leadConverterSchema>;
 
+// ─── Conteudo SAL ─────────────────────────────────────────────────
+export const conteudoSalSchema = z.object({
+  titulo: z.string().min(1, "Título obrigatório").max(200),
+  copy: z.string().default(""),
+  briefing: z.string().default(""),
+  formato: z.enum([
+    "INSTAGRAM_FEED",
+    "INSTAGRAM_STORIES",
+    "INSTAGRAM_REELS",
+    "LINKEDIN",
+    "TIKTOK",
+    "YOUTUBE",
+    "NEWSLETTER",
+    "BLOG_POST",
+    "AD_CREATIVE",
+  ]),
+  status: z.enum(["RASCUNHO", "COPY_PRONTA", "DESIGN_PRONTO", "AGENDADO", "PUBLICADO"]).default("RASCUNHO"),
+  pilar: z.string().max(60).optional().nullable().or(z.literal("")),
+  dataPublicacao: z.coerce.date(),
+  url: z.string().url().optional().nullable().or(z.literal("")),
+});
+export type ConteudoSalInput = z.infer<typeof conteudoSalSchema>;
+
 // ─── PublicShare ───────────────────────────────────────────────────
 export const publicShareSchema = z.object({
   entidadeTipo: z.enum(["NOTA", "BRIEFING", "REUNIAO", "RELATORIO"]),

@@ -34,6 +34,12 @@ const groups: NavGroup[] = [
     ],
   },
   {
+    label: "Marketing SAL",
+    items: [
+      { label: "Conteúdo SAL", href: "/conteudo-sal", icon: Megaphone },
+    ],
+  },
+  {
     label: "Comercial",
     items: [
       { label: "Pipeline", href: "/leads", icon: TrendingUp },
