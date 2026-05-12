@@ -14,6 +14,7 @@ import { BlockEditor, BlockRenderer } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { ImportarMeetDialog } from "@/components/importar-meet-dialog";
 import { ReuniaoIaWizard } from "@/components/reuniao-ia-wizard";
+import { ReuniaoPlayer } from "@/components/reuniao-player";
 
 type Block = { id: string; ordem: number; timestamp: number; speaker: string; speakerCor: string | null; texto: string };
 type Action = { id: string; texto: string; responsavel: string | null; prazo: string | null; concluido: boolean };
@@ -30,6 +31,7 @@ type Reuniao = {
   clienteNome: string | null;
   resumoIA: string | null;
   notasLivres: string | null;
+  audioUrl: string | null;
   blocks: Block[];
   actions: Action[];
   capitulos: Capitulo[];
@@ -41,6 +43,9 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
   const [busca, setBusca] = useState("");
   const [importarMeetOpen, setImportarMeetOpen] = useState(false);
   const [iaWizardOpen, setIaWizardOpen] = useState(false);
+  // Timestamp pra saltar na gravação. Null = não saltar (estado inicial).
+  // Quando muda, ReuniaoPlayer re-monta o iframe com #t={seg}s.
+  const [seekToSeg, setSeekToSeg] = useState<number | null>(null);
   const router = useRouter();
   const temTranscricao = reuniao.blocks.length > 0;
 
@@ -87,24 +92,18 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
 
       <div className="grid md:grid-cols-[1fr_360px] gap-5">
         <div className="space-y-4 min-w-0">
-          {/* Player de áudio + waveform */}
-          <Card>
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-xs text-muted-foreground">
-                  {reuniao.participantes.join(", ")}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Button size="icon" variant="ghost" className="h-7 w-7"><Play className="h-3.5 w-3.5" /></Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7"><Rewind className="h-3.5 w-3.5" /></Button>
-                  <span className="text-[11px] font-mono text-muted-foreground ml-1">
-                    00:00 / {fmtTimecode(reuniao.duracaoSeg ?? 0)}
-                  </span>
-                </div>
-              </div>
-              <Waveform />
-            </CardContent>
-          </Card>
+          {/* Player de vídeo embedado do Drive (gravação do Meet) */}
+          <ReuniaoPlayer
+            reuniaoId={reuniao.id}
+            audioUrl={reuniao.audioUrl}
+            seekToSeg={seekToSeg}
+            onSeekConsumed={() => setSeekToSeg(null)}
+          />
+          {reuniao.participantes.length > 0 && (
+            <div className="text-xs text-muted-foreground px-1">
+              <span className="font-medium">Participantes:</span> {reuniao.participantes.join(", ")}
+            </div>
+          )}
 
           <Tabs defaultValue="transcricao">
             <TabsList>
@@ -129,9 +128,20 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
                   <div className="space-y-1">
                     {blocksFiltrados.map((b) => (
                       <div key={b.id} className="flex gap-3 py-1.5 group">
-                        <span className="font-mono text-[10.5px] text-muted-foreground/60 group-hover:text-muted-foreground transition w-16 shrink-0 mt-0.5">
+                        <button
+                          type="button"
+                          onClick={() => reuniao.audioUrl && setSeekToSeg(b.timestamp)}
+                          disabled={!reuniao.audioUrl}
+                          className={cn(
+                            "font-mono text-[10.5px] text-muted-foreground/60 transition w-16 shrink-0 mt-0.5 text-left",
+                            reuniao.audioUrl
+                              ? "hover:text-primary hover:underline cursor-pointer"
+                              : "cursor-default"
+                          )}
+                          title={reuniao.audioUrl ? "Pular pra esse momento na gravação" : "Sem gravação vinculada"}
+                        >
                           {fmtTimecode(b.timestamp)}
-                        </span>
+                        </button>
                         <div className="flex-1 min-w-0">
                           <div className="text-[12.5px] font-semibold mb-0.5" style={{ color: corPorSpeaker.get(b.speaker) }}>
                             {b.speaker}

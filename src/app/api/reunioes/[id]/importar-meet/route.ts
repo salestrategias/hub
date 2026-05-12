@@ -17,7 +17,7 @@
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
-import { getDocText, extrairDocId } from "@/lib/google-docs";
+import { getDocText, extrairDocId, acharGravacaoMeet } from "@/lib/google-docs";
 import { parsearMeetDoc } from "@/lib/meet-parser";
 
 const schema = z
@@ -41,8 +41,12 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       select: { id: true },
     });
 
-    // Baixa e parseia
-    const texto = await getDocText(docId);
+    // Baixa e parseia (texto + busca de gravação MP4 em paralelo)
+    const [texto, gravacao] = await Promise.all([
+      getDocText(docId),
+      // Não falha o import se a busca da gravação der erro
+      acharGravacaoMeet(docId).catch(() => null),
+    ]);
     const parsed = parsearMeetDoc(texto);
 
     // Transação: substitui SÓ o que veio no Doc atual. Preserva o resto.
@@ -83,11 +87,15 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         });
       }
 
-      // Atualiza reuniao: status + resumoIA (se trouxe)
-      const dataUpdate: { status?: "TRANSCRITA"; resumoIA?: string } = {};
+      // Atualiza reuniao: status + resumoIA + audioUrl (gravação se achou)
+      const dataUpdate: { status?: "TRANSCRITA"; resumoIA?: string; audioUrl?: string } = {};
       if (parsed.blocks.length > 0) dataUpdate.status = "TRANSCRITA";
       if (parsed.resumo) {
         dataUpdate.resumoIA = JSON.stringify(textoParaBlockNote(parsed.resumo));
+      }
+      if (gravacao) {
+        // Salva URL de embed pronta — UI usa direto no iframe
+        dataUpdate.audioUrl = gravacao.embedUrl;
       }
 
       if (Object.keys(dataUpdate).length > 0) {
@@ -103,6 +111,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       blocos: parsed.blocks.length,
       actions: parsed.actions.length,
       resumoImportado: !!parsed.resumo,
+      gravacaoVinculada: !!gravacao,
+      gravacaoNome: gravacao?.name ?? null,
       planoDetectado: parsed.temResumo ? "Plus/Enterprise (com Gemini)" : "Standard (só transcrição)",
     };
   });

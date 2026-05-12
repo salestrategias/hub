@@ -108,6 +108,98 @@ export async function listMeetDocs(opts: { limit?: number } = {}): Promise<MeetD
   }));
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Gravação MP4 associada — quando o Meet grava E transcreve, ambos
+// arquivos ficam na pasta "Meet Recordings" (ou sub-pasta da reunião).
+// Estratégia pra achar: pega o pai do Doc, lista MP4s nessa pasta,
+// retorna o mais próximo em modifiedTime.
+// ─────────────────────────────────────────────────────────────────────
+
+export type GravacaoMeet = {
+  id: string;
+  name: string;
+  webViewLink: string;
+  /** URL de preview embeddable (iframe). Inclui controles nativos do Drive. */
+  embedUrl: string;
+  /** Tamanho em bytes — útil pra UI mostrar */
+  size: number | null;
+  modifiedTime: string;
+};
+
+/**
+ * Tenta encontrar o arquivo MP4 da gravação na mesma pasta do Doc de
+ * transcrição. Retorna null se nada encontrar (Meet com transcrição
+ * mas sem gravação).
+ *
+ * Quando há múltiplos MP4s na pasta (raro), retorna o mais próximo
+ * em modifiedTime do Doc.
+ */
+export async function acharGravacaoMeet(docId: string): Promise<GravacaoMeet | null> {
+  const auth = await getGoogleClient();
+  const drive = google.drive({ version: "v3", auth });
+
+  // 1. Pega o Doc pra saber a pasta e o tempo
+  const doc = await drive.files.get({
+    fileId: docId,
+    fields: "parents,modifiedTime",
+    supportsAllDrives: true,
+  });
+  const parentId = doc.data.parents?.[0];
+  if (!parentId) return null;
+
+  const docTime = doc.data.modifiedTime ? new Date(doc.data.modifiedTime).getTime() : Date.now();
+
+  // 2. Lista vídeos MP4 na mesma pasta
+  const res = await drive.files.list({
+    q: `'${parentId}' in parents and mimeType = 'video/mp4' and trashed = false`,
+    fields: "files(id,name,webViewLink,size,modifiedTime)",
+    pageSize: 10,
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+    corpora: "allDrives",
+  });
+
+  const mp4s = res.data.files ?? [];
+  if (mp4s.length === 0) return null;
+
+  // 3. Ordena por proximidade temporal com o Doc
+  mp4s.sort((a, b) => {
+    const at = a.modifiedTime ? new Date(a.modifiedTime).getTime() : 0;
+    const bt = b.modifiedTime ? new Date(b.modifiedTime).getTime() : 0;
+    return Math.abs(at - docTime) - Math.abs(bt - docTime);
+  });
+
+  const escolhido = mp4s[0];
+  return {
+    id: escolhido.id ?? "",
+    name: escolhido.name ?? "(sem nome)",
+    webViewLink: escolhido.webViewLink ?? `https://drive.google.com/file/d/${escolhido.id}/view`,
+    embedUrl: `https://drive.google.com/file/d/${escolhido.id}/preview`,
+    size: escolhido.size ? parseInt(escolhido.size, 10) : null,
+    modifiedTime: escolhido.modifiedTime ?? "",
+  };
+}
+
+/**
+ * Constrói URL de embed a partir de qualquer URL/ID de arquivo Drive.
+ * Útil pra Marcelo colar URL de gravação manualmente.
+ */
+export function urlEmbedDrive(urlOuId: string): string | null {
+  const id = extrairDocId(urlOuId) ?? extrairFileIdGenerico(urlOuId);
+  if (!id) return null;
+  return `https://drive.google.com/file/d/${id}/preview`;
+}
+
+function extrairFileIdGenerico(s: string): string | null {
+  // /file/d/{ID}/
+  const m = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  // ?id={ID}
+  const m2 = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m2) return m2[1];
+  return null;
+}
+
 /**
  * Pega ID do Doc a partir de uma URL completa. Aceita formatos:
  *  - https://docs.google.com/document/d/{ID}/edit

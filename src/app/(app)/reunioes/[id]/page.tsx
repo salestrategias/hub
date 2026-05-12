@@ -38,6 +38,7 @@ export default async function ReuniaoDetalhePage({ params }: { params: { id: str
           clienteNome: reuniao.cliente?.nome ?? null,
           resumoIA: reuniao.resumoIA,
           notasLivres: reuniao.notasLivres,
+          audioUrl: reuniao.audioUrl,
           blocks: reuniao.blocks.map((b) => ({ id: b.id, ordem: b.ordem, timestamp: b.timestamp, speaker: b.speaker, speakerCor: b.speakerCor, texto: b.texto })),
           actions: reuniao.actionItems.map((a) => ({ id: a.id, texto: a.texto, responsavel: a.responsavel, prazo: a.prazo, concluido: a.concluido })),
           capitulos: reuniao.capitulos.map((c) => ({ id: c.id, timestamp: c.timestamp, titulo: c.titulo })),
