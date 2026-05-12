@@ -8,10 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/toast";
-import { Sparkles, CheckSquare, Bookmark, Search, Plus, Trash2, ExternalLink, Share2, Download, Play, Rewind, RefreshCw } from "lucide-react";
+import { Sparkles, CheckSquare, Bookmark, Search, Plus, Trash2, ExternalLink, Share2, Download, Play, Rewind, RefreshCw, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BlockEditor, BlockRenderer } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
+import { ImportarMeetDialog } from "@/components/importar-meet-dialog";
+import { ReuniaoIaWizard } from "@/components/reuniao-ia-wizard";
 
 type Block = { id: string; ordem: number; timestamp: number; speaker: string; speakerCor: string | null; texto: string };
 type Action = { id: string; texto: string; responsavel: string | null; prazo: string | null; concluido: boolean };
@@ -37,7 +39,10 @@ const SPEAKER_CORES = ["#7E30E1", "#10B981", "#F59E0B", "#3B82F6", "#EC4899", "#
 
 export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
   const [busca, setBusca] = useState("");
+  const [importarMeetOpen, setImportarMeetOpen] = useState(false);
+  const [iaWizardOpen, setIaWizardOpen] = useState(false);
   const router = useRouter();
+  const temTranscricao = reuniao.blocks.length > 0;
 
   const corPorSpeaker = useMemo(() => {
     const m = new Map<string, string>();
@@ -55,10 +60,30 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
   return (
     <div className="space-y-5 animate-slide-up">
       <div className="flex justify-end gap-2">
-        <Button variant="outline" size="sm"><Share2 className="h-3.5 w-3.5" /> Compartilhar</Button>
-        <Button variant="outline" size="sm"><Download className="h-3.5 w-3.5" /> Exportar</Button>
-        <Button variant="outline" size="sm"><Sparkles className="h-3.5 w-3.5" /> Reprocessar com IA</Button>
+        <Button variant="outline" size="sm" onClick={() => setImportarMeetOpen(true)}>
+          <Mic className="h-3.5 w-3.5" /> Importar do Meet
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIaWizardOpen(true)}
+          disabled={!temTranscricao}
+          title={temTranscricao ? "Gerar resumo + action items via Claude Max" : "Importe transcrição primeiro"}
+        >
+          <Sparkles className="h-3.5 w-3.5" /> Gerar resumo / actions
+        </Button>
       </div>
+
+      <ImportarMeetDialog
+        open={importarMeetOpen}
+        onOpenChange={setImportarMeetOpen}
+        reuniaoId={reuniao.id}
+      />
+      <ReuniaoIaWizard
+        open={iaWizardOpen}
+        onOpenChange={setIaWizardOpen}
+        reuniaoId={reuniao.id}
+      />
 
       <div className="grid md:grid-cols-[1fr_360px] gap-5">
         <div className="space-y-4 min-w-0">
@@ -116,9 +141,14 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
                       </div>
                     ))}
                     {reuniao.blocks.length === 0 && (
-                      <div className="text-center text-sm text-muted-foreground py-12">
-                        Transcrição ainda não disponível.<br />
-                        <span className="text-xs">Faça upload do áudio ou cole a transcrição manualmente.</span>
+                      <div className="text-center text-sm text-muted-foreground py-12 space-y-3">
+                        <p>Transcrição ainda não disponível.</p>
+                        <p className="text-xs">
+                          Gravou no Google Meet com transcrição ativada? Importe direto do Drive:
+                        </p>
+                        <Button onClick={() => setImportarMeetOpen(true)} size="sm" variant="outline">
+                          <Mic className="h-3.5 w-3.5" /> Importar do Meet
+                        </Button>
                       </div>
                     )}
                     {reuniao.blocks.length > 0 && blocksFiltrados.length === 0 && (
@@ -185,7 +215,16 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
                 <div className="text-sm font-semibold flex items-center gap-2">
                   <Sparkles className="h-3.5 w-3.5 text-sal-400" /> Resumo IA
                 </div>
-                <Button size="icon" variant="ghost" className="h-6 w-6"><RefreshCw className="h-3 w-3" /></Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6"
+                  onClick={() => setIaWizardOpen(true)}
+                  disabled={!temTranscricao}
+                  title={temTranscricao ? "Regenerar via Claude Max" : "Importe transcrição primeiro"}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                </Button>
               </div>
               {reuniao.resumoIA ? (
                 <BlockRenderer
