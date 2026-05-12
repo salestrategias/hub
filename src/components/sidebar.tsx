@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
-  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send, TrendingUp, Settings,
+  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send, TrendingUp, Settings, Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
@@ -14,7 +14,13 @@ type NavItem = { label: string; href: string; icon: React.ComponentType<{ classN
 type NavGroup = { label: string; items: NavItem[] };
 
 const groups: NavGroup[] = [
-  { label: "Visão Geral", items: [{ label: "Dashboard", href: "/", icon: LayoutDashboard }] },
+  {
+    label: "Visão Geral",
+    items: [
+      { label: "Dashboard", href: "/", icon: LayoutDashboard },
+      { label: "Calendário", href: "/calendario", icon: Calendar },
+    ],
+  },
   { label: "Clientes", items: [{ label: "CRM", href: "/clientes", icon: Users }] },
   {
     label: "Produção",

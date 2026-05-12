@@ -62,7 +62,6 @@ _(nada agendado — escolher da lista abaixo)_
 
 ## 🟣 Visão maior (1-2 semanas cada)
 
-- [ ] **Calendário unificado** (`G` global) — tarefas + posts + reuniões + contratos vencendo + propostas expirando, drag-drop pra reagendar
 - [ ] **Health score de cliente** — score 0-100 combinando tempo de contrato, MRR vs ticket inicial, frequência de reuniões, tarefas atrasadas, status de pagamento → antecipa churn
 - [ ] **WhatsApp Business integrado** — Z-API ou WhatsApp Cloud API, histórico do cliente mostra [Reunião] + [Email] + [WhatsApp] na timeline
 - [ ] **Dashboards customizáveis** — drag-drop de widgets (MRR, pipeline, tarefas, gráficos) pra montar tela do dia-a-dia
@@ -84,6 +83,9 @@ _(nada agendado — escolher da lista abaixo)_
 ## ✅ Concluído
 
 ### 2026-05-11
+- ✅ **Calendário unificado** (`/calendario`, atalho `G`) — 6 tipos de evento (tarefas, posts cliente, conteúdo SAL, reuniões, contratos vencendo, propostas expirando), 4 views (mês/semana/dia/agenda), drag-drop pra reagendar, filtros por tipo + cliente, navegação pra detalhe ao clicar. Componente novo `AtalhosGlobais` plugado no layout.
+- ✅ **Configurações admin (singleton + UI)** — model `Configuracao` no DB, página `/admin/configuracoes` (só ADMIN), editor com 3 modos pro destino de onboarding (Shared Drive / Pasta específica / Meu Drive), modal de browse de pastas, cache invalidado ao salvar
+- ✅ **Onboarding salva em Shared Drive "Clientes SAL"** — `resolveOnboardingParentId()` em 3 níveis (DB > env > auto-lookup por nome), pasta nasce dentro do drive escolhido
 - ✅ **Suporte a Shared Drives (Drives Compartilhados)** — refactor de `lib/google-drive.ts` com `supportsAllDrives` + `includeItemsFromAllDrives` em todas as chamadas, nova função `listSharedDrives()`, endpoint `/api/drive/drives`, seletor de drive no `DriveBrowser`. Backwards compatible (defaults pra Meu Drive).
 - ✅ **Onboarding automático de cliente** — trigger em 3 entry points (criar cliente ATIVO, promover PROSPECT→ATIVO, converter lead GANHO). Cria pasta Drive + projeto "Onboarding" + 7 tarefas padrão com prazos escalonados. Idempotente via `onboardingFeitoEm`. Botão manual no cliente-sheet pra re-executar.
 - ✅ **Relatório mensal automático por cliente (PDF)** — botão no cliente-sheet + quick action na lista, gera PDF com métricas das redes, SEO, tráfego pago, conteúdo e operacional, com comparativo MoM
