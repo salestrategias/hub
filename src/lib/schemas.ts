@@ -398,9 +398,33 @@ export const integracaoSheetsSchema = z.object({
 });
 export type IntegracaoSheetsInput = z.infer<typeof integracaoSheetsSchema>;
 
+// ─── Manual (Playbook + Marca) ─────────────────────────────────────
+export const docSecaoSchema = z.object({
+  tipo: z.enum(["PLAYBOOK", "MARCA"]),
+  titulo: z.string().min(1, "Título obrigatório").max(200),
+  slug: z.string().min(1).max(120).regex(/^[a-z0-9-]+$/, "Use só letras minúsculas, números e hífen"),
+  conteudo: z.string().default(""),
+  icone: z.string().max(40).optional().nullable().or(z.literal("")),
+  ordem: z.coerce.number().int().default(0),
+  publicada: z.boolean().default(true),
+  parentId: z.string().optional().nullable(),
+});
+export type DocSecaoInput = z.infer<typeof docSecaoSchema>;
+
+// Reorder em batch — usado pelo drag-drop na sidebar
+export const docReordenarSchema = z.object({
+  itens: z.array(
+    z.object({
+      id: z.string(),
+      ordem: z.coerce.number().int(),
+      parentId: z.string().nullable().optional(),
+    })
+  ),
+});
+
 // ─── PublicShare ───────────────────────────────────────────────────
 export const publicShareSchema = z.object({
-  entidadeTipo: z.enum(["NOTA", "BRIEFING", "REUNIAO", "RELATORIO"]),
+  entidadeTipo: z.enum(["NOTA", "BRIEFING", "REUNIAO", "RELATORIO", "MANUAL_SECAO"]),
   entidadeId: z.string().min(1),
   expiraEm: z.coerce.date().optional().nullable(),
   senha: z.string().min(4).max(40).optional().or(z.literal("")),

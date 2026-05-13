@@ -17,6 +17,16 @@ type ShareData =
       notasLivres: string | null;
       actionItems: Array<{ texto: string; responsavel: string | null; prazo: string | null; concluido: boolean }>;
       podeBaixarPdf: boolean;
+    }
+  | {
+      tipo: "MANUAL_SECAO";
+      tipoManual: "PLAYBOOK" | "MARCA";
+      titulo: string;
+      slug: string;
+      icone: string | null;
+      conteudo: string;
+      atualizadoEm: string;
+      podeBaixarPdf: boolean;
     };
 
 export function SharePublica({ token }: { token: string }) {
@@ -129,7 +139,13 @@ export function SharePublica({ token }: { token: string }) {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
-      {data.tipo === "REUNIAO" ? <ConteudoReuniao data={data} /> : <ConteudoNota data={data} />}
+      {data.tipo === "REUNIAO" ? (
+        <ConteudoReuniao data={data} />
+      ) : data.tipo === "MANUAL_SECAO" ? (
+        <ConteudoManual data={data} />
+      ) : (
+        <ConteudoNota data={data} />
+      )}
       <footer className="mt-20 pt-6 border-t border-border text-center text-[10.5px] text-muted-foreground">
         Compartilhado via SAL Hub · {new Date().toLocaleDateString("pt-BR")}
       </footer>
@@ -222,6 +238,33 @@ function ConteudoReuniao({
           <BlockRenderer value={data.notasLivres} />
         </section>
       )}
+    </article>
+  );
+}
+
+function ConteudoManual({
+  data,
+}: {
+  data: Extract<ShareData, { tipo: "MANUAL_SECAO" }>;
+}) {
+  const categoriaLabel = data.tipoManual === "PLAYBOOK" ? "Playbook SAL" : "Marca SAL";
+  return (
+    <article className="space-y-6">
+      <header className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-md bg-sal-600/15 text-sal-400 flex items-center justify-center text-base">
+            {data.icone ?? <FileText className="h-4 w-4" />}
+          </div>
+          <Badge variant="outline" className="text-[10px]">{categoriaLabel}</Badge>
+        </div>
+        <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{data.titulo}</h1>
+        <p className="text-[11px] text-muted-foreground font-mono">
+          Atualizado em {new Date(data.atualizadoEm).toLocaleDateString("pt-BR")}
+        </p>
+      </header>
+      <div className="prose-sal">
+        <BlockRenderer value={data.conteudo} />
+      </div>
     </article>
   );
 }

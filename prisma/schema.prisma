@@ -903,6 +903,7 @@ enum ShareEntidade {
   BRIEFING
   REUNIAO
   RELATORIO
+  MANUAL_SECAO
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1062,6 +1063,46 @@ enum FonteRelatorio {
   REDES
   SEO
   TRAFEGO
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Manual SAL — playbook operacional + brand book interno
+//
+// Wiki interno organizado em 2 categorias (PLAYBOOK e MARCA) com
+// hierarquia opcional (seção pode ter filhas) e conteúdo rico em
+// BlockNote. Substitui o "Notion interno" que muitas agências mantêm
+// em ferramentas externas.
+//
+// Slug é único por tipo (pra URL `/manual/PLAYBOOK/onboarding-cliente`).
+// Pai/filhas via self-relation. Reordenação manual via `ordem` (int).
+// ─────────────────────────────────────────────────────────────────────
+model DocSecao {
+  id          String     @id @default(cuid())
+  tipo        DocTipo
+  titulo      String
+  slug        String                    // único por tipo
+  conteudo    String     @default("") @db.Text  // JSON BlockNote
+  icone       String?                   // emoji ou nome lucide (ex: "🏢", "FileText")
+  ordem       Int        @default(0)
+  publicada   Boolean    @default(true) // false = rascunho (UI esconde da sidebar)
+
+  // Hierarquia opcional (1 nível típico: pai = categoria temática, filhas = sub-tópicos)
+  parentId    String?
+  parent      DocSecao?  @relation("DocHierarquia", fields: [parentId], references: [id], onDelete: SetNull)
+  filhas      DocSecao[] @relation("DocHierarquia")
+
+  criadoPor   String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([tipo, slug])
+  @@index([tipo, ordem])
+  @@index([parentId])
+}
+
+enum DocTipo {
+  PLAYBOOK
+  MARCA
 }
 
 // ─────────────────────────────────────────────────────────────────────

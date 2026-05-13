@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
-  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send, TrendingUp, Settings, Calendar,
+  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send, TrendingUp, Settings, Calendar, BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
@@ -43,6 +43,7 @@ const groups: NavGroup[] = [
     label: "Marketing SAL",
     items: [
       { label: "Conteúdo SAL", href: "/conteudo-sal", icon: Megaphone },
+      { label: "Manual SAL", href: "/manual", icon: BookOpen },
     ],
   },
   {

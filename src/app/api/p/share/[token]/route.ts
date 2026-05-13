@@ -93,6 +93,26 @@ async function resolveShare(token: string, senhaProvida: string | null) {
         podeBaixarPdf: share.podeBaixarPdf,
       };
     }
+    case "MANUAL_SECAO": {
+      const secao = await prisma.docSecao.findUnique({
+        where: { id: share.entidadeId },
+        select: {
+          id: true, tipo: true, titulo: true, slug: true, icone: true,
+          conteudo: true, updatedAt: true,
+        },
+      });
+      if (!secao) throw new Error("Conteúdo não encontrado");
+      return {
+        tipo: "MANUAL_SECAO",
+        tipoManual: secao.tipo,
+        titulo: secao.titulo,
+        slug: secao.slug,
+        icone: secao.icone,
+        conteudo: secao.conteudo,
+        atualizadoEm: secao.updatedAt.toISOString(),
+        podeBaixarPdf: share.podeBaixarPdf,
+      };
+    }
     default:
       throw new Error("Tipo de conteúdo não suportado");
   }
