@@ -74,7 +74,19 @@ export function CalendarioUnificado({
   const router = useRouter();
   const [eventos, setEventos] = useState<CalendarioEvento[]>([]);
   const [loading, setLoading] = useState(true);
+  // No mobile (< 640px) força view=AGENDA — Mês/Semana ficam ilegíveis
+  // em telas pequenas. Detectamos via window.innerWidth no mount + resize.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   const [view, setView] = useState<View>(Views.MONTH);
+  // View efetiva: mobile sempre AGENDA, desktop respeita seleção do user
+  const viewEfetiva = isMobile ? Views.AGENDA : view;
+
   const [data, setData] = useState(new Date());
   const [tiposAtivos, setTiposAtivos] = useState<Set<CalendarioOrigem>>(
     new Set(TODOS_TIPOS)
@@ -82,15 +94,17 @@ export function CalendarioUnificado({
   const [clienteFiltro, setClienteFiltro] = useState<string>("todos");
 
   // Janela de fetch: depende da view atual. Mês = janela maior (60d±),
-  // Semana = ±2 semanas, Dia = ±3 dias.
+  // Semana = ±2 semanas, Dia = ±3 dias. Mobile usa janela tipo Mês
+  // (AGENDA precisa de mais dados pra ser útil).
   const janela = useMemo(() => {
     const d = new Date(data);
-    if (view === Views.MONTH) {
+    const v = isMobile ? Views.MONTH : view;
+    if (v === Views.MONTH || v === Views.AGENDA) {
       const inicio = new Date(d.getFullYear(), d.getMonth() - 1, 1);
       const fim = new Date(d.getFullYear(), d.getMonth() + 2, 0);
       return { inicio, fim };
     }
-    if (view === Views.WEEK) {
+    if (v === Views.WEEK) {
       const inicio = new Date(d);
       inicio.setDate(d.getDate() - 14);
       const fim = new Date(d);
@@ -214,9 +228,9 @@ export function CalendarioUnificado({
             );
           })}
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="w-full sm:w-auto sm:ml-auto flex items-center gap-2">
             <Select value={clienteFiltro} onValueChange={setClienteFiltro}>
-              <SelectTrigger className="w-[200px] h-8">
+              <SelectTrigger className="w-full sm:w-[200px] h-8">
                 <SelectValue placeholder="Todos clientes" />
               </SelectTrigger>
               <SelectContent>
@@ -233,19 +247,19 @@ export function CalendarioUnificado({
 
       {/* Calendário */}
       <Card>
-        <CardContent className="p-3">
-          <div style={{ height: "calc(100vh - 280px)", minHeight: 520 }}>
+        <CardContent className="p-2 sm:p-3">
+          <div style={{ height: "calc(100vh - 280px)", minHeight: 420 }}>
             <DnDCalendar
               localizer={localizer}
               culture="pt-BR"
               events={rbcEventos}
               startAccessor="start"
               endAccessor="end"
-              view={view}
-              onView={setView}
+              view={viewEfetiva}
+              onView={(v) => !isMobile && setView(v)}
               date={data}
               onNavigate={setData}
-              views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
+              views={isMobile ? [Views.AGENDA] : [Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
               eventPropGetter={(event) => ({
                 style: {
                   backgroundColor: event.resource.cor,

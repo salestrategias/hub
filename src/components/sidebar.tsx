@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
@@ -80,12 +81,17 @@ const groups: NavGroup[] = [
   },
 ];
 
-export function Sidebar() {
+/**
+ * Conteúdo interno da sidebar — usado tanto na versão desktop (aside fixa
+ * à esquerda) quanto no drawer mobile. `onNavigate` é chamado quando user
+ * clica num item — drawer mobile usa pra fechar.
+ */
+function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex w-[232px] shrink-0 flex-col border-r border-border bg-card/40 sticky top-0 h-screen">
+    <div className="flex flex-col h-full">
       <div className="px-4 pt-5 pb-4 border-b border-border">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/" onClick={onNavigate} className="flex items-center gap-2.5">
           <div
             className="h-9 w-9 rounded-lg flex items-center justify-center"
             style={{
@@ -114,24 +120,22 @@ export function Sidebar() {
               {g.items.map((item) => {
                 const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 const Icon = item.icon;
-                // Rotas admin têm auth/role check + acesso a filesystem;
-                // prefetch RSC nelas pode gerar 404 cosmético no DevTools.
-                // Desabilitamos pra evitar ruído + economizar payload.
                 const isPrivilegedRoute = item.href.startsWith("/admin");
                 return (
                   <li key={item.href}>
                     <Link
                       href={item.href}
                       prefetch={isPrivilegedRoute ? false : undefined}
+                      onClick={onNavigate}
                       className={cn(
-                        "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors font-medium",
+                        "flex items-center gap-2.5 rounded-md px-2.5 py-2 md:py-1.5 text-[13px] transition-colors font-medium",
                         active
                           ? "bg-primary/15 text-sal-400"
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                       )}
                       style={active ? { boxShadow: "inset 2px 0 0 #7E30E1" } : undefined}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-4 w-4 shrink-0" />
                       <span>{item.label}</span>
                     </Link>
                   </li>
@@ -144,6 +148,48 @@ export function Sidebar() {
       <div className="px-4 py-3 border-t border-border text-[10px] text-muted-foreground/60">
         v1.0.0 · Self-hosted
       </div>
+    </div>
+  );
+}
+
+/**
+ * Sidebar desktop — fixa à esquerda. Escondida no mobile (< md).
+ */
+export function Sidebar() {
+  return (
+    <aside className="hidden md:flex w-[232px] shrink-0 flex-col border-r border-border bg-card/40 sticky top-0 h-screen">
+      <SidebarConteudo />
     </aside>
+  );
+}
+
+/**
+ * Sidebar mobile — drawer slide-in da esquerda. Controlado externamente
+ * pelo Header (que tem o botão hamburger). Auto-fecha ao navegar e ao
+ * trocar de página.
+ */
+export function MobileSidebar({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+  const pathname = usePathname();
+
+  // Fecha automaticamente ao mudar de rota (caso usuário use back/forward)
+  useEffect(() => {
+    onOpenChange(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  if (!open) return null;
+
+  return (
+    <>
+      {/* Overlay */}
+      <div
+        className="md:hidden fixed inset-0 z-40 bg-background/70 backdrop-blur-sm animate-in fade-in"
+        onClick={() => onOpenChange(false)}
+      />
+      {/* Drawer */}
+      <aside className="md:hidden fixed inset-y-0 left-0 z-50 w-[260px] flex flex-col border-r border-border bg-card animate-in slide-in-from-left duration-200">
+        <SidebarConteudo onNavigate={() => onOpenChange(false)} />
+      </aside>
+    </>
   );
 }

@@ -214,15 +214,39 @@ export function ManualClient({
 
   const HeaderIcon = tipo === "PLAYBOOK" ? BookOpen : Palette;
   const tipoLabel = tipo === "PLAYBOOK" ? "Playbook" : "Marca";
+  const [navMobileAberta, setNavMobileAberta] = useState(false);
+
+  // Fecha o accordion mobile ao trocar de seção (Link navega → secaoAtual.id muda)
+  useEffect(() => {
+    setNavMobileAberta(false);
+  }, [secaoAtual.id]);
 
   return (
     <div className="grid md:grid-cols-[260px_1fr] gap-5">
+      {/* Toggle de navegação no mobile (acima do conteúdo) */}
+      <div className="md:hidden flex items-center justify-between">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setNavMobileAberta((v) => !v)}
+          className="gap-2"
+        >
+          <HeaderIcon className="h-3.5 w-3.5" />
+          {navMobileAberta ? "Ocultar seções" : `Seções do ${tipoLabel}`}
+        </Button>
+        <Button size="icon" variant="outline" onClick={() => setNovaOpen(true)} aria-label="Nova seção">
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+
       {/* ── Sidebar ──
-         `top-[72px]` = altura do Header sticky (`py-3.5` + conteúdo ~= 68-72px).
-         Sem isso, o topo da sidebar gruda em top=0 ao scrollar e fica
-         escondido atrás do Header global. `h-[calc(100vh-88px)]` reserva
-         espaço pro Header também ao calcular o overflow scroll interno. */}
-      <aside className="space-y-2 md:sticky md:top-[72px] md:self-start md:h-[calc(100vh-88px)] md:overflow-y-auto pr-1">
+         Desktop: sticky à esquerda, `top-[72px]` = altura do Header sticky.
+         Mobile: vira accordion colapsável acima do conteúdo. */}
+      <aside
+        className={`${
+          navMobileAberta ? "block" : "hidden"
+        } md:block space-y-2 md:sticky md:top-[72px] md:self-start md:h-[calc(100vh-88px)] md:overflow-y-auto pr-1 md:pr-1 rounded-md md:rounded-none border md:border-0 border-border p-2 md:p-0 bg-card/40 md:bg-transparent`}
+      >
         <Link href="/manual" className="flex items-center gap-2 text-[11px] text-muted-foreground hover:text-foreground transition pt-1">
           ← Voltar ao Manual
         </Link>

@@ -64,9 +64,9 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
 
   return (
     <div className="space-y-5 animate-slide-up">
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" size="sm" onClick={() => setImportarMeetOpen(true)}>
-          <Mic className="h-3.5 w-3.5" /> Importar do Meet
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button variant="outline" size="sm" onClick={() => setImportarMeetOpen(true)} className="flex-1 sm:flex-none">
+          <Mic className="h-3.5 w-3.5" /> <span className="truncate">Importar do Meet</span>
         </Button>
         <Button
           variant="outline"
@@ -74,8 +74,9 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
           onClick={() => setIaWizardOpen(true)}
           disabled={!temTranscricao}
           title={temTranscricao ? "Gerar resumo + action items via Claude Max" : "Importe transcrição primeiro"}
+          className="flex-1 sm:flex-none"
         >
-          <Sparkles className="h-3.5 w-3.5" /> Gerar resumo / actions
+          <Sparkles className="h-3.5 w-3.5" /> <span className="truncate">Gerar resumo / actions</span>
         </Button>
       </div>
 
