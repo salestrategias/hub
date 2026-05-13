@@ -2,7 +2,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
@@ -175,9 +176,20 @@ export function Sidebar() {
  * Sidebar mobile — drawer slide-in da esquerda. Controlado externamente
  * pelo Header (que tem o botão hamburger). Auto-fecha ao navegar e ao
  * trocar de página.
+ *
+ * RENDERIZADO VIA PORTAL no `document.body`. Motivo: o `<Header>` global
+ * tem `glass` que aplica `backdrop-filter`. Qualquer ancestral com
+ * `filter`/`transform`/`backdrop-filter` cria um novo containing block
+ * pra elementos `position: fixed`, fazendo eles ficarem fixed dentro
+ * do header (altura ~64px) em vez do viewport. Portal escapa essa armadilha
+ * renderizando direto no body — `fixed` volta a ser relativo ao viewport.
  */
 export function MobileSidebar({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const pathname = usePathname();
+  const [montado, setMontado] = useState(false);
+
+  // Portal só renderiza depois de mount (evita SSR + window undefined)
+  useEffect(() => setMontado(true), []);
 
   // Fecha automaticamente ao mudar de rota (caso usuário use back/forward)
   useEffect(() => {
@@ -185,22 +197,32 @@ export function MobileSidebar({ open, onOpenChange }: { open: boolean; onOpenCha
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  if (!open) return null;
+  // Lock scroll do body quando drawer aberto (evita scroll behind no iOS)
+  useEffect(() => {
+    if (!open) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, [open]);
 
-  return (
+  if (!open || !montado) return null;
+
+  return createPortal(
     <>
       {/* Overlay — z-[60] pra ficar acima do Header (z-30) e qualquer
-          conteúdo da página. Opaco escuro pra dar contraste claro com
-          o drawer (vs `bg-background/70` que se mistura com fundo dark). */}
+          conteúdo da página. */}
       <div
-        className="md:hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm animate-in fade-in"
+        className="md:hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
       />
       {/* Drawer — z-[70] acima do overlay. Largura 260px clamp pra não
           estourar em telas muito pequenas. */}
-      <aside className="md:hidden fixed inset-y-0 left-0 z-[70] w-[min(260px,85vw)] flex flex-col border-r border-border bg-card shadow-2xl animate-in slide-in-from-left duration-200">
+      <aside className="md:hidden fixed inset-y-0 left-0 z-[70] w-[min(260px,85vw)] flex flex-col border-r border-border bg-card shadow-2xl">
         <SidebarConteudo onNavigate={() => onOpenChange(false)} />
       </aside>
-    </>
+    </>,
+    document.body
   );
 }
