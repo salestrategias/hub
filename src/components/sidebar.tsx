@@ -82,21 +82,23 @@ const groups: NavGroup[] = [
 ];
 
 /**
- * Conteúdo interno da sidebar — usado tanto na versão desktop (aside fixa
- * à esquerda) quanto no drawer mobile. `onNavigate` é chamado quando user
- * clica num item — drawer mobile usa pra fechar.
+ * Conteúdo interno da sidebar — usado tanto na versão desktop (aside
+ * fixa à esquerda) quanto no drawer mobile. `onNavigate` é chamado
+ * quando user clica num item — drawer mobile usa pra fechar.
+ *
+ * Retorna os 3 blocos (header / nav / footer) como Fragment. O pai
+ * (aside desktop ou drawer mobile) já é `flex flex-col`, então esses
+ * 3 elementos viram filhos diretos do flex container — sem wrapper
+ * intermediário, que causava colapso do nav em alguns browsers mobile.
+ *
+ * Header e footer têm `shrink-0`. Nav tem `flex-1 min-h-0` pra esticar
+ * e habilitar scroll interno.
  */
 function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    // `flex-1 min-h-0` ao invés de `h-full`: o pai (aside/drawer) é
-    // `flex flex-col`, e flex items com `h-full` têm comportamento
-    // inconsistente entre browsers. `flex-1 min-h-0` faz o wrapper
-    // esticar até preencher o container e habilita o overflow do
-    // `<nav>` filho (overflow-y-auto precisa de min-h-0 no ancestral
-    // pra não colapsar o scroll).
-    <div className="flex flex-col flex-1 min-h-0">
-      <div className="px-4 pt-5 pb-4 border-b border-border">
+    <>
+      <div className="px-4 pt-5 pb-4 border-b border-border shrink-0 bg-card">
         <Link href="/" onClick={onNavigate} className="flex items-center gap-2.5">
           <div
             className="h-9 w-9 rounded-lg flex items-center justify-center"
@@ -116,7 +118,7 @@ function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
           <SidebarSearchTrigger />
         </div>
       </div>
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+      <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-4">
         {groups.map((g) => (
           <div key={g.label}>
             <div className="px-2.5 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground/70">
@@ -151,10 +153,10 @@ function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         ))}
       </nav>
-      <div className="px-4 py-3 border-t border-border text-[10px] text-muted-foreground/60">
+      <div className="px-4 py-3 border-t border-border text-[10px] text-muted-foreground/60 shrink-0">
         v1.0.0 · Self-hosted
       </div>
-    </div>
+    </>
   );
 }
 
@@ -187,13 +189,16 @@ export function MobileSidebar({ open, onOpenChange }: { open: boolean; onOpenCha
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay — z-[60] pra ficar acima do Header (z-30) e qualquer
+          conteúdo da página. Opaco escuro pra dar contraste claro com
+          o drawer (vs `bg-background/70` que se mistura com fundo dark). */}
       <div
-        className="md:hidden fixed inset-0 z-40 bg-background/70 backdrop-blur-sm animate-in fade-in"
+        className="md:hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm animate-in fade-in"
         onClick={() => onOpenChange(false)}
       />
-      {/* Drawer */}
-      <aside className="md:hidden fixed inset-y-0 left-0 z-50 w-[260px] flex flex-col border-r border-border bg-card animate-in slide-in-from-left duration-200">
+      {/* Drawer — z-[70] acima do overlay. Largura 260px clamp pra não
+          estourar em telas muito pequenas. */}
+      <aside className="md:hidden fixed inset-y-0 left-0 z-[70] w-[min(260px,85vw)] flex flex-col border-r border-border bg-card shadow-2xl animate-in slide-in-from-left duration-200">
         <SidebarConteudo onNavigate={() => onOpenChange(false)} />
       </aside>
     </>
