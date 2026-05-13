@@ -4,8 +4,9 @@
  *
  * Layout 2-colunas:
  *  - Esquerda: lista de seções da categoria (PLAYBOOK ou MARCA),
- *    hierarquia simples (1 nível de pai → filhas), drag-drop opcional
- *    no MVP é só clicável; reorder fica pra próxima iteração
+ *    hierarquia simples (1 nível de pai → filhas), drag-drop pra
+ *    reordenar dentro do mesmo container (raízes entre si OU filhas
+ *    dentro do mesmo pai). Movimentação entre níveis ainda não no MVP.
  *  - Direita: header com título + ícone + botões + editor BlockNote
  *
  * Auto-save no editor (debounce 800ms via mesmo pattern de outras
@@ -15,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { PartialBlock } from "@blocknote/core";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +25,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import {
-  BookOpen, Palette, Plus, Trash2, Eye, EyeOff, Share2, FileText, Search, Loader2,
+  BookOpen, Palette, Plus, Trash2, Eye, EyeOff, Share2, FileText, Search, Loader2, GripVertical,
 } from "lucide-react";
 import { slugify } from "@/lib/manual-helpers";
 
@@ -52,7 +54,7 @@ type SecaoCompleta = {
 export function ManualClient({
   tipo,
   secaoAtual,
-  secoes,
+  secoes: secoesInicial,
 }: {
   tipo: Tipo;
   secaoAtual: SecaoCompleta;
@@ -63,6 +65,11 @@ export function ManualClient({
   const [novaOpen, setNovaOpen] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+
+  // State local pra optimistic update de drag-drop. Sincroniza quando
+  // o pai re-renderiza com nova lista (router.refresh, criar/excluir).
+  const [secoes, setSecoes] = useState<SecaoBasica[]>(secoesInicial);
+  useEffect(() => { setSecoes(secoesInicial); }, [secoesInicial]);
 
   // Auto-save do conteúdo (debounce 800ms)
   const saving = useRef<NodeJS.Timeout | null>(null);
@@ -112,6 +119,63 @@ export function ManualClient({
     await fetch(`/api/manual/secoes/${secaoAtual.id}`, { method: "DELETE" });
     toast.success("Excluída");
     router.push(`/manual/${tipo.toLowerCase()}`);
+  }
+
+  /**
+   * Reordenação via drag-drop. Aceita 2 tipos de droppable:
+   *   - "raizes" — lista das seções de primeiro nível
+   *   - "filhas-{parentId}" — sub-seções de um pai específico
+   *
+   * MVP: só permite reordenar DENTRO do mesmo container (mesmo
+   * droppableId). Movimentação entre níveis (promover/demote) fica
+   * pra próxima iteração.
+   *
+   * Estratégia: optimistic update do state local + PATCH em batch
+   * (`/api/manual/reordenar`). Em caso de erro, refresh do servidor
+   * pra reverter.
+   */
+  async function onDragEnd(r: DropResult) {
+    if (!r.destination) return;
+    if (r.source.droppableId !== r.destination.droppableId) {
+      toast.error("Mover entre níveis ainda não — só reordenar dentro do mesmo grupo");
+      return;
+    }
+    if (r.source.index === r.destination.index) return;
+
+    // Identifica o container: "raizes" ou "filhas-{parentId}"
+    const isRaizes = r.source.droppableId === "raizes";
+    const parentId = isRaizes ? null : r.source.droppableId.replace("filhas-", "");
+
+    // Pega lista atual do container (ordenada como aparece na UI)
+    const lista = secoes
+      .filter((s) => (isRaizes ? !s.parentId : s.parentId === parentId))
+      .sort((a, b) => a.ordem - b.ordem);
+
+    // Reordena
+    const [moved] = lista.splice(r.source.index, 1);
+    lista.splice(r.destination.index, 0, moved);
+
+    // Recalcula ordens em múltiplos de 10 (deixa espaço pra inserir manualmente)
+    const novosItens = lista.map((s, i) => ({ id: s.id, ordem: (i + 1) * 10 }));
+
+    // Optimistic update
+    const atualizadas = secoes.map((s) => {
+      const novo = novosItens.find((n) => n.id === s.id);
+      return novo ? { ...s, ordem: novo.ordem } : s;
+    });
+    setSecoes(atualizadas);
+
+    try {
+      const res = await fetch("/api/manual/reordenar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itens: novosItens }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      toast.error("Falha ao reordenar — recarregando");
+      router.refresh();
+    }
   }
 
   async function compartilhar() {
@@ -187,23 +251,97 @@ export function ManualClient({
           />
         </div>
 
-        <nav className="space-y-0.5 pt-1">
-          {raizes.map((s) => (
-            <div key={s.id}>
-              <ItemSidebar secao={s} tipo={tipo} atualId={secaoAtual.id} />
-              {(filhasPor.get(s.id) ?? []).map((f) => (
-                <div key={f.id} className="ml-3 border-l border-border pl-2">
-                  <ItemSidebar secao={f} tipo={tipo} atualId={secaoAtual.id} />
-                </div>
-              ))}
-            </div>
-          ))}
-          {raizes.length === 0 && (
-            <p className="text-[11px] text-muted-foreground italic px-2 py-3">
-              {busca ? `Nada com "${busca}"` : "Nenhuma seção ainda — crie uma com o + acima"}
-            </p>
-          )}
-        </nav>
+        {/* Durante busca, drag-drop fica desabilitado pra não confundir
+            (reordenar uma lista filtrada produziria ordens inconsistentes
+            com a lista real). User precisa limpar busca pra arrastar. */}
+        {busca.trim() ? (
+          <nav className="space-y-0.5 pt-1">
+            {raizes.map((s) => (
+              <div key={s.id}>
+                <ItemSidebar secao={s} tipo={tipo} atualId={secaoAtual.id} />
+                {(filhasPor.get(s.id) ?? []).map((f) => (
+                  <div key={f.id} className="ml-3 border-l border-border pl-2">
+                    <ItemSidebar secao={f} tipo={tipo} atualId={secaoAtual.id} />
+                  </div>
+                ))}
+              </div>
+            ))}
+            {raizes.length === 0 && (
+              <p className="text-[11px] text-muted-foreground italic px-2 py-3">
+                Nada com &quot;{busca}&quot;
+              </p>
+            )}
+          </nav>
+        ) : (
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="raizes">
+              {(provided) => (
+                <nav
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="space-y-0.5 pt-1"
+                >
+                  {raizes.map((s, idx) => (
+                    <Draggable key={s.id} draggableId={s.id} index={idx}>
+                      {(prov, snap) => (
+                        <div
+                          ref={prov.innerRef}
+                          {...prov.draggableProps}
+                          className={snap.isDragging ? "shadow-lg rounded-md bg-card" : ""}
+                        >
+                          <ItemSidebarDraggable
+                            secao={s}
+                            tipo={tipo}
+                            atualId={secaoAtual.id}
+                            dragHandleProps={prov.dragHandleProps}
+                          />
+                          {/* Sub-seções: cada pai tem seu próprio Droppable */}
+                          {(filhasPor.get(s.id) ?? []).length > 0 && (
+                            <Droppable droppableId={`filhas-${s.id}`}>
+                              {(provFilhas) => (
+                                <div
+                                  ref={provFilhas.innerRef}
+                                  {...provFilhas.droppableProps}
+                                  className="ml-3 border-l border-border pl-2"
+                                >
+                                  {(filhasPor.get(s.id) ?? []).map((f, fi) => (
+                                    <Draggable key={f.id} draggableId={f.id} index={fi}>
+                                      {(p2, s2) => (
+                                        <div
+                                          ref={p2.innerRef}
+                                          {...p2.draggableProps}
+                                          className={s2.isDragging ? "shadow-lg rounded-md bg-card" : ""}
+                                        >
+                                          <ItemSidebarDraggable
+                                            secao={f}
+                                            tipo={tipo}
+                                            atualId={secaoAtual.id}
+                                            dragHandleProps={p2.dragHandleProps}
+                                          />
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                  {provFilhas.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                          )}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                  {raizes.length === 0 && (
+                    <p className="text-[11px] text-muted-foreground italic px-2 py-3">
+                      Nenhuma seção ainda — crie uma com o + acima
+                    </p>
+                  )}
+                </nav>
+              )}
+            </Droppable>
+          </DragDropContext>
+        )}
       </aside>
 
       {/* ── Editor ── */}
@@ -300,6 +438,54 @@ function ItemSidebar({
       <span className="truncate flex-1">{secao.titulo}</span>
       {!secao.publicada && <span className="text-[9px] text-muted-foreground/60">rascunho</span>}
     </Link>
+  );
+}
+
+/**
+ * Variante drag-draggable do item da sidebar: igual ao ItemSidebar mas
+ * com handle de "agarrar" (`GripVertical`) à esquerda que recebe as
+ * `dragHandleProps`. Click no resto do item navega normalmente (Link).
+ * Sem handle dedicado, qualquer click iniciaria drag.
+ */
+function ItemSidebarDraggable({
+  secao,
+  tipo,
+  atualId,
+  dragHandleProps,
+}: {
+  secao: SecaoBasica;
+  tipo: Tipo;
+  atualId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dragHandleProps: any;
+}) {
+  const ativo = secao.id === atualId;
+  return (
+    <div
+      className={`group flex items-center gap-1 px-1 py-0.5 rounded-md transition-colors ${
+        ativo ? "bg-primary/15" : "hover:bg-secondary/40"
+      } ${!secao.publicada ? "opacity-60" : ""}`}
+    >
+      <span
+        {...dragHandleProps}
+        className="text-muted-foreground/40 hover:text-muted-foreground cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition"
+        title="Arrastar pra reordenar"
+      >
+        <GripVertical className="h-3.5 w-3.5" />
+      </span>
+      <Link
+        href={`/manual/${tipo.toLowerCase()}/${secao.slug}`}
+        className={`flex items-center gap-2 flex-1 min-w-0 px-1 py-1 text-[12.5px] ${
+          ativo
+            ? "text-foreground font-medium"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <span className="text-sm shrink-0">{secao.icone ?? <FileText className="h-3.5 w-3.5" />}</span>
+        <span className="truncate flex-1">{secao.titulo}</span>
+        {!secao.publicada && <span className="text-[9px] text-muted-foreground/60">rascunho</span>}
+      </Link>
+    </div>
   );
 }
 
