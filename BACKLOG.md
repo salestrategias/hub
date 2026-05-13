@@ -82,6 +82,12 @@ _(nada agendado — escolher da lista abaixo)_
 
 ## ✅ Concluído
 
+### 2026-05-13
+- ✅ **Fix drawer mobile via Portal** — drawer estava confinado a 64px de altura porque o `<Header>` tem `glass` (backdrop-filter) que cria novo containing block pra `position: fixed`. Fix: renderizar overlay+drawer via `createPortal(document.body)`. Bonus: lock de scroll do body quando aberto.
+- ✅ **Fix Notas mobile** — `grid-cols-[220px_300px_1fr]` era desktop-only. Refatorado pra layout mobile com 3 views navegáveis (pastas → lista → editor) controladas por `mobileView` state. Desktop mantém 3 colunas.
+- ✅ **Fix kanbans em mobile** — `-mx-8 px-8` (margem negativa pra compensar padding do PageShell desktop) estourava no mobile com PageShell `px-3`. Trocado pra `-mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8` em leads/projetos/conteúdo SAL.
+- ✅ **Auditoria via Claude in Chrome** — usado pra inspecionar DOM real do drawer mobile e confirmar diagnóstico (aside.rect.h=64px) que apontou pro problema do backdrop-filter.
+
 ### 2026-05-11
 - ✅ **Responsividade mobile completa** — Sidebar vira drawer slide-in com botão hamburger no Header · Header compacta ações secundárias (Help/Theme/HideValues/Logout) no mobile, mantém Quick Capture + Notificações + Avatar acessíveis · PageShell adapta paddings (`px-3 sm:px-6 lg:px-8`) · Manual SAL: sidebar interna vira accordion colapsável com botão "Seções do Playbook/Marca" · Calendário: força view AGENDA no mobile (Mês/Semana ilegíveis em telas <640px), dropdown de cliente full-width · Reunião detalhe: botões wrap + flex-1 no mobile.
 - ✅ **Drag-drop pra reordenar seções do Manual** — `@hello-pangea/dnd`, handle visual `GripVertical`, optimistic update, `POST /api/manual/reordenar`. MVP só reordena dentro do mesmo container; movimentação entre níveis fica pra futuro.
