@@ -20,11 +20,15 @@ export const authConfig: NextAuthConfig = {
         // - /api/propostas/:id/pdf?token=... — download público do PDF
         // - /api/mcp — endpoint MCP (autenticado via Bearer token, não session)
         // - /.well-known/* — discovery endpoints (OAuth metadata pro Claude Desktop)
+        // - /register, /token — OAuth endpoints públicos (DCR + token exchange)
+        //   /authorize NÃO entra aqui porque PRECISA do user logado pra consent
         path.startsWith("/p/") ||
         path.startsWith("/api/p/") ||
         path === "/api/mcp" ||
         path.startsWith("/api/mcp/") ||
         path.startsWith("/.well-known/") ||
+        path === "/register" ||
+        path === "/token" ||
         /^\/api\/propostas\/[^/]+\/(aceitar|recusar)$/.test(path) ||
         (/^\/api\/propostas\/[^/]+\/pdf$/.test(path) && request.nextUrl.searchParams.has("token"));
       if (isPublic) return true;

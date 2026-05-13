@@ -1106,6 +1106,29 @@ enum DocTipo {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// OAuth 2.1 Authorization Code — usado no fluxo de connector do Claude
+// Desktop. Claude faz GET /authorize → user aprova → gera code
+// efêmero → Claude troca code por access_token (McpToken) em POST /token.
+//
+// Vida curta (5 min). Single-use (usado=true após troca). PKCE
+// obrigatório (codeChallenge + codeChallengeMethod=S256).
+// ─────────────────────────────────────────────────────────────────────
+model OAuthCode {
+  code               String   @id
+  userId             String
+  clientId           String
+  redirectUri        String
+  scope              String?
+  codeChallenge      String
+  codeChallengeMethod String  @default("S256")
+  expiraEm           DateTime
+  usado              Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  @@index([expiraEm])
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // Configuração global do sistema — pattern singleton (id fixo = "default").
 //
 // Vai crescendo conforme aparecem decisões que precisam ser persistidas
