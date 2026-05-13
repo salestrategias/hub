@@ -303,7 +303,7 @@ function ViewKanban({
   onSelect: (id: string) => void;
 }) {
   return (
-    <div className="overflow-x-auto pb-4 -mx-8 px-8">
+    <div className="overflow-x-auto pb-4 -mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
       <div className="grid grid-cols-5 gap-3 min-w-[1100px]">
         {STATUS_ORDEM.map((status) => {
           const lista = itens.filter((c) => c.status === status);

@@ -225,7 +225,7 @@ export function LeadsKanban({
 
       <DragDropContext onDragEnd={onDragEnd}>
         {/* Wrapper externo permite scroll horizontal sem vazar pra body inteiro */}
-        <div className="overflow-x-auto pb-4 -mx-8 px-8">
+        <div className="overflow-x-auto pb-4 -mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
           <div className="grid grid-cols-7 gap-3 min-w-[1400px]">
           {COLUNAS.map((col) => {
             const lista = filtrados.filter((c) => c.status === col.key);

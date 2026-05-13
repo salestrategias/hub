@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/components/ui/toast";
-import { Plus, File, Folder, FileText, Search, Trash2, Star, Bookmark } from "lucide-react";
+import { Plus, File, Folder, FileText, Search, Trash2, Star, Bookmark, ArrowLeft, FolderOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BlockEditor } from "@/components/editor";
 import { TemplatePicker } from "@/components/template-picker";
@@ -23,11 +23,17 @@ type Nota = {
   updatedAt: string;
 };
 
+type MobileView = "pastas" | "lista" | "editor";
+
 export function NotasClient({ notas: initial }: { notas: Nota[] }) {
   const [notas, setNotas] = useState(initial);
   const [ativaId, setAtivaId] = useState<string | null>(initial[0]?.id ?? null);
   const [busca, setBusca] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
+  // Mobile: 1 coluna por vez (pastas → lista → editor). Default = "lista"
+  // porque é a view mais útil pra começar. Desktop ignora este state e
+  // mostra as 3 colunas sempre (md:grid-cols-[220px_300px_1fr]).
+  const [mobileView, setMobileView] = useState<MobileView>("lista");
   const router = useRouter();
 
   const ativa = notas.find((n) => n.id === ativaId);
@@ -92,13 +98,34 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
     setNotas(notas.map((n) => (n.id === ativa.id ? { ...n, ...patch } : n)));
   }
 
+  // Quando clica numa nota no mobile, vai pro editor automaticamente
+  function selecionarNota(id: string) {
+    setAtivaId(id);
+    setMobileView("editor");
+  }
+
   return (
     <Card className="overflow-hidden p-0" style={{ height: "calc(100vh - 200px)" }}>
-      <div className="grid grid-cols-[220px_300px_1fr] h-full min-h-0">
-        {/* Coluna 1: Pastas (header fixo + lista scrollable) */}
-        <div className="border-r border-border bg-card/40 flex flex-col min-h-0">
-          <div className="p-3 border-b border-border shrink-0">
-            <Button onClick={() => setPickerOpen(true)} className="w-full" size="sm">
+      <div className="grid grid-cols-1 md:grid-cols-[220px_300px_1fr] h-full min-h-0">
+        {/* Coluna 1: Pastas — desktop sempre; mobile só quando view=pastas */}
+        <div
+          className={cn(
+            "border-r border-border bg-card/40 flex-col min-h-0",
+            "md:flex",
+            mobileView === "pastas" ? "flex" : "hidden"
+          )}
+        >
+          <div className="p-3 border-b border-border shrink-0 flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-8 w-8 shrink-0"
+              onClick={() => setMobileView("lista")}
+              aria-label="Voltar"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button onClick={() => setPickerOpen(true)} className="flex-1" size="sm">
               <Plus className="h-3.5 w-3.5" /> Nova nota
             </Button>
           </div>
@@ -112,7 +139,7 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
                 {ns.map((n) => (
                   <div
                     key={n.id}
-                    onClick={() => setAtivaId(n.id)}
+                    onClick={() => selecionarNota(n.id)}
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 ml-3 text-[12px] rounded-md cursor-pointer truncate",
                       ativaId === n.id ? "bg-sal-600/15 text-sal-400" : "hover:bg-secondary text-muted-foreground hover:text-foreground"
@@ -127,19 +154,45 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
           </div>
         </div>
 
-        {/* Coluna 2: Lista (header fixo + lista scrollable) */}
-        <div className="border-r border-border flex flex-col min-h-0">
-          <div className="p-3 border-b border-border shrink-0">
-            <div className="relative">
+        {/* Coluna 2: Lista — desktop sempre; mobile só quando view=lista */}
+        <div
+          className={cn(
+            "border-r border-border flex-col min-h-0",
+            "md:flex",
+            mobileView === "lista" ? "flex" : "hidden"
+          )}
+        >
+          <div className="p-3 border-b border-border shrink-0 flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-8 w-8 shrink-0"
+              onClick={() => setMobileView("pastas")}
+              aria-label="Ver pastas"
+              title="Ver pastas"
+            >
+              <FolderOpen className="h-4 w-4" />
+            </Button>
+            <div className="relative flex-1">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
               <Input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar..." className="pl-7 h-8 text-xs" />
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-8 w-8 shrink-0"
+              onClick={() => setPickerOpen(true)}
+              aria-label="Nova nota"
+              title="Nova nota"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
           <div className="divide-y divide-border flex-1 overflow-y-auto">
             {filtradas.map((n) => (
               <div
                 key={n.id}
-                onClick={() => setAtivaId(n.id)}
+                onClick={() => selecionarNota(n.id)}
                 className={cn(
                   "px-4 py-3 cursor-pointer transition",
                   ativaId === n.id ? "bg-sal-600/10 border-l-2 border-l-primary" : "hover:bg-secondary/60"
@@ -164,8 +217,14 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
           </div>
         </div>
 
-        {/* Coluna 3: Editor (WYSIWYG, dispensa toggle preview/split — Notion-style) */}
-        <div className="flex flex-col min-w-0 min-h-0">
+        {/* Coluna 3: Editor — desktop sempre; mobile só quando view=editor */}
+        <div
+          className={cn(
+            "flex-col min-w-0 min-h-0",
+            "md:flex",
+            mobileView === "editor" ? "flex" : "hidden"
+          )}
+        >
           {ativa ? (
             <NotaEditor
               key={ativa.id}
@@ -173,9 +232,18 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
               onChange={atualizarLocal}
               onDelete={() => excluir(ativa.id)}
               onTrocaPasta={() => router.refresh()}
+              onBackMobile={() => setMobileView("lista")}
             />
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
+            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3 p-6">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="md:hidden self-start"
+                onClick={() => setMobileView("lista")}
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Voltar
+              </Button>
               <FileText className="h-10 w-10 opacity-30" />
               <p className="text-sm">Selecione ou crie uma nota</p>
             </div>
@@ -195,12 +263,14 @@ export function NotasClient({ notas: initial }: { notas: Nota[] }) {
 }
 
 function NotaEditor({
-  nota, onChange, onDelete,
+  nota, onChange, onDelete, onBackMobile,
 }: {
   nota: Nota;
   onChange: (p: Partial<Nota>) => void;
   onDelete: () => void;
   onTrocaPasta: () => void;
+  /** Voltar pra view de lista no mobile (escondido em md+) */
+  onBackMobile?: () => void;
 }) {
   const [titulo, setTitulo] = useState(nota.titulo);
   const [tagsInput, setTagsInput] = useState(nota.tags.join(", "));
@@ -245,15 +315,26 @@ function NotaEditor({
 
   return (
     <>
-      <div className="px-5 py-2.5 border-b border-border flex items-center justify-between gap-3">
+      <div className="px-3 sm:px-5 py-2.5 border-b border-border flex items-center justify-between gap-2 sm:gap-3">
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          {onBackMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-7 w-7 shrink-0 -ml-1"
+              onClick={onBackMobile}
+              aria-label="Voltar pra lista"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          )}
+          <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0 hidden sm:inline-block" />
           <input
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
-            className="bg-transparent font-medium text-[14px] outline-none w-full"
+            className="bg-transparent font-medium text-[14px] outline-none w-full min-w-0"
           />
-          <span className="text-[10px] text-muted-foreground/60 font-mono shrink-0">{relTime(nota.updatedAt)}</span>
+          <span className="text-[10px] text-muted-foreground/60 font-mono shrink-0 hidden sm:inline">{relTime(nota.updatedAt)}</span>
         </div>
         <div className="flex items-center gap-1">
           <Button
