@@ -434,7 +434,7 @@ export default async function DashboardPage() {
   return (
     <>
       <Header />
-      <div className="px-8 py-7 space-y-7 max-w-[1400px] mx-auto">
+      <div className="px-3 sm:px-6 lg:px-8 py-4 sm:py-7 space-y-5 sm:space-y-7 max-w-[1400px] mx-auto">
         <DashboardGreeting />
 
         <DashboardKpis

@@ -89,7 +89,13 @@ const groups: NavGroup[] = [
 function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <div className="flex flex-col h-full">
+    // `flex-1 min-h-0` ao invés de `h-full`: o pai (aside/drawer) é
+    // `flex flex-col`, e flex items com `h-full` têm comportamento
+    // inconsistente entre browsers. `flex-1 min-h-0` faz o wrapper
+    // esticar até preencher o container e habilita o overflow do
+    // `<nav>` filho (overflow-y-auto precisa de min-h-0 no ancestral
+    // pra não colapsar o scroll).
+    <div className="flex flex-col flex-1 min-h-0">
       <div className="px-4 pt-5 pb-4 border-b border-border">
         <Link href="/" onClick={onNavigate} className="flex items-center gap-2.5">
           <div
