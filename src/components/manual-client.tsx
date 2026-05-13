@@ -152,10 +152,14 @@ export function ManualClient({
   const tipoLabel = tipo === "PLAYBOOK" ? "Playbook" : "Marca";
 
   return (
-    <div className="grid md:grid-cols-[260px_1fr] gap-5 -mt-2">
-      {/* ── Sidebar ── */}
-      <aside className="space-y-2 md:sticky md:top-4 md:self-start md:h-[calc(100vh-7rem)] md:overflow-y-auto pr-1">
-        <Link href="/manual" className="flex items-center gap-2 text-[11px] text-muted-foreground hover:text-foreground transition">
+    <div className="grid md:grid-cols-[260px_1fr] gap-5">
+      {/* ── Sidebar ──
+         `top-[72px]` = altura do Header sticky (`py-3.5` + conteúdo ~= 68-72px).
+         Sem isso, o topo da sidebar gruda em top=0 ao scrollar e fica
+         escondido atrás do Header global. `h-[calc(100vh-88px)]` reserva
+         espaço pro Header também ao calcular o overflow scroll interno. */}
+      <aside className="space-y-2 md:sticky md:top-[72px] md:self-start md:h-[calc(100vh-88px)] md:overflow-y-auto pr-1">
+        <Link href="/manual" className="flex items-center gap-2 text-[11px] text-muted-foreground hover:text-foreground transition pt-1">
           ← Voltar ao Manual
         </Link>
 
