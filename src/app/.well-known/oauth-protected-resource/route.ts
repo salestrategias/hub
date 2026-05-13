@@ -1,15 +1,30 @@
 /**
  * OAuth Protected Resource Metadata (RFC 9728).
  *
- * Sinaliza ao Claude Desktop: "este recurso (/api/mcp) é protegido,
- * use OAuth 2.1 contra ESTE servidor (apontado em authorization_servers)
- * para obter access_token."
+ * IMPORTANTE: `force-dynamic` + leitura via x-forwarded-host porque
+ * o Cloudflare proxy passa req.url como http://localhost:3000 pro
+ * Next, e força-static congelaria a URL errada no build.
  */
 export const runtime = "nodejs";
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
+
+function getBaseUrl(req: Request): string {
+  // Cloudflare/Traefik/nginx mandam host real em x-forwarded-host
+  const fwdHost = req.headers.get("x-forwarded-host");
+  const fwdProto = req.headers.get("x-forwarded-proto") ?? "https";
+  if (fwdHost) return `${fwdProto}://${fwdHost}`;
+  // Fallback: header host normal
+  const host = req.headers.get("host");
+  if (host) {
+    const proto = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
+    return `${proto}://${host}`;
+  }
+  // Último recurso: env var
+  return process.env.NEXT_PUBLIC_HUB_URL ?? "https://hub.salestrategias.com.br";
+}
 
 export async function GET(req: Request) {
-  const baseUrl = new URL(req.url).origin;
+  const baseUrl = getBaseUrl(req);
   return Response.json(
     {
       resource: `${baseUrl}/api/mcp`,
@@ -20,7 +35,7 @@ export async function GET(req: Request) {
     },
     {
       headers: {
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "no-store",
         "Access-Control-Allow-Origin": "*",
       },
     }
