@@ -23,8 +23,25 @@ export const postSchema = z.object({
   status: z.enum(["RASCUNHO", "COPY_PRONTA", "DESIGN_PRONTO", "AGENDADO", "PUBLICADO"]),
   dataPublicacao: z.coerce.date(),
   clienteId: z.string().min(1),
+  hashtags: z.array(z.string()).default([]),
+  cta: z.string().max(500).optional().nullable().or(z.literal("")),
+  observacoesProducao: z.string().optional().nullable(),
 });
 export type PostInput = z.infer<typeof postSchema>;
+
+export const postArquivoSchema = z.object({
+  tipo: z.enum(["IMAGEM", "VIDEO", "DOCUMENTO", "LINK_EXTERNO"]),
+  // dataURL ou URL — sem URL validation estrita porque dataURL é grande
+  url: z.string().min(10, "URL ou arquivo inválido").max(5_000_000, "Arquivo muito grande (5MB max)"),
+  nome: z.string().max(120).optional().nullable().or(z.literal("")),
+  legenda: z.string().max(500).optional().nullable().or(z.literal("")),
+  ordem: z.coerce.number().int().default(0),
+});
+export type PostArquivoInput = z.infer<typeof postArquivoSchema>;
+
+export const postArquivosReordenarSchema = z.object({
+  itens: z.array(z.object({ id: z.string(), ordem: z.coerce.number().int() })),
+});
 
 // ─── Contrato ─────────────────────────────────────────────────────
 export const contratoSchema = z.object({

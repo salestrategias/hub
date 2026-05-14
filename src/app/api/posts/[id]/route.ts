@@ -9,7 +9,11 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     await requireAuth();
     return prisma.post.findUniqueOrThrow({
       where: { id: params.id },
-      include: { cliente: { select: { id: true, nome: true } } },
+      include: {
+        cliente: { select: { id: true, nome: true } },
+        arquivos: { orderBy: { ordem: "asc" } },
+        comentarios: { orderBy: { createdAt: "desc" }, take: 20 },
+      },
     });
   });
 }

@@ -302,23 +302,60 @@ model McpToken {
 model Post {
   id              String      @id @default(cuid())
   titulo          String
-  legenda         String?     @db.Text
+  legenda         String?     @db.Text   // JSON BlockNote — copy principal (rich text)
   pilar           String?
   formato         PostFormato @default(FEED)
   status          PostStatus  @default(RASCUNHO)
   dataPublicacao  DateTime
   googleEventId   String?
 
+  // Campos extras pra portal do cliente — visíveis na aprovação
+  hashtags             String[]            // ["#galeriachaves", "#poa"]
+  cta                  String?             // "Vem nos visitar — Andradas 1044"
+  observacoesProducao  String?  @db.Text   // notas internas: música, estilo de arte, refs
+
   clienteId String
   cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
   comentarios PostComentario[]
+  arquivos    PostArquivo[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([dataPublicacao])
   @@index([clienteId])
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Anexos visuais de um post: artes finalizadas, vídeos, refs, mockups.
+//
+// `url` aceita dataURL (upload direto, base64) ou URL externa (Drive,
+// Figma, Canva, etc). Tipos visuais (IMAGEM/VIDEO) renderizam inline
+// no portal; DOCUMENTO/LINK_EXTERNO mostram só link.
+//
+// Ordem manual via drag-drop. Pra carrossel, ordem importa (1º slide,
+// 2º slide, etc).
+// ─────────────────────────────────────────────────────────────────────
+model PostArquivo {
+  id        String           @id @default(cuid())
+  postId    String
+  post      Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tipo      PostArquivoTipo
+  url       String           @db.Text
+  nome      String?                              // "Slide 1", "Capa", etc
+  legenda   String?          @db.Text            // legenda específica deste arquivo
+  ordem     Int              @default(0)
+  createdAt DateTime         @default(now())
+
+  @@index([postId, ordem])
+}
+
+enum PostArquivoTipo {
+  IMAGEM
+  VIDEO
+  DOCUMENTO
+  LINK_EXTERNO
 }
 
 enum PostFormato {

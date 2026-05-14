@@ -1,14 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Trash2 } from "lucide-react";
+import { FileText, Trash2, MessageSquare, CheckCircle2, Hash, Megaphone } from "lucide-react";
 import { EntitySheet } from "@/components/entity-sheet";
 import { InlineField } from "@/components/inline-field";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
+import { PostArquivosEditor } from "@/components/post-arquivos-editor";
 import type { PartialBlock } from "@blocknote/core";
 
 type PostFull = {
@@ -20,7 +24,17 @@ type PostFull = {
   status: "RASCUNHO" | "COPY_PRONTA" | "DESIGN_PRONTO" | "AGENDADO" | "PUBLICADO";
   dataPublicacao: string;
   googleEventId: string | null;
+  hashtags: string[];
+  cta: string | null;
+  observacoesProducao: string | null;
   cliente: { id: string; nome: string } | null;
+  comentarios?: Array<{
+    id: string;
+    tipo: "APROVOU" | "PEDIU_AJUSTE";
+    texto: string | null;
+    clienteNome: string;
+    createdAt: string;
+  }>;
 };
 
 const FORMATO_OPTIONS = [
@@ -137,8 +151,9 @@ export function PostSheet({
         </>
       }
     >
-      {post && (
+      {post && postId && (
         <div className="space-y-4">
+          {/* Campos meta (sempre visíveis) */}
           <div className="grid grid-cols-2 gap-3">
             <InlineField
               type="text"
@@ -192,21 +207,120 @@ export function PostSheet({
             )}
           </div>
 
-          <div>
-            <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-              Legenda
-            </div>
-            <div className="rounded-md border border-border bg-background/40 p-3">
-              <BlockEditor
-                value={post.legenda ?? ""}
-                onChange={(blocks: PartialBlock[]) => patchPost({ legenda: JSON.stringify(blocks) })}
-                placeholder="Copy do post. / abre menu de blocos, @ menciona cliente/reunião/post relacionado."
-                minHeight="180px"
-              />
-            </div>
-          </div>
+          {/* Tabs: Copy | Artes | Hashtags+CTA | Produção | Comentários do cliente */}
+          <Tabs defaultValue="copy" className="w-full">
+            <TabsList className="w-full justify-start flex-wrap h-auto">
+              <TabsTrigger value="copy">Copy / Legenda</TabsTrigger>
+              <TabsTrigger value="artes">Artes / Anexos</TabsTrigger>
+              <TabsTrigger value="meta">Hashtags + CTA</TabsTrigger>
+              <TabsTrigger value="producao">Notas de produção</TabsTrigger>
+              {post.comentarios && post.comentarios.length > 0 && (
+                <TabsTrigger value="comentarios">
+                  Comentários do cliente ({post.comentarios.length})
+                </TabsTrigger>
+              )}
+            </TabsList>
 
-          {postId && <BacklinksPanel type="POST" id={postId} hideWhenEmpty title="Mencionado em" />}
+            <TabsContent value="copy" className="mt-4">
+              <div className="rounded-md border border-border bg-background/40 p-3">
+                <BlockEditor
+                  value={post.legenda ?? ""}
+                  onChange={(blocks: PartialBlock[]) => patchPost({ legenda: JSON.stringify(blocks) })}
+                  placeholder="Copy/legenda do post. / abre menu de blocos. Cliente vê isso no portal."
+                  minHeight="220px"
+                />
+              </div>
+              <p className="text-[10.5px] text-muted-foreground/70 mt-1.5">
+                Esta é a copy que vai pra publicação E que o cliente vê no portal pra aprovar.
+              </p>
+            </TabsContent>
+
+            <TabsContent value="artes" className="mt-4">
+              <PostArquivosEditor postId={postId} />
+            </TabsContent>
+
+            <TabsContent value="meta" className="mt-4 space-y-4">
+              <HashtagsField
+                value={post.hashtags}
+                onSave={(tags) => patchPost({ hashtags: tags })}
+              />
+              <div className="space-y-1.5">
+                <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  CTA (chamada pra ação)
+                </div>
+                <Input
+                  defaultValue={post.cta ?? ""}
+                  placeholder="Ex: Vem nos visitar — Andradas 1044"
+                  onBlur={(e) => {
+                    if (e.target.value !== post.cta) patchPost({ cta: e.target.value || null });
+                  }}
+                />
+                <p className="text-[10.5px] text-muted-foreground/70">
+                  Texto curto, destacado no portal do cliente.
+                </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="producao" className="mt-4 space-y-1.5">
+              <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold">
+                Notas de produção (interno — cliente NÃO vê)
+              </div>
+              <Textarea
+                defaultValue={post.observacoesProducao ?? ""}
+                rows={6}
+                placeholder="Música de fundo, estilo de arte, referências, instruções pro designer..."
+                onBlur={(e) => {
+                  if (e.target.value !== post.observacoesProducao) {
+                    patchPost({ observacoesProducao: e.target.value || null });
+                  }
+                }}
+              />
+              <p className="text-[10.5px] text-muted-foreground/70">
+                Anotações internas — não aparecem no portal. Use pra alinhar com a equipe de design.
+              </p>
+            </TabsContent>
+
+            {post.comentarios && post.comentarios.length > 0 && (
+              <TabsContent value="comentarios" className="mt-4 space-y-2">
+                {post.comentarios.map((c) => (
+                  <div
+                    key={c.id}
+                    className={`rounded-md border p-3 ${
+                      c.tipo === "APROVOU"
+                        ? "border-emerald-500/30 bg-emerald-500/5"
+                        : "border-amber-500/30 bg-amber-500/5"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 text-xs mb-1">
+                      {c.tipo === "APROVOU" ? (
+                        <>
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                          <span className="font-medium text-emerald-500">Aprovado</span>
+                        </>
+                      ) : (
+                        <>
+                          <MessageSquare className="h-3.5 w-3.5 text-amber-500" />
+                          <span className="font-medium text-amber-500">Pediu ajuste</span>
+                        </>
+                      )}
+                      <span className="text-muted-foreground/70 ml-auto text-[10.5px]">
+                        {c.clienteNome} ·{" "}
+                        {new Date(c.createdAt).toLocaleString("pt-BR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    {c.texto && <p className="text-[12.5px] leading-snug whitespace-pre-wrap">{c.texto}</p>}
+                  </div>
+                ))}
+              </TabsContent>
+            )}
+          </Tabs>
+
+          <BacklinksPanel type="POST" id={postId} hideWhenEmpty title="Mencionado em" />
         </div>
       )}
     </EntitySheet>
@@ -217,4 +331,83 @@ function toLocalInput(iso: string): string {
   const d = new Date(iso);
   const off = d.getTimezoneOffset() * 60_000;
   return new Date(d.getTime() - off).toISOString().slice(0, 16);
+}
+
+/**
+ * Editor de hashtags como chips. Type-ahead simples: digita e Enter/vírgula
+ * adiciona. Backspace em campo vazio remove última.
+ */
+function HashtagsField({
+  value,
+  onSave,
+}: {
+  value: string[];
+  onSave: (tags: string[]) => void;
+}) {
+  const [tags, setTags] = useState<string[]>(value);
+  const [input, setInput] = useState("");
+
+  useEffect(() => {
+    setTags(value);
+  }, [value]);
+
+  function commit(novas: string[]) {
+    setTags(novas);
+    onSave(novas);
+  }
+
+  function adicionar(raw: string) {
+    const limpa = raw
+      .replace(/^#+/, "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "");
+    if (!limpa) return;
+    if (tags.includes(limpa)) return;
+    commit([...tags, limpa]);
+    setInput("");
+  }
+
+  function remover(t: string) {
+    commit(tags.filter((x) => x !== t));
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
+        <Hash className="h-3 w-3" /> Hashtags
+      </div>
+      <div className="flex flex-wrap gap-1.5 p-2 rounded-md border border-border bg-background/40 min-h-[40px]">
+        {tags.map((t) => (
+          <span
+            key={t}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[11px] font-mono"
+          >
+            #{t}
+            <button onClick={() => remover(t)} className="hover:text-destructive transition">
+              ×
+            </button>
+          </span>
+        ))}
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === ",") {
+              e.preventDefault();
+              adicionar(input);
+            } else if (e.key === "Backspace" && !input && tags.length > 0) {
+              remover(tags[tags.length - 1]);
+            }
+          }}
+          onBlur={() => input && adicionar(input)}
+          placeholder={tags.length === 0 ? "Digite tag e Enter (ex: galeriachaves)" : ""}
+          className="flex-1 min-w-[120px] bg-transparent outline-none text-[12px]"
+        />
+      </div>
+      <p className="text-[10.5px] text-muted-foreground/70">
+        Sem o # — sistema adiciona. Enter ou vírgula pra confirmar. Cliente vê no portal.
+      </p>
+    </div>
+  );
 }

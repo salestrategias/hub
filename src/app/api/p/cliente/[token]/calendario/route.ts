@@ -38,6 +38,10 @@ export async function GET(req: Request, { params }: { params: { token: string } 
           take: 5,
           select: { id: true, tipo: true, texto: true, createdAt: true },
         },
+        arquivos: {
+          orderBy: { ordem: "asc" },
+          select: { id: true, tipo: true, url: true, nome: true, legenda: true, ordem: true },
+        },
       },
       orderBy: { dataPublicacao: "asc" },
     });
@@ -50,6 +54,10 @@ export async function GET(req: Request, { params }: { params: { token: string } 
       formato: p.formato,
       status: p.status,
       dataPublicacao: p.dataPublicacao.toISOString(),
+      hashtags: p.hashtags,
+      cta: p.cta,
+      // observacoesProducao é interno — NÃO expõe pro cliente
+      arquivos: p.arquivos,
       comentarios: p.comentarios.map((c) => ({
         ...c,
         createdAt: c.createdAt.toISOString(),
