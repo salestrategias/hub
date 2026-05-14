@@ -22,8 +22,10 @@ export const authConfig: NextAuthConfig = {
         // - /.well-known/* — discovery endpoints (OAuth metadata pro Claude Desktop)
         // - /register, /token — OAuth endpoints públicos (DCR + token exchange)
         //   /authorize NÃO entra aqui porque PRECISA do user logado pra consent
+        // /p/cliente/* já cai no /p/* mas explicitamos por clareza
         path.startsWith("/p/") ||
         path.startsWith("/api/p/") ||
+        path.startsWith("/api/p/cliente/") ||
         path === "/api/mcp" ||
         path.startsWith("/api/mcp/") ||
         path.startsWith("/.well-known/") ||

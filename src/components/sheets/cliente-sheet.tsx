@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { BlockEditor, BlockRenderer } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
+import { ClienteAcessoCard } from "@/components/cliente-acesso-card";
 import { MoneyValue } from "@/components/money-value";
 import { TagsBadges } from "@/components/tag-picker";
 import { formatDate } from "@/lib/utils";
@@ -290,6 +291,8 @@ export function ClienteSheet({
             </div>
 
             <ContratosBox contratos={cliente.contratos} />
+
+            {clienteId && <ClienteAcessoCard clienteId={clienteId} />}
           </TabsContent>
 
           <TabsContent value="posts" className="mt-4">

@@ -147,6 +147,7 @@ model Cliente {
   propostas    Proposta[]
   lead         Lead?          // lead que virou esse cliente (relação reversa 1:1)
   integracoesSheets IntegracaoSheets[]
+  acesso       ClienteAcesso?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -310,6 +311,8 @@ model Post {
 
   clienteId String
   cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  comentarios PostComentario[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -776,6 +779,8 @@ enum TipoNotificacao {
   PROPOSTA_VISTA
   PROPOSTA_ACEITA
   PROPOSTA_RECUSADA
+  PORTAL_APROVOU_POST
+  PORTAL_PEDIU_AJUSTE
   SISTEMA
 }
 
@@ -1113,6 +1118,71 @@ enum DocTipo {
 // Vida curta (5 min). Single-use (usado=true após troca). PKCE
 // obrigatório (codeChallenge + codeChallengeMethod=S256).
 // ─────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────
+// Portal do Cliente — área pública por cliente onde ele vê calendário
+// editorial, tarefas, reuniões e aprova posts.
+//
+// 1 acesso por cliente. URL: /p/cliente/{token}. Senha opcional (bcrypt).
+// Toggles granulares pro Marcelo controlar o que cada cliente vê.
+//
+// Sessão de cliente: cookie HTTP-only com JWT (7 dias) — validado pelo
+// endpoint, sem precisar revalidar senha a cada request.
+// ─────────────────────────────────────────────────────────────────────
+model ClienteAcesso {
+  id        String   @id @default(cuid())
+  clienteId String   @unique
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  token     String   @unique               // pra URL
+  senhaHash String?                         // bcrypt, opcional
+  ativo     Boolean  @default(true)
+
+  // Permissões (Marcelo controla cliente a cliente)
+  verCalendario    Boolean @default(true)
+  verTarefas       Boolean @default(false)
+  verReunioes      Boolean @default(false)
+  verRelatorios    Boolean @default(true)
+  podeAprovarPosts Boolean @default(true)
+  podeComentar     Boolean @default(true)
+
+  // Audit
+  ultimoAcesso   DateTime?
+  totalAcessos   Int       @default(0)
+  criadoPor      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Aprovações e comentários do cliente em Posts editoriais.
+//
+// Quando cliente aprova: cria registro tipo APROVOU + move post pra
+// status DESIGN_PRONTO (de COPY_PRONTA). Marcelo recebe notificação.
+//
+// Quando cliente pede ajuste: cria registro tipo PEDIU_AJUSTE com
+// comentário. Post fica como está (COPY_PRONTA). Marcelo recebe
+// notificação com o texto do pedido.
+// ─────────────────────────────────────────────────────────────────────
+model PostComentario {
+  id      String              @id @default(cuid())
+  postId  String
+  post    Post                @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tipo    PostComentarioTipo
+  texto   String?             @db.Text     // null em APROVOU, preenchido em PEDIU_AJUSTE
+  // Snapshot do cliente que comentou (não FK pra não acoplar)
+  clienteNome String
+
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt(sort: Desc)])
+}
+
+enum PostComentarioTipo {
+  APROVOU
+  PEDIU_AJUSTE
+}
+
 model OAuthCode {
   code               String   @id
   userId             String
