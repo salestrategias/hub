@@ -13,6 +13,7 @@ import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { PostArquivosEditor } from "@/components/post-arquivos-editor";
+import { useDebouncedSave } from "@/lib/use-debounced-save";
 import type { PartialBlock } from "@blocknote/core";
 
 type PostFull = {
@@ -102,8 +103,39 @@ export function PostSheet({
       throw new Error(err?.error ?? "Falha ao salvar");
     }
     const updated = await res.json();
-    setPost((p) => (p ? { ...p, ...updated } : p));
+    // Mergeia só os campos retornados, mas preserva `legenda` local se já
+    // está atualizada — evita race condition quando uma resposta antiga
+    // chega depois e sobrescreve o que o user acabou de digitar.
+    setPost((p) => {
+      if (!p) return p;
+      const merged = { ...p, ...updated };
+      // Se o patch tinha legenda, confia no que o user digitou (que já
+      // está no editor + foi enviado nesse mesmo PATCH)
+      if (typeof patch.legenda === "string") merged.legenda = patch.legenda;
+      return merged;
+    });
   }
+
+  // Debounce o save da legenda — onChange do BlockEditor dispara em toda
+  // tecla. Sem debounce, dezenas de PATCHes concorrentes causam race
+  // condition e perda de conteúdo.
+  const { trigger: salvarLegenda, flush: flushLegenda } = useDebouncedSave<string>(
+    (legenda) => patchPost({ legenda }),
+    700
+  );
+  const { trigger: salvarObservacoes } = useDebouncedSave<string | null>(
+    (observacoesProducao) => patchPost({ observacoesProducao }),
+    700
+  );
+  const { trigger: salvarCta } = useDebouncedSave<string | null>(
+    (cta) => patchPost({ cta }),
+    700
+  );
+
+  // Flush save pendente quando sheet fecha
+  useEffect(() => {
+    if (!open) flushLegenda();
+  }, [open, flushLegenda]);
 
   async function excluir() {
     if (!postId || !post) return;
@@ -223,15 +255,20 @@ export function PostSheet({
 
             <TabsContent value="copy" className="mt-4">
               <div className="rounded-md border border-border bg-background/40 p-3">
+                {/* key={postId} força remount quando trocar de post — BlockNote
+                    só usa initialContent no primeiro render, então sem isso o
+                    editor mostraria a legenda do post anterior */}
                 <BlockEditor
+                  key={postId}
                   value={post.legenda ?? ""}
-                  onChange={(blocks: PartialBlock[]) => patchPost({ legenda: JSON.stringify(blocks) })}
+                  onChange={(blocks: PartialBlock[]) => salvarLegenda(JSON.stringify(blocks))}
                   placeholder="Copy/legenda do post. / abre menu de blocos. Cliente vê isso no portal."
                   minHeight="220px"
                 />
               </div>
               <p className="text-[10.5px] text-muted-foreground/70 mt-1.5">
                 Esta é a copy que vai pra publicação E que o cliente vê no portal pra aprovar.
+                Salvamento automático (~1s após parar de digitar).
               </p>
             </TabsContent>
 
@@ -249,8 +286,10 @@ export function PostSheet({
                   CTA (chamada pra ação)
                 </div>
                 <Input
+                  key={`cta-${postId}`}
                   defaultValue={post.cta ?? ""}
                   placeholder="Ex: Vem nos visitar — Andradas 1044"
+                  onChange={(e) => salvarCta(e.target.value || null)}
                   onBlur={(e) => {
                     if (e.target.value !== post.cta) patchPost({ cta: e.target.value || null });
                   }}
@@ -266,9 +305,11 @@ export function PostSheet({
                 Notas de produção (interno — cliente NÃO vê)
               </div>
               <Textarea
+                key={`obs-${postId}`}
                 defaultValue={post.observacoesProducao ?? ""}
                 rows={6}
                 placeholder="Música de fundo, estilo de arte, referências, instruções pro designer..."
+                onChange={(e) => salvarObservacoes(e.target.value || null)}
                 onBlur={(e) => {
                   if (e.target.value !== post.observacoesProducao) {
                     patchPost({ observacoesProducao: e.target.value || null });

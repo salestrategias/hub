@@ -28,6 +28,7 @@ const groups: NavGroup[] = [
     label: "Produção",
     items: [
       { label: "Editorial", href: "/editorial", icon: CalendarDays },
+      { label: "Criativos Ads", href: "/criativos", icon: Megaphone },
       { label: "Projetos", href: "/projetos", icon: KanbanSquare },
       { label: "Tarefas", href: "/tarefas", icon: ListChecks },
     ],

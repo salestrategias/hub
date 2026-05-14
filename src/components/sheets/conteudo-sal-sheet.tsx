@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
+import { useDebouncedSave } from "@/lib/use-debounced-save";
 
 type ConteudoSALFull = {
   id: string;
@@ -97,8 +98,28 @@ export function ConteudoSalSheet({
       throw new Error(err?.error ?? "Falha ao salvar");
     }
     const updated = await res.json();
-    setConteudo((c) => (c ? { ...c, ...updated } : c));
+    // Preserva campos do patch que o user acabou de digitar — evita que
+    // respostas fora de ordem sobrescrevam edição corrente
+    setConteudo((c) => {
+      if (!c) return c;
+      const merged = { ...c, ...updated };
+      if (typeof patch.copy === "string") merged.copy = patch.copy;
+      return merged;
+    });
   }
+
+  // Debounce do save da copy — onChange do BlockEditor dispara em toda
+  // tecla, então sem debounce vários PATCHes concorrentes causam race
+  // condition
+  const { trigger: salvarCopy, flush: flushCopy } = useDebouncedSave<string>(
+    (copy) => patchConteudo({ copy }),
+    700
+  );
+
+  // Flush save pendente quando sheet fecha
+  useEffect(() => {
+    if (!open) flushCopy();
+  }, [open, flushCopy]);
 
   async function excluir() {
     if (!conteudoId || !conteudo) return;
@@ -232,9 +253,12 @@ export function ConteudoSalSheet({
               Copy / roteiro
             </div>
             <div className="rounded-md border border-border bg-background/40 p-3">
+              {/* key={conteudoId} força remount ao trocar de peça — BlockNote
+                  só lê initialContent no primeiro render */}
               <BlockEditor
+                key={conteudoId}
                 value={conteudo.copy ?? ""}
-                onChange={(blocks: PartialBlock[]) => patchConteudo({ copy: JSON.stringify(blocks) })}
+                onChange={(blocks: PartialBlock[]) => salvarCopy(JSON.stringify(blocks))}
                 placeholder={
                   conteudo.formato === "NEWSLETTER"
                     ? "Texto da newsletter — / abre menu de blocos, @ menciona entidades..."

@@ -43,6 +43,58 @@ export const postArquivosReordenarSchema = z.object({
   itens: z.array(z.object({ id: z.string(), ordem: z.coerce.number().int() })),
 });
 
+// ─── Criativo (Tráfego Pago) ──────────────────────────────────────
+export const criativoSchema = z.object({
+  titulo: z.string().min(1, "Título obrigatório").max(200),
+  status: z
+    .enum(["RASCUNHO", "EM_APROVACAO", "APROVADO", "RECUSADO", "NO_AR", "PAUSADO", "ENCERRADO"])
+    .default("RASCUNHO"),
+  plataforma: z.enum(["META_ADS", "GOOGLE_ADS", "TIKTOK_ADS", "YOUTUBE_ADS", "LINKEDIN_ADS"]),
+  formato: z
+    .enum([
+      "POST_IMAGEM",
+      "POST_VIDEO",
+      "CARROSSEL",
+      "COLLECTION",
+      "STORY",
+      "REELS_AD",
+      "RESPONSIVE_DISPLAY",
+      "SEARCH_AD",
+      "PERFORMANCE_MAX",
+    ])
+    .default("POST_IMAGEM"),
+  textoPrincipal: z.string().max(5000).optional().nullable().or(z.literal("")),
+  headline: z.string().max(200).optional().nullable().or(z.literal("")),
+  descricao: z.string().max(2000).optional().nullable().or(z.literal("")),
+  ctaBotao: z.string().max(60).optional().nullable().or(z.literal("")),
+  urlDestino: z.string().max(2000).optional().nullable().or(z.literal("")),
+  publicoAlvo: z.string().max(2000).optional().nullable().or(z.literal("")),
+  orcamento: z.coerce.number().nonnegative().optional().nullable(),
+  inicio: z.coerce.date().optional().nullable(),
+  fim: z.coerce.date().optional().nullable(),
+  observacoesProducao: z.string().max(5000).optional().nullable().or(z.literal("")),
+  clienteId: z.string().min(1, "Cliente obrigatório"),
+  campanhaPagaId: z.string().optional().nullable(),
+});
+export type CriativoInput = z.infer<typeof criativoSchema>;
+
+export const criativoArquivoSchema = z.object({
+  tipo: z.enum(["IMAGEM", "VIDEO", "DOCUMENTO", "LINK_EXTERNO"]),
+  url: z.string().min(10, "URL ou arquivo inválido").max(5_000_000, "Arquivo muito grande (5MB max)"),
+  nome: z.string().max(120).optional().nullable().or(z.literal("")),
+  legenda: z.string().max(500).optional().nullable().or(z.literal("")),
+  ordem: z.coerce.number().int().default(0),
+});
+export type CriativoArquivoInput = z.infer<typeof criativoArquivoSchema>;
+
+export const criativoArquivosReordenarSchema = z.object({
+  itens: z.array(z.object({ id: z.string(), ordem: z.coerce.number().int() })),
+});
+
+export const criativoVincularCampanhaSchema = z.object({
+  campanhaPagaId: z.string().nullable(),
+});
+
 // ─── Contrato ─────────────────────────────────────────────────────
 export const contratoSchema = z.object({
   clienteId: z.string().min(1),

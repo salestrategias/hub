@@ -148,6 +148,7 @@ model Cliente {
   lead         Lead?          // lead que virou esse cliente (relação reversa 1:1)
   integracoesSheets IntegracaoSheets[]
   acesso       ClienteAcesso?
+  criativos    Criativo[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -657,6 +658,8 @@ model CampanhaPaga {
   clienteId String
   cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
+  criativos Criativo[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -669,6 +672,123 @@ enum PlataformaAds {
   TIKTOK_ADS
   YOUTUBE_ADS
   LINKEDIN_ADS
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Criativos de Anúncio — peças de tráfego pago pro cliente aprovar.
+//
+// Diferente de Post (editorial orgânico), Criativo é peça paga: tem
+// público-alvo, orçamento, plataforma específica de ads, CTA de botão
+// (texto livre — Marcelo escolhe a label que a plataforma vai usar).
+//
+// Workflow: RASCUNHO → EM_APROVACAO (cliente vê) → APROVADO/RECUSADO.
+// Quando APROVADO, equipe sobe na plataforma e marca NO_AR. Encerra em
+// PAUSADO ou ENCERRADO.
+//
+// `campanhaPagaId` é opcional — Marcelo vincula manualmente a uma
+// campanha existente (MetricaPaga do mesmo cliente) via botão "Vincular
+// campanhas". Permite ver depois "que criativos rodaram nessa campanha".
+//
+// A/B test fica pra próxima fase (variantes serão Criativos irmãos com
+// vínculo via grupo).
+// ─────────────────────────────────────────────────────────────────────
+model Criativo {
+  id              String           @id @default(cuid())
+  titulo          String
+  status          CriativoStatus   @default(RASCUNHO)
+  plataforma      PlataformaAds
+  formato         CriativoFormato  @default(POST_IMAGEM)
+
+  // Conteúdo da peça
+  textoPrincipal  String?          @db.Text   // copy do anúncio (Meta: Primary Text)
+  headline        String?                     // título curto (Meta: Headline)
+  descricao       String?          @db.Text   // descrição (Meta: Description; Google: Description)
+  ctaBotao        String?                     // texto livre — "Saiba mais", "Compre agora", etc
+  urlDestino      String?          @db.Text   // landing page
+
+  // Planejamento
+  publicoAlvo         String?      @db.Text   // descrição do público (texto livre — interesses, idade, geo)
+  orcamento           Decimal?     @db.Decimal(12, 2)  // orçamento previsto
+  inicio              DateTime?
+  fim                 DateTime?
+
+  // Notas internas — não expõe pro cliente
+  observacoesProducao String?      @db.Text
+
+  clienteId String
+  cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  // Vinculo opcional a campanha já lançada (pra correlacionar performance)
+  campanhaPagaId String?
+  campanhaPaga   CampanhaPaga? @relation(fields: [campanhaPagaId], references: [id], onDelete: SetNull)
+
+  arquivos     CriativoArquivo[]
+  comentarios  CriativoComentario[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clienteId, status])
+  @@index([status, updatedAt])
+  @@index([campanhaPagaId])
+}
+
+enum CriativoStatus {
+  RASCUNHO
+  EM_APROVACAO
+  APROVADO
+  RECUSADO
+  NO_AR
+  PAUSADO
+  ENCERRADO
+}
+
+enum CriativoFormato {
+  POST_IMAGEM
+  POST_VIDEO
+  CARROSSEL
+  COLLECTION
+  STORY
+  REELS_AD
+  RESPONSIVE_DISPLAY
+  SEARCH_AD
+  PERFORMANCE_MAX
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Anexos visuais do criativo: artes finalizadas, vídeos, mockups.
+// Mesma lógica de PostArquivo (separado pra não acoplar editorial com
+// tráfego pago, que podem evoluir em direções diferentes).
+// ─────────────────────────────────────────────────────────────────────
+model CriativoArquivo {
+  id          String           @id @default(cuid())
+  criativoId  String
+  criativo    Criativo         @relation(fields: [criativoId], references: [id], onDelete: Cascade)
+  tipo        PostArquivoTipo                       // reusa enum (IMAGEM, VIDEO, DOCUMENTO, LINK_EXTERNO)
+  url         String           @db.Text
+  nome        String?
+  legenda     String?          @db.Text
+  ordem       Int              @default(0)
+  createdAt   DateTime         @default(now())
+
+  @@index([criativoId, ordem])
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Aprovações/comentários do cliente no criativo.
+// Mesma lógica de PostComentario (separado por mesmo motivo acima).
+// ─────────────────────────────────────────────────────────────────────
+model CriativoComentario {
+  id          String              @id @default(cuid())
+  criativoId  String
+  criativo    Criativo            @relation(fields: [criativoId], references: [id], onDelete: Cascade)
+  tipo        PostComentarioTipo                       // reusa APROVOU / PEDIU_AJUSTE
+  texto       String?             @db.Text
+  clienteNome String
+
+  createdAt DateTime @default(now())
+
+  @@index([criativoId, createdAt(sort: Desc)])
 }
 
 // ─────────────────────────────────────────────────────────────────────
