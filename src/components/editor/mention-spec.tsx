@@ -1,5 +1,5 @@
 "use client";
-import { createReactInlineContentSpec } from "@blocknote/react";
+import { createInlineContentSpec } from "@blocknote/core";
 import type { MentionEntity } from "@prisma/client";
 
 /**
@@ -10,12 +10,15 @@ import type { MentionEntity } from "@prisma/client";
  *
  * `extractMentions` em src/lib/mentions.ts depende dessa shape exata.
  *
- * NOTA: render é defensivo — try/catch + sem dependências externas (sem
- * lucide-react inside the NodeView, que causava crash em
- * `renderSpec` do ProseMirror em algumas configurações). Usa só emoji
- * por categoria. Mesmo render quebra fallback pra @label simples.
+ * **IMPORTANTE — por que DOM puro e não React?**
+ * A versão anterior usava `createReactInlineContentSpec`. No BlockNote 0.21
+ * isso disparava `RangeError: Invalid array passed to renderSpec` em
+ * ProseMirror, dentro do `createNodeViews` async. O erro acontece fora do
+ * lifecycle de render React, então ErrorBoundary não pega. Solução: usar
+ * `createInlineContentSpec` (do `@blocknote/core`) que produz um NodeView
+ * DOM puro — funciona via `toDOM` padrão do ProseMirror sem React adapter.
  */
-export const mentionInlineSpec = createReactInlineContentSpec(
+export const mentionInlineSpec = createInlineContentSpec(
   {
     type: "mention" as const,
     propSchema: {
@@ -26,32 +29,23 @@ export const mentionInlineSpec = createReactInlineContentSpec(
     content: "none",
   },
   {
-    render: (props) => {
-      try {
-        const targetType = (props.inlineContent?.props?.targetType ?? "") as MentionEntity | "";
-        const targetId = props.inlineContent?.props?.targetId ?? "";
-        const label = props.inlineContent?.props?.label || "—";
-        const emoji = emojiFor(targetType);
-        return (
-          <span
-            contentEditable={false}
-            className="mention-pill inline-block px-1.5 py-0.5 rounded-md bg-sal-600/15 text-sal-400 text-[0.95em] font-medium align-baseline"
-            data-mention-target-type={String(targetType)}
-            data-mention-target-id={String(targetId)}
-            title={`${targetType || "?"} · ${label}`}
-          >
-            {emoji} @{label}
-          </span>
-        );
-      } catch {
-        // Fallback ultra-simples se algo bizarro vier nas props
-        const label = (props as { inlineContent?: { props?: { label?: unknown } } })?.inlineContent?.props?.label;
-        return (
-          <span contentEditable={false} className="mention-pill">
-            @{typeof label === "string" ? label : "?"}
-          </span>
-        );
-      }
+    render: (inlineContent) => {
+      const targetType = String(inlineContent.props.targetType ?? "") as MentionEntity | "";
+      const targetId = String(inlineContent.props.targetId ?? "");
+      const labelRaw = inlineContent.props.label;
+      const label = typeof labelRaw === "string" && labelRaw ? labelRaw : "—";
+      const emoji = emojiFor(targetType);
+
+      const dom = document.createElement("span");
+      dom.className =
+        "mention-pill inline-block px-1.5 py-0.5 rounded-md bg-sal-600/15 text-sal-400 text-[0.95em] font-medium align-baseline";
+      dom.contentEditable = "false";
+      dom.setAttribute("data-mention-target-type", targetType);
+      dom.setAttribute("data-mention-target-id", targetId);
+      dom.setAttribute("title", `${targetType || "?"} · ${label}`);
+      dom.textContent = `${emoji} @${label}`;
+
+      return { dom };
     },
   }
 );
