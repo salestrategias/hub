@@ -130,8 +130,135 @@
   color: hsl(var(--muted-foreground));
 }
 
-/* Pill de mention — ajuste sutil pra light theme */
+/* ─────────────────────────────────────────────────────────────────────
+   Tiptap editor — mention pill, placeholder, e ajustes visuais
+   ───────────────────────────────────────────────────────────────────── */
+.mention-pill {
+  display: inline-block;
+  padding: 1px 6px;
+  margin: 0 1px;
+  border-radius: 4px;
+  background: rgba(126, 48, 225, 0.15);
+  color: #B794F4;
+  font-weight: 500;
+  font-size: 0.95em;
+  white-space: nowrap;
+  user-select: all;
+}
 .light .mention-pill {
-  background: rgba(126, 48, 225, 0.08) !important;
-  color: #6921C4 !important;
+  background: rgba(126, 48, 225, 0.08);
+  color: #6921C4;
+}
+
+/* Placeholder no editor Tiptap (mostra texto vazio) */
+.tiptap-editor p.is-editor-empty:first-child::before,
+.tiptap-editor h1.is-empty::before,
+.tiptap-editor h2.is-empty::before,
+.tiptap-editor h3.is-empty::before {
+  content: attr(data-placeholder);
+  color: hsl(var(--muted-foreground) / 0.6);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Task list (checkbox) — Tiptap default cria <ul data-type="taskList"> */
+.tiptap-editor ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+.tiptap-editor ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.tiptap-editor ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+  user-select: none;
+}
+.tiptap-editor ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+.tiptap-editor ul[data-type="taskList"] input[type="checkbox"] {
+  accent-color: hsl(var(--primary));
+  cursor: pointer;
+}
+
+/* Tabela — bordas + hover de cabeçalho */
+.tiptap-editor table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+.tiptap-editor table th,
+.tiptap-editor table td {
+  border: 1px solid hsl(var(--border));
+  padding: 6px 10px;
+  min-width: 60px;
+  vertical-align: top;
+}
+.tiptap-editor table th {
+  background: hsl(var(--muted) / 0.4);
+  font-weight: 600;
+  text-align: left;
+}
+.tiptap-editor table .selectedCell {
+  background: hsl(var(--primary) / 0.1);
+}
+.tiptap-editor table p {
+  margin: 0;
+}
+
+/* Imagens — selecionada tem outline */
+.tiptap-editor img.ProseMirror-selectednode {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Horizontal rule mais sutil */
+.tiptap-editor hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 0.75rem 0;
+}
+
+/* Codeblock com fundo um pouco diferente */
+.tiptap-editor pre {
+  background: hsl(var(--muted) / 0.6);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+.tiptap-editor pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* Tippy theme — match com card SAL pra popups (slash menu, mentions) */
+.tippy-box[data-theme~="sal"] {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+.tippy-box[data-theme~="sal"] .tippy-content {
+  padding: 0;
+}
+/* Tippy default — remove background pra usar nosso próprio card */
+.tippy-box {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+.tippy-box .tippy-content {
+  padding: 0 !important;
+}
+.tippy-box[data-placement^="top"] > .tippy-arrow,
+.tippy-box[data-placement^="bottom"] > .tippy-arrow,
+.tippy-box[data-placement^="left"] > .tippy-arrow,
+.tippy-box[data-placement^="right"] > .tippy-arrow {
+  display: none;
 }
