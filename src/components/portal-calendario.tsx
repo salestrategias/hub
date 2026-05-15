@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { BlockRenderer, EditorBoundary } from "@/components/editor";
 
 type Comentario = {
   id: string;
@@ -238,24 +237,16 @@ function PostCard({
         {temArtes && <ArtesCarrossel arquivos={post.arquivos} />}
 
         <div className="px-4 pb-4 space-y-3">
-          {/* Copy completa (BlockRenderer pra rich text). Boundary
-              garante que se o BlockNote crashar com algum bloco
-              malformado, o cliente ainda vê o texto cru — não fica
-              com um espaço em branco no portal. */}
-          {post.legenda && (
-            <div className="rounded-md bg-muted/30 border border-border p-3 prose-sal">
+          {/* Copy/legenda — texto puro. Suporta legenda legada em JSON
+              BlockNote (extrai texto) e o formato novo (texto plano). */}
+          {post.legenda && extrairTextoSimplesLegenda(post.legenda).trim() && (
+            <div className="rounded-md bg-muted/30 border border-border p-3">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
                 Copy / Legenda
               </div>
-              <div className="text-[12.5px] leading-relaxed">
-                <EditorBoundary
-                  fallback={() => (
-                    <p className="whitespace-pre-wrap">{extrairTextoSimplesLegenda(post.legenda)}</p>
-                  )}
-                >
-                  <BlockRenderer value={post.legenda} />
-                </EditorBoundary>
-              </div>
+              <p className="text-[12.5px] leading-relaxed whitespace-pre-wrap">
+                {extrairTextoSimplesLegenda(post.legenda)}
+              </p>
             </div>
           )}
 

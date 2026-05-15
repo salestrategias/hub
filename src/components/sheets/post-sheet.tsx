@@ -10,11 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
-import { BlockEditor, EditorBoundary } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { PostArquivosEditor } from "@/components/post-arquivos-editor";
 import { useDebouncedSave } from "@/lib/use-debounced-save";
-import type { PartialBlock } from "@blocknote/core";
 
 type PostFull = {
   id: string;
@@ -254,43 +252,22 @@ export function PostSheet({
             </TabsList>
 
             <TabsContent value="copy" className="mt-4">
-              <div className="rounded-md border border-border bg-background/40 p-3">
-                {/* key={postId} força remount quando trocar de post.
-                    EditorBoundary captura crashes do BlockNote/ProseMirror
-                    e cai num textarea simples — user continua editando
-                    em texto plano se o editor rico falhar. */}
-                <EditorBoundary
-                  key={postId}
-                  fallback={(err, reset) => (
-                    <div className="space-y-2">
-                      <div className="text-[11px] text-amber-500 bg-amber-500/10 border border-amber-500/30 rounded-md p-2">
-                        Editor rico falhou — usando modo texto simples.
-                        <button onClick={reset} className="underline ml-2">Tentar de novo</button>
-                        <details className="mt-1 text-[10px] text-muted-foreground/70">
-                          <summary className="cursor-pointer">detalhes</summary>
-                          <code className="block mt-1 break-all">{err.message}</code>
-                        </details>
-                      </div>
-                      <Textarea
-                        defaultValue={extrairTextoSimples(post.legenda)}
-                        rows={10}
-                        placeholder="Copy do post (modo texto simples)"
-                        onChange={(e) => salvarLegenda(e.target.value)}
-                      />
-                    </div>
-                  )}
-                >
-                  <BlockEditor
-                    value={post.legenda ?? ""}
-                    onChange={(blocks: PartialBlock[]) => salvarLegenda(JSON.stringify(blocks))}
-                    placeholder="Copy/legenda do post. / abre menu de blocos. Cliente vê isso no portal."
-                    minHeight="220px"
-                  />
-                </EditorBoundary>
-              </div>
+              {/* Textarea simples — o editor rico (BlockNote/ProseMirror) está
+                  crashando no BlockNote 0.21 com `Invalid array passed to
+                  renderSpec`. Pra desbloquear edição, mudamos pra texto puro.
+                  Conteúdo legado em JSON é convertido pra texto na exibição,
+                  e novos saves vão como string plana (Markdown leve permitido
+                  — quebra de linha, emojis, hashtags). Cliente vê igual. */}
+              <Textarea
+                key={`legenda-${postId}`}
+                defaultValue={extrairTextoSimples(post.legenda)}
+                rows={12}
+                placeholder="Copy/legenda do post — texto puro, emojis, quebras de linha. Cliente vê isso no portal pra aprovar."
+                onChange={(e) => salvarLegenda(e.target.value)}
+                className="font-mono text-[12.5px] leading-relaxed"
+              />
               <p className="text-[10.5px] text-muted-foreground/70 mt-1.5">
-                Esta é a copy que vai pra publicação E que o cliente vê no portal pra aprovar.
-                Salvamento automático (~1s após parar de digitar).
+                Salvamento automático (~1s após parar de digitar). Cliente vê este texto no portal.
               </p>
             </TabsContent>
 
