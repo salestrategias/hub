@@ -1,56 +1,61 @@
 "use client";
 /**
- * BlockRenderer — DROP-IN PLAIN-TEXT SUBSTITUTO.
+ * BlockRenderer — renderiza conteúdo (Tiptap JSON, BlockNote JSON legado,
+ * ou texto puro) como HTML estilizado, read-only.
  *
- * Renderiza conteúdo (BlockNote JSON, string, ou array de blocos) como
- * texto puro com whitespace-pre-wrap, preservando quebras de linha.
- *
- * Reescrito porque o BlockNote 0.21 estava crashando em `renderSpec`
- * (vide nota em block-editor.tsx).
- *
- * Trade-off: sem formatação rica. Negrito vira texto cru, listas viram
- * texto com hifens, etc. Para uso interno temporário enquanto não
- * resolvemos o BlockNote.
+ * Usado em previews (portal do cliente, share público de propostas,
+ * backlinks). Internamente usa o mesmo TiptapEditor com `readOnly`,
+ * o que dá render rico (negrito, listas, headings, etc) sem barra de
+ * formatação.
  */
+import { TiptapEditor } from "./tiptap-editor";
 import type { BlockContent } from "./block-editor";
 import { blocknoteToText } from "@/lib/blocknote-to-text";
 import { cn } from "@/lib/utils";
 
 type BlockRendererProps = {
   value?: BlockContent;
-  /** Limita renderização aos primeiros N blocos. Aqui virou: limita aos primeiros N parágrafos. */
+  /** Limita renderização aos primeiros N parágrafos/blocos. 0 = sem limite. */
   maxBlocks?: number;
-  /** Trunca em N caracteres totais (estimativa). */
+  /** Trunca em N caracteres totais (estimativa). 0 = sem limite. */
   truncateChars?: number;
   className?: string;
 };
 
 export function BlockRenderer({ value, maxBlocks = 0, truncateChars = 0, className }: BlockRendererProps) {
-  let text = blocknoteToText(asText(value));
-
-  if (maxBlocks > 0) {
-    const paragrafos = text.split(/\n\n+/);
-    if (paragrafos.length > maxBlocks) {
-      text = paragrafos.slice(0, maxBlocks).join("\n\n");
-    }
-  }
-
-  if (truncateChars > 0 && text.length > truncateChars) {
-    text = text.slice(0, truncateChars).trimEnd() + "…";
-  }
-
-  if (!text.trim()) {
+  const stringValue = asString(value);
+  if (!stringValue.trim()) {
     return <div className={className} data-block-renderer-empty />;
   }
 
+  // Se precisa truncar/limitar, cai pro modo texto puro (Tiptap não tem
+  // limite nativo). Caso contrário usa Tiptap read-only pra render rico.
+  if (maxBlocks > 0 || truncateChars > 0) {
+    let text = blocknoteToText(stringValue);
+    if (maxBlocks > 0) {
+      const paragrafos = text.split(/\n\n+/);
+      if (paragrafos.length > maxBlocks) {
+        text = paragrafos.slice(0, maxBlocks).join("\n\n");
+      }
+    }
+    if (truncateChars > 0 && text.length > truncateChars) {
+      text = text.slice(0, truncateChars).trimEnd() + "…";
+    }
+    return (
+      <div className={cn("whitespace-pre-wrap break-words", className)} data-block-renderer>
+        {text}
+      </div>
+    );
+  }
+
   return (
-    <div className={cn("whitespace-pre-wrap break-words", className)} data-block-renderer>
-      {text}
+    <div className={className} data-block-renderer>
+      <TiptapEditor value={stringValue} readOnly placeholder="" minHeight="0" />
     </div>
   );
 }
 
-function asText(value: BlockContent): string {
+function asString(value: BlockContent): string {
   if (!value) return "";
   if (Array.isArray(value)) {
     try {

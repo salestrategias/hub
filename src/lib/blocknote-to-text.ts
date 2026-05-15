@@ -1,16 +1,18 @@
 /**
- * Converte conteúdo em formato BlockNote JSON (ou texto puro) em string
- * legível. Usado nos lugares onde tínhamos BlockEditor/BlockRenderer e
- * tivemos que cair pra Textarea/<p> simples por conta de crashes
- * sistemáticos do BlockNote 0.21 (`Invalid array passed to renderSpec`).
+ * Converte conteúdo de editor rico em string legível.
  *
- * Heurísticas:
- *  - null/undefined/"" → ""
- *  - texto puro (não começa com `[` ou `{`) → retorna como veio
- *  - JSON array de blocos → extrai texto de cada bloco, junta com \n\n
- *  - JSON inválido → retorna texto cru (fallback seguro)
+ * Aceita 3 formatos:
+ *  - Tiptap JSON: `{type:"doc",content:[...]}`
+ *  - BlockNote JSON legado: `[{type:"paragraph",content:"..."},...]`
+ *  - Texto puro (qualquer string que não começa com `[` ou `{`)
  *
- * Mentions inline (`{type: "mention", props: {label}}`) viram `@label`.
+ * Usado em:
+ *  - Previews curtos (Buscar, backlinks, listas)
+ *  - Fallback de renderização (BlockRenderer com truncamento)
+ *  - Indexação textual (busca, etc)
+ *
+ * Mentions inline (`{type: "mention", attrs: {label}}` no Tiptap; ou
+ * `{type:"mention", props:{label}}` no BlockNote) viram `@label`.
  */
 export function blocknoteToText(value: string | null | undefined): string {
   if (!value) return "";
@@ -19,20 +21,66 @@ export function blocknoteToText(value: string | null | undefined): string {
   if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) return trimmed;
 
   try {
-    const blocks = JSON.parse(trimmed);
-    if (!Array.isArray(blocks)) return trimmed;
-    const out: string[] = [];
-    for (const b of blocks) {
-      const txt = textoDeBloco(b);
-      if (txt) out.push(txt);
+    const parsed = JSON.parse(trimmed);
+
+    // Tiptap JSON: { type: "doc", content: [...] }
+    if (parsed && typeof parsed === "object" && parsed.type === "doc" && Array.isArray(parsed.content)) {
+      return tiptapDocToText(parsed.content as unknown[]);
     }
-    return out.join("\n\n");
+
+    // BlockNote JSON legado: [bloco, bloco, ...]
+    if (Array.isArray(parsed)) {
+      const out: string[] = [];
+      for (const b of parsed) {
+        const txt = textoDeBlocoBlockNote(b);
+        if (txt) out.push(txt);
+      }
+      return out.join("\n\n");
+    }
+
+    return trimmed;
   } catch {
     return trimmed;
   }
 }
 
-function textoDeBloco(b: unknown): string {
+// ─── Tiptap ─────────────────────────────────────────────────────────
+
+function tiptapDocToText(nodes: unknown[]): string {
+  const paragrafos: string[] = [];
+  for (const n of nodes) {
+    const txt = textoDeNodoTiptap(n);
+    if (txt) paragrafos.push(txt);
+  }
+  return paragrafos.join("\n\n");
+}
+
+function textoDeNodoTiptap(node: unknown): string {
+  if (!node || typeof node !== "object") return "";
+  const n = node as { type?: string; text?: unknown; content?: unknown[]; attrs?: { label?: unknown } };
+
+  // text node
+  if (n.type === "text" && typeof n.text === "string") return n.text;
+
+  // hardBreak
+  if (n.type === "hardBreak") return "\n";
+
+  // mention
+  if (n.type === "mention" && n.attrs && typeof n.attrs.label === "string") {
+    return `@${n.attrs.label}`;
+  }
+
+  // listItem / taskItem / paragraph / heading / blockquote / codeBlock — concatena filhos
+  if (Array.isArray(n.content)) {
+    return n.content.map((c) => textoDeNodoTiptap(c)).join("");
+  }
+
+  return "";
+}
+
+// ─── BlockNote (legado) ─────────────────────────────────────────────
+
+function textoDeBlocoBlockNote(b: unknown): string {
   if (!b || typeof b !== "object") return "";
   const block = b as { content?: unknown };
   const c = block.content;

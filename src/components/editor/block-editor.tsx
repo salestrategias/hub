@@ -1,52 +1,32 @@
 "use client";
 /**
- * BlockEditor — DROP-IN TEXTAREA SUBSTITUTO.
+ * BlockEditor — wrapper Tiptap mantendo a API legada do BlockNote.
  *
- * Mantém a API original (props value, onChange, placeholder, minHeight,
- * readOnly, className) mas internamente é um <textarea>. Foi reescrito
- * porque o BlockNote 0.21 + ProseMirror estavam crashando sistematicamente
- * com `RangeError: Invalid array passed to renderSpec` dentro de
- * `createNodeViews` async — fora do lifecycle React, ErrorBoundary não
- * pegava. Isso quebrava editor em posts, notas, reuniões, propostas,
- * conteúdo SAL etc.
+ * Por que existe: ~22 call sites importam `BlockEditor` e fazem
+ * `onChange={(blocks) => JSON.stringify(blocks)}`. Em vez de refatorar
+ * todos, este wrapper recebe o JSON do Tiptap via onChange e repassa
+ * pros call sites — eles continuam fazendo JSON.stringify e tudo
+ * funciona (só que agora persistido como Tiptap JSON em vez de
+ * BlockNote JSON).
  *
- * **Como funciona:**
- *  - Recebe `value` em qualquer formato (string, JSON BlockNote, array
- *    de blocos) — converte pra texto plano via `blocknoteToText` antes
- *    de mostrar.
- *  - Quando user digita, chama `onChange` com array fake `[{type:
- *    "paragraph", content: <texto>}]`. Call sites que faziam
- *    `JSON.stringify(blocks)` continuam funcionando — salvam JSON
- *    BlockNote válido com um único parágrafo.
- *  - Round-trip: salva como `'[{"type":"paragraph","content":"..."}]'`,
- *    carrega de volta via blocknoteToText → string original.
- *
- * Trade-off temporário: sem formatação rica (negrito, listas, headings,
- * menções @ clicáveis). Pra recuperar isso, precisamos investigar o
- * BlockNote (provavelmente downgrade pra 0.20.x ou migração pra Tiptap
- * puro). Por enquanto: texto puro funciona end-to-end e cliente vê copy.
- *
- * `filterSlashMenu` é ignorado (sem slash menu agora).
+ * Conteúdo legado em BlockNote JSON (legendas antigas, notas, etc) é
+ * convertido pra texto plano no carregamento — preserva o texto mas
+ * perde formatação rica do registro antigo. Novos saves usam Tiptap
+ * nativo com toda a formatação preservada.
  */
 import type { PartialBlock } from "@blocknote/core";
 import type { DefaultReactSuggestionItem } from "@blocknote/react";
-import { blocknoteToText } from "@/lib/blocknote-to-text";
-import { cn } from "@/lib/utils";
+import { TiptapEditor } from "./tiptap-editor";
 
 export type BlockContent = PartialBlock[] | string | null | undefined;
 
 type BlockEditorProps = {
-  /** Conteúdo inicial. Aceita JSON serializado (string), array de blocos, ou texto puro. */
   value?: BlockContent;
-  /** Disparado on-change. Recebe blocks fake `[{type:"paragraph", content: text}]`. */
   onChange?: (blocks: PartialBlock[]) => void;
-  /** Modo somente leitura. */
   readOnly?: boolean;
-  /** Placeholder. */
   placeholder?: string;
-  /** Altura mínima do textarea (CSS válido). Default: 200px. */
   minHeight?: string;
-  /** Ignorado nesta implementação Textarea. */
+  /** Ignorado — antiga API do BlockNote. */
   filterSlashMenu?: (items: DefaultReactSuggestionItem[]) => DefaultReactSuggestionItem[];
   className?: string;
 };
@@ -55,43 +35,28 @@ export function BlockEditor({
   value,
   onChange,
   readOnly = false,
-  placeholder = "Digite o texto aqui...",
+  placeholder = "Comece a escrever...",
   minHeight = "200px",
   className,
 }: BlockEditorProps) {
-  const initialText = blocknoteToText(asText(value));
-
   return (
-    <textarea
-      defaultValue={initialText}
+    <TiptapEditor
+      value={asString(value)}
+      onChange={(json) => {
+        // Passa o JSON do Tiptap mascarado como PartialBlock[] pros call
+        // sites — eles fazem JSON.stringify e salvam. Tipo é técnicamente
+        // incorreto mas runtime funciona perfeito.
+        onChange?.(json as unknown as PartialBlock[]);
+      }}
       readOnly={readOnly}
       placeholder={placeholder}
-      style={{ minHeight }}
-      className={cn(
-        "w-full rounded-md border border-border bg-background/60 px-3 py-2 text-sm leading-relaxed",
-        "placeholder:text-muted-foreground/60",
-        "focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40",
-        "resize-y font-sans",
-        readOnly && "opacity-80 cursor-default",
-        className
-      )}
-      onChange={(e) => {
-        if (!onChange) return;
-        const text = e.target.value;
-        // Emitir blocks no shape BlockNote esperado pelos call sites.
-        // Um único parágrafo com o texto inteiro — preserva quebras de
-        // linha (que serão \n no string final ao serializar).
-        onChange([{ type: "paragraph", content: text } as PartialBlock]);
-      }}
+      minHeight={minHeight}
+      className={className}
     />
   );
 }
 
-/**
- * Converte BlockContent em string pra passar pra blocknoteToText.
- * (Caller pode mandar array direto, não só JSON.)
- */
-function asText(value: BlockContent): string {
+function asString(value: BlockContent): string {
   if (!value) return "";
   if (Array.isArray(value)) {
     try {

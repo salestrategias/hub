@@ -1,15 +1,14 @@
 "use client";
 /**
- * RichTextField — DROP-IN TEXTAREA SUBSTITUTO.
+ * RichTextField — wrapper compacto do TiptapEditor pra forms.
  *
- * Era um wrapper simplificado do BlockEditor pra formulários. Como o
- * BlockEditor virou Textarea (vide nota lá), aqui também — mantemos a
- * API idêntica pra não quebrar nenhum call site.
+ * Mesma API legada do BlockNote. Aceita value (qualquer formato),
+ * onChange recebe Tiptap JSON tipado como PartialBlock[] pra preservar
+ * call sites existentes.
  */
 import type { PartialBlock } from "@blocknote/core";
-import { blocknoteToText } from "@/lib/blocknote-to-text";
+import { TiptapEditor } from "./tiptap-editor";
 import type { BlockContent } from "./block-editor";
-import { cn } from "@/lib/utils";
 
 type RichTextFieldProps = {
   value?: BlockContent;
@@ -32,33 +31,20 @@ export function RichTextField({
   readOnly = false,
   className,
 }: RichTextFieldProps) {
-  const initialText = blocknoteToText(asText(value));
-
   return (
-    <textarea
-      defaultValue={initialText}
+    <TiptapEditor
+      value={asString(value)}
+      onChange={(json) => onChange?.(json as unknown as PartialBlock[])}
       readOnly={readOnly}
       placeholder={placeholder}
-      style={{ minHeight }}
-      className={cn(
-        "w-full rounded-md border border-border bg-background/40 text-sm leading-relaxed transition-colors",
-        "placeholder:text-muted-foreground/60",
-        "focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50",
-        "resize-y font-sans",
-        compact ? "px-2 py-1.5" : "px-3 py-2",
-        readOnly && "opacity-80 cursor-default",
-        className
-      )}
-      onChange={(e) => {
-        if (!onChange) return;
-        const text = e.target.value;
-        onChange([{ type: "paragraph", content: text } as PartialBlock]);
-      }}
+      minHeight={minHeight}
+      compact={compact}
+      className={className}
     />
   );
 }
 
-function asText(value: BlockContent): string {
+function asString(value: BlockContent): string {
   if (!value) return "";
   if (Array.isArray(value)) {
     try {
