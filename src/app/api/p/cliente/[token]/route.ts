@@ -30,10 +30,12 @@ async function montarInfo(token: string) {
     cliente: { nome: r.cliente.nome, id: r.cliente.id },
     permissoes: {
       verCalendario: r.acesso.verCalendario,
+      verCriativos: r.acesso.verCriativos,
       verTarefas: r.acesso.verTarefas,
       verReunioes: r.acesso.verReunioes,
       verRelatorios: r.acesso.verRelatorios,
       podeAprovarPosts: r.acesso.podeAprovarPosts,
+      podeAprovarCriativos: r.acesso.podeAprovarCriativos,
       podeComentar: r.acesso.podeComentar,
     },
   };

@@ -11,22 +11,25 @@
  * Layout próprio (não usa Sidebar/Header do app). Mobile-first.
  */
 import { useEffect, useState } from "react";
-import { Calendar, ListChecks, Mic, BarChart3, Lock, Loader2, XCircle } from "lucide-react";
+import { Calendar, Megaphone, ListChecks, Mic, BarChart3, Lock, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/toast";
 import { PortalCalendario } from "@/components/portal-calendario";
+import { PortalCriativos } from "@/components/portal-criativos";
 import { PortalTarefas } from "@/components/portal-tarefas";
 import { PortalReunioes } from "@/components/portal-reunioes";
 import { PortalRelatorios } from "@/components/portal-relatorios";
 
 type Permissoes = {
   verCalendario: boolean;
+  verCriativos: boolean;
   verTarefas: boolean;
   verReunioes: boolean;
   verRelatorios: boolean;
   podeAprovarPosts: boolean;
+  podeAprovarCriativos: boolean;
   podeComentar: boolean;
 };
 
@@ -36,7 +39,7 @@ type EstadoInicial =
   | { tipo: "erro"; mensagem: string }
   | { tipo: "ok"; clienteId: string; clienteNome: string; permissoes: Permissoes };
 
-type Tab = "calendario" | "tarefas" | "reunioes" | "relatorios";
+type Tab = "calendario" | "criativos" | "tarefas" | "reunioes" | "relatorios";
 
 export function PortalCliente({ token }: { token: string }) {
   const [estado, setEstado] = useState<EstadoInicial>({ tipo: "carregando" });
@@ -72,6 +75,7 @@ export function PortalCliente({ token }: { token: string }) {
       // Escolhe a primeira tab visível
       const p: Permissoes = data.permissoes;
       if (p.verCalendario) setTab("calendario");
+      else if (p.verCriativos) setTab("criativos");
       else if (p.verTarefas) setTab("tarefas");
       else if (p.verReunioes) setTab("reunioes");
       else if (p.verRelatorios) setTab("relatorios");
@@ -163,6 +167,7 @@ export function PortalCliente({ token }: { token: string }) {
   const { permissoes, clienteNome, clienteId } = estado;
   const tabsVisiveis: { id: Tab; label: string; icon: typeof Calendar; visivel: boolean }[] = [
     { id: "calendario", label: "Calendário", icon: Calendar, visivel: permissoes.verCalendario },
+    { id: "criativos", label: "Criativos", icon: Megaphone, visivel: permissoes.verCriativos },
     { id: "tarefas", label: "Tarefas", icon: ListChecks, visivel: permissoes.verTarefas },
     { id: "reunioes", label: "Reuniões", icon: Mic, visivel: permissoes.verReunioes },
     { id: "relatorios", label: "Relatórios", icon: BarChart3, visivel: permissoes.verRelatorios },
@@ -217,6 +222,13 @@ export function PortalCliente({ token }: { token: string }) {
           <PortalCalendario
             token={token}
             podeAprovar={permissoes.podeAprovarPosts}
+            podeComentar={permissoes.podeComentar}
+          />
+        )}
+        {tab === "criativos" && permissoes.verCriativos && (
+          <PortalCriativos
+            token={token}
+            podeAprovar={permissoes.podeAprovarCriativos}
             podeComentar={permissoes.podeComentar}
           />
         )}

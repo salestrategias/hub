@@ -1295,12 +1295,14 @@ model ClienteAcesso {
   ativo     Boolean  @default(true)
 
   // Permissões (Marcelo controla cliente a cliente)
-  verCalendario    Boolean @default(true)
-  verTarefas       Boolean @default(false)
-  verReunioes      Boolean @default(false)
-  verRelatorios    Boolean @default(true)
-  podeAprovarPosts Boolean @default(true)
-  podeComentar     Boolean @default(true)
+  verCalendario       Boolean @default(true)
+  verCriativos        Boolean @default(true)   // criativos de tráfego pago
+  verTarefas          Boolean @default(false)
+  verReunioes         Boolean @default(false)
+  verRelatorios       Boolean @default(true)
+  podeAprovarPosts    Boolean @default(true)
+  podeAprovarCriativos Boolean @default(true)
+  podeComentar        Boolean @default(true)
 
   // Audit
   ultimoAcesso   DateTime?

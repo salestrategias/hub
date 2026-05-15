@@ -21,10 +21,12 @@ type AcessoInfo = {
   ativo: boolean;
   temSenha: boolean;
   verCalendario: boolean;
+  verCriativos: boolean;
   verTarefas: boolean;
   verReunioes: boolean;
   verRelatorios: boolean;
   podeAprovarPosts: boolean;
+  podeAprovarCriativos: boolean;
   podeComentar: boolean;
   ultimoAcesso: string | null;
   totalAcessos: number;
@@ -207,10 +209,12 @@ export function ClienteAcessoCard({ clienteId }: { clienteId: string }) {
           <Label className="text-[10.5px] uppercase tracking-wider text-muted-foreground">O que o cliente vê</Label>
           <div className="grid grid-cols-2 gap-1.5">
             <Toggle label="Calendário editorial" ativo={acesso.verCalendario} onToggle={() => patch({ verCalendario: !acesso.verCalendario })} />
+            <Toggle label="Criativos de anúncio" ativo={acesso.verCriativos} onToggle={() => patch({ verCriativos: !acesso.verCriativos })} />
             <Toggle label="Relatórios mensais" ativo={acesso.verRelatorios} onToggle={() => patch({ verRelatorios: !acesso.verRelatorios })} />
             <Toggle label="Tarefas em andamento" ativo={acesso.verTarefas} onToggle={() => patch({ verTarefas: !acesso.verTarefas })} />
             <Toggle label="Reuniões + actions" ativo={acesso.verReunioes} onToggle={() => patch({ verReunioes: !acesso.verReunioes })} />
             <Toggle label="Aprovar posts" ativo={acesso.podeAprovarPosts} onToggle={() => patch({ podeAprovarPosts: !acesso.podeAprovarPosts })} />
+            <Toggle label="Aprovar criativos" ativo={acesso.podeAprovarCriativos} onToggle={() => patch({ podeAprovarCriativos: !acesso.podeAprovarCriativos })} />
             <Toggle label="Pedir ajustes" ativo={acesso.podeComentar} onToggle={() => patch({ podeComentar: !acesso.podeComentar })} />
           </div>
         </div>
