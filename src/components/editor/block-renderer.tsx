@@ -1,122 +1,63 @@
 "use client";
-import { useMemo } from "react";
-import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import { BlockNoteSchema, defaultInlineContentSpecs, type PartialBlock } from "@blocknote/core";
-
-import "@blocknote/core/fonts/inter.css";
-import "@blocknote/mantine/style.css";
-import "./block-editor-theme.css";
-
-import { textToBlocks } from "./text-to-blocks";
-import { mentionInlineSpec } from "./mention-spec";
+/**
+ * BlockRenderer — DROP-IN PLAIN-TEXT SUBSTITUTO.
+ *
+ * Renderiza conteúdo (BlockNote JSON, string, ou array de blocos) como
+ * texto puro com whitespace-pre-wrap, preservando quebras de linha.
+ *
+ * Reescrito porque o BlockNote 0.21 estava crashando em `renderSpec`
+ * (vide nota em block-editor.tsx).
+ *
+ * Trade-off: sem formatação rica. Negrito vira texto cru, listas viram
+ * texto com hifens, etc. Para uso interno temporário enquanto não
+ * resolvemos o BlockNote.
+ */
 import type { BlockContent } from "./block-editor";
-
-const rendererSchema = BlockNoteSchema.create({
-  inlineContentSpecs: {
-    ...defaultInlineContentSpecs,
-    mention: mentionInlineSpec,
-  },
-});
+import { blocknoteToText } from "@/lib/blocknote-to-text";
+import { cn } from "@/lib/utils";
 
 type BlockRendererProps = {
-  /** Conteúdo (mesmos formatos aceitos pelo BlockEditor). */
   value?: BlockContent;
-  /** Limita renderização aos primeiros N blocos (preview em card). 0 = sem limite. */
+  /** Limita renderização aos primeiros N blocos. Aqui virou: limita aos primeiros N parágrafos. */
   maxBlocks?: number;
-  /** Trunca em N caracteres totais aproximados (estimativa, não exato). */
+  /** Trunca em N caracteres totais (estimativa). */
   truncateChars?: number;
   className?: string;
 };
 
-/**
- * Renderiza blocos do BlockNote em modo read-only — para preview em card,
- * notificações, links de backlink, etc. Não mostra drag handle, slash menu,
- * toolbar de formatação. Mantém estilos de tipografia + render de mentions.
- *
- * Observação: BlockNote precisa de uma instância de editor mesmo em read-only,
- * mas custos são baixos pois pulamos slashMenu/sideMenu.
- */
 export function BlockRenderer({ value, maxBlocks = 0, truncateChars = 0, className }: BlockRendererProps) {
-  const blocks = useMemo(() => parseAndTrim(value, maxBlocks, truncateChars), [value, maxBlocks, truncateChars]);
+  let text = blocknoteToText(asText(value));
 
-  const editor = useCreateBlockNote({
-    schema: rendererSchema,
-    initialContent: blocks.length > 0 ? (blocks as PartialBlock[]) : undefined,
-  });
+  if (maxBlocks > 0) {
+    const paragrafos = text.split(/\n\n+/);
+    if (paragrafos.length > maxBlocks) {
+      text = paragrafos.slice(0, maxBlocks).join("\n\n");
+    }
+  }
 
-  if (blocks.length === 0) {
+  if (truncateChars > 0 && text.length > truncateChars) {
+    text = text.slice(0, truncateChars).trimEnd() + "…";
+  }
+
+  if (!text.trim()) {
     return <div className={className} data-block-renderer-empty />;
   }
 
   return (
-    <div className={className} data-block-editor data-block-renderer>
-      <BlockNoteView
-        editor={editor}
-        editable={false}
-        slashMenu={false}
-        sideMenu={false}
-        formattingToolbar={false}
-        linkToolbar={false}
-        filePanel={false}
-        tableHandles={false}
-        theme="dark"
-      />
+    <div className={cn("whitespace-pre-wrap break-words", className)} data-block-renderer>
+      {text}
     </div>
   );
 }
 
-function parseAndTrim(value: BlockContent, maxBlocks: number, truncateChars: number): PartialBlock[] {
-  if (!value) return [];
-  let blocks: PartialBlock[];
+function asText(value: BlockContent): string {
+  if (!value) return "";
   if (Array.isArray(value)) {
-    blocks = value;
-  } else {
-    const trimmed = value.trim();
-    if (!trimmed) return [];
-    if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
-      try {
-        const parsed = JSON.parse(trimmed);
-        blocks = Array.isArray(parsed) ? (parsed as PartialBlock[]) : textToBlocks(trimmed);
-      } catch {
-        blocks = textToBlocks(trimmed);
-      }
-    } else {
-      blocks = textToBlocks(trimmed);
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "";
     }
   }
-
-  if (maxBlocks > 0 && blocks.length > maxBlocks) {
-    blocks = blocks.slice(0, maxBlocks);
-  }
-
-  if (truncateChars > 0) {
-    let total = 0;
-    const out: PartialBlock[] = [];
-    for (const b of blocks) {
-      const len = approxLen(b);
-      if (total + len > truncateChars) {
-        out.push(b);
-        break;
-      }
-      out.push(b);
-      total += len;
-    }
-    blocks = out;
-  }
-
-  return blocks;
-}
-
-function approxLen(block: PartialBlock): number {
-  const c = (block as { content?: unknown }).content;
-  if (typeof c === "string") return c.length;
-  if (Array.isArray(c)) {
-    return c.reduce((acc: number, seg) => {
-      if (typeof seg === "string") return acc + seg.length;
-      const t = (seg as { text?: string }).text;
-      return acc + (typeof t === "string" ? t.length : 0);
-    }, 0);
-  }
-  return 0;
+  return value;
 }

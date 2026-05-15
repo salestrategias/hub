@@ -13,7 +13,7 @@
  */
 import { useEffect, useState } from "react";
 import { Calendar, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, FileText, Link2, Video, Hash } from "lucide-react";
-import { blocknoteToText } from "@/lib/blocknote-to-text";
+import { BlockRenderer } from "@/components/editor";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -238,16 +238,12 @@ function PostCard({
         {temArtes && <ArtesCarrossel arquivos={post.arquivos} />}
 
         <div className="px-4 pb-4 space-y-3">
-          {/* Copy/legenda — texto puro. Suporta legenda legada em JSON
-              BlockNote (extrai texto) e o formato novo (texto plano). */}
-          {post.legenda && blocknoteToText(post.legenda).trim() && (
+          {post.legenda && (
             <div className="rounded-md bg-muted/30 border border-border p-3">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
                 Copy / Legenda
               </div>
-              <p className="text-[12.5px] leading-relaxed whitespace-pre-wrap">
-                {blocknoteToText(post.legenda)}
-              </p>
+              <BlockRenderer value={post.legenda} className="text-[12.5px] leading-relaxed" />
             </div>
           )}
 

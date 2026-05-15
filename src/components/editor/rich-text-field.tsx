@@ -1,69 +1,71 @@
 "use client";
-import { useCallback } from "react";
-import type { DefaultReactSuggestionItem } from "@blocknote/react";
+/**
+ * RichTextField — DROP-IN TEXTAREA SUBSTITUTO.
+ *
+ * Era um wrapper simplificado do BlockEditor pra formulários. Como o
+ * BlockEditor virou Textarea (vide nota lá), aqui também — mantemos a
+ * API idêntica pra não quebrar nenhum call site.
+ */
 import type { PartialBlock } from "@blocknote/core";
-import { BlockEditor, type BlockContent } from "./block-editor";
+import { blocknoteToText } from "@/lib/blocknote-to-text";
+import type { BlockContent } from "./block-editor";
 import { cn } from "@/lib/utils";
 
 type RichTextFieldProps = {
   value?: BlockContent;
   onChange?: (blocks: PartialBlock[]) => void;
   placeholder?: string;
-  /** Altura mínima visual (default: 120px). */
+  /** Altura mínima visual. Default: 120px. */
   minHeight?: string;
-  /** Modo extra compacto (sem padding, listas só), p/ inline em forms. */
+  /** Modo compacto. */
   compact?: boolean;
   readOnly?: boolean;
   className?: string;
 };
 
-/**
- * Versão simplificada do BlockEditor para campos de texto rico em formulários
- * (descrição de tarefa/projeto, notas de cliente, observações de contrato).
- *
- * Diferenças do BlockEditor:
- *  - Slash menu reduzido a 7 itens essenciais (Heading 1/2, Bullet, Numbered, Check, Quote, Code)
- *  - Padding interno menor
- *  - Border + radius para parecer um input
- */
 export function RichTextField({
   value,
   onChange,
-  placeholder = "Digite ou pressione / para abrir o menu...",
+  placeholder = "Digite o texto...",
   minHeight = "120px",
   compact = false,
   readOnly = false,
   className,
 }: RichTextFieldProps) {
-  const filterSlashMenu = useCallback((items: DefaultReactSuggestionItem[]) => {
-    const allowed = new Set([
-      "Heading 2",
-      "Heading 3",
-      "Bullet List",
-      "Numbered List",
-      "Check List",
-      "Quote",
-      "Code Block",
-    ]);
-    return items.filter((it) => allowed.has(it.title));
-  }, []);
+  const initialText = blocknoteToText(asText(value));
 
   return (
-    <div
+    <textarea
+      defaultValue={initialText}
+      readOnly={readOnly}
+      placeholder={placeholder}
+      style={{ minHeight }}
       className={cn(
-        "rounded-md border border-border bg-background/40 transition-colors focus-within:border-primary/50",
-        compact ? "px-2 py-1" : "px-3 py-2",
+        "w-full rounded-md border border-border bg-background/40 text-sm leading-relaxed transition-colors",
+        "placeholder:text-muted-foreground/60",
+        "focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50",
+        "resize-y font-sans",
+        compact ? "px-2 py-1.5" : "px-3 py-2",
+        readOnly && "opacity-80 cursor-default",
         className
       )}
-    >
-      <BlockEditor
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        minHeight={minHeight}
-        readOnly={readOnly}
-        filterSlashMenu={filterSlashMenu}
-      />
-    </div>
+      onChange={(e) => {
+        if (!onChange) return;
+        const text = e.target.value;
+        onChange([{ type: "paragraph", content: text } as PartialBlock]);
+      }}
+    />
   );
+}
+
+function asText(value: BlockContent): string {
+  if (!value) return "";
+  if (Array.isArray(value)) {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "";
+    }
+  }
+  return value;
 }

@@ -10,10 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
+import { BlockEditor } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { PostArquivosEditor } from "@/components/post-arquivos-editor";
 import { useDebouncedSave } from "@/lib/use-debounced-save";
-import { blocknoteToText } from "@/lib/blocknote-to-text";
+import type { PartialBlock } from "@blocknote/core";
 
 type PostFull = {
   id: string;
@@ -253,19 +254,12 @@ export function PostSheet({
             </TabsList>
 
             <TabsContent value="copy" className="mt-4">
-              {/* Textarea simples — o editor rico (BlockNote/ProseMirror) está
-                  crashando no BlockNote 0.21 com `Invalid array passed to
-                  renderSpec`. Pra desbloquear edição, mudamos pra texto puro.
-                  Conteúdo legado em JSON é convertido pra texto na exibição,
-                  e novos saves vão como string plana (Markdown leve permitido
-                  — quebra de linha, emojis, hashtags). Cliente vê igual. */}
-              <Textarea
-                key={`legenda-${postId}`}
-                defaultValue={blocknoteToText(post.legenda)}
-                rows={12}
+              <BlockEditor
+                key={postId}
+                value={post.legenda ?? ""}
+                onChange={(blocks: PartialBlock[]) => salvarLegenda(JSON.stringify(blocks))}
                 placeholder="Copy/legenda do post — texto puro, emojis, quebras de linha. Cliente vê isso no portal pra aprovar."
-                onChange={(e) => salvarLegenda(e.target.value)}
-                className="font-mono text-[12.5px] leading-relaxed"
+                minHeight="240px"
               />
               <p className="text-[10.5px] text-muted-foreground/70 mt-1.5">
                 Salvamento automático (~1s após parar de digitar). Cliente vê este texto no portal.
