@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
-import { BlockEditor } from "@/components/editor";
+import { BlockEditor, EditorBoundary } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { PostArquivosEditor } from "@/components/post-arquivos-editor";
 import { useDebouncedSave } from "@/lib/use-debounced-save";
@@ -255,16 +255,38 @@ export function PostSheet({
 
             <TabsContent value="copy" className="mt-4">
               <div className="rounded-md border border-border bg-background/40 p-3">
-                {/* key={postId} força remount quando trocar de post — BlockNote
-                    só usa initialContent no primeiro render, então sem isso o
-                    editor mostraria a legenda do post anterior */}
-                <BlockEditor
+                {/* key={postId} força remount quando trocar de post.
+                    EditorBoundary captura crashes do BlockNote/ProseMirror
+                    e cai num textarea simples — user continua editando
+                    em texto plano se o editor rico falhar. */}
+                <EditorBoundary
                   key={postId}
-                  value={post.legenda ?? ""}
-                  onChange={(blocks: PartialBlock[]) => salvarLegenda(JSON.stringify(blocks))}
-                  placeholder="Copy/legenda do post. / abre menu de blocos. Cliente vê isso no portal."
-                  minHeight="220px"
-                />
+                  fallback={(err, reset) => (
+                    <div className="space-y-2">
+                      <div className="text-[11px] text-amber-500 bg-amber-500/10 border border-amber-500/30 rounded-md p-2">
+                        Editor rico falhou — usando modo texto simples.
+                        <button onClick={reset} className="underline ml-2">Tentar de novo</button>
+                        <details className="mt-1 text-[10px] text-muted-foreground/70">
+                          <summary className="cursor-pointer">detalhes</summary>
+                          <code className="block mt-1 break-all">{err.message}</code>
+                        </details>
+                      </div>
+                      <Textarea
+                        defaultValue={extrairTextoSimples(post.legenda)}
+                        rows={10}
+                        placeholder="Copy do post (modo texto simples)"
+                        onChange={(e) => salvarLegenda(e.target.value)}
+                      />
+                    </div>
+                  )}
+                >
+                  <BlockEditor
+                    value={post.legenda ?? ""}
+                    onChange={(blocks: PartialBlock[]) => salvarLegenda(JSON.stringify(blocks))}
+                    placeholder="Copy/legenda do post. / abre menu de blocos. Cliente vê isso no portal."
+                    minHeight="220px"
+                  />
+                </EditorBoundary>
               </div>
               <p className="text-[10.5px] text-muted-foreground/70 mt-1.5">
                 Esta é a copy que vai pra publicação E que o cliente vê no portal pra aprovar.
@@ -372,6 +394,48 @@ function toLocalInput(iso: string): string {
   const d = new Date(iso);
   const off = d.getTimezoneOffset() * 60_000;
   return new Date(d.getTime() - off).toISOString().slice(0, 16);
+}
+
+/**
+ * Extrai texto simples de uma legenda em formato JSON BlockNote.
+ * Usado no fallback do EditorBoundary — se o editor rico crashar, o
+ * user ainda consegue ver/editar o conteúdo como texto puro.
+ */
+function extrairTextoSimples(value: string | null | undefined): string {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) return trimmed;
+  try {
+    const blocks = JSON.parse(trimmed);
+    if (!Array.isArray(blocks)) return trimmed;
+    const out: string[] = [];
+    for (const b of blocks) {
+      const txt = textoDeBloco(b);
+      if (txt) out.push(txt);
+    }
+    return out.join("\n\n");
+  } catch {
+    return trimmed;
+  }
+}
+
+function textoDeBloco(b: unknown): string {
+  if (!b || typeof b !== "object") return "";
+  const block = b as { content?: unknown };
+  const c = block.content;
+  if (typeof c === "string") return c;
+  if (!Array.isArray(c)) return "";
+  return c
+    .map((seg) => {
+      if (typeof seg === "string") return seg;
+      if (seg && typeof seg === "object") {
+        const s = seg as { text?: unknown; props?: { label?: unknown } };
+        if (typeof s.text === "string") return s.text;
+        if (s.props && typeof s.props.label === "string") return `@${s.props.label}`;
+      }
+      return "";
+    })
+    .join("");
 }
 
 /**

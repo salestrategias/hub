@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { BlockRenderer } from "@/components/editor";
+import { BlockRenderer, EditorBoundary } from "@/components/editor";
 
 type Comentario = {
   id: string;
@@ -238,14 +238,23 @@ function PostCard({
         {temArtes && <ArtesCarrossel arquivos={post.arquivos} />}
 
         <div className="px-4 pb-4 space-y-3">
-          {/* Copy completa (BlockRenderer pra rich text) */}
+          {/* Copy completa (BlockRenderer pra rich text). Boundary
+              garante que se o BlockNote crashar com algum bloco
+              malformado, o cliente ainda vê o texto cru — não fica
+              com um espaço em branco no portal. */}
           {post.legenda && (
             <div className="rounded-md bg-muted/30 border border-border p-3 prose-sal">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
                 Copy / Legenda
               </div>
               <div className="text-[12.5px] leading-relaxed">
-                <BlockRenderer value={post.legenda} />
+                <EditorBoundary
+                  fallback={() => (
+                    <p className="whitespace-pre-wrap">{extrairTextoSimplesLegenda(post.legenda)}</p>
+                  )}
+                >
+                  <BlockRenderer value={post.legenda} />
+                </EditorBoundary>
               </div>
             </div>
           )}
@@ -446,6 +455,44 @@ function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
       )}
     </div>
   );
+}
+
+/**
+ * Fallback do BlockRenderer — extrai texto plano do JSON BlockNote.
+ * Usado quando o editor rico crasha pra cliente não ficar sem ver copy.
+ */
+function extrairTextoSimplesLegenda(value: string | null | undefined): string {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) return trimmed;
+  try {
+    const blocks = JSON.parse(trimmed);
+    if (!Array.isArray(blocks)) return trimmed;
+    const out: string[] = [];
+    for (const b of blocks) {
+      const block = b as { content?: unknown };
+      const c = block.content;
+      if (typeof c === "string") {
+        if (c) out.push(c);
+      } else if (Array.isArray(c)) {
+        const txt = c
+          .map((seg) => {
+            if (typeof seg === "string") return seg;
+            if (seg && typeof seg === "object") {
+              const s = seg as { text?: unknown; props?: { label?: unknown } };
+              if (typeof s.text === "string") return s.text;
+              if (s.props && typeof s.props.label === "string") return `@${s.props.label}`;
+            }
+            return "";
+          })
+          .join("");
+        if (txt) out.push(txt);
+      }
+    }
+    return out.join("\n\n");
+  } catch {
+    return trimmed;
+  }
 }
 
 function ComentarDialog({

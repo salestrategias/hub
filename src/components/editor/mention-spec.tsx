@@ -1,9 +1,6 @@
 "use client";
-import {
-  createReactInlineContentSpec,
-} from "@blocknote/react";
+import { createReactInlineContentSpec } from "@blocknote/react";
 import type { MentionEntity } from "@prisma/client";
-import { Users, Mic, FileText, FolderKanban, ListChecks, FileSignature, StickyNote } from "lucide-react";
 
 /**
  * Inline content custom `mention` — render visual + serialização do @ no editor.
@@ -12,6 +9,11 @@ import { Users, Mic, FileText, FolderKanban, ListChecks, FileSignature, StickyNo
  *   { type: "mention", props: { targetType, targetId, label } }
  *
  * `extractMentions` em src/lib/mentions.ts depende dessa shape exata.
+ *
+ * NOTA: render é defensivo — try/catch + sem dependências externas (sem
+ * lucide-react inside the NodeView, que causava crash em
+ * `renderSpec` do ProseMirror em algumas configurações). Usa só emoji
+ * por categoria. Mesmo render quebra fallback pra @label simples.
  */
 export const mentionInlineSpec = createReactInlineContentSpec(
   {
@@ -25,34 +27,44 @@ export const mentionInlineSpec = createReactInlineContentSpec(
   },
   {
     render: (props) => {
-      const targetType = props.inlineContent.props.targetType as MentionEntity | "";
-      const label = props.inlineContent.props.label || "—";
-      const Icon = iconFor(targetType);
-      return (
-        <span
-          contentEditable={false}
-          className="mention-pill inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-sal-600/15 text-sal-400 text-[0.95em] font-medium align-baseline"
-          data-mention-target-type={targetType}
-          data-mention-target-id={props.inlineContent.props.targetId}
-          title={`${targetType} · ${label}`}
-        >
-          <Icon className="h-3 w-3 shrink-0" />
-          <span>@{label}</span>
-        </span>
-      );
+      try {
+        const targetType = (props.inlineContent?.props?.targetType ?? "") as MentionEntity | "";
+        const targetId = props.inlineContent?.props?.targetId ?? "";
+        const label = props.inlineContent?.props?.label || "—";
+        const emoji = emojiFor(targetType);
+        return (
+          <span
+            contentEditable={false}
+            className="mention-pill inline-block px-1.5 py-0.5 rounded-md bg-sal-600/15 text-sal-400 text-[0.95em] font-medium align-baseline"
+            data-mention-target-type={String(targetType)}
+            data-mention-target-id={String(targetId)}
+            title={`${targetType || "?"} · ${label}`}
+          >
+            {emoji} @{label}
+          </span>
+        );
+      } catch {
+        // Fallback ultra-simples se algo bizarro vier nas props
+        const label = (props as { inlineContent?: { props?: { label?: unknown } } })?.inlineContent?.props?.label;
+        return (
+          <span contentEditable={false} className="mention-pill">
+            @{typeof label === "string" ? label : "?"}
+          </span>
+        );
+      }
     },
   }
 );
 
-function iconFor(t: MentionEntity | "") {
+function emojiFor(t: MentionEntity | ""): string {
   switch (t) {
-    case "CLIENTE": return Users;
-    case "REUNIAO": return Mic;
-    case "POST": return FileText;
-    case "PROJETO": return FolderKanban;
-    case "TAREFA": return ListChecks;
-    case "CONTRATO": return FileSignature;
-    case "NOTA": return StickyNote;
-    default: return FileText;
+    case "CLIENTE": return "👤";
+    case "REUNIAO": return "🎙";
+    case "POST": return "📝";
+    case "PROJETO": return "📁";
+    case "TAREFA": return "✓";
+    case "CONTRATO": return "📄";
+    case "NOTA": return "🗒";
+    default: return "@";
   }
 }
