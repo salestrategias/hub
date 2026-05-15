@@ -13,6 +13,7 @@
  */
 import { useEffect, useState } from "react";
 import { Calendar, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, FileText, Link2, Video, Hash } from "lucide-react";
+import { blocknoteToText } from "@/lib/blocknote-to-text";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -239,13 +240,13 @@ function PostCard({
         <div className="px-4 pb-4 space-y-3">
           {/* Copy/legenda — texto puro. Suporta legenda legada em JSON
               BlockNote (extrai texto) e o formato novo (texto plano). */}
-          {post.legenda && extrairTextoSimplesLegenda(post.legenda).trim() && (
+          {post.legenda && blocknoteToText(post.legenda).trim() && (
             <div className="rounded-md bg-muted/30 border border-border p-3">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
                 Copy / Legenda
               </div>
               <p className="text-[12.5px] leading-relaxed whitespace-pre-wrap">
-                {extrairTextoSimplesLegenda(post.legenda)}
+                {blocknoteToText(post.legenda)}
               </p>
             </div>
           )}
@@ -448,43 +449,6 @@ function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
   );
 }
 
-/**
- * Fallback do BlockRenderer — extrai texto plano do JSON BlockNote.
- * Usado quando o editor rico crasha pra cliente não ficar sem ver copy.
- */
-function extrairTextoSimplesLegenda(value: string | null | undefined): string {
-  if (!value) return "";
-  const trimmed = value.trim();
-  if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) return trimmed;
-  try {
-    const blocks = JSON.parse(trimmed);
-    if (!Array.isArray(blocks)) return trimmed;
-    const out: string[] = [];
-    for (const b of blocks) {
-      const block = b as { content?: unknown };
-      const c = block.content;
-      if (typeof c === "string") {
-        if (c) out.push(c);
-      } else if (Array.isArray(c)) {
-        const txt = c
-          .map((seg) => {
-            if (typeof seg === "string") return seg;
-            if (seg && typeof seg === "object") {
-              const s = seg as { text?: unknown; props?: { label?: unknown } };
-              if (typeof s.text === "string") return s.text;
-              if (s.props && typeof s.props.label === "string") return `@${s.props.label}`;
-            }
-            return "";
-          })
-          .join("");
-        if (txt) out.push(txt);
-      }
-    }
-    return out.join("\n\n");
-  } catch {
-    return trimmed;
-  }
-}
 
 function ComentarDialog({
   token,

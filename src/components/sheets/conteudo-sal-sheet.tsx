@@ -2,15 +2,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { PostStatus, FormatoSAL } from "@prisma/client";
-import type { PartialBlock } from "@blocknote/core";
 import { Sparkles, Trash2, ExternalLink } from "lucide-react";
 import { EntitySheet } from "@/components/entity-sheet";
 import { InlineField } from "@/components/inline-field";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
-import { BlockEditor } from "@/components/editor";
 import { useDebouncedSave } from "@/lib/use-debounced-save";
+import { blocknoteToText } from "@/lib/blocknote-to-text";
 
 type ConteudoSALFull = {
   id: string;
@@ -247,28 +247,30 @@ export function ConteudoSalSheet({
             />
           </div>
 
-          {/* Copy — BlockEditor full */}
+          {/* Copy — Textarea simples. BlockEditor crashava no BlockNote 0.21
+              (Invalid array passed to renderSpec). Texto legado em JSON é
+              convertido pra string legível na exibição. Save automático 1s. */}
           <div>
             <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
               Copy / roteiro
             </div>
-            <div className="rounded-md border border-border bg-background/40 p-3">
-              {/* key={conteudoId} força remount ao trocar de peça — BlockNote
-                  só lê initialContent no primeiro render */}
-              <BlockEditor
-                key={conteudoId}
-                value={conteudo.copy ?? ""}
-                onChange={(blocks: PartialBlock[]) => salvarCopy(JSON.stringify(blocks))}
-                placeholder={
-                  conteudo.formato === "NEWSLETTER"
-                    ? "Texto da newsletter — / abre menu de blocos, @ menciona entidades..."
-                    : conteudo.formato === "BLOG_POST"
-                    ? "Conteúdo do blog post — H2, listas, citações, links..."
-                    : "Copy da peça — texto que vai junto da arte. Use @ pra mencionar clientes/cases."
-                }
-                minHeight="200px"
-              />
-            </div>
+            <Textarea
+              key={`copy-${conteudoId}`}
+              defaultValue={blocknoteToText(conteudo.copy)}
+              rows={14}
+              placeholder={
+                conteudo.formato === "NEWSLETTER"
+                  ? "Texto da newsletter — assunto + corpo + CTA."
+                  : conteudo.formato === "BLOG_POST"
+                  ? "Conteúdo do blog post — pode usar Markdown leve (# titulo, **negrito**, listas)."
+                  : "Copy da peça — texto que vai junto da arte. Quebras de linha + emojis funcionam normal."
+              }
+              onChange={(e) => salvarCopy(e.target.value)}
+              className="font-mono text-[12.5px] leading-relaxed"
+            />
+            <p className="text-[10.5px] text-muted-foreground/70 mt-1.5">
+              Salvamento automático (~1s após parar de digitar).
+            </p>
           </div>
         </div>
       )}

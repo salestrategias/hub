@@ -13,6 +13,7 @@ import { toast } from "@/components/ui/toast";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { PostArquivosEditor } from "@/components/post-arquivos-editor";
 import { useDebouncedSave } from "@/lib/use-debounced-save";
+import { blocknoteToText } from "@/lib/blocknote-to-text";
 
 type PostFull = {
   id: string;
@@ -260,7 +261,7 @@ export function PostSheet({
                   — quebra de linha, emojis, hashtags). Cliente vê igual. */}
               <Textarea
                 key={`legenda-${postId}`}
-                defaultValue={extrairTextoSimples(post.legenda)}
+                defaultValue={blocknoteToText(post.legenda)}
                 rows={12}
                 placeholder="Copy/legenda do post — texto puro, emojis, quebras de linha. Cliente vê isso no portal pra aprovar."
                 onChange={(e) => salvarLegenda(e.target.value)}
@@ -373,47 +374,6 @@ function toLocalInput(iso: string): string {
   return new Date(d.getTime() - off).toISOString().slice(0, 16);
 }
 
-/**
- * Extrai texto simples de uma legenda em formato JSON BlockNote.
- * Usado no fallback do EditorBoundary — se o editor rico crashar, o
- * user ainda consegue ver/editar o conteúdo como texto puro.
- */
-function extrairTextoSimples(value: string | null | undefined): string {
-  if (!value) return "";
-  const trimmed = value.trim();
-  if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) return trimmed;
-  try {
-    const blocks = JSON.parse(trimmed);
-    if (!Array.isArray(blocks)) return trimmed;
-    const out: string[] = [];
-    for (const b of blocks) {
-      const txt = textoDeBloco(b);
-      if (txt) out.push(txt);
-    }
-    return out.join("\n\n");
-  } catch {
-    return trimmed;
-  }
-}
-
-function textoDeBloco(b: unknown): string {
-  if (!b || typeof b !== "object") return "";
-  const block = b as { content?: unknown };
-  const c = block.content;
-  if (typeof c === "string") return c;
-  if (!Array.isArray(c)) return "";
-  return c
-    .map((seg) => {
-      if (typeof seg === "string") return seg;
-      if (seg && typeof seg === "object") {
-        const s = seg as { text?: unknown; props?: { label?: unknown } };
-        if (typeof s.text === "string") return s.text;
-        if (s.props && typeof s.props.label === "string") return `@${s.props.label}`;
-      }
-      return "";
-    })
-    .join("");
-}
 
 /**
  * Editor de hashtags como chips. Type-ahead simples: digita e Enter/vírgula
