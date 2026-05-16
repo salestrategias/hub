@@ -8,6 +8,7 @@
  */
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/manual-helpers";
+import { seedManualHubSeNecessario } from "@/lib/manual-hub-seed";
 
 type SeedItem = { icone: string; titulo: string };
 
@@ -38,8 +39,17 @@ const MARCA_INICIAL: SeedItem[] = [
 /**
  * Roda seed apenas se a categoria está vazia. Use no Server Component
  * de cada página (lazy seeding).
+ *
+ * HUB usa seed dedicado (manual-hub-seed.ts) com conteúdo Tiptap pronto
+ * — porque é manual do próprio sistema, escrito uma vez. PLAYBOOK e
+ * MARCA usam só esqueleto (Marcelo preenche cada seção via UI).
  */
-export async function seedManualSeNecessario(tipo: "PLAYBOOK" | "MARCA"): Promise<void> {
+export async function seedManualSeNecessario(tipo: "PLAYBOOK" | "MARCA" | "HUB"): Promise<void> {
+  if (tipo === "HUB") {
+    await seedManualHubSeNecessario();
+    return;
+  }
+
   const count = await prisma.docSecao.count({ where: { tipo } });
   if (count > 0) return;
 

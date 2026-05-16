@@ -469,7 +469,7 @@ export type IntegracaoSheetsInput = z.infer<typeof integracaoSheetsSchema>;
 
 // ─── Manual (Playbook + Marca) ─────────────────────────────────────
 export const docSecaoSchema = z.object({
-  tipo: z.enum(["PLAYBOOK", "MARCA"]),
+  tipo: z.enum(["PLAYBOOK", "MARCA", "HUB"]),
   titulo: z.string().min(1, "Título obrigatório").max(200),
   slug: z.string().min(1).max(120).regex(/^[a-z0-9-]+$/, "Use só letras minúsculas, números e hífen"),
   conteudo: z.string().default(""),

@@ -1265,6 +1265,7 @@ model DocSecao {
 enum DocTipo {
   PLAYBOOK
   MARCA
+  HUB     // Manual do próprio sistema — gerado via seed
 }
 
 // ─────────────────────────────────────────────────────────────────────

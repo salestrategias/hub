@@ -12,8 +12,8 @@ export const dynamic = "force-dynamic";
  */
 export default async function ManualTipoPage({ params }: { params: { tipo: string } }) {
   const tipoUp = params.tipo.toUpperCase();
-  if (tipoUp !== "PLAYBOOK" && tipoUp !== "MARCA") notFound();
-  const tipo = tipoUp as "PLAYBOOK" | "MARCA";
+  if (tipoUp !== "PLAYBOOK" && tipoUp !== "MARCA" && tipoUp !== "HUB") notFound();
+  const tipo = tipoUp as "PLAYBOOK" | "MARCA" | "HUB";
 
   // Lazy seed na primeira visita
   await seedManualSeNecessario(tipo);

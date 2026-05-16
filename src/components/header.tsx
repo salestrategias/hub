@@ -7,7 +7,8 @@ import { HideValuesToggle } from "@/components/hide-values-toggle";
 import { QuickCaptureTrigger } from "@/components/quick-capture-trigger";
 import { MobileNavTrigger } from "@/components/mobile-nav-trigger";
 import { Button } from "@/components/ui/button";
-import { LogOut, HelpCircle } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { AjudaTrigger } from "@/components/ajuda-trigger";
 
 export async function Header({ title, subtitle }: { title?: string; subtitle?: React.ReactNode }) {
   const session = await auth();
@@ -51,9 +52,7 @@ export async function Header({ title, subtitle }: { title?: string; subtitle?: R
         <QuickCaptureTrigger />
         <span className="hidden sm:inline-flex"><HideValuesToggle /></span>
         <NotificacoesBell />
-        <Button variant="ghost" size="icon" aria-label="Ajuda" className="hidden md:inline-flex">
-          <HelpCircle className="h-4 w-4" />
-        </Button>
+        <AjudaTrigger />
         <span className="hidden sm:inline-flex"><ThemeToggle /></span>
         {session?.user && (
           <>

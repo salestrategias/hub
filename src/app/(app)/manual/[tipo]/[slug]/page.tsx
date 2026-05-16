@@ -11,8 +11,8 @@ export default async function ManualSecaoPage({
   params: { tipo: string; slug: string };
 }) {
   const tipoUp = params.tipo.toUpperCase();
-  if (tipoUp !== "PLAYBOOK" && tipoUp !== "MARCA") notFound();
-  const tipo = tipoUp as "PLAYBOOK" | "MARCA";
+  if (tipoUp !== "PLAYBOOK" && tipoUp !== "MARCA" && tipoUp !== "HUB") notFound();
+  const tipo = tipoUp as "PLAYBOOK" | "MARCA" | "HUB";
 
   await seedManualSeNecessario(tipo);
 
