@@ -239,6 +239,49 @@
   color: inherit;
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+   Drag handle — alça "⋮⋮" à esquerda do bloco no hover (estilo Notion).
+   Renderizada por tiptap-extension-global-drag-handle.
+   ───────────────────────────────────────────────────────────────────── */
+.drag-handle {
+  position: fixed;
+  opacity: 0;
+  transition: opacity ease-in 0.15s;
+  pointer-events: auto;
+  border-radius: 4px;
+  width: 1.1rem;
+  height: 1.4rem;
+  z-index: 50;
+  cursor: grab;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 24' fill='%23a3a3a3'%3E%3Ccircle cx='5' cy='5' r='1.5'/%3E%3Ccircle cx='5' cy='12' r='1.5'/%3E%3Ccircle cx='5' cy='19' r='1.5'/%3E%3Ccircle cx='11' cy='5' r='1.5'/%3E%3Ccircle cx='11' cy='12' r='1.5'/%3E%3Ccircle cx='11' cy='19' r='1.5'/%3E%3C/svg%3E");
+  background-size: 70%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.drag-handle:hover {
+  background-color: hsl(var(--muted) / 0.7);
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+  background-color: hsl(var(--muted));
+}
+
+.drag-handle.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Em ProseMirror, quando user hover no editor o drag handle ganha
+   opacidade. A extensão usa .drag-handle visível e .drag-handle.hide */
+.tiptap-editor:hover ~ .drag-handle,
+.drag-handle:not(.hide) {
+  opacity: 1;
+}
+
 /* Tippy theme — match com card SAL pra popups (slash menu, mentions) */
 .tippy-box[data-theme~="sal"] {
   background: transparent;

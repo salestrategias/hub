@@ -35,6 +35,8 @@ import TableRow from "@tiptap/extension-table-row";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import Mention from "@tiptap/extension-mention";
+import GlobalDragHandle from "tiptap-extension-global-drag-handle";
+import AutoJoiner from "tiptap-extension-auto-joiner";
 import type { JSONContent } from "@tiptap/react";
 
 import "tippy.js/dist/tippy.css";
@@ -158,6 +160,17 @@ export function TiptapEditor({
         suggestion: mentionSuggestion,
       }),
       SlashCommand,
+      // Drag handle — alça "⋮⋮" aparece à esquerda do bloco em hover.
+      // Permite arrastar blocos pra reordenar (igual Notion).
+      GlobalDragHandle.configure({
+        dragHandleWidth: 22,
+        scrollTreshold: 100,
+        excludedTags: [],
+        customNodes: [],
+      }),
+      // Auto-junta listas consecutivas após drag (sem isso, dois <ul>
+      // separados ficariam como dois blocos)
+      AutoJoiner,
     ],
     content: parseInitialContent(value),
     editable: !readOnly,
