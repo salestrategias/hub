@@ -365,22 +365,21 @@ function CriativoCard({
             </div>
           )}
 
-          {/* Ações */}
+          {/* Ações — touch targets 44px em mobile */}
           {(aprovavel || (podeComentar && criativo.status === "EM_APROVACAO")) && (
             <div className="flex gap-2 pt-1">
               {aprovavel && (
                 <Button
-                  size="sm"
                   onClick={onAprovar}
-                  className="flex-1"
+                  className="flex-1 h-11 sm:h-9 text-sm sm:text-xs touch-feedback"
                   style={{ background: "linear-gradient(135deg,#10B981 0%,#047857 100%)" }}
                 >
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Aprovar
+                  <CheckCircle2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" /> Aprovar
                 </Button>
               )}
               {podeComentar && criativo.status === "EM_APROVACAO" && (
-                <Button size="sm" variant="outline" onClick={onComentar} className="flex-1">
-                  <MessageSquare className="h-3.5 w-3.5" /> Pedir ajuste
+                <Button variant="outline" onClick={onComentar} className="flex-1 h-11 sm:h-9 text-sm sm:text-xs touch-feedback">
+                  <MessageSquare className="h-4 w-4 sm:h-3.5 sm:w-3.5" /> Pedir ajuste
                 </Button>
               )}
             </div>
@@ -418,22 +417,25 @@ function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
 
   return (
     <div className="bg-muted/20 border-y border-border" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      <div className="relative aspect-square sm:aspect-[4/5] max-h-[600px] flex items-center justify-center bg-black/20">
+      <div className="relative aspect-square sm:aspect-[4/5] max-h-[600px] flex items-center justify-center bg-black/20 select-none">
         {arquivoAtual.tipo === "IMAGEM" ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={arquivoAtual.url}
             alt={arquivoAtual.nome ?? ""}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
             className="max-h-full max-w-full object-contain"
           />
         ) : arquivoAtual.tipo === "VIDEO" ? (
-          <video src={arquivoAtual.url} controls className="max-h-full max-w-full" />
+          <video src={arquivoAtual.url} controls preload="metadata" playsInline className="max-h-full max-w-full" />
         ) : (
           <a
             href={arquivoAtual.url}
             target="_blank"
             rel="noreferrer"
-            className="flex flex-col items-center gap-2 p-6 hover:text-primary transition"
+            className="flex flex-col items-center gap-2 p-6 hover:text-primary active:scale-95 transition"
           >
             {arquivoAtual.tipo === "DOCUMENTO" ? (
               <FileText className="h-12 w-12" />
@@ -450,29 +452,29 @@ function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
           <>
             <button
               onClick={anterior}
-              className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm items-center justify-center text-white transition"
+              className="touch-feedback absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-9 sm:h-9 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm flex items-center justify-center text-white transition"
               aria-label="Anterior"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5 sm:h-4 sm:w-4" />
             </button>
             <button
               onClick={proximo}
-              className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm items-center justify-center text-white transition"
+              className="touch-feedback absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-9 sm:h-9 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm flex items-center justify-center text-white transition"
               aria-label="Próximo"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5 sm:h-4 sm:w-4" />
             </button>
           </>
         )}
 
         {total > 1 && (
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 px-2 py-1 rounded-full bg-black/30 backdrop-blur-sm">
             {arquivos.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setAtual(i)}
-                className={`h-1.5 rounded-full transition-all ${
-                  i === atual ? "w-6 bg-white" : "w-1.5 bg-white/40"
+                className={`h-2 sm:h-1.5 rounded-full transition-all ${
+                  i === atual ? "w-7 bg-white" : "w-2 sm:w-1.5 bg-white/50"
                 }`}
                 aria-label={`Ir pra slide ${i + 1}`}
               />
@@ -492,7 +494,7 @@ function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
 
       {total > 1 && (
         <div className="px-4 py-1.5 text-[10.5px] text-muted-foreground/70 text-center">
-          {atual + 1} de {total} {total === 1 ? "variação" : "variações"}
+          {atual + 1} de {total} {total === 1 ? "variação" : "variações"} · arraste pra navegar
         </div>
       )}
     </div>
@@ -539,10 +541,13 @@ function ComentarDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent>
+      <DialogContent className="dialog-bottom-sheet">
+        <div className="sm:hidden flex justify-center -mt-1 mb-2">
+          <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
+        </div>
         <DialogHeader>
           <DialogTitle className="text-base">Pedir ajuste no criativo</DialogTitle>
-          <p className="text-xs text-muted-foreground mt-1">{criativo.titulo}</p>
+          <p className="text-xs text-muted-foreground mt-1 truncate">{criativo.titulo}</p>
         </DialogHeader>
         <Textarea
           value={texto}
@@ -550,13 +555,18 @@ function ComentarDialog({
           placeholder="Descreva o ajuste — quanto mais específico, mais rápido a SAL resolve. Ex: 'Trocar headline pra X', 'Imagem 2 está com cor diferente do nosso padrão'."
           rows={5}
           autoFocus
+          className="text-base sm:text-sm min-h-[120px]"
         />
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={onClose} className="h-11 sm:h-9 touch-feedback">
             Cancelar
           </Button>
-          <Button onClick={enviar} disabled={enviando || texto.trim().length < 3}>
-            {enviando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
+          <Button
+            onClick={enviar}
+            disabled={enviando || texto.trim().length < 3}
+            className="h-11 sm:h-9 touch-feedback"
+          >
+            {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
             Enviar pedido
           </Button>
         </DialogFooter>

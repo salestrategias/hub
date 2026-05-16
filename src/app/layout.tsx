@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NextAuthProvider } from "@/components/session-provider";
@@ -16,6 +16,23 @@ export const metadata: Metadata = {
   title: "SAL Hub",
   description: "Sistema de gestão da SAL Estratégias de Marketing",
   icons: { icon: "/sal-logo.svg" },
+};
+
+/**
+ * Viewport — mobile-first.
+ * `viewportFit: "cover"` permite usar env(safe-area-inset-*) pra
+ * notches do iPhone (necessário pro Portal do Cliente onde
+ * usamos safe-area-inset-top/bottom).
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0E0E14" },
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

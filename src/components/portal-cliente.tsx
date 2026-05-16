@@ -109,9 +109,9 @@ export function PortalCliente({ token }: { token: string }) {
 
   if (estado.tipo === "erro") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-background safe-area-inset-top safe-area-inset-bottom">
         <Card className="max-w-md w-full">
-          <CardContent className="p-7 text-center space-y-3">
+          <CardContent className="p-5 sm:p-7 text-center space-y-3">
             <XCircle className="h-12 w-12 text-destructive mx-auto" />
             <h1 className="font-display text-xl font-semibold">Acesso indisponível</h1>
             <p className="text-sm text-muted-foreground">{estado.mensagem}</p>
@@ -126,9 +126,9 @@ export function PortalCliente({ token }: { token: string }) {
 
   if (estado.tipo === "precisa-senha") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-background safe-area-inset-top safe-area-inset-bottom">
         <Card className="max-w-sm w-full">
-          <CardContent className="p-7 space-y-4">
+          <CardContent className="p-5 sm:p-7 space-y-4">
             <div className="text-center space-y-2">
               <div
                 className="h-12 w-12 rounded-lg mx-auto flex items-center justify-center"
@@ -139,19 +139,22 @@ export function PortalCliente({ token }: { token: string }) {
               <h1 className="font-display text-lg font-semibold">Portal {estado.clienteNome}</h1>
               <p className="text-xs text-muted-foreground">SAL Estratégias de Marketing</p>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <Input
                 type="password"
+                inputMode="text"
+                autoComplete="current-password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 placeholder="Senha"
                 onKeyDown={(e) => e.key === "Enter" && entrarComSenha()}
                 autoFocus
+                className="h-11 text-base sm:text-sm"
               />
               <Button
                 onClick={entrarComSenha}
                 disabled={!senha.trim() || autenticando}
-                className="w-full"
+                className="w-full h-11 text-sm touch-feedback"
                 style={{ background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" }}
               >
                 {autenticando ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
@@ -175,25 +178,25 @@ export function PortalCliente({ token }: { token: string }) {
   const visiveis = tabsVisiveis.filter((t) => t.visivel);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+    <div className="min-h-screen bg-background pb-[env(safe-area-inset-bottom)]">
+      {/* Header — sticky com safe area pra notch iOS */}
+      <header className="sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur-md safe-area-inset-top">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center gap-2.5 sm:gap-3">
           <div
-            className="h-9 w-9 rounded-md flex items-center justify-center shrink-0"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-md flex items-center justify-center shrink-0"
             style={{ background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" }}
           >
-            <span className="text-white font-display text-sm font-semibold">S</span>
+            <span className="text-white font-display text-sm sm:text-base font-semibold">S</span>
           </div>
-          <div className="min-w-0">
-            <h1 className="font-display text-sm sm:text-base font-semibold truncate">{clienteNome}</h1>
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground">SAL Estratégias de Marketing</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="font-display text-[13px] sm:text-base font-semibold truncate leading-tight">{clienteNome}</h1>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight">SAL Estratégias de Marketing</p>
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs — scroll horizontal sem scrollbar visível, touch targets maiores em mobile */}
         {visiveis.length > 1 && (
-          <nav className="max-w-5xl mx-auto px-2 sm:px-6 flex gap-1 overflow-x-auto pb-1 border-t border-border/30">
+          <nav className="max-w-5xl mx-auto px-1 sm:px-6 flex gap-0.5 sm:gap-1 portal-tabs-scroll overflow-x-auto border-t border-border/30">
             {visiveis.map((t) => {
               const Icon = t.icon;
               const ativo = tab === t.id;
@@ -201,13 +204,14 @@ export function PortalCliente({ token }: { token: string }) {
                 <button
                   key={t.id}
                   onClick={() => setTab(t.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium whitespace-nowrap transition-colors ${
+                  className={`touch-feedback flex items-center gap-1.5 px-3.5 sm:px-3 py-3 sm:py-2 text-[12.5px] sm:text-[12px] font-medium whitespace-nowrap transition-colors relative ${
                     ativo
-                      ? "text-foreground border-b-2 border-primary -mb-px"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-foreground"
+                      : "text-muted-foreground active:text-foreground hover:text-foreground"
                   }`}
+                  style={ativo ? { boxShadow: "inset 0 -2px 0 0 #7E30E1" } : undefined}
                 >
-                  <Icon className="h-3.5 w-3.5" />
+                  <Icon className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5" />
                   {t.label}
                 </button>
               );
@@ -217,7 +221,7 @@ export function PortalCliente({ token }: { token: string }) {
       </header>
 
       {/* Conteúdo */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-5">
+      <main className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-5">
         {tab === "calendario" && permissoes.verCalendario && (
           <PortalCalendario
             token={token}
@@ -246,7 +250,7 @@ export function PortalCliente({ token }: { token: string }) {
         )}
       </main>
 
-      <footer className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center text-[10.5px] text-muted-foreground/70">
+      <footer className="max-w-5xl mx-auto px-3 sm:px-6 py-6 text-center text-[10.5px] text-muted-foreground/70 safe-area-inset-bottom">
         SAL Estratégias de Marketing · Portal do Cliente
       </footer>
     </div>

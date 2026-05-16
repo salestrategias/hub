@@ -46,23 +46,26 @@ export function PortalRelatorios({ clienteId }: { clienteId: string }) {
 
       <div className="space-y-1.5">
         {meses.map((m) => (
-          <Card key={`${m.ano}-${m.mes}`}>
-            <CardContent className="p-3.5 flex items-center gap-3">
-              <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-medium">{m.label}</div>
-                <div className="text-[10.5px] text-muted-foreground">Relatório mensal</div>
-              </div>
-              <a
-                href={`/api/clientes/${clienteId}/relatorio-mensal?ano=${m.ano}&mes=${m.mes}`}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[11.5px] text-primary hover:underline font-medium"
-              >
-                Abrir PDF →
-              </a>
-            </CardContent>
-          </Card>
+          <a
+            key={`${m.ano}-${m.mes}`}
+            href={`/api/clientes/${clienteId}/relatorio-mensal?ano=${m.ano}&mes=${m.mes}`}
+            target="_blank"
+            rel="noreferrer"
+            className="block touch-feedback"
+          >
+            <Card className="hover:border-primary/40 active:border-primary/60 transition-colors">
+              <CardContent className="p-3.5 flex items-center gap-3 min-h-[56px]">
+                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13.5px] sm:text-[13px] font-medium">{m.label}</div>
+                  <div className="text-[10.5px] text-muted-foreground">Relatório mensal · PDF</div>
+                </div>
+                <span className="text-[11.5px] text-primary font-medium shrink-0">
+                  Abrir →
+                </span>
+              </CardContent>
+            </Card>
+          </a>
         ))}
       </div>
 

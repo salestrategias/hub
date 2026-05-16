@@ -103,7 +103,7 @@ function TarefaItem({ tarefa }: { tarefa: Tarefa }) {
 
   return (
     <Card>
-      <CardContent className="p-3.5 flex items-start gap-3">
+      <CardContent className="p-3.5 sm:p-3.5 flex items-start gap-3">
         <div className="shrink-0 mt-0.5">
           {tarefa.concluida ? (
             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
@@ -114,13 +114,13 @@ function TarefaItem({ tarefa }: { tarefa: Tarefa }) {
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className={`text-[13px] font-medium ${tarefa.concluida ? "text-muted-foreground line-through" : ""}`}>
+          <div className={`text-[13.5px] sm:text-[13px] font-medium leading-snug ${tarefa.concluida ? "text-muted-foreground line-through" : ""}`}>
             {tarefa.titulo}
           </div>
           {tarefa.descricao && (
-            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{tarefa.descricao}</p>
+            <p className="text-[11.5px] sm:text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{tarefa.descricao}</p>
           )}
-          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+          <div className="flex items-center gap-1.5 mt-2 sm:mt-1.5 flex-wrap">
             <Badge variant="outline" className="text-[10px]" style={{ color: cor, borderColor: `${cor}55` }}>
               {PRIO_LABEL[tarefa.prioridade]}
             </Badge>
