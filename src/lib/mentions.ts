@@ -1,4 +1,4 @@
-import type { PartialBlock } from "@blocknote/core";
+import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 import { MentionEntity } from "@prisma/client";
 import { prisma } from "@/lib/db";
 

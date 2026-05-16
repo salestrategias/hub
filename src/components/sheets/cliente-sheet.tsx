@@ -16,7 +16,7 @@ import { ClienteAcessoCard } from "@/components/cliente-acesso-card";
 import { MoneyValue } from "@/components/money-value";
 import { TagsBadges } from "@/components/tag-picker";
 import { formatDate } from "@/lib/utils";
-import type { PartialBlock } from "@blocknote/core";
+import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 
 type ClienteFull = {
   id: string;

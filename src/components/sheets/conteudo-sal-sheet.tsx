@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { PostStatus, FormatoSAL } from "@prisma/client";
-import type { PartialBlock } from "@blocknote/core";
+import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 import { Sparkles, Trash2, ExternalLink } from "lucide-react";
 import { EntitySheet } from "@/components/entity-sheet";
 import { InlineField } from "@/components/inline-field";

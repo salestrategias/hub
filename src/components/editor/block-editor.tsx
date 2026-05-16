@@ -14,20 +14,19 @@
  * perde formatação rica do registro antigo. Novos saves usam Tiptap
  * nativo com toda a formatação preservada.
  */
-import type { PartialBlock } from "@blocknote/core";
-import type { DefaultReactSuggestionItem } from "@blocknote/react";
 import { TiptapEditor } from "./tiptap-editor";
+import type { EditorBlock } from "./types";
 
-export type BlockContent = PartialBlock[] | string | null | undefined;
+export type BlockContent = EditorBlock[] | string | null | undefined;
 
 type BlockEditorProps = {
   value?: BlockContent;
-  onChange?: (blocks: PartialBlock[]) => void;
+  onChange?: (blocks: EditorBlock[]) => void;
   readOnly?: boolean;
   placeholder?: string;
   minHeight?: string;
-  /** Ignorado — antiga API do BlockNote. */
-  filterSlashMenu?: (items: DefaultReactSuggestionItem[]) => DefaultReactSuggestionItem[];
+  /** Ignorado — antiga API do BlockNote, mantido por retrocompatibilidade. */
+  filterSlashMenu?: (items: unknown[]) => unknown[];
   className?: string;
 };
 
@@ -43,10 +42,11 @@ export function BlockEditor({
     <TiptapEditor
       value={asString(value)}
       onChange={(json) => {
-        // Passa o JSON do Tiptap mascarado como PartialBlock[] pros call
-        // sites — eles fazem JSON.stringify e salvam. Tipo é técnicamente
-        // incorreto mas runtime funciona perfeito.
-        onChange?.(json as unknown as PartialBlock[]);
+        // Passa o JSON do Tiptap mascarado como EditorBlock[] pros call
+        // sites — eles fazem JSON.stringify e salvam. O JSON real é o
+        // doc do Tiptap (`{type:"doc", content:[...]}`), serializado como
+        // string no DB.
+        onChange?.(json as unknown as EditorBlock[]);
       }}
       readOnly={readOnly}
       placeholder={placeholder}

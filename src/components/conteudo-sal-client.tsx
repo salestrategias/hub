@@ -7,7 +7,7 @@ import { ptBR } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import type { PostStatus, FormatoSAL } from "@prisma/client";
-import type { PartialBlock } from "@blocknote/core";
+import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

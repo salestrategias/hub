@@ -21,7 +21,7 @@ import { Plus } from "lucide-react";
 import { RichTextField } from "@/components/editor";
 import { PostSheet } from "@/components/sheets/post-sheet";
 import { useEntitySheet } from "@/components/entity-sheet";
-import type { PartialBlock } from "@blocknote/core";
+import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 
 const locales = { "pt-BR": ptBR };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });

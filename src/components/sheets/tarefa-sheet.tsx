@@ -11,7 +11,7 @@ import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { cn } from "@/lib/utils";
-import type { PartialBlock } from "@blocknote/core";
+import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 
 type CheckItem = { id: string; texto: string; concluido: boolean; ordem: number };
 

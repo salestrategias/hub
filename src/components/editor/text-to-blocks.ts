@@ -1,4 +1,4 @@
-import type { PartialBlock } from "@blocknote/core";
+import type { EditorBlock as PartialBlock } from "./types";
 
 /**
  * Converte texto legado (plain text ou markdown leve) em blocos do BlockNote.

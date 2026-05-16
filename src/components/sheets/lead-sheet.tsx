@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LeadStatus, LeadPorte, Prioridade, PropostaStatus } from "@prisma/client";
-import type { PartialBlock } from "@blocknote/core";
+import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 import { TrendingUp, Trash2, Sparkles, FileSignature, Mail, Phone, Target, RotateCcw } from "lucide-react";
 import { calcularLeadScore } from "@/lib/lead-score";
 import { cn } from "@/lib/utils";
