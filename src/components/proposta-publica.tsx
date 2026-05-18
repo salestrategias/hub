@@ -13,7 +13,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
-import { CheckCircle2, XCircle, Lock, Download, Loader2, Clock, List } from "lucide-react";
+import { CheckCircle2, XCircle, Lock, Download, Loader2, Clock, List, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizarExtras, type PropostaExtras } from "@/lib/proposta-blocos";
 import {
@@ -57,6 +57,9 @@ type PropostaPublicaData = {
   aceiteCpfCnpj: string | null;
   autorNome: string | null;
   autorEmail: string | null;
+  versao: number;
+  versaoAtual: boolean;
+  versaoAtualToken: string | null;
 };
 
 const SECOES: Array<{ key: keyof PropostaPublicaData; label: string }> = [
@@ -207,6 +210,26 @@ export function PropostaPublica({ token }: { token: string }) {
           } as React.CSSProperties
         }
       >
+        {!proposta.versaoAtual && (
+          <div className="banner-versao-antiga" role="alert">
+            <div className="banner-versao-antiga-inner">
+              <AlertTriangle className="h-5 w-5" />
+              <div style={{ flex: 1 }}>
+                <strong>Esta proposta foi revisada.</strong> Você está vendo a versão {proposta.versao}
+                {" "}— existe uma versão mais recente disponível.
+              </div>
+              {proposta.versaoAtualToken && (
+                <a
+                  href={`/p/proposta/${proposta.versaoAtualToken}`}
+                  className="banner-versao-antiga-cta"
+                >
+                  Ver versão atual →
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Capa */}
         <section
           className={cn("capa", proposta.capaImagemUrl && "capa-com-hero")}
@@ -399,6 +422,40 @@ export function PropostaPublica({ token }: { token: string }) {
           margin: 0 auto;
           padding: 0;
           font-family: var(--font-inter), Inter, system-ui, sans-serif;
+        }
+        /* Banner avisando que a proposta sendo visualizada não é a versão atual */
+        .banner-versao-antiga {
+          background: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
+          color: #FFFFFF;
+          font-size: 13px;
+          line-height: 1.5;
+          font-weight: 500;
+        }
+        .banner-versao-antiga-inner {
+          max-width: 920px;
+          margin: 0 auto;
+          padding: 14px 24px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .banner-versao-antiga strong {
+          font-weight: 700;
+        }
+        .banner-versao-antiga-cta {
+          background: rgba(255, 255, 255, 0.2);
+          color: #FFFFFF;
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          text-decoration: none;
+          white-space: nowrap;
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          transition: background 0.15s;
+        }
+        .banner-versao-antiga-cta:hover {
+          background: rgba(255, 255, 255, 0.3);
         }
         .capa {
           background: linear-gradient(135deg, #0E0E14 0%, #1A0F2E 100%);

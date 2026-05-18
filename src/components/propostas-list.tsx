@@ -30,6 +30,7 @@ import {
   XCircle,
   Clock,
   PenLine,
+  GitBranch,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +49,7 @@ type Proposta = {
   enviadaEm: string | null;
   aceitaEm: string | null;
   updatedAt: string;
+  versao: number;
 };
 
 type Cliente = { id: string; nome: string; email: string | null };
@@ -190,6 +192,16 @@ function PropostaRow({ proposta: p, onCopiarLink }: { proposta: Proposta; onCopi
       className="flex items-center gap-4 px-4 py-3 hover:bg-secondary/50 transition group"
     >
       <span className="font-mono text-[11px] text-muted-foreground tabular-nums w-20 shrink-0">{p.numero}</span>
+      {p.versao > 1 && (
+        <Badge
+          variant="outline"
+          className="text-[9px] gap-1 shrink-0"
+          style={{ color: "#7E30E1", borderColor: "#7E30E155" }}
+          title={`Revisão ${p.versao} — a versão atual da thread`}
+        >
+          <GitBranch className="h-2.5 w-2.5" /> v{p.versao}
+        </Badge>
+      )}
       <div className="flex-1 min-w-0">
         <div className="text-[13px] font-medium truncate">{p.titulo}</div>
         <div className="text-[11px] text-muted-foreground truncate">{p.clienteNome}</div>

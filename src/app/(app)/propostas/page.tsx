@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function PropostasPage() {
   const [propostas, clientes] = await Promise.all([
     prisma.proposta.findMany({
+      where: { versaoAtual: true },
       orderBy: [{ updatedAt: "desc" }],
       include: { cliente: { select: { id: true, nome: true } } },
       take: 100,
@@ -38,6 +39,7 @@ export default async function PropostasPage() {
           enviadaEm: p.enviadaEm?.toISOString() ?? null,
           aceitaEm: p.aceitaEm?.toISOString() ?? null,
           updatedAt: p.updatedAt.toISOString(),
+          versao: p.versao,
         }))}
         clientes={clientes}
       />

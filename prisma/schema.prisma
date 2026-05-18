@@ -1018,6 +1018,24 @@ model Proposta {
   leadId          String?
   lead            Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
+  // ── Versionamento ─────────────────────────────────────────────
+  // Quando cliente pede ajuste/Marcelo refina, cria-se nova versão
+  // duplicando o registro. Histórico fica preservado.
+  //
+  // - versao: 1, 2, 3... (versão 1 é a original)
+  // - versaoRaizId: aponta pra propostaId da v1 (null se é a própria v1)
+  //   Permite encontrar todas versões de uma "thread" via
+  //   `WHERE OR { id: raizId, versaoRaizId: raizId }`
+  // - versaoAtual: só uma versão da thread é a "atual" (vigente).
+  //   Lista de propostas filtra por isso por padrão.
+  // - motivoRevisao: anotação interna sobre o que mudou pra v atual.
+  versao          Int            @default(1)
+  versaoRaizId    String?
+  versaoRaiz      Proposta?      @relation("PropostaVersoes", fields: [versaoRaizId], references: [id], onDelete: SetNull)
+  versoes         Proposta[]     @relation("PropostaVersoes")
+  versaoAtual     Boolean        @default(true)
+  motivoRevisao   String?        @db.Text
+
   // Audit
   criadoPor       String
   user            User           @relation(fields: [criadoPor], references: [id], onDelete: Cascade)
@@ -1029,6 +1047,7 @@ model Proposta {
   @@index([status, updatedAt])
   @@index([shareToken])
   @@index([leadId])
+  @@index([versaoRaizId, versao])
 }
 
 enum PropostaStatus {

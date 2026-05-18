@@ -40,6 +40,7 @@ import {
 import { cn } from "@/lib/utils";
 import { PropostaBlocosEditor } from "@/components/proposta-blocos-editor";
 import type { PropostaExtras } from "@/lib/proposta-blocos";
+import { PropostaVersoesHeader } from "@/components/proposta-versoes";
 
 type PropostaStatus = "RASCUNHO" | "ENVIADA" | "VISTA" | "ACEITA" | "RECUSADA" | "EXPIRADA";
 
@@ -75,6 +76,9 @@ type PropostaFull = {
   aceitaEm: string | null;
   recusadaEm: string | null;
   recusaMotivo: string | null;
+  versao: number;
+  versaoAtual: boolean;
+  motivoRevisao: string | null;
 };
 
 type Cliente = { id: string; nome: string; email: string | null };
@@ -186,6 +190,14 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
 
   return (
     <div className="space-y-5">
+      {/* Header de versionamento — avisos + dropdown + nova revisão */}
+      <PropostaVersoesHeader
+        propostaId={proposta.id}
+        versao={proposta.versao}
+        versaoAtual={proposta.versaoAtual}
+        motivoRevisao={proposta.motivoRevisao}
+      />
+
       {/* Barra superior: status + ações */}
       <div className="flex items-center gap-3 flex-wrap p-3 rounded-lg border border-border bg-card">
         <Badge

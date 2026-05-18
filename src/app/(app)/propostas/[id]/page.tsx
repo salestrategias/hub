@@ -53,6 +53,9 @@ export default async function PropostaPage({ params }: { params: { id: string } 
           aceitaEm: proposta.aceitaEm?.toISOString() ?? null,
           recusadaEm: proposta.recusadaEm?.toISOString() ?? null,
           recusaMotivo: proposta.recusaMotivo,
+          versao: proposta.versao,
+          versaoAtual: proposta.versaoAtual,
+          motivoRevisao: proposta.motivoRevisao,
         }}
         clientes={clientes}
       />

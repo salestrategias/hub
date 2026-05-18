@@ -103,6 +103,20 @@ async function handlePublic(token: string, senhaProvida: string | null) {
       .catch(() => undefined);
   }
 
+  // Se essa não é a versão atual, busca o token da versão atual pra orientar o cliente
+  let versaoAtualToken: string | null = null;
+  if (!proposta.versaoAtual) {
+    const raizId = proposta.versaoRaizId ?? proposta.id;
+    const atual = await prisma.proposta.findFirst({
+      where: {
+        OR: [{ id: raizId }, { versaoRaizId: raizId }],
+        versaoAtual: true,
+      },
+      select: { shareToken: true },
+    });
+    versaoAtualToken = atual?.shareToken ?? null;
+  }
+
   // Expande variáveis em todas as seções
   const ctx = propostaContexto(
     {
@@ -150,5 +164,8 @@ async function handlePublic(token: string, senhaProvida: string | null) {
     aceiteCpfCnpj: proposta.aceiteCpfCnpj,
     autorNome: proposta.user.name,
     autorEmail: proposta.user.email,
+    versao: proposta.versao,
+    versaoAtual: proposta.versaoAtual,
+    versaoAtualToken,
   };
 }

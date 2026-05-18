@@ -22,9 +22,13 @@ export async function GET(req: Request) {
       : undefined;
     const clienteId = searchParams.get("clienteId");
     const q = searchParams.get("q")?.trim();
+    // Por padrão só lista versões atuais. ?incluirVersoesAntigas=1 ignora o filtro
+    // (útil para o histórico interno).
+    const incluirAntigas = searchParams.get("incluirVersoesAntigas") === "1";
 
     return prisma.proposta.findMany({
       where: {
+        ...(incluirAntigas ? {} : { versaoAtual: true }),
         ...(statusList && statusList.length ? { status: { in: statusList } } : {}),
         ...(clienteId ? { clienteId } : {}),
         ...(q
