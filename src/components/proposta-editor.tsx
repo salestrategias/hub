@@ -355,6 +355,7 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
           <IdentidadeVisualCard
             logoUrl={proposta.logoUrl}
             corPrimaria={proposta.corPrimaria ?? "#7E30E1"}
+            capaImagemUrl={proposta.capaImagemUrl}
             onLogoChange={(url) => {
               setProposta((p) => ({ ...p, logoUrl: url }));
               void patchProposta({ logoUrl: url });
@@ -362,6 +363,10 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
             onCorChange={(cor) => {
               setProposta((p) => ({ ...p, corPrimaria: cor }));
               void patchProposta({ corPrimaria: cor });
+            }}
+            onCapaImagemChange={(url) => {
+              setProposta((p) => ({ ...p, capaImagemUrl: url }));
+              void patchProposta({ capaImagemUrl: url });
             }}
           />
 
@@ -827,13 +832,17 @@ function GerarComIaDialog({
 function IdentidadeVisualCard({
   logoUrl,
   corPrimaria,
+  capaImagemUrl,
   onLogoChange,
   onCorChange,
+  onCapaImagemChange,
 }: {
   logoUrl: string | null;
   corPrimaria: string;
+  capaImagemUrl: string | null;
   onLogoChange: (url: string | null) => void;
   onCorChange: (cor: string) => void;
+  onCapaImagemChange: (url: string | null) => void;
 }) {
   const PRESETS = [
     "#7E30E1", // SAL purple (default)
@@ -854,6 +863,20 @@ function IdentidadeVisualCard({
     try {
       const dataUrl = await comprimirImagem(file, 256, 96);
       onLogoChange(dataUrl);
+    } catch {
+      toast.error("Falha ao processar imagem");
+    }
+  }
+
+  async function handleCapaImagem(file: File) {
+    if (file.size > 4_000_000) {
+      toast.error("Imagem grande demais — máximo 4MB");
+      return;
+    }
+    try {
+      // Hero da capa: 1920x1080 max — vira background da capa
+      const dataUrl = await comprimirImagem(file, 1920, 1080);
+      onCapaImagemChange(dataUrl);
     } catch {
       toast.error("Falha ao processar imagem");
     }
@@ -910,6 +933,51 @@ function IdentidadeVisualCard({
           </div>
           <p className="text-[10px] text-muted-foreground/70">
             Recomendado: PNG transparente, ~256×96px. Aparece na capa e PDF.
+          </p>
+        </div>
+
+        {/* Imagem hero da capa */}
+        <div className="space-y-1.5 pt-2 border-t border-border/40">
+          <Label className="text-[11px]">Imagem hero da capa (opcional)</Label>
+          <div className="flex items-center gap-2">
+            <div className="h-12 w-24 rounded-md border border-border bg-background/40 flex items-center justify-center overflow-hidden shrink-0">
+              {capaImagemUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={capaImagemUrl} alt="Capa" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-[10px] text-muted-foreground/60">Sem imagem</span>
+              )}
+            </div>
+            <div className="flex-1 flex flex-col gap-1">
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void handleCapaImagem(f);
+                  }}
+                />
+                <Button asChild size="sm" variant="outline" className="w-full text-[11px] h-7">
+                  <span>{capaImagemUrl ? "Trocar imagem" : "Enviar imagem"}</span>
+                </Button>
+              </label>
+              {capaImagemUrl && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="w-full text-[10px] h-6 text-destructive hover:text-destructive"
+                  onClick={() => onCapaImagemChange(null)}
+                >
+                  Remover hero
+                </Button>
+              )}
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground/70">
+            Background da capa em vez do gradiente roxo. Recomendado: 1920×1080px,
+            imagem com pouco detalhe (vai ter overlay escuro pro texto ficar legível).
           </p>
         </div>
 

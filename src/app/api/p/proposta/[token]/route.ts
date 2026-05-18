@@ -146,6 +146,8 @@ async function handlePublic(token: string, senhaProvida: string | null) {
     enviadaEm: proposta.enviadaEm?.toISOString() ?? null,
     aceitaEm: proposta.aceitaEm?.toISOString() ?? null,
     recusadaEm: proposta.recusadaEm?.toISOString() ?? null,
+    aceiteNome: proposta.aceiteNome,
+    aceiteCpfCnpj: proposta.aceiteCpfCnpj,
     autorNome: proposta.user.name,
     autorEmail: proposta.user.email,
   };

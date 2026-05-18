@@ -217,6 +217,75 @@ export function defaultFaq(): BlocoFaq {
   };
 }
 
+// ─── TIMELINE (cronograma visual) ─────────────────────────────────────
+
+export type Marco = {
+  id: string;
+  titulo: string;
+  descricao?: string;
+  /** Texto livre da data/período. Ex: "Mês 1", "Janeiro 2026", "Semana 1-2", "Q1" */
+  periodo: string;
+  /** Status visual — concluido (✓), em_andamento (animação), pendente (default) */
+  status?: "concluido" | "em_andamento" | "pendente";
+  /** Cor custom — default = cor primária da proposta */
+  cor?: string;
+};
+
+export type BlocoTimeline = {
+  visivel: boolean;
+  titulo: string;
+  subtitulo?: string;
+  /** Orientação visual */
+  orientacao?: "horizontal" | "vertical";
+  marcos: Marco[];
+};
+
+export function defaultTimeline(): BlocoTimeline {
+  return {
+    visivel: false,
+    titulo: "Cronograma de implementação",
+    subtitulo: "Como vamos entregar, mês a mês.",
+    orientacao: "horizontal",
+    marcos: [
+      { id: "m1", titulo: "Kickoff + Auditoria", descricao: "Onboarding + análise inicial das redes/site", periodo: "Mês 1", status: "concluido" },
+      { id: "m2", titulo: "Estratégia + Setup", descricao: "Plano editorial + setup pixel + primeiros criativos", periodo: "Mês 1-2" },
+      { id: "m3", titulo: "Execução plena", descricao: "Calendário rodando + tráfego ativo + relatórios mensais", periodo: "Mês 2+" },
+      { id: "m4", titulo: "Otimização contínua", descricao: "Ajuste fino baseado em performance + escala", periodo: "Mês 4+" },
+    ],
+  };
+}
+
+// ─── GARANTIAS (selos de confiança) ───────────────────────────────────
+
+export type Garantia = {
+  id: string;
+  /** Emoji ou texto curto pro selo */
+  icone: string;
+  titulo: string;
+  descricao?: string;
+};
+
+export type BlocoGarantias = {
+  visivel: boolean;
+  titulo: string;
+  subtitulo?: string;
+  garantias: Garantia[];
+};
+
+export function defaultGarantias(): BlocoGarantias {
+  return {
+    visivel: false,
+    titulo: "Nossas garantias",
+    subtitulo: "Trabalhamos com transparência total.",
+    garantias: [
+      { id: "g1", icone: "🔓", titulo: "Sem fidelidade", descricao: "Cancele a qualquer momento com 30 dias de aviso." },
+      { id: "g2", icone: "📊", titulo: "Relatório mensal", descricao: "Você recebe um PDF detalhado todo dia 5." },
+      { id: "g3", icone: "💬", titulo: "Resposta em 24h", descricao: "Time dedicado disponível em horário comercial." },
+      { id: "g4", icone: "✅", titulo: "Cliente aprova antes", descricao: "Nada vai pro ar sem sua aprovação no portal." },
+    ],
+  };
+}
+
 // ─── Bloco container ──────────────────────────────────────────────────
 
 export type PropostaExtras = {
@@ -225,6 +294,8 @@ export type PropostaExtras = {
   kpis?: BlocoKpis;
   equipe?: BlocoEquipe;
   faq?: BlocoFaq;
+  timeline?: BlocoTimeline;
+  garantias?: BlocoGarantias;
 };
 
 /**
@@ -242,6 +313,8 @@ export function normalizarExtras(raw: unknown): PropostaExtras {
     kpis: r.kpis ? (r.kpis as BlocoKpis) : undefined,
     equipe: r.equipe ? (r.equipe as BlocoEquipe) : undefined,
     faq: r.faq ? (r.faq as BlocoFaq) : undefined,
+    timeline: r.timeline ? (r.timeline as BlocoTimeline) : undefined,
+    garantias: r.garantias ? (r.garantias as BlocoGarantias) : undefined,
   };
 }
 

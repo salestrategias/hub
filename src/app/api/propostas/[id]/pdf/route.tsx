@@ -37,6 +37,27 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return new Response("Proposta não encontrada", { status: 404 });
     }
 
+    // Cliente baixou PDF via link público — registra evento + notifica admin.
+    // Throttle: 1 notificação por proposta por dia (chave inclui YYYY-MM-DD)
+    // pra evitar spam se cliente recarregar várias vezes.
+    if (token) {
+      const hoje = new Date().toISOString().slice(0, 10);
+      void prisma.notificacao
+        .create({
+          data: {
+            userId: proposta.criadoPor,
+            tipo: "PROPOSTA_PDF_BAIXADO",
+            titulo: `📄 ${proposta.clienteNome} baixou o PDF da proposta ${proposta.numero}`,
+            descricao: proposta.titulo,
+            href: `/propostas/${proposta.id}`,
+            entidadeTipo: "PROPOSTA",
+            entidadeId: proposta.id,
+            chave: `PROPOSTA_PDF_BAIXADO:${proposta.id}:${hoje}`,
+          },
+        })
+        .catch(() => undefined);
+    }
+
     const ctx = propostaContexto(
       {
         numero: proposta.numero,
@@ -73,6 +94,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       <Document>
         {/* Capa */}
         <Page size="A4" style={styles.capa}>
+          {proposta.capaImagemUrl && (
+            // eslint-disable-next-line jsx-a11y/alt-text
+            <Image src={proposta.capaImagemUrl} style={styles.capaHero} fixed />
+          )}
+          {proposta.capaImagemUrl && <View style={styles.capaHeroOverlay} fixed />}
           <View style={styles.capaTop}>
             {proposta.logoUrl ? (
               // eslint-disable-next-line jsx-a11y/alt-text
@@ -151,6 +177,63 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
             </Page>
           );
         })}
+
+        {/* Página: Timeline (substitui ou complementa Cronograma) */}
+        {extras.timeline?.visivel && extras.timeline.marcos.length > 0 && (
+          <Page size="A4" style={styles.page}>
+            <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
+            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{extras.timeline.titulo}</Text>
+            {extras.timeline.subtitulo && <Text style={styles.subtitulo}>{extras.timeline.subtitulo}</Text>}
+            <View>
+              {extras.timeline.marcos.map((m) => {
+                const concluido = m.status === "concluido";
+                const ativo = m.status === "em_andamento";
+                return (
+                  <View key={m.id} style={styles.marcoBox}>
+                    <View
+                      style={[
+                        styles.marcoCirculo,
+                        {
+                          backgroundColor: concluido ? corPrim : "transparent",
+                          borderColor: concluido || ativo ? corPrim : "#CBD5E1",
+                        },
+                      ]}
+                    >
+                      <Text style={[styles.marcoCirculoTexto, { color: concluido ? "#FFFFFF" : corPrim }]}>
+                        {concluido ? "✓" : ativo ? "●" : "○"}
+                      </Text>
+                    </View>
+                    <View style={styles.marcoConteudo}>
+                      <Text style={[styles.marcoPeriodo, { color: corPrim }]}>{m.periodo}</Text>
+                      <Text style={styles.marcoTitulo}>{m.titulo}</Text>
+                      {m.descricao && <Text style={styles.marcoDescricao}>{m.descricao}</Text>}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+            <PageFooter />
+          </Page>
+        )}
+
+        {/* Página: Garantias */}
+        {extras.garantias?.visivel && extras.garantias.garantias.length > 0 && (
+          <Page size="A4" style={styles.page}>
+            <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
+            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{extras.garantias.titulo}</Text>
+            {extras.garantias.subtitulo && <Text style={styles.subtitulo}>{extras.garantias.subtitulo}</Text>}
+            <View style={styles.garantiaGrid}>
+              {extras.garantias.garantias.map((g) => (
+                <View key={g.id} style={[styles.garantiaBox, { borderColor: hexAlpha(corPrim, 0.2) }]}>
+                  <Text style={styles.garantiaIcone}>{g.icone}</Text>
+                  <Text style={styles.garantiaTitulo}>{g.titulo}</Text>
+                  {g.descricao && <Text style={styles.garantiaDescricao}>{g.descricao}</Text>}
+                </View>
+              ))}
+            </View>
+            <PageFooter />
+          </Page>
+        )}
 
         {/* Página: Cases */}
         {extras.cases?.visivel && extras.cases.cases.length > 0 && (
@@ -285,6 +368,46 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
           </Page>
         )}
 
+        {/* Página: Assinatura digital (se proposta aceita) */}
+        {proposta.status === "ACEITA" && (proposta.aceiteNome || proposta.aceiteCpfCnpj) && (
+          <Page size="A4" style={styles.page}>
+            <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
+            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>Aceite digital</Text>
+            <Text style={styles.subtitulo}>
+              Esta proposta foi aceita digitalmente. Registro com validade jurídica abaixo.
+            </Text>
+            <View style={[styles.assinaturaBox, { borderColor: corPrim, backgroundColor: hexAlpha(corPrim, 0.04) }]}>
+              <Text style={[styles.assinaturaTitulo, { color: corPrim }]}>SIGNATÁRIO</Text>
+              {proposta.aceiteNome && <Text style={styles.assinaturaNome}>{proposta.aceiteNome}</Text>}
+              {proposta.aceiteCpfCnpj && (
+                <Text style={styles.assinaturaDoc}>
+                  {formatarDocPdf(proposta.aceiteCpfCnpj)}
+                </Text>
+              )}
+              <View style={styles.assinaturaSep} />
+              <Text style={styles.assinaturaMeta}>
+                Aceito em:{" "}
+                {proposta.aceitaEm
+                  ? new Date(proposta.aceitaEm).toLocaleString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "—"}
+              </Text>
+              {proposta.aceiteIp && (
+                <Text style={styles.assinaturaMeta}>IP: {proposta.aceiteIp}</Text>
+              )}
+              <Text style={styles.assinaturaMeta}>
+                Manifestação de vontade conforme Marco Civil da Internet (Lei 12.965/2014)
+              </Text>
+            </View>
+            <PageFooter />
+          </Page>
+        )}
+
         {/* Página: FAQ */}
         {extras.faq?.visivel && extras.faq.perguntas.length > 0 && (
           <Page size="A4" style={styles.page}>
@@ -331,6 +454,14 @@ function PageHeader({ numero, cliente, cor }: { numero: string; cliente: string;
       <Text style={styles.pageHeaderCliente}>{cliente}</Text>
     </View>
   );
+}
+
+/** Formata CPF/CNPJ pra exibição no PDF (módulo standalone — não pode importar lib client). */
+function formatarDocPdf(s: string): string {
+  const d = s.replace(/\D/g, "");
+  if (d.length === 11) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  if (d.length === 14) return d.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+  return s;
 }
 
 /** Converte hex + alpha em rgba pra usar em backgrounds suaves (react-pdf não tem color-mix) */
@@ -408,6 +539,23 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
+    position: "relative",
+  },
+  capaHero: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+  capaHeroOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(14,14,20,0.65)",
   },
   capaTop: { flexDirection: "row", alignItems: "center", gap: 8 },
   capaLogo: { maxHeight: 56, maxWidth: 200, objectFit: "contain" },
@@ -555,4 +703,51 @@ const styles = StyleSheet.create({
   faqItem: { padding: 10, marginTop: 8, borderRadius: 8, backgroundColor: "#FAFAFC", borderWidth: 1, borderColor: "#E5E5EE" },
   faqPergunta: { fontSize: 11, fontWeight: 700, color: "#1F1F2D" },
   faqResposta: { fontSize: 10, color: "#475569", marginTop: 4, lineHeight: 1.5 },
+
+  // Timeline
+  marcoBox: { flexDirection: "row", marginTop: 10, gap: 12, alignItems: "flex-start" },
+  marcoCirculo: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  marcoCirculoTexto: { fontSize: 14, fontWeight: 700 },
+  marcoConteudo: { flex: 1, paddingTop: 2 },
+  marcoPeriodo: { fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 },
+  marcoTitulo: { fontSize: 12, fontWeight: 700, color: "#1F1F2D" },
+  marcoDescricao: { fontSize: 9.5, color: "#64748B", marginTop: 3, lineHeight: 1.5 },
+
+  // Garantias
+  garantiaGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 },
+  garantiaBox: {
+    padding: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    width: "48%",
+    backgroundColor: "#FAFAFC",
+    alignItems: "center",
+    textAlign: "center",
+    minHeight: 90,
+  },
+  garantiaIcone: { fontSize: 24, marginBottom: 6 },
+  garantiaTitulo: { fontSize: 11, fontWeight: 700, color: "#1F1F2D" },
+  garantiaDescricao: { fontSize: 9, color: "#64748B", marginTop: 4, lineHeight: 1.4, textAlign: "center" },
+
+  // Assinatura digital
+  assinaturaBox: {
+    marginTop: 20,
+    padding: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: "center",
+  },
+  assinaturaTitulo: { fontSize: 9, fontWeight: 700, letterSpacing: 2, marginBottom: 12 },
+  assinaturaNome: { fontSize: 18, fontWeight: 700, color: "#1F1F2D" },
+  assinaturaDoc: { fontSize: 13, fontFamily: "Courier", color: "#475569", marginTop: 6 },
+  assinaturaSep: { width: 60, height: 1, backgroundColor: "#CBD5E1", marginVertical: 14 },
+  assinaturaMeta: { fontSize: 9, color: "#64748B", marginTop: 4, textAlign: "center" },
 });

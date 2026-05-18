@@ -936,6 +936,8 @@ enum TipoNotificacao {
   PROPOSTA_VISTA
   PROPOSTA_ACEITA
   PROPOSTA_RECUSADA
+  PROPOSTA_PDF_BAIXADO
+  PROPOSTA_EXPIRANDO
   PORTAL_APROVOU_POST
   PORTAL_PEDIU_AJUSTE
   SISTEMA
@@ -1009,6 +1011,8 @@ model Proposta {
   // Aceite digital
   aceiteIp        String?
   aceiteUa        String?
+  aceiteNome      String?        // Nome completo do signatário (validação jurídica)
+  aceiteCpfCnpj   String?        // CPF ou CNPJ — só dígitos (validação modulo 11)
 
   // Vinculo opcional a um Lead (pipeline pré-cliente)
   leadId          String?

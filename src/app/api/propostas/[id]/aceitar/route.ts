@@ -1,5 +1,6 @@
 import { apiHandler } from "@/lib/api";
 import { prisma } from "@/lib/db";
+import { validarCpfCnpj, apenasDigitos } from "@/lib/validar-cpf-cnpj";
 
 /**
  * Aceite digital de proposta — endpoint PÚBLICO (sem auth).
@@ -53,6 +54,19 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
     const ua = req.headers.get("user-agent")?.slice(0, 240) ?? null;
 
+    // Body opcional com nome + CPF/CNPJ pra assinatura digital
+    const body = await req.json().catch(() => ({}));
+    const nomeSignatario = typeof body?.nome === "string" ? body.nome.trim().slice(0, 200) : null;
+    const cpfCnpjBruto = typeof body?.cpfCnpj === "string" ? body.cpfCnpj : null;
+    let cpfCnpjLimpo: string | null = null;
+    if (cpfCnpjBruto) {
+      const digitos = apenasDigitos(cpfCnpjBruto);
+      if (!validarCpfCnpj(digitos)) {
+        throw new Error("CPF/CNPJ inválido — verifique os dígitos");
+      }
+      cpfCnpjLimpo = digitos;
+    }
+
     await prisma.proposta.update({
       where: { id: params.id },
       data: {
@@ -60,17 +74,24 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         aceitaEm: new Date(),
         aceiteIp: ip,
         aceiteUa: ua,
+        aceiteNome: nomeSignatario,
+        aceiteCpfCnpj: cpfCnpjLimpo,
       },
     });
 
-    // Notificação interna (fire-and-forget)
+    // Notificação interna (fire-and-forget) — inclui signatário + doc
+    const signatarioInfo = nomeSignatario
+      ? cpfCnpjLimpo
+        ? ` · ${nomeSignatario} (${cpfCnpjLimpo.length === 11 ? "CPF" : "CNPJ"})`
+        : ` · ${nomeSignatario}`
+      : "";
     void prisma.notificacao
       .create({
         data: {
           userId: proposta.criadoPor,
           tipo: "PROPOSTA_ACEITA",
           titulo: `🎉 ${proposta.clienteNome} aceitou a proposta ${proposta.numero}`,
-          descricao: proposta.titulo,
+          descricao: `${proposta.titulo}${signatarioInfo}`,
           href: `/propostas/${proposta.id}`,
           entidadeTipo: "PROPOSTA",
           entidadeId: proposta.id,

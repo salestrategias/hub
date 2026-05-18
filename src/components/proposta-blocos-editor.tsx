@@ -29,6 +29,11 @@ import {
   ChevronDown,
   ChevronUp,
   Star,
+  Calendar,
+  ShieldCheck,
+  CheckCircle2,
+  Loader as LoaderIcon,
+  Circle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -38,11 +43,15 @@ import {
   type Kpi,
   type MembroEquipe,
   type Faq,
+  type Marco,
+  type Garantia,
   defaultPacotes,
   defaultCases,
   defaultKpis,
   defaultEquipe,
   defaultFaq,
+  defaultTimeline,
+  defaultGarantias,
   gerarBlocoItemId,
   normalizarExtras,
 } from "@/lib/proposta-blocos";
@@ -52,7 +61,15 @@ type Props = {
   onSave: (extras: PropostaExtras) => void;
 };
 
-type SecaoAberta = "pacotes" | "cases" | "kpis" | "equipe" | "faq" | null;
+type SecaoAberta =
+  | "pacotes"
+  | "cases"
+  | "kpis"
+  | "equipe"
+  | "faq"
+  | "timeline"
+  | "garantias"
+  | null;
 
 export function PropostaBlocosEditor({ extras: extrasRaw, onSave }: Props) {
   const extras = normalizarExtras(extrasRaw);
@@ -149,6 +166,44 @@ export function PropostaBlocosEditor({ extras: extrasRaw, onSave }: Props) {
         <EquipeEditor
           bloco={extras.equipe ?? defaultEquipe()}
           onChange={(b) => atualizar({ equipe: b })}
+        />
+      </BlocoCard>
+
+      {/* TIMELINE */}
+      <BlocoCard
+        icon={Calendar}
+        nome="Timeline visual (cronograma)"
+        descricao="Marcos visuais com período + status (concluído / em andamento / pendente). Aparece em vez do texto cru do Cronograma."
+        aberto={aberta === "timeline"}
+        onToggle={() => toggleSecao("timeline")}
+        visivel={extras.timeline?.visivel ?? false}
+        onVisivelChange={(v) => {
+          const bloco = extras.timeline ?? defaultTimeline();
+          atualizar({ timeline: { ...bloco, visivel: v } });
+        }}
+      >
+        <TimelineEditor
+          bloco={extras.timeline ?? defaultTimeline()}
+          onChange={(b) => atualizar({ timeline: b })}
+        />
+      </BlocoCard>
+
+      {/* GARANTIAS */}
+      <BlocoCard
+        icon={ShieldCheck}
+        nome="Selos de garantia"
+        descricao="Pílulas de confiança em destaque (sem fidelidade, suporte 24h, etc). Aparece entre Investimento e Próximos passos."
+        aberto={aberta === "garantias"}
+        onToggle={() => toggleSecao("garantias")}
+        visivel={extras.garantias?.visivel ?? false}
+        onVisivelChange={(v) => {
+          const bloco = extras.garantias ?? defaultGarantias();
+          atualizar({ garantias: { ...bloco, visivel: v } });
+        }}
+      >
+        <GarantiasEditor
+          bloco={extras.garantias ?? defaultGarantias()}
+          onChange={(b) => atualizar({ garantias: b })}
         />
       </BlocoCard>
 
@@ -846,6 +901,250 @@ function FaqEditor({
         ))}
         <Button variant="outline" size="sm" onClick={addFaq} className="w-full">
           <Plus className="h-3.5 w-3.5" /> Adicionar pergunta
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── TIMELINE editor ──────────────────────────────────────────────────
+
+function TimelineEditor({
+  bloco,
+  onChange,
+}: {
+  bloco: ReturnType<typeof defaultTimeline>;
+  onChange: (b: ReturnType<typeof defaultTimeline>) => void;
+}) {
+  function setMarco(idx: number, patch: Partial<Marco>) {
+    onChange({ ...bloco, marcos: bloco.marcos.map((m, i) => (i === idx ? { ...m, ...patch } : m)) });
+  }
+  function addMarco() {
+    onChange({
+      ...bloco,
+      marcos: [
+        ...bloco.marcos,
+        { id: gerarBlocoItemId("marco"), titulo: "", periodo: "", status: "pendente" },
+      ],
+    });
+  }
+  function removeMarco(idx: number) {
+    onChange({ ...bloco, marcos: bloco.marcos.filter((_, i) => i !== idx) });
+  }
+  function moverMarco(idx: number, dir: -1 | 1) {
+    const novos = [...bloco.marcos];
+    const ni = idx + dir;
+    if (ni < 0 || ni >= novos.length) return;
+    [novos[idx], novos[ni]] = [novos[ni], novos[idx]];
+    onChange({ ...bloco, marcos: novos });
+  }
+
+  const statusOptions: { value: Marco["status"]; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { value: "concluido", label: "Concluído", icon: CheckCircle2 },
+    { value: "em_andamento", label: "Em andamento", icon: LoaderIcon },
+    { value: "pendente", label: "Pendente", icon: Circle },
+  ];
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <CampoLabel label="Título">
+          <Input
+            value={bloco.titulo}
+            onChange={(e) => onChange({ ...bloco, titulo: e.target.value })}
+            className="h-8 text-xs"
+          />
+        </CampoLabel>
+        <CampoLabel label="Subtítulo">
+          <Input
+            value={bloco.subtitulo ?? ""}
+            onChange={(e) => onChange({ ...bloco, subtitulo: e.target.value })}
+            className="h-8 text-xs"
+          />
+        </CampoLabel>
+      </div>
+
+      <CampoLabel label="Orientação">
+        <div className="flex gap-1">
+          {(["horizontal", "vertical"] as const).map((o) => (
+            <button
+              key={o}
+              type="button"
+              onClick={() => onChange({ ...bloco, orientacao: o })}
+              className={cn(
+                "px-3 py-1.5 rounded-md text-xs transition border",
+                bloco.orientacao === o
+                  ? "bg-primary/15 text-primary border-primary/40"
+                  : "border-border hover:bg-muted/40"
+              )}
+            >
+              {o === "horizontal" ? "→ Horizontal" : "↓ Vertical"}
+            </button>
+          ))}
+        </div>
+      </CampoLabel>
+
+      <div className="space-y-2">
+        {bloco.marcos.map((m, idx) => (
+          <Card key={m.id} className="bg-card/60">
+            <CardContent className="p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={m.titulo}
+                  onChange={(e) => setMarco(idx, { titulo: e.target.value })}
+                  placeholder="Título do marco (ex: Kickoff + Auditoria)"
+                  className="h-8 text-xs flex-1 font-medium"
+                />
+                <div className="flex flex-col gap-0.5 shrink-0">
+                  <button
+                    onClick={() => moverMarco(idx, -1)}
+                    disabled={idx === 0}
+                    className="h-3.5 w-5 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    title="Mover pra cima"
+                  >
+                    <ChevronUp className="h-3 w-3" />
+                  </button>
+                  <button
+                    onClick={() => moverMarco(idx, 1)}
+                    disabled={idx === bloco.marcos.length - 1}
+                    className="h-3.5 w-5 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    title="Mover pra baixo"
+                  >
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shrink-0 text-destructive"
+                  onClick={() => removeMarco(idx)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-[1fr_auto] gap-2">
+                <Input
+                  value={m.periodo}
+                  onChange={(e) => setMarco(idx, { periodo: e.target.value })}
+                  placeholder='Período (ex: "Mês 1", "Janeiro/26", "Semana 1-2")'
+                  className="h-8 text-xs"
+                />
+                <select
+                  value={m.status ?? "pendente"}
+                  onChange={(e) => setMarco(idx, { status: e.target.value as Marco["status"] })}
+                  className="h-8 text-xs rounded-md border border-border bg-background/40 px-2"
+                >
+                  {statusOptions.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Textarea
+                value={m.descricao ?? ""}
+                onChange={(e) => setMarco(idx, { descricao: e.target.value })}
+                placeholder="Descrição opcional (1-2 linhas)"
+                rows={2}
+                className="text-xs resize-none"
+              />
+            </CardContent>
+          </Card>
+        ))}
+        <Button variant="outline" size="sm" onClick={addMarco} className="w-full">
+          <Plus className="h-3.5 w-3.5" /> Adicionar marco
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── GARANTIAS editor ─────────────────────────────────────────────────
+
+function GarantiasEditor({
+  bloco,
+  onChange,
+}: {
+  bloco: ReturnType<typeof defaultGarantias>;
+  onChange: (b: ReturnType<typeof defaultGarantias>) => void;
+}) {
+  function setGarantia(idx: number, patch: Partial<Garantia>) {
+    onChange({
+      ...bloco,
+      garantias: bloco.garantias.map((g, i) => (i === idx ? { ...g, ...patch } : g)),
+    });
+  }
+  function addGarantia() {
+    onChange({
+      ...bloco,
+      garantias: [
+        ...bloco.garantias,
+        { id: gerarBlocoItemId("garantia"), icone: "✅", titulo: "", descricao: "" },
+      ],
+    });
+  }
+  function removeGarantia(idx: number) {
+    onChange({ ...bloco, garantias: bloco.garantias.filter((_, i) => i !== idx) });
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <CampoLabel label="Título">
+          <Input
+            value={bloco.titulo}
+            onChange={(e) => onChange({ ...bloco, titulo: e.target.value })}
+            className="h-8 text-xs"
+          />
+        </CampoLabel>
+        <CampoLabel label="Subtítulo">
+          <Input
+            value={bloco.subtitulo ?? ""}
+            onChange={(e) => onChange({ ...bloco, subtitulo: e.target.value })}
+            className="h-8 text-xs"
+          />
+        </CampoLabel>
+      </div>
+
+      <div className="space-y-2">
+        {bloco.garantias.map((g, idx) => (
+          <Card key={g.id} className="bg-card/60">
+            <CardContent className="p-3 flex gap-2 items-start">
+              <Input
+                value={g.icone}
+                onChange={(e) => setGarantia(idx, { icone: e.target.value })}
+                placeholder="🔒"
+                className="h-9 w-12 text-center text-lg shrink-0"
+                maxLength={4}
+              />
+              <div className="flex-1 space-y-2 min-w-0">
+                <Input
+                  value={g.titulo}
+                  onChange={(e) => setGarantia(idx, { titulo: e.target.value })}
+                  placeholder="Título (ex: Sem fidelidade)"
+                  className="h-8 text-xs font-medium"
+                />
+                <Textarea
+                  value={g.descricao ?? ""}
+                  onChange={(e) => setGarantia(idx, { descricao: e.target.value })}
+                  placeholder="Descrição curta (opcional)"
+                  rows={2}
+                  className="text-xs resize-none"
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 shrink-0 text-destructive"
+                onClick={() => removeGarantia(idx)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+        <Button variant="outline" size="sm" onClick={addGarantia} className="w-full">
+          <Plus className="h-3.5 w-3.5" /> Adicionar garantia
         </Button>
       </div>
     </div>

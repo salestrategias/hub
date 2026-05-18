@@ -8,13 +8,15 @@
  * Estilos definidos em proposta-publica.tsx (styled-jsx global).
  */
 import { useState } from "react";
-import { Check, X, Star, ChevronDown, Linkedin, TrendingUp } from "lucide-react";
+import { Check, X, Star, ChevronDown, Linkedin, TrendingUp, CheckCircle2, Circle } from "lucide-react";
 import type {
   BlocoPacotes,
   BlocoCases,
   BlocoKpis,
   BlocoEquipe,
   BlocoFaq,
+  BlocoTimeline,
+  BlocoGarantias,
 } from "@/lib/proposta-blocos";
 
 // ─── PACOTES ──────────────────────────────────────────────────────────
@@ -150,6 +152,70 @@ export function EquipePublico({ bloco }: { bloco: BlocoEquipe }) {
                   LinkedIn
                 </a>
               )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── TIMELINE (cronograma visual) ─────────────────────────────────────
+
+export function TimelinePublico({ bloco }: { bloco: BlocoTimeline }) {
+  if (!bloco.visivel || bloco.marcos.length === 0) return null;
+  const horizontal = bloco.orientacao !== "vertical";
+
+  return (
+    <section className="bloco bloco-timeline" id="timeline">
+      <div className="bloco-inner">
+        <h2 className="bloco-titulo">{bloco.titulo}</h2>
+        {bloco.subtitulo && <p className="bloco-subtitulo">{bloco.subtitulo}</p>}
+
+        <div className={horizontal ? "timeline-horizontal" : "timeline-vertical"}>
+          {bloco.marcos.map((m, idx) => {
+            const status = m.status ?? "pendente";
+            return (
+              <div key={m.id} className={`timeline-item timeline-${status}`}>
+                <div className="timeline-marker">
+                  {status === "concluido" ? (
+                    <CheckCircle2 className="h-4 w-4" />
+                  ) : status === "em_andamento" ? (
+                    <span className="timeline-pulse" />
+                  ) : (
+                    <Circle className="h-4 w-4" />
+                  )}
+                </div>
+                {horizontal && idx < bloco.marcos.length - 1 && <div className="timeline-line" />}
+                <div className="timeline-content">
+                  <div className="timeline-periodo">{m.periodo}</div>
+                  <h3 className="timeline-titulo">{m.titulo}</h3>
+                  {m.descricao && <p className="timeline-descricao">{m.descricao}</p>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── GARANTIAS (selos de confiança) ───────────────────────────────────
+
+export function GarantiasPublico({ bloco }: { bloco: BlocoGarantias }) {
+  if (!bloco.visivel || bloco.garantias.length === 0) return null;
+  return (
+    <section className="bloco bloco-garantias" id="garantias">
+      <div className="bloco-inner">
+        <h2 className="bloco-titulo">{bloco.titulo}</h2>
+        {bloco.subtitulo && <p className="bloco-subtitulo">{bloco.subtitulo}</p>}
+        <div className="garantias-grid">
+          {bloco.garantias.map((g) => (
+            <div key={g.id} className="garantia-card">
+              <div className="garantia-icone">{g.icone}</div>
+              <h3 className="garantia-titulo">{g.titulo}</h3>
+              {g.descricao && <p className="garantia-descricao">{g.descricao}</p>}
             </div>
           ))}
         </div>

@@ -22,6 +22,8 @@ import {
   KpisPublico,
   EquipePublico,
   FaqPublico,
+  TimelinePublico,
+  GarantiasPublico,
 } from "@/components/proposta-publica-blocos";
 
 type PropostaPublicaData = {
@@ -51,6 +53,8 @@ type PropostaPublicaData = {
   enviadaEm: string | null;
   aceitaEm: string | null;
   recusadaEm: string | null;
+  aceiteNome: string | null;
+  aceiteCpfCnpj: string | null;
   autorNome: string | null;
   autorEmail: string | null;
 };
@@ -204,7 +208,14 @@ export function PropostaPublica({ token }: { token: string }) {
         }
       >
         {/* Capa */}
-        <section className="capa">
+        <section
+          className={cn("capa", proposta.capaImagemUrl && "capa-com-hero")}
+          style={
+            proposta.capaImagemUrl
+              ? ({ ["--capa-hero-url" as string]: `url("${proposta.capaImagemUrl}")` } as React.CSSProperties)
+              : undefined
+          }
+        >
           <div className="capa-inner">
             <div className="capa-brand">
               {proposta.logoUrl ? (
@@ -260,6 +271,27 @@ export function PropostaPublica({ token }: { token: string }) {
                   Aceita em {new Date(proposta.aceitaEm!).toLocaleDateString("pt-BR")}.
                   Vamos entrar em contato com os próximos passos.
                 </p>
+                {(proposta.aceiteNome || proposta.aceiteCpfCnpj) && (
+                  <div className="cta-assinatura">
+                    <div className="cta-assinatura-titulo">Assinatura digital</div>
+                    {proposta.aceiteNome && <div className="cta-assinatura-linha">{proposta.aceiteNome}</div>}
+                    {proposta.aceiteCpfCnpj && (
+                      <div className="cta-assinatura-linha cta-assinatura-doc">
+                        {formatarCpfCnpjDisplay(proposta.aceiteCpfCnpj)}
+                      </div>
+                    )}
+                    <div className="cta-assinatura-linha cta-assinatura-sub">
+                      Aceito em{" "}
+                      {new Date(proposta.aceitaEm!).toLocaleString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : recusada ? (
               <div className="cta-decidida cta-recusada">
@@ -385,6 +417,18 @@ export function PropostaPublica({ token }: { token: string }) {
           background-image: radial-gradient(ellipse 60% 40% at 80% 20%, rgba(126,48,225,0.25), transparent 60%);
           pointer-events: none;
         }
+        /* Hero opcional — substitui gradiente roxo por imagem custom com overlay */
+        .capa-com-hero {
+          background: #000 !important;
+        }
+        .capa-com-hero::before {
+          background-image:
+            linear-gradient(180deg, rgba(14,14,20,0.55) 0%, rgba(14,14,20,0.85) 100%),
+            var(--capa-hero-url);
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+        }
         .capa-inner {
           width: 100%;
           display: flex;
@@ -504,6 +548,28 @@ export function PropostaPublica({ token }: { token: string }) {
         .cta-aceita { color: #10B981; }
         .cta-recusada { color: #EF4444; }
         .cta-decidida svg { margin: 0 auto 16px; display: block; }
+        .cta-assinatura {
+          margin-top: 32px;
+          padding: 22px 28px;
+          background: rgba(16, 185, 129, 0.08);
+          border: 1px solid rgba(16, 185, 129, 0.25);
+          border-radius: 14px;
+          max-width: 480px;
+          margin-left: auto;
+          margin-right: auto;
+          text-align: center;
+        }
+        .cta-assinatura-titulo {
+          font-size: 10px;
+          color: #10B981;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          font-weight: 700;
+          margin-bottom: 10px;
+        }
+        .cta-assinatura-linha { color: #E5E5EE; font-size: 16px; font-weight: 600; line-height: 1.5; }
+        .cta-assinatura-doc { font-family: var(--font-mono); font-size: 13px; color: #9696A8; font-weight: 500; }
+        .cta-assinatura-sub { font-size: 11px; color: #9696A8; font-weight: 400; margin-top: 6px; }
 
         .toolbar {
           position: fixed;
@@ -740,6 +806,127 @@ export function PropostaPublica({ token }: { token: string }) {
         }
         .membro-linkedin:hover { background: rgba(255,255,255,0.05); }
 
+        /* TIMELINE */
+        .bloco-timeline { background: linear-gradient(135deg, #0E0E14 0%, #14141C 100%); }
+        .timeline-horizontal {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          gap: 24px;
+          margin-top: 24px;
+          position: relative;
+        }
+        .timeline-horizontal .timeline-item {
+          flex: 1 1 200px;
+          min-width: 180px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          position: relative;
+        }
+        .timeline-vertical {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          margin-top: 24px;
+          padding-left: 24px;
+          position: relative;
+        }
+        .timeline-vertical::before {
+          content: "";
+          position: absolute;
+          left: 12px;
+          top: 12px;
+          bottom: 12px;
+          width: 2px;
+          background: rgba(255,255,255,0.1);
+        }
+        .timeline-vertical .timeline-item {
+          display: flex;
+          gap: 16px;
+          align-items: flex-start;
+          position: relative;
+        }
+        .timeline-vertical .timeline-marker { margin-left: -36px; }
+        .timeline-marker {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.05);
+          border: 2px solid rgba(255,255,255,0.15);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #9696A8;
+          flex-shrink: 0;
+          z-index: 2;
+          position: relative;
+        }
+        .timeline-concluido .timeline-marker {
+          background: var(--cor-primaria);
+          border-color: var(--cor-primaria);
+          color: #FFFFFF;
+        }
+        .timeline-em_andamento .timeline-marker {
+          border-color: var(--cor-primaria);
+          background: rgba(126,48,225,0.15);
+          color: var(--cor-primaria);
+        }
+        .timeline-pulse {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: var(--cor-primaria);
+          animation: timeline-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes timeline-pulse {
+          0%, 100% { opacity: 0.6; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.1); }
+        }
+        .timeline-line {
+          position: absolute;
+          top: 16px;
+          left: calc(50% + 16px);
+          right: calc(-50% + 16px);
+          height: 2px;
+          background: rgba(255,255,255,0.1);
+          z-index: 1;
+        }
+        .timeline-concluido + .timeline-item .timeline-line { background: var(--cor-primaria); }
+        .timeline-content { margin-top: 12px; }
+        .timeline-vertical .timeline-content { margin-top: 0; flex: 1; }
+        .timeline-periodo {
+          font-size: 10px;
+          color: var(--cor-primaria);
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          font-weight: 700;
+          margin-bottom: 4px;
+        }
+        .timeline-titulo { font-size: 15px; font-weight: 700; color: #FFFFFF; margin: 0 0 4px 0; }
+        .timeline-descricao { font-size: 12.5px; color: #9696A8; line-height: 1.5; margin: 0; }
+
+        /* GARANTIAS */
+        .bloco-garantias { background: linear-gradient(180deg, #14141C 0%, #0E0E14 100%); }
+        .garantias-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 14px;
+        }
+        .garantia-card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 14px;
+          padding: 22px 20px;
+          text-align: center;
+          transition: transform 0.2s, border-color 0.2s;
+        }
+        .garantia-card:hover { transform: translateY(-3px); border-color: var(--cor-primaria); }
+        .garantia-icone { font-size: 36px; line-height: 1; margin-bottom: 10px; }
+        .garantia-titulo { font-size: 14px; font-weight: 700; color: #FFFFFF; margin: 0 0 4px 0; }
+        .garantia-descricao { font-size: 12px; color: #9696A8; line-height: 1.5; margin: 0; }
+
         /* FAQ */
         .faq-lista { display: flex; flex-direction: column; gap: 8px; }
         .faq-item {
@@ -948,8 +1135,10 @@ function renderizarSequencia(proposta: PropostaParaRender, extras: PropostaExtra
     );
   }
 
-  // Cronograma
-  if (proposta.cronograma && hasContent(proposta.cronograma)) {
+  // Cronograma (texto OU timeline visual)
+  if (extras.timeline?.visivel) {
+    nodes.push(<TimelinePublico key="timeline" bloco={extras.timeline} />);
+  } else if (proposta.cronograma && hasContent(proposta.cronograma)) {
     nodes.push(
       <Secao key="cronograma" id="cronograma" label="Cronograma" conteudo={proposta.cronograma} />
     );
@@ -971,6 +1160,11 @@ function renderizarSequencia(proposta: PropostaParaRender, extras: PropostaExtra
   // BLOCO: Pacotes (após investimento — comparativo)
   if (extras.pacotes?.visivel) {
     nodes.push(<PacotesPublico key="pacotes" bloco={extras.pacotes} />);
+  }
+
+  // BLOCO: Garantias (após investimento/pacotes — antes dos próximos passos)
+  if (extras.garantias?.visivel) {
+    nodes.push(<GarantiasPublico key="garantias" bloco={extras.garantias} />);
   }
 
   // Próximos passos
@@ -1015,9 +1209,11 @@ function construirToc(proposta: PropostaParaRender, extras: PropostaExtras): Toc
   if (proposta.objetivo && hasContent(proposta.objetivo)) items.push({ id: "objetivo", label: "Objetivo" });
   if (extras.kpis?.visivel) items.push({ id: "kpis", label: "Metas" });
   if (proposta.escopo && hasContent(proposta.escopo)) items.push({ id: "escopo", label: "Estratégia" });
-  if (proposta.cronograma && hasContent(proposta.cronograma)) items.push({ id: "cronograma", label: "Cronograma" });
+  if (extras.timeline?.visivel) items.push({ id: "timeline", label: "Cronograma" });
+  else if (proposta.cronograma && hasContent(proposta.cronograma)) items.push({ id: "cronograma", label: "Cronograma" });
   if (proposta.investimento && hasContent(proposta.investimento)) items.push({ id: "investimento", label: "Investimento" });
   if (extras.pacotes?.visivel) items.push({ id: "pacotes", label: "Pacotes" });
+  if (extras.garantias?.visivel) items.push({ id: "garantias", label: "Garantias" });
   if (proposta.proximosPassos && hasContent(proposta.proximosPassos)) items.push({ id: "proximos-passos", label: "Próximos passos" });
   if (proposta.termos && hasContent(proposta.termos)) items.push({ id: "termos", label: "Termos" });
   if (extras.equipe?.visivel) items.push({ id: "equipe", label: "Equipe" });
@@ -1117,12 +1313,44 @@ function AceitarDialog({
   onAceita: () => void;
 }) {
   const [enviando, setEnviando] = useState(false);
+  const [nome, setNome] = useState("");
+  const [cpfCnpj, setCpfCnpj] = useState("");
+  const [concorda, setConcorda] = useState(false);
+
+  // Validações de forma client-side (UX) — server revalida via modulo 11
+  const digitos = cpfCnpj.replace(/\D/g, "");
+  const cpfCnpjValido = digitos.length === 11 || digitos.length === 14;
+  const nomeValido = nome.trim().length >= 5;
+  const tudoOk = nomeValido && cpfCnpjValido && concorda;
+
+  function formatarCpfCnpjDigitando(v: string): string {
+    const d = v.replace(/\D/g, "").slice(0, 14);
+    if (d.length <= 11) {
+      // CPF: 000.000.000-00
+      return d
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+    }
+    // CNPJ: 00.000.000/0000-00
+    return d
+      .replace(/(\d{2})(\d)/, "$1.$2")
+      .replace(/(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4")
+      .replace(/(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
+  }
 
   async function confirmar() {
+    if (!tudoOk) return;
     setEnviando(true);
     try {
       const res = await fetch(`/api/propostas/${propostaId}/aceitar?token=${token}`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: nome.trim(),
+          cpfCnpj: digitos,
+        }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -1139,41 +1367,84 @@ function AceitarDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md dialog-bottom-sheet">
+        <div className="sm:hidden flex justify-center -mt-1 mb-2">
+          <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
+        </div>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-400" />
             Aceitar proposta {numero}
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 py-2">
+        <div className="space-y-4 py-2">
           <p className="text-sm">
-            Confirmando o aceite digital, vamos entrar em contato em até 24h com:
+            Preencha os dados pra registrar o aceite digital com validade legal.
+            Em seguida emitimos o contrato e enviamos o boleto da primeira fatura.
           </p>
-          <ul className="text-sm space-y-1.5 text-muted-foreground">
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-emerald-400 shrink-0" />
-              <span>Contrato formal pra assinatura</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-emerald-400 shrink-0" />
-              <span>Boleto/PIX da primeira fatura</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-emerald-400 shrink-0" />
-              <span>Agenda de kickoff</span>
-            </li>
-          </ul>
-          <p className="text-[11px] text-muted-foreground/70 pt-2">
-            Este aceite registra IP e timestamp e tem validade legal como confirmação inicial.
-          </p>
+
+          <div className="space-y-2">
+            <Label htmlFor="aceite-nome" className="text-xs">
+              Nome completo do signatário <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="aceite-nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Ex: Marcelo Freitas"
+              autoFocus
+              className="h-10"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="aceite-doc" className="text-xs">
+              CPF ou CNPJ <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="aceite-doc"
+              value={cpfCnpj}
+              onChange={(e) => setCpfCnpj(formatarCpfCnpjDigitando(e.target.value))}
+              placeholder="000.000.000-00 ou 00.000.000/0000-00"
+              inputMode="numeric"
+              className="h-10 font-mono"
+            />
+            {digitos.length > 0 && !cpfCnpjValido && (
+              <p className="text-[11px] text-amber-500">
+                Aguardando dígitos completos ({digitos.length}/{digitos.length <= 11 ? 11 : 14})
+              </p>
+            )}
+          </div>
+
+          <label className="flex items-start gap-2 cursor-pointer text-[12px] leading-snug">
+            <input
+              type="checkbox"
+              checked={concorda}
+              onChange={(e) => setConcorda(e.target.checked)}
+              className="mt-0.5 accent-primary"
+            />
+            <span>
+              Declaro estar autorizado(a) a aceitar esta proposta em nome da empresa indicada,
+              e concordo com os termos e condições apresentados.
+            </span>
+          </label>
+
+          <div className="rounded-md border border-border bg-muted/30 p-3 text-[11px] text-muted-foreground space-y-1">
+            <div>📅 Aceite registrado com data, hora, IP e user-agent.</div>
+            <div>🔒 Tem valor jurídico como manifestação de vontade (Marco Civil + LGPD).</div>
+            <div>📄 Contrato formal será emitido em até 24h com base nesse aceite.</div>
+          </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant="outline">Cancelar</Button>
+            <Button variant="outline" className="h-10">Cancelar</Button>
           </DialogClose>
-          <Button onClick={confirmar} disabled={enviando} className={cn("bg-emerald-600 hover:bg-emerald-700")}>
-            {enviando ? "Confirmando..." : "Sim, aceito a proposta"}
+          <Button
+            onClick={confirmar}
+            disabled={enviando || !tudoOk}
+            className={cn("bg-emerald-600 hover:bg-emerald-700 h-10 touch-feedback")}
+          >
+            {enviando ? "Confirmando..." : "Aceitar e assinar"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1278,6 +1549,13 @@ function hasContent(jsonOrText: string): boolean {
 
 function formatBRL(n: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n);
+}
+
+function formatarCpfCnpjDisplay(s: string): string {
+  const d = s.replace(/\D/g, "");
+  if (d.length === 11) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  if (d.length === 14) return d.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+  return s;
 }
 
 /**
