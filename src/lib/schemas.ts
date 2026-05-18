@@ -343,6 +343,9 @@ export const propostaSchema = z.object({
   validadeDias: z.coerce.number().int().positive().max(365).default(30),
   logoUrl: z.string().max(500_000).optional().nullable().or(z.literal("")),
   corPrimaria: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Cor inválida (use formato #RRGGBB)").optional().nullable().or(z.literal("")),
+  capaImagemUrl: z.string().max(2_500_000).optional().nullable().or(z.literal("")),
+  /** Blocos extras de personalização avançada (pacotes, cases, KPIs, equipe, FAQ). */
+  extras: z.unknown().optional().nullable(),
 });
 export type PropostaInput = z.infer<typeof propostaSchema>;
 

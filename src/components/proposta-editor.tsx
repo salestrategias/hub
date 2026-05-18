@@ -35,8 +35,11 @@ import {
   Lock,
   Sparkles,
   Loader2,
+  Wand2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PropostaBlocosEditor } from "@/components/proposta-blocos-editor";
+import type { PropostaExtras } from "@/lib/proposta-blocos";
 
 type PropostaStatus = "RASCUNHO" | "ENVIADA" | "VISTA" | "ACEITA" | "RECUSADA" | "EXPIRADA";
 
@@ -61,6 +64,8 @@ type PropostaFull = {
   validadeDias: number;
   logoUrl: string | null;
   corPrimaria: string | null;
+  capaImagemUrl: string | null;
+  extras: unknown;
   status: PropostaStatus;
   shareToken: string | null;
   shareExpiraEm: string | null;
@@ -388,6 +393,10 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
                 {s.label}
               </TabsTrigger>
             ))}
+            <TabsTrigger value="__extras" className="data-[state=active]:text-primary">
+              <Wand2 className="h-3.5 w-3.5 mr-1" />
+              Personalização avançada
+            </TabsTrigger>
           </TabsList>
 
           {SECOES.map((s) => (
@@ -416,6 +425,32 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
               </Card>
             </TabsContent>
           ))}
+
+          {/* Aba: Personalização avançada — 5 blocos extras */}
+          <TabsContent value="__extras" className="mt-4">
+            <Card>
+              <CardContent className="p-5 space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold flex items-center gap-2">
+                    <Wand2 className="h-4 w-4 text-primary" />
+                    Personalização avançada
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Adicione blocos visuais que impactam o cliente: pacotes comparativos, cases de
+                    sucesso, KPIs em destaque, equipe dedicada, FAQ. Ative só os que fazem sentido
+                    pra essa proposta.
+                  </p>
+                </div>
+                <PropostaBlocosEditor
+                  extras={proposta.extras}
+                  onSave={(novosExtras: PropostaExtras) => {
+                    setProposta((p) => ({ ...p, extras: novosExtras }));
+                    void patchProposta({ extras: novosExtras });
+                  }}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 

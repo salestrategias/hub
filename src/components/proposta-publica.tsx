@@ -13,8 +13,16 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
-import { CheckCircle2, XCircle, Lock, Download, Loader2, Clock } from "lucide-react";
+import { CheckCircle2, XCircle, Lock, Download, Loader2, Clock, List } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { normalizarExtras, type PropostaExtras } from "@/lib/proposta-blocos";
+import {
+  PacotesPublico,
+  CasesPublico,
+  KpisPublico,
+  EquipePublico,
+  FaqPublico,
+} from "@/components/proposta-publica-blocos";
 
 type PropostaPublicaData = {
   id: string;
@@ -24,6 +32,8 @@ type PropostaPublicaData = {
   clienteEmail: string | null;
   logoUrl: string | null;
   corPrimaria: string | null;
+  capaImagemUrl: string | null;
+  extras: unknown;
   capa: string | null;
   diagnostico: string | null;
   objetivo: string | null;
@@ -175,6 +185,10 @@ export function PropostaPublica({ token }: { token: string }) {
   const corPrim = proposta.corPrimaria ?? "#7E30E1";
   const corPrimEscura = escurecer(corPrim, 0.3);
   const corPrimClara = clarear(corPrim, 0.4);
+  const extras = normalizarExtras(proposta.extras);
+
+  // TOC: monta lista de âncoras visíveis pra navegação lateral
+  const tocItems = construirToc(proposta, extras);
 
   return (
     <>
@@ -232,27 +246,8 @@ export function PropostaPublica({ token }: { token: string }) {
           </div>
         </section>
 
-        {/* Seção: capa custom (se preenchida) */}
-        {proposta.capa && hasContent(proposta.capa) && (
-          <Secao label="Apresentação" conteudo={proposta.capa} />
-        )}
-
-        {/* Demais seções */}
-        {SECOES.map((s) => {
-          const conteudo = proposta[s.key] as string | null;
-          if (!conteudo || !hasContent(conteudo)) return null;
-          return (
-            <Secao key={s.key as string} label={s.label} conteudo={conteudo}>
-              {s.key === "investimento" && (
-                <ResumoInvestimento
-                  valorMensal={proposta.valorMensal}
-                  valorTotal={proposta.valorTotal}
-                  duracaoMeses={proposta.duracaoMeses}
-                />
-              )}
-            </Secao>
-          );
-        })}
+        {/* Sequência interceptada: seções texto + blocos extras nas posições estratégicas */}
+        {renderizarSequencia(proposta, extras)}
 
         {/* CTA Aceite / Recusa */}
         <section className="cta">
@@ -312,6 +307,33 @@ export function PropostaPublica({ token }: { token: string }) {
             </a>
           )}
         </div>
+
+        {/* TOC lateral fixo — só em desktop */}
+        {tocItems.length > 0 && <Toc itens={tocItems} />}
+
+        {/* CTA fixo no rodapé — sempre visível, fade-in após scroll inicial */}
+        {!decidida && (
+          <div className="cta-fixo">
+            <div className="cta-fixo-inner">
+              <div className="cta-fixo-info">
+                <span className="cta-fixo-numero">Proposta {proposta.numero}</span>
+                {proposta.valorMensal && (
+                  <span className="cta-fixo-valor">
+                    {formatBRL(proposta.valorMensal)}<span className="cta-fixo-valor-sub">/mês</span>
+                  </span>
+                )}
+              </div>
+              <div className="cta-fixo-acoes">
+                <Button onClick={() => setRecusarOpen(true)} variant="outline" size="sm" className="cta-fixo-btn-recusar">
+                  Recusar
+                </Button>
+                <Button onClick={() => setAceitarOpen(true)} size="sm" className="cta-fixo-btn-aceitar">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Aceitar
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {aceitarOpen && (
@@ -517,6 +539,331 @@ export function PropostaPublica({ token }: { token: string }) {
           .secao-titulo { font-size: 24px; }
           .cta h2 { font-size: 28px; }
         }
+
+        /* ──────────────────────────────────────────────────────────────
+           BLOCOS EXTRAS
+           ────────────────────────────────────────────────────────────── */
+        .bloco {
+          padding: 80px 60px;
+          background: #0E0E14;
+          color: #E5E5EE;
+          position: relative;
+        }
+        .bloco-pacotes { background: linear-gradient(180deg, #0E0E14 0%, #1A0F2E 100%); }
+        .bloco-cases { background: #14141C; }
+        .bloco-kpis { background: linear-gradient(135deg, #14141C 0%, #1A0F2E 100%); }
+        .bloco-equipe { background: #0E0E14; }
+        .bloco-faq { background: #14141C; }
+        .bloco-inner { max-width: 920px; margin: 0 auto; }
+        .bloco-titulo {
+          font-size: 32px;
+          font-weight: 700;
+          color: #FFFFFF;
+          margin: 0 0 8px 0;
+          letter-spacing: -0.02em;
+        }
+        .bloco-subtitulo {
+          color: #9696A8;
+          font-size: 15px;
+          margin: 0 0 40px 0;
+        }
+
+        /* PACOTES */
+        .pacotes-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 16px;
+        }
+        .pacote {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 16px;
+          padding: 28px 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          position: relative;
+          transition: transform 0.2s, border-color 0.2s;
+        }
+        .pacote:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); }
+        .pacote-destaque {
+          border: 2px solid var(--cor-primaria);
+          background: linear-gradient(180deg, rgba(126,48,225,0.08) 0%, rgba(255,255,255,0.03) 100%);
+          transform: scale(1.02);
+        }
+        .pacote-destaque:hover { transform: scale(1.02) translateY(-4px); }
+        .pacote-badge {
+          position: absolute;
+          top: -12px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: var(--cor-primaria);
+          color: #FFFFFF;
+          padding: 4px 12px;
+          border-radius: 999px;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          white-space: nowrap;
+        }
+        .pacote-header { display: flex; flex-direction: column; gap: 6px; }
+        .pacote-subtitulo {
+          font-size: 11px;
+          color: #9696A8;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+        }
+        .pacote-nome { font-size: 22px; font-weight: 700; color: #FFFFFF; margin: 0; }
+        .pacote-valor { font-size: 28px; font-weight: 700; color: var(--cor-primaria); margin: 4px 0 0 0; letter-spacing: -0.02em; }
+        .pacote-features { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .pacote-feature { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.4; }
+        .pacote-feature-destaque { font-weight: 600; color: #FFFFFF; }
+        .pacote-check { color: #10B981; flex-shrink: 0; margin-top: 1px; }
+        .pacote-x { color: #6B7280; flex-shrink: 0; margin-top: 1px; opacity: 0.5; }
+        .pacote-cta {
+          margin-top: auto;
+          padding: 12px;
+          background: rgba(126, 48, 225, 0.1);
+          border: 1px solid rgba(126, 48, 225, 0.2);
+          border-radius: 10px;
+          text-align: center;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--cor-primaria);
+        }
+        .pacote-destaque .pacote-cta {
+          background: var(--cor-primaria);
+          color: #FFFFFF;
+          border-color: transparent;
+        }
+
+        /* CASES */
+        .cases-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 16px;
+        }
+        .case-card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 16px;
+          padding: 28px 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          transition: transform 0.2s, border-color 0.2s;
+        }
+        .case-card:hover { transform: translateY(-4px); border-color: var(--cor-primaria); }
+        .case-metrica {
+          font-size: 40px;
+          font-weight: 800;
+          color: var(--cor-primaria);
+          line-height: 1;
+          margin-bottom: 8px;
+          letter-spacing: -0.04em;
+          font-family: var(--font-inter-tight), var(--font-inter);
+        }
+        .case-cliente { font-size: 17px; font-weight: 700; color: #FFFFFF; margin: 0; }
+        .case-segmento { font-size: 11px; color: #9696A8; text-transform: uppercase; letter-spacing: 1.5px; margin: 0; }
+        .case-resultado { font-size: 14px; color: #E5E5EE; line-height: 1.5; margin: 8px 0 0 0; font-weight: 500; }
+        .case-descricao { font-size: 13px; color: #9696A8; line-height: 1.6; margin: 4px 0 0 0; }
+
+        /* KPIs */
+        .kpis-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+        }
+        .kpi-card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 14px;
+          padding: 24px 20px;
+          text-align: center;
+          transition: transform 0.2s, border-color 0.2s;
+        }
+        .kpi-card:hover { transform: translateY(-3px); border-color: var(--cor-primaria); }
+        .kpi-label { font-size: 11px; color: #9696A8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+        .kpi-valores { display: inline-flex; align-items: baseline; gap: 8px; }
+        .kpi-atual { font-size: 22px; color: #6B7280; text-decoration: line-through; font-weight: 600; }
+        .kpi-arrow { color: var(--cor-primaria); }
+        .kpi-meta { font-size: 34px; font-weight: 800; color: var(--cor-primaria); letter-spacing: -0.02em; }
+        .kpi-variacao { font-size: 13px; color: #10B981; margin-top: 6px; font-weight: 700; }
+
+        /* EQUIPE */
+        .equipe-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 28px;
+        }
+        .membro-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 6px;
+        }
+        .membro-foto {
+          width: 110px;
+          height: 110px;
+          border-radius: 50%;
+          overflow: hidden;
+          background: rgba(255,255,255,0.05);
+          border: 2px solid var(--cor-primaria);
+          margin-bottom: 8px;
+        }
+        .membro-foto img { width: 100%; height: 100%; object-fit: cover; }
+        .membro-foto-fallback {
+          width: 100%; height: 100%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 36px; font-weight: 700; color: var(--cor-primaria);
+        }
+        .membro-nome { font-size: 17px; font-weight: 700; color: #FFFFFF; margin: 0; }
+        .membro-cargo { font-size: 12px; color: var(--cor-primaria); text-transform: uppercase; letter-spacing: 1.5px; margin: 0; }
+        .membro-bio { font-size: 13px; color: #9696A8; line-height: 1.5; margin: 8px 0 0 0; }
+        .membro-linkedin {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          color: #B794F4;
+          text-decoration: none;
+          font-size: 11px;
+          margin-top: 6px;
+          padding: 4px 10px;
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 999px;
+          transition: background 0.15s;
+        }
+        .membro-linkedin:hover { background: rgba(255,255,255,0.05); }
+
+        /* FAQ */
+        .faq-lista { display: flex; flex-direction: column; gap: 8px; }
+        .faq-item {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 18px 22px;
+          text-align: left;
+          cursor: pointer;
+          transition: border-color 0.15s, background 0.15s;
+          color: inherit;
+          font-family: inherit;
+        }
+        .faq-item:hover { border-color: rgba(255,255,255,0.15); }
+        .faq-item-aberta { border-color: var(--cor-primaria); background: rgba(126,48,225,0.05); }
+        .faq-pergunta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+          font-size: 15px;
+          font-weight: 600;
+          color: #FFFFFF;
+        }
+        .faq-chevron { color: #9696A8; transition: transform 0.2s; flex-shrink: 0; }
+        .faq-chevron-aberta { transform: rotate(180deg); color: var(--cor-primaria); }
+        .faq-resposta {
+          color: #9696A8;
+          font-size: 14px;
+          line-height: 1.6;
+          margin: 12px 0 0 0;
+        }
+
+        /* ──────────────────────────────────────────────────────────────
+           TOC LATERAL FIXO (desktop only)
+           ────────────────────────────────────────────────────────────── */
+        .toc {
+          position: fixed;
+          left: max(16px, calc((100vw - 920px) / 2 - 200px));
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(20,20,28,0.85);
+          backdrop-filter: blur(14px);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 14px;
+          padding: 12px 8px;
+          z-index: 30;
+          max-width: 170px;
+          max-height: 70vh;
+          overflow-y: auto;
+        }
+        .toc-header {
+          font-size: 9.5px;
+          color: #9696A8;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          padding: 0 10px 8px 10px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .toc-lista { list-style: none; margin: 8px 0 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+        .toc-link {
+          display: block;
+          padding: 7px 10px;
+          font-size: 12px;
+          color: #9696A8;
+          text-decoration: none;
+          border-radius: 6px;
+          border-left: 2px solid transparent;
+          transition: color 0.15s, background 0.15s, border-color 0.15s;
+        }
+        .toc-link:hover { color: #E5E5EE; background: rgba(255,255,255,0.03); }
+        .toc-link-ativo {
+          color: var(--cor-primaria);
+          font-weight: 600;
+          border-left-color: var(--cor-primaria);
+          background: rgba(126,48,225,0.08);
+        }
+        @media (max-width: 1280px) { .toc { display: none; } }
+
+        /* ──────────────────────────────────────────────────────────────
+           CTA FIXO NO RODAPÉ (sempre visível, mobile-first)
+           ────────────────────────────────────────────────────────────── */
+        .cta-fixo {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: rgba(20,20,28,0.92);
+          backdrop-filter: blur(14px);
+          border-top: 1px solid rgba(255,255,255,0.08);
+          padding: 12px 24px;
+          padding-bottom: max(12px, env(safe-area-inset-bottom));
+          z-index: 40;
+        }
+        .cta-fixo-inner {
+          max-width: 920px;
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .cta-fixo-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0px; }
+        .cta-fixo-numero { font-size: 10px; color: #9696A8; text-transform: uppercase; letter-spacing: 1.5px; }
+        .cta-fixo-valor { font-size: 18px; font-weight: 700; color: #FFFFFF; line-height: 1.2; }
+        .cta-fixo-valor-sub { font-size: 11px; color: #9696A8; font-weight: 500; margin-left: 4px; }
+        .cta-fixo-acoes { display: flex; gap: 8px; flex-shrink: 0; }
+        .cta-fixo-btn-recusar { color: #E5E5EE !important; border-color: rgba(255,255,255,0.15) !important; background: transparent !important; }
+        .cta-fixo-btn-aceitar { background: #10B981 !important; color: white !important; border: none !important; }
+        .cta-fixo-btn-aceitar:hover { background: #059669 !important; }
+
+        /* Ajusta toolbar/proposta-publica pra não sobrepor o CTA fixo */
+        .toolbar { bottom: 84px !important; }
+        .proposta-publica { padding-bottom: 80px; }
+        @media (max-width: 720px) {
+          .toolbar { bottom: 100px !important; }
+          .bloco { padding: 60px 28px; }
+          .bloco-titulo { font-size: 24px; }
+          .pacote { padding: 24px 20px; }
+          .case-metrica { font-size: 32px; }
+          .kpi-meta { font-size: 28px; }
+        }
       `}</style>
     </>
   );
@@ -525,14 +872,16 @@ export function PropostaPublica({ token }: { token: string }) {
 function Secao({
   label,
   conteudo,
+  id,
   children,
 }: {
   label: string;
   conteudo: string;
+  id?: string;
   children?: React.ReactNode;
 }) {
   return (
-    <section className="secao">
+    <section className="secao" id={id}>
       <div className="secao-inner">
         <div className="secao-label">{label}</div>
         <h2 className="secao-titulo">{label}</h2>
@@ -542,6 +891,181 @@ function Secao({
         </div>
       </div>
     </section>
+  );
+}
+
+// ─── Sequência intercalada de seções + blocos extras ──────────────────
+
+type PropostaParaRender = {
+  id: string;
+  capa: string | null;
+  diagnostico: string | null;
+  objetivo: string | null;
+  escopo: string | null;
+  cronograma: string | null;
+  investimento: string | null;
+  proximosPassos: string | null;
+  termos: string | null;
+  valorMensal: number | null;
+  valorTotal: number | null;
+  duracaoMeses: number | null;
+};
+
+function renderizarSequencia(proposta: PropostaParaRender, extras: PropostaExtras) {
+  const nodes: React.ReactNode[] = [];
+
+  // Capa custom (apresentação)
+  if (proposta.capa && hasContent(proposta.capa)) {
+    nodes.push(<Secao key="capa" id="apresentacao" label="Apresentação" conteudo={proposta.capa} />);
+  }
+
+  // Diagnóstico
+  if (proposta.diagnostico && hasContent(proposta.diagnostico)) {
+    nodes.push(
+      <Secao key="diagnostico" id="diagnostico" label="Diagnóstico" conteudo={proposta.diagnostico} />
+    );
+  }
+
+  // BLOCO: Cases (após diagnóstico — prova social)
+  if (extras.cases?.visivel) {
+    nodes.push(<CasesPublico key="cases" bloco={extras.cases} />);
+  }
+
+  // Objetivo
+  if (proposta.objetivo && hasContent(proposta.objetivo)) {
+    nodes.push(<Secao key="objetivo" id="objetivo" label="Objetivo" conteudo={proposta.objetivo} />);
+  }
+
+  // BLOCO: KPIs (após objetivo — metas SMART)
+  if (extras.kpis?.visivel) {
+    nodes.push(<KpisPublico key="kpis" bloco={extras.kpis} />);
+  }
+
+  // Escopo
+  if (proposta.escopo && hasContent(proposta.escopo)) {
+    nodes.push(
+      <Secao key="escopo" id="escopo" label="Estratégia & escopo" conteudo={proposta.escopo} />
+    );
+  }
+
+  // Cronograma
+  if (proposta.cronograma && hasContent(proposta.cronograma)) {
+    nodes.push(
+      <Secao key="cronograma" id="cronograma" label="Cronograma" conteudo={proposta.cronograma} />
+    );
+  }
+
+  // Investimento + resumo financeiro
+  if (proposta.investimento && hasContent(proposta.investimento)) {
+    nodes.push(
+      <Secao key="investimento" id="investimento" label="Investimento" conteudo={proposta.investimento}>
+        <ResumoInvestimento
+          valorMensal={proposta.valorMensal}
+          valorTotal={proposta.valorTotal}
+          duracaoMeses={proposta.duracaoMeses}
+        />
+      </Secao>
+    );
+  }
+
+  // BLOCO: Pacotes (após investimento — comparativo)
+  if (extras.pacotes?.visivel) {
+    nodes.push(<PacotesPublico key="pacotes" bloco={extras.pacotes} />);
+  }
+
+  // Próximos passos
+  if (proposta.proximosPassos && hasContent(proposta.proximosPassos)) {
+    nodes.push(
+      <Secao
+        key="proximos"
+        id="proximos-passos"
+        label="Próximos passos"
+        conteudo={proposta.proximosPassos}
+      />
+    );
+  }
+
+  // Termos
+  if (proposta.termos && hasContent(proposta.termos)) {
+    nodes.push(<Secao key="termos" id="termos" label="Termos & condições" conteudo={proposta.termos} />);
+  }
+
+  // BLOCO: Equipe (antes do CTA — humaniza)
+  if (extras.equipe?.visivel) {
+    nodes.push(<EquipePublico key="equipe" bloco={extras.equipe} />);
+  }
+
+  // BLOCO: FAQ (antes do CTA — mata objeções)
+  if (extras.faq?.visivel) {
+    nodes.push(<FaqPublico key="faq" bloco={extras.faq} />);
+  }
+
+  return nodes;
+}
+
+// ─── TOC (table of contents) lateral fixo ─────────────────────────────
+
+type TocItem = { id: string; label: string };
+
+function construirToc(proposta: PropostaParaRender, extras: PropostaExtras): TocItem[] {
+  const items: TocItem[] = [];
+  if (proposta.capa && hasContent(proposta.capa)) items.push({ id: "apresentacao", label: "Apresentação" });
+  if (proposta.diagnostico && hasContent(proposta.diagnostico)) items.push({ id: "diagnostico", label: "Diagnóstico" });
+  if (extras.cases?.visivel) items.push({ id: "cases", label: "Cases" });
+  if (proposta.objetivo && hasContent(proposta.objetivo)) items.push({ id: "objetivo", label: "Objetivo" });
+  if (extras.kpis?.visivel) items.push({ id: "kpis", label: "Metas" });
+  if (proposta.escopo && hasContent(proposta.escopo)) items.push({ id: "escopo", label: "Estratégia" });
+  if (proposta.cronograma && hasContent(proposta.cronograma)) items.push({ id: "cronograma", label: "Cronograma" });
+  if (proposta.investimento && hasContent(proposta.investimento)) items.push({ id: "investimento", label: "Investimento" });
+  if (extras.pacotes?.visivel) items.push({ id: "pacotes", label: "Pacotes" });
+  if (proposta.proximosPassos && hasContent(proposta.proximosPassos)) items.push({ id: "proximos-passos", label: "Próximos passos" });
+  if (proposta.termos && hasContent(proposta.termos)) items.push({ id: "termos", label: "Termos" });
+  if (extras.equipe?.visivel) items.push({ id: "equipe", label: "Equipe" });
+  if (extras.faq?.visivel) items.push({ id: "faq", label: "FAQ" });
+  return items;
+}
+
+function Toc({ itens }: { itens: TocItem[] }) {
+  const [ativo, setAtivo] = useState<string>("");
+
+  useEffect(() => {
+    // Scrollspy: observa quais sections estão visíveis no viewport
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setAtivo(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+    );
+    itens.forEach((it) => {
+      const el = document.getElementById(it.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [itens]);
+
+  return (
+    <nav className="toc" aria-label="Índice da proposta">
+      <div className="toc-header">
+        <List className="h-3 w-3" />
+        <span>Navegação</span>
+      </div>
+      <ul className="toc-lista">
+        {itens.map((it) => (
+          <li key={it.id}>
+            <a
+              href={`#${it.id}`}
+              className={cn("toc-link", ativo === it.id && "toc-link-ativo")}
+            >
+              {it.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 

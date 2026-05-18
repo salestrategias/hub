@@ -984,6 +984,13 @@ model Proposta {
   // Customização visual
   logoUrl         String?        @db.Text   // dataURL ou URL externa
   corPrimaria     String?        // hex (#7E30E1 default no front)
+  capaImagemUrl   String?        @db.Text   // imagem hero opcional na capa (dataURL ou URL)
+
+  // Blocos extras de personalização avançada — JSON serializado.
+  // Estrutura: { pacotes?: {...}, cases?: {...}, kpis?: {...}, equipe?: {...}, faq?: {...} }
+  // Cada bloco tem `visivel: boolean` + dados específicos. Renderizam em
+  // posições estratégicas da proposta pública.
+  extras          Json?
 
   // Status
   status          PropostaStatus @default(RASCUNHO)
