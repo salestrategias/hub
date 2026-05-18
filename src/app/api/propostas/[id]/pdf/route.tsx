@@ -1,5 +1,6 @@
 import React from "react";
-import { renderToStream, Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
+import path from "node:path";
+import { renderToStream, Document, Page, Text, View, Image, StyleSheet, Font } from "@react-pdf/renderer";
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import {
@@ -9,6 +10,38 @@ import {
   formatBRL,
 } from "@/lib/proposta-helpers";
 import { normalizarExtras } from "@/lib/proposta-blocos";
+
+// ─── Registro de fontes ─────────────────────────────────────────
+// Helvetica (default do react-pdf) é Type1/Latin-1 e quebra com acentos
+// UTF-8 + emojis. Registramos Inter (mesma fonte do web) pra preservar
+// tipografia e usamos Twemoji como emoji source pra renderizar emojis
+// como imagens PNG (Helvetica/Inter não tem glyphs pra emoji nativo).
+//
+// Idempotente: Font.register pode ser chamado múltiplas vezes sem efeito
+// colateral, mas envolvemos num try pra evitar erro em hot-reload no dev.
+const FONT_DIR = path.join(process.cwd(), "public", "fonts");
+try {
+  Font.register({
+    family: "Inter",
+    fonts: [
+      { src: path.join(FONT_DIR, "Inter-Regular.ttf"), fontWeight: 400 },
+      { src: path.join(FONT_DIR, "Inter-Medium.ttf"), fontWeight: 500 },
+      { src: path.join(FONT_DIR, "Inter-SemiBold.ttf"), fontWeight: 600 },
+      { src: path.join(FONT_DIR, "Inter-Bold.ttf"), fontWeight: 700 },
+      { src: path.join(FONT_DIR, "Inter-ExtraBold.ttf"), fontWeight: 800 },
+    ],
+  });
+  // Word-break: por padrão @react-pdf quebra em qualquer ponto. Travamos pra
+  // quebrar só em espaços (mais natural pra textos comerciais em português).
+  Font.registerHyphenationCallback((word) => [word]);
+  // Twemoji via jsdelivr — react-pdf substitui qualquer emoji por PNG colorido
+  Font.registerEmojiSource({
+    format: "png",
+    url: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/",
+  });
+} catch {
+  // Já registrado ou ambiente sem acesso ao FS — segue com Helvetica fallback
+}
 
 /**
  * Gera PDF da proposta. Disponível pra usuário logado (preview interno)
@@ -95,36 +128,40 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {/* Capa */}
         <Page size="A4" style={styles.capa}>
           {proposta.capaImagemUrl && (
-            // eslint-disable-next-line jsx-a11y/alt-text
-            <Image src={proposta.capaImagemUrl} style={styles.capaHero} fixed />
+            <>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image src={proposta.capaImagemUrl} style={styles.capaHero} fixed />
+              <View style={styles.capaHeroOverlay} fixed />
+            </>
           )}
-          {proposta.capaImagemUrl && <View style={styles.capaHeroOverlay} fixed />}
-          <View style={styles.capaTop}>
-            {proposta.logoUrl ? (
-              // eslint-disable-next-line jsx-a11y/alt-text
-              <Image src={proposta.logoUrl} style={styles.capaLogo} />
-            ) : (
-              <>
-                <Text style={styles.brand}>SAL</Text>
-                <Text style={styles.brandSub}>Estratégias de Marketing</Text>
-              </>
-            )}
-          </View>
-          <View style={styles.capaCenter}>
-            <Text style={styles.capaNumero}>Proposta {proposta.numero}</Text>
-            <Text style={styles.capaTitulo}>{proposta.titulo}</Text>
-            <View style={[styles.capaSeparador, { backgroundColor: corPrim }]} />
-            <Text style={styles.capaPara}>Preparado para</Text>
-            <Text style={styles.capaCliente}>{proposta.clienteNome}</Text>
-          </View>
-          <View style={styles.capaBottom}>
-            <View>
-              <Text style={styles.meta}>Por {proposta.user.name ?? "SAL"}</Text>
-              <Text style={styles.meta}>{proposta.user.email ?? ""}</Text>
+          <View style={styles.capaInner}>
+            <View style={styles.capaTop}>
+              {proposta.logoUrl ? (
+                // eslint-disable-next-line jsx-a11y/alt-text
+                <Image src={proposta.logoUrl} style={styles.capaLogo} />
+              ) : (
+                <>
+                  <Text style={styles.brand}>SAL</Text>
+                  <Text style={styles.brandSub}>Estratégias de Marketing</Text>
+                </>
+              )}
             </View>
-            <View style={{ textAlign: "right" }}>
-              <Text style={styles.meta}>Emitida {new Date().toLocaleDateString("pt-BR")}</Text>
-              <Text style={styles.meta}>Válida até {validadeStr}</Text>
+            <View style={styles.capaCenter}>
+              <Text style={styles.capaNumero}>Proposta {proposta.numero}</Text>
+              <Text style={styles.capaTitulo}>{proposta.titulo}</Text>
+              <View style={[styles.capaSeparador, { backgroundColor: corPrim }]} />
+              <Text style={styles.capaPara}>Preparado para</Text>
+              <Text style={styles.capaCliente}>{proposta.clienteNome}</Text>
+            </View>
+            <View style={styles.capaBottom}>
+              <View>
+                <Text style={styles.meta}>Por {proposta.user.name ?? "SAL"}</Text>
+                <Text style={styles.meta}>{proposta.user.email ?? ""}</Text>
+              </View>
+              <View style={{ textAlign: "right" }}>
+                <Text style={styles.meta}>Emitida {new Date().toLocaleDateString("pt-BR")}</Text>
+                <Text style={styles.meta}>Válida até {validadeStr}</Text>
+              </View>
             </View>
           </View>
         </Page>
@@ -532,29 +569,35 @@ function Conteudo({ texto }: { texto: string }) {
 }
 
 const styles = StyleSheet.create({
+  // Capa: SEM padding na Page pra que o hero possa preencher 100% da página.
+  // Padding fica no capaInner. position: "relative" pra ancorar absolute.
   capa: {
     backgroundColor: "#0E0E14",
     color: "#FFFFFF",
+    position: "relative",
+    fontFamily: "Inter",
+  },
+  capaInner: {
+    flex: 1,
     padding: 60,
-    display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    position: "relative",
   },
+  // Hero: top/left/right/bottom = 0 preenche o pai inteiro sem precisar de width/height %
   capaHero: {
     position: "absolute",
     top: 0,
     left: 0,
-    width: "100%",
-    height: "100%",
+    right: 0,
+    bottom: 0,
     objectFit: "cover",
   },
   capaHeroOverlay: {
     position: "absolute",
     top: 0,
     left: 0,
-    width: "100%",
-    height: "100%",
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(14,14,20,0.65)",
   },
   capaTop: { flexDirection: "row", alignItems: "center", gap: 8 },
@@ -576,7 +619,7 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
     fontSize: 11,
     color: "#1F1F2D",
-    fontFamily: "Helvetica",
+    fontFamily: "Inter",
     lineHeight: 1.5,
   },
   pageHeader: {
