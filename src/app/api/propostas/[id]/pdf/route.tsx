@@ -685,10 +685,12 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: "#7E30E1",
   },
-  cardMetrica: { fontSize: 24, fontWeight: 800, color: "#7E30E1", marginBottom: 4 },
-  cardTitulo: { fontSize: 13, fontWeight: 700, color: "#1F1F2D" },
-  cardSub: { fontSize: 8, color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1, marginTop: 2 },
-  cardTexto: { fontSize: 11, color: "#1F1F2D", marginTop: 4, fontWeight: 500 },
+  // lineHeight: 1.1 trava o line-box do número grande pra não invadir a linha de baixo;
+  // marginBottom maior dá respiro real entre métrica e nome do cliente.
+  cardMetrica: { fontSize: 24, fontWeight: 800, color: "#7E30E1", lineHeight: 1.1, marginBottom: 10 },
+  cardTitulo: { fontSize: 13, fontWeight: 700, color: "#1F1F2D", lineHeight: 1.3 },
+  cardSub: { fontSize: 8, color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1, marginTop: 4 },
+  cardTexto: { fontSize: 11, color: "#1F1F2D", marginTop: 8, fontWeight: 500 },
   cardDescricao: { fontSize: 9, color: "#64748B", marginTop: 4, lineHeight: 1.5 },
 
   // KPIs
@@ -704,9 +706,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   kpiLabelPdf: { fontSize: 7.5, color: "#64748B", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4, textAlign: "center" },
-  kpiAtualPdf: { fontSize: 12, color: "#94A3B8", textDecoration: "line-through", fontWeight: 700 },
-  kpiMetaPdf: { fontSize: 22, fontWeight: 800, color: "#7E30E1" },
-  kpiVariacaoPdf: { fontSize: 9, color: "#10B981", fontWeight: 700, marginTop: 4 },
+  kpiAtualPdf: { fontSize: 12, color: "#94A3B8", textDecoration: "line-through", fontWeight: 700, lineHeight: 1.1 },
+  kpiMetaPdf: { fontSize: 22, fontWeight: 800, color: "#7E30E1", lineHeight: 1.1 },
+  kpiVariacaoPdf: { fontSize: 9, color: "#10B981", fontWeight: 700, marginTop: 6 },
 
   // Pacotes
   pacoteGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 },
@@ -729,8 +731,8 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   pacoteSubPdf: { fontSize: 7.5, color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
-  pacoteNomePdf: { fontSize: 14, fontWeight: 700, color: "#1F1F2D", marginTop: 2 },
-  pacoteValorPdf: { fontSize: 16, fontWeight: 700, marginTop: 4 },
+  pacoteNomePdf: { fontSize: 14, fontWeight: 700, color: "#1F1F2D", marginTop: 4, lineHeight: 1.2 },
+  pacoteValorPdf: { fontSize: 16, fontWeight: 700, marginTop: 6, lineHeight: 1.2, marginBottom: 4 },
   pacoteFeaturePdf: { fontSize: 8.5, color: "#475569", marginBottom: 4, lineHeight: 1.4 },
 
   // Equipe
