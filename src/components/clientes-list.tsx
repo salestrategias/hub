@@ -12,15 +12,22 @@ import { ClienteSheet } from "@/components/sheets/cliente-sheet";
 import { useEntitySheet } from "@/components/entity-sheet";
 import { RelatorioMensalDialog } from "@/components/relatorio-mensal-dialog";
 import { formatBRL, cn } from "@/lib/utils";
-import { Search, X, Users, FilterX, ExternalLink, BarChart3 } from "lucide-react";
+import { Search, X, Users, FilterX, ExternalLink, BarChart3, Download } from "lucide-react";
+import { exportarCsv, timestampArquivo, type Coluna } from "@/lib/csv-export";
+import { toast } from "@/components/ui/toast";
 
 type Cliente = {
   id: string;
   nome: string;
   email: string | null;
+  telefone: string | null;
+  cnpj: string | null;
+  endereco: string | null;
   status: "ATIVO" | "INATIVO" | "PROSPECT" | "CHURNED";
   valorContratoMensal: number;
   tags: Tag[];
+  createdAt: string;
+  onboardingFeitoEm: string | null;
 };
 
 const STATUS_COLORS: Record<Cliente["status"], "success" | "muted" | "warning" | "destructive"> = {
@@ -66,6 +73,31 @@ export function ClientesList({ clientes, tags }: { clientes: Cliente[]; tags: Ta
   }
   function limpar() { setBusca(""); setTagsSelecionadas([]); setStatusSelecionados([]); }
 
+  /**
+   * Exporta clientes filtrados pra CSV. Inclui todos os campos relevantes
+   * pra trabalho em planilha + status de onboarding + tempo como cliente.
+   */
+  function exportar() {
+    const colunas: Coluna<Cliente>[] = [
+      { header: "Nome", get: (c) => c.nome },
+      { header: "CNPJ", get: (c) => c.cnpj ?? "" },
+      { header: "Email", get: (c) => c.email ?? "" },
+      { header: "Telefone", get: (c) => c.telefone ?? "" },
+      { header: "Endereço", get: (c) => c.endereco ?? "" },
+      { header: "Status", get: (c) => STATUS_LABEL[c.status] },
+      { header: "MRR (R$/mês)", get: (c) => c.valorContratoMensal },
+      { header: "Tags", get: (c) => c.tags.map((t) => t.nome).join(", ") },
+      { header: "Cliente desde", get: (c) => new Date(c.createdAt).toLocaleDateString("pt-BR") },
+      {
+        header: "Onboarding",
+        get: (c) => (c.onboardingFeitoEm ? new Date(c.onboardingFeitoEm).toLocaleDateString("pt-BR") : "Pendente"),
+      },
+    ];
+    const sufixo = algumFiltro ? "-filtrado" : "";
+    exportarCsv(`clientes-sal${sufixo}-${timestampArquivo()}.csv`, filtrados, colunas);
+    toast.success(`${filtrados.length} cliente(s) exportado(s)`);
+  }
+
   return (
     <div className="space-y-3">
       <Card>
@@ -88,6 +120,15 @@ export function ClientesList({ clientes, tags }: { clientes: Cliente[]; tags: Ta
                 <X className="h-3 w-3" /> Limpar
               </Button>
             )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={exportar}
+              disabled={filtrados.length === 0}
+              title="Exportar clientes filtrados pra CSV"
+            >
+              <Download className="h-3 w-3" /> CSV
+            </Button>
           </div>
 
           <div className="space-y-2">

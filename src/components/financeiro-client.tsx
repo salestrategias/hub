@@ -35,10 +35,41 @@ type Lanc = {
   clienteNome: string | null;
 };
 
+const PERIODO_LABEL: Record<"mes" | "trimestre" | "ano" | "tudo", string> = {
+  mes: "mês",
+  trimestre: "3m",
+  ano: "ano",
+  tudo: "tudo",
+};
+
+// Categorias sugeridas no dropdown do NovoLancamento. Texto livre ainda
+// é aceito — basta digitar e teclar Enter (option "outro" foca o input).
+const CATEGORIAS_DESPESA = [
+  "Anúncios",
+  "Salários",
+  "Pró-labore",
+  "Software",
+  "Impostos",
+  "Aluguel",
+  "Serviços (freelas)",
+  "Marketing",
+  "Equipamentos",
+  "Educação",
+  "Outros",
+];
+const CATEGORIAS_RECEITA = [
+  "Mensalidade",
+  "Projeto pontual",
+  "Comissão",
+  "Reembolso",
+  "Outros",
+];
+
 export function FinanceiroClient({
   lancamentos, clientes, mrr,
 }: { lancamentos: Lanc[]; clientes: { id: string; nome: string }[]; mrr: number }) {
   const [tab, setTab] = useState<"PJ" | "PF">("PJ");
+  const [periodo, setPeriodo] = useState<"mes" | "trimestre" | "ano" | "tudo">("mes");
   const router = useRouter();
   const [processandoFaturamento, setProcessandoFaturamento] = useState(false);
 
@@ -72,40 +103,81 @@ export function FinanceiroClient({
     }
   }
 
-  const filtrados = useMemo(() => lancamentos.filter((l) => l.entidade === tab), [lancamentos, tab]);
+  // Janela do filtro de período aplicado em toda a tela
+  const inicioPeriodo = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    if (periodo === "mes") {
+      d.setDate(1);
+      return d;
+    }
+    if (periodo === "trimestre") {
+      d.setMonth(d.getMonth() - 3);
+      return d;
+    }
+    if (periodo === "ano") {
+      d.setMonth(0);
+      d.setDate(1);
+      return d;
+    }
+    return new Date(0); // "tudo"
+  }, [periodo]);
 
-  const inicioMes = new Date(); inicioMes.setDate(1); inicioMes.setHours(0, 0, 0, 0);
+  // Tab (PJ/PF) sempre aplicado; período aplicado se != "tudo"
+  const filtradosEntidade = useMemo(() => lancamentos.filter((l) => l.entidade === tab), [lancamentos, tab]);
+  const filtrados = useMemo(
+    () => filtradosEntidade.filter((l) => new Date(l.data) >= inicioPeriodo),
+    [filtradosEntidade, inicioPeriodo]
+  );
 
-  const receitaMes = filtrados.filter((l) => l.tipo === "RECEITA" && new Date(l.data) >= inicioMes).reduce((s, l) => s + l.valor, 0);
-  const despesaMes = filtrados.filter((l) => l.tipo === "DESPESA" && new Date(l.data) >= inicioMes).reduce((s, l) => s + l.valor, 0);
+  const receitaMes = filtrados.filter((l) => l.tipo === "RECEITA").reduce((s, l) => s + l.valor, 0);
+  const despesaMes = filtrados.filter((l) => l.tipo === "DESPESA").reduce((s, l) => s + l.valor, 0);
   const lucro = receitaMes - despesaMes;
   const projecao3 = lucro * 3;
+  // % do faturamento gasto em despesas — sinal de margem operacional.
+  // Quanto menor, mais lucrativo. >100% = no vermelho.
+  const percDespesas = receitaMes > 0 ? (despesaMes / receitaMes) * 100 : 0;
 
   function exportar() {
     // Extrato no estilo bancário: data, descrição, categoria, cliente,
-    // tipo, valor com sinal (+ receita / − despesa) e flag de recorrente.
-    // Marcelo abre no Excel/Sheets e usa SUM() pra saldo acumulado,
-    // tabela dinâmica por categoria, etc.
+    // tipo, valor com sinal (+ receita / − despesa), flag de recorrente
+    // + SALDO ACUMULADO (running SUM ordenada por data ASC).
+    //
+    // Pre-processa pra calcular saldo acumulado em ordem cronológica:
+    // do mais antigo pro mais recente. CSV final mantém a ordem original
+    // (mais recente primeiro) mas o saldo já reflete o running total.
+    const ordenadoAsc = [...filtrados].sort(
+      (a, b) => new Date(a.data).getTime() - new Date(b.data).getTime()
+    );
+    const saldoAcumulado = new Map<string, number>();
+    let running = 0;
+    for (const l of ordenadoAsc) {
+      running += l.tipo === "RECEITA" ? l.valor : -l.valor;
+      saldoAcumulado.set(l.id, running);
+    }
+
     const colunas: Coluna<Lanc>[] = [
       { header: "Data", get: (l) => new Date(l.data).toLocaleDateString("pt-BR") },
       { header: "Descrição", get: (l) => l.descricao },
       { header: "Categoria", get: (l) => l.categoria ?? "" },
       { header: "Cliente", get: (l) => l.clienteNome ?? "" },
       { header: "Tipo", get: (l) => (l.tipo === "RECEITA" ? "Receita" : "Despesa") },
-      // Valor com sinal — extrato bancário style. Excel reconhece como número
-      // mesmo com vírgula decimal porque o separador da planilha será `;`.
       {
         header: "Valor (R$)",
         get: (l) => {
           const sinal = l.tipo === "RECEITA" ? 1 : -1;
-          // pt-BR: 2500.5 → "2500,50" (sem milhar — facilita SUM no Excel)
           return (sinal * l.valor).toFixed(2).replace(".", ",");
         },
+      },
+      {
+        header: "Saldo acumulado (R$)",
+        get: (l) => (saldoAcumulado.get(l.id) ?? 0).toFixed(2).replace(".", ","),
       },
       { header: "Recorrente", get: (l) => (l.recorrente ? "Sim" : "Não") },
       { header: "Entidade", get: (l) => l.entidade },
     ];
-    const filename = `extrato-${tab.toLowerCase()}-${timestampArquivo()}.csv`;
+    const sufixoPeriodo = periodo === "tudo" ? "tudo" : periodo;
+    const filename = `extrato-${tab.toLowerCase()}-${sufixoPeriodo}-${timestampArquivo()}.csv`;
     exportarCsv(filename, filtrados, colunas);
     toast.success(`${filtrados.length} lançamento(s) exportado(s)`);
   }
@@ -130,7 +202,18 @@ export function FinanceiroClient({
             <TabsTrigger value="PJ">Pessoa Jurídica</TabsTrigger>
             <TabsTrigger value="PF">Pessoa Física</TabsTrigger>
           </TabsList>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Select value={periodo} onValueChange={(v) => setPeriodo(v as typeof periodo)}>
+              <SelectTrigger className="h-9 w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mes">Mês atual</SelectItem>
+                <SelectItem value="trimestre">Últimos 3 meses</SelectItem>
+                <SelectItem value="ano">Ano atual</SelectItem>
+                <SelectItem value="tudo">Tudo</SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="outline" onClick={gerarFaturamento} disabled={processandoFaturamento} title="Cria a mensalidade do mês corrente pra todos clientes ATIVO. Idempotente — clientes já faturados são pulados.">
               <RefreshCw className={`h-4 w-4 ${processandoFaturamento ? "animate-spin" : ""}`} />
               {processandoFaturamento ? "Gerando..." : "Gerar faturamento"}
@@ -143,11 +226,31 @@ export function FinanceiroClient({
         </div>
 
         <TabsContent value={tab} className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* KPIs respeitam o filtro de período selecionado */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Kpi label="MRR (contratos)" value={formatBRL(mrr)} />
-            <Kpi label="Receita do mês" value={formatBRL(receitaMes)} />
-            <Kpi label="Despesa do mês" value={formatBRL(despesaMes)} />
-            <Kpi label="Lucro / projeção 3m" value={formatBRL(lucro)} hint={`Projeção: ${formatBRL(projecao3)}`} accent={lucro >= 0 ? "good" : "bad"} />
+            <Kpi label={`Receita (${PERIODO_LABEL[periodo]})`} value={formatBRL(receitaMes)} />
+            <Kpi label={`Despesa (${PERIODO_LABEL[periodo]})`} value={formatBRL(despesaMes)} />
+            <Kpi
+              label="Lucro / projeção 3m"
+              value={formatBRL(lucro)}
+              hint={`Projeção: ${formatBRL(projecao3)}`}
+              accent={lucro >= 0 ? "good" : "bad"}
+            />
+            <Kpi
+              label="% despesas / receita"
+              value={receitaMes > 0 ? `${percDespesas.toFixed(0)}%` : "—"}
+              hint={
+                receitaMes === 0
+                  ? "Sem receita no período"
+                  : percDespesas < 60
+                    ? "Margem saudável"
+                    : percDespesas < 90
+                      ? "Margem apertada"
+                      : "Atenção: pouco lucro"
+              }
+              accent={receitaMes === 0 ? undefined : percDespesas < 60 ? "good" : percDespesas < 90 ? undefined : "bad"}
+            />
           </div>
 
           <Card>
@@ -285,7 +388,28 @@ function NovoLancamento({ clientes, entidade }: { clientes: { id: string; nome: 
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5"><Label>Categoria</Label><Input {...register("categoria")} placeholder="Ex: Anúncios, Salários" /></div>
+            <div className="space-y-1.5">
+              <Label>Categoria</Label>
+              <Select
+                value={watch("categoria") ?? ""}
+                onValueChange={(v) => setValue("categoria", v === "_custom" ? "" : v)}
+              >
+                <SelectTrigger><SelectValue placeholder="Escolha..." /></SelectTrigger>
+                <SelectContent>
+                  {(watch("tipo") === "RECEITA" ? CATEGORIAS_RECEITA : CATEGORIAS_DESPESA).map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                  <SelectItem value="_custom">+ Personalizada (digite abaixo)</SelectItem>
+                </SelectContent>
+              </Select>
+              {watch("categoria") === "" && (
+                <Input
+                  {...register("categoria")}
+                  placeholder="Personalizada"
+                  className="mt-1.5"
+                />
+              )}
+            </div>
             <div className="space-y-1.5"><Label>Data*</Label><Input type="date" {...register("data")} /></div>
             <div className="space-y-1.5 col-span-2">
               <Label>Cliente (opcional)</Label>

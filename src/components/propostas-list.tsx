@@ -31,7 +31,9 @@ import {
   Clock,
   PenLine,
   GitBranch,
+  Download,
 } from "lucide-react";
+import { exportarCsv, timestampArquivo, type Coluna } from "@/lib/csv-export";
 import { cn } from "@/lib/utils";
 
 type Proposta = {
@@ -127,6 +129,15 @@ export function PropostasList({ initial, clientes }: { initial: Proposta[]; clie
         <span className="text-xs text-muted-foreground ml-auto">
           {filtradas.length} de {propostas.length}
         </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={exportar}
+          disabled={filtradas.length === 0}
+          title="Exportar propostas filtradas pra CSV"
+        >
+          <Download className="h-4 w-4" /> CSV
+        </Button>
         <Button onClick={() => setCriando(true)} size="sm">
           <Plus className="h-4 w-4" /> Nova proposta
         </Button>
@@ -166,6 +177,38 @@ export function PropostasList({ initial, clientes }: { initial: Proposta[]; clie
       {criando && <NovaPropostaDialog open={criando} onOpenChange={setCriando} clientes={clientes} />}
     </div>
   );
+
+  function exportar() {
+    const colunas: Coluna<Proposta>[] = [
+      { header: "Número", get: (p) => p.numero },
+      { header: "Versão", get: (p) => p.versao },
+      { header: "Título", get: (p) => p.titulo },
+      { header: "Cliente", get: (p) => p.clienteNome },
+      { header: "Status", get: (p) => STATUS_LABEL[p.status] },
+      { header: "Valor mensal (R$)", get: (p) => p.valorMensal ?? "" },
+      { header: "Valor total (R$)", get: (p) => p.valorTotal ?? "" },
+      { header: "Views", get: (p) => p.shareViews },
+      {
+        header: "Enviada em",
+        get: (p) => (p.enviadaEm ? new Date(p.enviadaEm).toLocaleDateString("pt-BR") : ""),
+      },
+      {
+        header: "Aceita em",
+        get: (p) => (p.aceitaEm ? new Date(p.aceitaEm).toLocaleDateString("pt-BR") : ""),
+      },
+      {
+        header: "Expira em",
+        get: (p) => (p.shareExpiraEm ? new Date(p.shareExpiraEm).toLocaleDateString("pt-BR") : ""),
+      },
+      {
+        header: "Última atualização",
+        get: (p) => new Date(p.updatedAt).toLocaleDateString("pt-BR"),
+      },
+    ];
+    const sufixo = busca.trim() || tab !== "TODAS" ? "-filtrado" : "";
+    exportarCsv(`propostas-sal${sufixo}-${timestampArquivo()}.csv`, filtradas, colunas);
+    toast.success(`${filtradas.length} proposta(s) exportada(s)`);
+  }
 
   async function copiarLink(p: Proposta) {
     if (!p.shareToken) {

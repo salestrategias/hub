@@ -32,9 +32,14 @@ export default async function ClientesPage() {
           id: c.id,
           nome: c.nome,
           email: c.email,
+          telefone: c.telefone,
+          cnpj: c.cnpj,
+          endereco: c.endereco,
           status: c.status,
           valorContratoMensal: Number(c.valorContratoMensal),
           tags: c.tags,
+          createdAt: c.createdAt.toISOString(),
+          onboardingFeitoEm: c.onboardingFeitoEm?.toISOString() ?? null,
         }))}
         tags={tags}
       />
