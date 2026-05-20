@@ -134,6 +134,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
               <View style={styles.capaHeroOverlay} fixed />
             </>
           )}
+          {/* Accent bar no topo da capa */}
+          <View style={[styles.capaAccent, { backgroundColor: corPrim }]} fixed />
           <View style={styles.capaInner}>
             <View style={styles.capaTop}>
               {proposta.logoUrl ? (
@@ -147,7 +149,10 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
               )}
             </View>
             <View style={styles.capaCenter}>
-              <Text style={styles.capaNumero}>Proposta {proposta.numero}</Text>
+              <View style={styles.capaTagWrap}>
+                <View style={[styles.capaTagDot, { backgroundColor: corPrim }]} />
+                <Text style={styles.capaNumero}>Proposta {proposta.numero}</Text>
+              </View>
               <Text style={styles.capaTitulo}>{proposta.titulo}</Text>
               <View style={[styles.capaSeparador, { backgroundColor: corPrim }]} />
               <Text style={styles.capaPara}>Preparado para</Text>
@@ -170,7 +175,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {proposta.capa && extrairTextoDeBlocos(expandirSecaoProposta(proposta.capa, ctx)) && (
           <Page size="A4" style={styles.page}>
             <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>Apresentação</Text>
+            <SectionTitle titulo="Apresentação" cor={corPrim} />
             <Conteudo texto={extrairTextoDeBlocos(expandirSecaoProposta(proposta.capa, ctx))} />
             <PageFooter />
           </Page>
@@ -183,7 +188,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
           return (
             <Page key={i} size="A4" style={styles.page}>
               <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-              <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{s.label}</Text>
+              <SectionTitle titulo={s.label} cor={corPrim} />
 
               {/* Card de números na seção "Investimento" */}
               {s.label === "Investimento" && (proposta.valorMensal || proposta.valorTotal) && (
@@ -219,20 +224,33 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {extras.timeline?.visivel && extras.timeline.marcos.length > 0 && (
           <Page size="A4" style={styles.page}>
             <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{extras.timeline.titulo}</Text>
-            {extras.timeline.subtitulo && <Text style={styles.subtitulo}>{extras.timeline.subtitulo}</Text>}
-            <View>
-              {extras.timeline.marcos.map((m) => {
+            <SectionTitle
+              titulo={extras.timeline.titulo}
+              subtitulo={extras.timeline.subtitulo}
+              cor={corPrim}
+            />
+            <View style={styles.timelineWrap}>
+              {extras.timeline.marcos.map((m, idx) => {
                 const concluido = m.status === "concluido";
                 const ativo = m.status === "em_andamento";
+                const ultimo = idx === extras.timeline!.marcos.length - 1;
                 return (
                   <View key={m.id} style={styles.marcoBox}>
+                    {/* Linha vertical conectando os marcadores */}
+                    {!ultimo && (
+                      <View
+                        style={[
+                          styles.marcoLinha,
+                          { backgroundColor: hexAlpha(corPrim, 0.25) },
+                        ]}
+                      />
+                    )}
                     <View
                       style={[
                         styles.marcoCirculo,
                         {
-                          backgroundColor: concluido ? corPrim : "transparent",
-                          borderColor: concluido || ativo ? corPrim : "#CBD5E1",
+                          backgroundColor: concluido ? corPrim : ativo ? hexAlpha(corPrim, 0.15) : "#FFFFFF",
+                          borderColor: concluido || ativo ? corPrim : "#D4D4DE",
                         },
                       ]}
                     >
@@ -257,12 +275,23 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {extras.garantias?.visivel && extras.garantias.garantias.length > 0 && (
           <Page size="A4" style={styles.page}>
             <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{extras.garantias.titulo}</Text>
-            {extras.garantias.subtitulo && <Text style={styles.subtitulo}>{extras.garantias.subtitulo}</Text>}
+            <SectionTitle
+              titulo={extras.garantias.titulo}
+              subtitulo={extras.garantias.subtitulo}
+              cor={corPrim}
+            />
             <View style={styles.garantiaGrid}>
               {extras.garantias.garantias.map((g) => (
-                <View key={g.id} style={[styles.garantiaBox, { borderColor: hexAlpha(corPrim, 0.2) }]}>
-                  <Text style={styles.garantiaIcone}>{g.icone}</Text>
+                <View
+                  key={g.id}
+                  style={[
+                    styles.garantiaBox,
+                    { borderColor: hexAlpha(corPrim, 0.18), backgroundColor: hexAlpha(corPrim, 0.03) },
+                  ]}
+                >
+                  <View style={[styles.garantiaIconeWrap, { backgroundColor: hexAlpha(corPrim, 0.1) }]}>
+                    <Text style={styles.garantiaIcone}>{g.icone}</Text>
+                  </View>
                   <Text style={styles.garantiaTitulo}>{g.titulo}</Text>
                   {g.descricao && <Text style={styles.garantiaDescricao}>{g.descricao}</Text>}
                 </View>
@@ -276,16 +305,34 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {extras.cases?.visivel && extras.cases.cases.length > 0 && (
           <Page size="A4" style={styles.page}>
             <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{extras.cases.titulo}</Text>
-            {extras.cases.subtitulo && <Text style={styles.subtitulo}>{extras.cases.subtitulo}</Text>}
+            <SectionTitle
+              titulo={extras.cases.titulo}
+              subtitulo={extras.cases.subtitulo}
+              cor={corPrim}
+            />
             <View>
               {extras.cases.cases.map((c, idx) => (
-                <View key={c.id} style={[styles.cardBox, { borderLeftColor: corPrim, marginTop: idx === 0 ? 8 : 14 }]}>
-                  {c.metricaPrincipal && (
-                    <Text style={[styles.cardMetrica, { color: corPrim }]}>{c.metricaPrincipal}</Text>
-                  )}
-                  <Text style={styles.cardTitulo}>{c.cliente}</Text>
-                  {c.segmento && <Text style={styles.cardSub}>{c.segmento}</Text>}
+                <View
+                  key={c.id}
+                  style={[
+                    styles.cardBox,
+                    {
+                      borderLeftColor: corPrim,
+                      marginTop: idx === 0 ? 4 : 12,
+                    },
+                  ]}
+                >
+                  <View style={styles.cardHeader}>
+                    {c.metricaPrincipal && (
+                      <View style={[styles.cardMetricaChip, { backgroundColor: hexAlpha(corPrim, 0.1) }]}>
+                        <Text style={[styles.cardMetricaTexto, { color: corPrim }]}>{c.metricaPrincipal}</Text>
+                      </View>
+                    )}
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.cardTitulo}>{c.cliente}</Text>
+                      {c.segmento && <Text style={styles.cardSub}>{c.segmento}</Text>}
+                    </View>
+                  </View>
                   <Text style={styles.cardTexto}>{c.resultado}</Text>
                   {c.descricao && <Text style={styles.cardDescricao}>{c.descricao}</Text>}
                 </View>
@@ -299,22 +346,35 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {extras.kpis?.visivel && extras.kpis.kpis.length > 0 && (
           <Page size="A4" style={styles.page}>
             <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{extras.kpis.titulo}</Text>
-            {extras.kpis.subtitulo && <Text style={styles.subtitulo}>{extras.kpis.subtitulo}</Text>}
+            <SectionTitle
+              titulo={extras.kpis.titulo}
+              subtitulo={extras.kpis.subtitulo}
+              cor={corPrim}
+            />
             <View style={styles.kpiGrid}>
               {extras.kpis.kpis.map((k) => (
-                <View key={k.id} style={[styles.kpiCardPdf, { borderColor: hexAlpha(corPrim, 0.2) }]}>
+                <View
+                  key={k.id}
+                  style={[
+                    styles.kpiCardPdf,
+                    { borderColor: hexAlpha(corPrim, 0.18), backgroundColor: hexAlpha(corPrim, 0.03) },
+                  ]}
+                >
                   <Text style={styles.kpiLabelPdf}>{k.label}</Text>
-                  <View style={{ flexDirection: "row", alignItems: "baseline", gap: 4 }}>
+                  <View style={styles.kpiValorRow}>
                     {k.valorAtual && (
                       <>
                         <Text style={styles.kpiAtualPdf}>{k.valorAtual}</Text>
-                        <Text style={{ color: corPrim, fontSize: 12 }}> → </Text>
+                        <Text style={[styles.kpiArrow, { color: corPrim }]}>→</Text>
                       </>
                     )}
                     <Text style={[styles.kpiMetaPdf, { color: corPrim }]}>{k.valorMeta}</Text>
                   </View>
-                  {k.variacao && <Text style={styles.kpiVariacaoPdf}>{k.variacao}</Text>}
+                  {k.variacao && (
+                    <View style={styles.kpiVariacaoChip}>
+                      <Text style={styles.kpiVariacaoPdf}>{k.variacao}</Text>
+                    </View>
+                  )}
                 </View>
               ))}
             </View>
@@ -326,8 +386,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {extras.pacotes?.visivel && extras.pacotes.pacotes.length > 0 && (
           <Page size="A4" style={styles.page}>
             <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{extras.pacotes.titulo}</Text>
-            {extras.pacotes.subtitulo && <Text style={styles.subtitulo}>{extras.pacotes.subtitulo}</Text>}
+            <SectionTitle
+              titulo={extras.pacotes.titulo}
+              subtitulo={extras.pacotes.subtitulo}
+              cor={corPrim}
+            />
             <View style={styles.pacoteGrid}>
               {extras.pacotes.pacotes.map((p) => (
                 <View
@@ -336,31 +399,46 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
                     styles.pacoteBoxPdf,
                     p.destaque && {
                       borderColor: corPrim,
-                      borderWidth: 2,
-                      backgroundColor: hexAlpha(corPrim, 0.04),
+                      borderWidth: 1.5,
+                      backgroundColor: hexAlpha(corPrim, 0.05),
                     },
                   ]}
                 >
-                  {p.destaque && (
-                    <Text style={[styles.pacoteBadgePdf, { backgroundColor: corPrim, color: "#FFFFFF" }]}>
-                      RECOMENDADO
-                    </Text>
+                  {p.destaque ? (
+                    <View style={[styles.pacoteBadgeWrap, { backgroundColor: corPrim }]}>
+                      <Text style={styles.pacoteBadgeText}>RECOMENDADO</Text>
+                    </View>
+                  ) : (
+                    // Spacer pra alinhar topos quando há um pacote em destaque na linha
+                    <View style={styles.pacoteBadgeSpacer} />
                   )}
                   {p.subtitulo && <Text style={styles.pacoteSubPdf}>{p.subtitulo}</Text>}
                   <Text style={styles.pacoteNomePdf}>{p.nome}</Text>
                   <Text style={[styles.pacoteValorPdf, { color: corPrim }]}>{p.valor}</Text>
-                  <View style={{ marginTop: 8 }}>
+                  <View style={[styles.pacoteDivisor, { backgroundColor: hexAlpha(corPrim, 0.15) }]} />
+                  <View>
                     {p.features.map((f, idx) => (
-                      <Text
-                        key={idx}
-                        style={[
-                          styles.pacoteFeaturePdf,
-                          f.destaque && { fontWeight: 700, color: "#1F1F2D" },
-                        ]}
-                      >
-                        {f.incluso ? "✓ " : "—  "}
-                        {f.texto}
-                      </Text>
+                      <View key={idx} style={styles.pacoteFeatureRow}>
+                        <Text
+                          style={[
+                            styles.pacoteFeatureIcone,
+                            {
+                              color: f.incluso ? corPrim : "#A8A8B8",
+                            },
+                          ]}
+                        >
+                          {f.incluso ? "✓" : "—"}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.pacoteFeaturePdf,
+                            f.destaque && { fontWeight: 700, color: "#1F1F2D" },
+                            !f.incluso && { color: "#A8A8B8", textDecoration: "line-through" },
+                          ]}
+                        >
+                          {f.texto}
+                        </Text>
+                      </View>
                     ))}
                   </View>
                 </View>
@@ -374,8 +452,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {extras.equipe?.visivel && extras.equipe.membros.length > 0 && (
           <Page size="A4" style={styles.page}>
             <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{extras.equipe.titulo}</Text>
-            {extras.equipe.subtitulo && <Text style={styles.subtitulo}>{extras.equipe.subtitulo}</Text>}
+            <SectionTitle
+              titulo={extras.equipe.titulo}
+              subtitulo={extras.equipe.subtitulo}
+              cor={corPrim}
+            />
             <View style={styles.equipeGrid}>
               {extras.equipe.membros.map((m) => (
                 <View key={m.id} style={styles.membroBox}>
@@ -409,11 +490,16 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {proposta.status === "ACEITA" && (proposta.aceiteNome || proposta.aceiteCpfCnpj) && (
           <Page size="A4" style={styles.page}>
             <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>Aceite digital</Text>
-            <Text style={styles.subtitulo}>
-              Esta proposta foi aceita digitalmente. Registro com validade jurídica abaixo.
-            </Text>
-            <View style={[styles.assinaturaBox, { borderColor: corPrim, backgroundColor: hexAlpha(corPrim, 0.04) }]}>
+            <SectionTitle
+              titulo="Aceite digital"
+              subtitulo="Esta proposta foi aceita digitalmente. Registro com validade jurídica abaixo."
+              cor={corPrim}
+            />
+            <View style={[styles.assinaturaBox, { borderColor: corPrim, backgroundColor: hexAlpha(corPrim, 0.03) }]}>
+              <View style={[styles.assinaturaBadge, { backgroundColor: "#10B981" }]}>
+                <Text style={styles.assinaturaBadgeIcone}>✓</Text>
+                <Text style={styles.assinaturaBadgeTexto}>PROPOSTA ACEITA</Text>
+              </View>
               <Text style={[styles.assinaturaTitulo, { color: corPrim }]}>SIGNATÁRIO</Text>
               {proposta.aceiteNome && <Text style={styles.assinaturaNome}>{proposta.aceiteNome}</Text>}
               {proposta.aceiteCpfCnpj && (
@@ -421,9 +507,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
                   {formatarDocPdf(proposta.aceiteCpfCnpj)}
                 </Text>
               )}
-              <View style={styles.assinaturaSep} />
+              <View style={[styles.assinaturaSep, { backgroundColor: hexAlpha(corPrim, 0.3) }]} />
               <Text style={styles.assinaturaMeta}>
-                Aceito em:{" "}
+                Aceito em{" "}
                 {proposta.aceitaEm
                   ? new Date(proposta.aceitaEm).toLocaleString("pt-BR", {
                       day: "2-digit",
@@ -435,9 +521,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
                   : "—"}
               </Text>
               {proposta.aceiteIp && (
-                <Text style={styles.assinaturaMeta}>IP: {proposta.aceiteIp}</Text>
+                <Text style={styles.assinaturaMeta}>IP {proposta.aceiteIp}</Text>
               )}
-              <Text style={styles.assinaturaMeta}>
+              <Text style={[styles.assinaturaMetaLegal, { color: hexAlpha("#000000", 0.5) }]}>
                 Manifestação de vontade conforme Marco Civil da Internet (Lei 12.965/2014)
               </Text>
             </View>
@@ -449,12 +535,18 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         {extras.faq?.visivel && extras.faq.perguntas.length > 0 && (
           <Page size="A4" style={styles.page}>
             <PageHeader numero={proposta.numero} cliente={proposta.clienteNome} cor={corPrim} />
-            <Text style={[styles.h1, { borderBottomColor: corPrim }]}>{extras.faq.titulo}</Text>
-            {extras.faq.subtitulo && <Text style={styles.subtitulo}>{extras.faq.subtitulo}</Text>}
+            <SectionTitle
+              titulo={extras.faq.titulo}
+              subtitulo={extras.faq.subtitulo}
+              cor={corPrim}
+            />
             <View>
               {extras.faq.perguntas.map((f) => (
                 <View key={f.id} style={styles.faqItem}>
-                  <Text style={styles.faqPergunta}>{f.pergunta}</Text>
+                  <View style={styles.faqHeader}>
+                    <View style={[styles.faqDot, { backgroundColor: corPrim }]} />
+                    <Text style={styles.faqPergunta}>{f.pergunta}</Text>
+                  </View>
                   <Text style={styles.faqResposta}>{f.resposta}</Text>
                 </View>
               ))}
@@ -484,11 +576,51 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
 // ─── Componentes auxiliares ──────────────────────────────────────
 
+/**
+ * Header de página de conteúdo: barra de cor fina no topo (continuidade
+ * da marca/capa) + linha sutil com proposta e cliente.
+ */
 function PageHeader({ numero, cliente, cor }: { numero: string; cliente: string; cor: string }) {
   return (
-    <View style={styles.pageHeader} fixed>
-      <Text style={[styles.pageHeaderBrand, { color: cor }]}>Proposta {numero}</Text>
-      <Text style={styles.pageHeaderCliente}>{cliente}</Text>
+    <>
+      <View style={[styles.pageAccentBar, { backgroundColor: cor }]} fixed />
+      <View style={styles.pageHeader} fixed>
+        <Text style={[styles.pageHeaderBrand, { color: cor }]}>Proposta {numero}</Text>
+        <Text style={styles.pageHeaderCliente}>{cliente}</Text>
+      </View>
+    </>
+  );
+}
+
+/**
+ * Título de seção redesenhado: número da seção (eyebrow) opcional,
+ * H1 grande sem border-bottom feia, subtítulo logo abaixo.
+ * Substitui o padrão antigo de `<Text style={styles.h1}>...</Text>`
+ * seguido de `<Text style={styles.subtitulo}>...</Text>`.
+ */
+function SectionTitle({
+  titulo,
+  subtitulo,
+  eyebrow,
+  cor,
+}: {
+  titulo: string;
+  subtitulo?: string;
+  eyebrow?: string;
+  cor: string;
+}) {
+  return (
+    <View style={styles.sectionTitleWrap}>
+      <View style={styles.sectionTitleRow}>
+        <View style={[styles.sectionTitleBar, { backgroundColor: cor }]} />
+        <View style={{ flex: 1 }}>
+          {eyebrow && (
+            <Text style={[styles.sectionEyebrow, { color: cor }]}>{eyebrow}</Text>
+          )}
+          <Text style={styles.sectionTitulo}>{titulo}</Text>
+          {subtitulo && <Text style={styles.sectionSubtitulo}>{subtitulo}</Text>}
+        </View>
+      </View>
     </View>
   );
 }
@@ -568,22 +700,49 @@ function Conteudo({ texto }: { texto: string }) {
   );
 }
 
+// ─── Design tokens ───────────────────────────────────────────────
+// Paleta neutra refinada e espaçamento consistente em múltiplos de 4pt.
+const C = {
+  ink: "#16161D",          // títulos principais
+  inkSoft: "#2A2A35",      // corpo
+  body: "#4A4A5C",         // texto secundário
+  muted: "#8B8B9D",        // metadados, labels
+  light: "#C9C9D4",        // ícones light, linhas sutis
+  bg: "#FFFFFF",           // fundo de página
+  cardBg: "#FAFAFB",       // fundo de card neutro
+  cardBgSoft: "#F4F4F8",   // fundo de card mais escuro
+  border: "#EBEBF1",       // borda card
+  borderLight: "#F2F2F6",  // borda muito sutil
+  capaBg: "#0B0B12",       // fundo da capa (mais profundo)
+  capaText: "#FFFFFF",
+  capaMuted: "#A0A0B0",
+  capaBorder: "#1F1F2A",
+};
+
 const styles = StyleSheet.create({
-  // Capa: SEM padding na Page pra que o hero possa preencher 100% da página.
-  // Padding fica no capaInner. position: "relative" pra ancorar absolute.
+  // ═══════════════ CAPA ═══════════════
+  // Sem padding na Page → hero preenche 100%. position: relative ancora absolute.
   capa: {
-    backgroundColor: "#0E0E14",
-    color: "#FFFFFF",
+    backgroundColor: C.capaBg,
+    color: C.capaText,
     position: "relative",
     fontFamily: "Inter",
   },
+  // Accent bar fina no topo (continuidade visual com o resto do PDF)
+  capaAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+  },
   capaInner: {
     flex: 1,
-    padding: 60,
+    padding: 64,
+    paddingTop: 80,
     flexDirection: "column",
     justifyContent: "space-between",
   },
-  // Hero: top/left/right/bottom = 0 preenche o pai inteiro sem precisar de width/height %
   capaHero: {
     position: "absolute",
     top: 0,
@@ -598,201 +757,295 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(14,14,20,0.65)",
+    backgroundColor: "rgba(11,11,18,0.7)",
   },
-  capaTop: { flexDirection: "row", alignItems: "center", gap: 8 },
-  capaLogo: { maxHeight: 56, maxWidth: 200, objectFit: "contain" },
-  brand: { fontSize: 36, fontWeight: 700, color: "#B794F4", letterSpacing: 2 },
-  brandSub: { fontSize: 9, color: "#9696A8", textTransform: "uppercase", letterSpacing: 2, marginLeft: 4 },
-  capaCenter: { marginTop: 80 },
-  capaNumero: { fontSize: 10, color: "#9696A8", letterSpacing: 3, textTransform: "uppercase" },
-  capaTitulo: { fontSize: 36, fontWeight: 700, color: "#FFFFFF", marginTop: 8, lineHeight: 1.2 },
-  capaSeparador: { width: 60, height: 3, backgroundColor: "#7E30E1", marginTop: 24, marginBottom: 24 },
-  capaPara: { fontSize: 10, color: "#9696A8", letterSpacing: 2, textTransform: "uppercase" },
-  capaCliente: { fontSize: 24, fontWeight: 700, color: "#FFFFFF", marginTop: 4 },
-  capaBottom: { flexDirection: "row", justifyContent: "space-between", borderTopWidth: 1, borderTopColor: "#1F1F2D", paddingTop: 16 },
-  meta: { fontSize: 9, color: "#9696A8", marginBottom: 2 },
+  capaTop: { flexDirection: "row", alignItems: "center", gap: 10 },
+  capaLogo: { maxHeight: 52, maxWidth: 180, objectFit: "contain" },
+  brand: { fontSize: 32, fontWeight: 700, color: "#C5A6F7", letterSpacing: 2 },
+  brandSub: { fontSize: 8, color: C.capaMuted, textTransform: "uppercase", letterSpacing: 2.5, marginLeft: 4 },
+  capaCenter: { marginTop: 60 },
+  capaTagWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 16,
+  },
+  capaTagDot: { width: 6, height: 6, borderRadius: 3 },
+  capaNumero: { fontSize: 9, color: C.capaMuted, letterSpacing: 3, textTransform: "uppercase", fontWeight: 600 },
+  capaTitulo: { fontSize: 38, fontWeight: 800, color: C.capaText, lineHeight: 1.15, letterSpacing: -0.5 },
+  capaSeparador: { width: 56, height: 3, marginTop: 28, marginBottom: 28, borderRadius: 2 },
+  capaPara: { fontSize: 9, color: C.capaMuted, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 },
+  capaCliente: { fontSize: 22, fontWeight: 700, color: C.capaText, marginTop: 6, letterSpacing: -0.3 },
+  capaBottom: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderTopWidth: 1,
+    borderTopColor: C.capaBorder,
+    paddingTop: 18,
+  },
+  meta: { fontSize: 8.5, color: C.capaMuted, marginBottom: 3, letterSpacing: 0.2 },
 
+  // ═══════════════ PÁGINA DE CONTEÚDO ═══════════════
   page: {
     padding: 60,
-    paddingTop: 70,
-    paddingBottom: 50,
+    paddingTop: 84,
+    paddingBottom: 58,
     fontSize: 11,
-    color: "#1F1F2D",
+    color: C.inkSoft,
     fontFamily: "Inter",
-    lineHeight: 1.5,
+    lineHeight: 1.55,
+  },
+  // Barra fina colorida no topo de cada página (continuidade da capa)
+  pageAccentBar: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
   },
   pageHeader: {
     position: "absolute",
-    top: 30,
+    top: 36,
     left: 60,
     right: 60,
     flexDirection: "row",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EE",
-    paddingBottom: 6,
+    alignItems: "center",
   },
-  pageHeaderBrand: { fontSize: 9, fontWeight: 700, color: "#7E30E1", letterSpacing: 1 },
-  pageHeaderCliente: { fontSize: 9, color: "#64748B" },
+  pageHeaderBrand: { fontSize: 8.5, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" },
+  pageHeaderCliente: { fontSize: 8.5, color: C.muted, letterSpacing: 0.3 },
   pageFooter: {
     position: "absolute",
-    bottom: 24,
+    bottom: 28,
     left: 60,
     right: 60,
     textAlign: "center",
-    fontSize: 8,
-    color: "#94A3B8",
+    fontSize: 7.5,
+    color: C.muted,
+    letterSpacing: 0.5,
   },
 
-  h1: {
-    fontSize: 22,
+  // ═══════════════ SECTION TITLE (novo) ═══════════════
+  // H1 redesenhado: barra vertical de cor + título grande + subtítulo opcional.
+  // Substitui o antigo border-bottom feinho.
+  sectionTitleWrap: { marginBottom: 24 },
+  sectionTitleRow: { flexDirection: "row", gap: 14, alignItems: "stretch" },
+  sectionTitleBar: { width: 4, borderRadius: 2 },
+  sectionEyebrow: {
+    fontSize: 8.5,
     fontWeight: 700,
-    color: "#1F1F2D",
-    marginBottom: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: "#7E30E1",
-    paddingBottom: 6,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    marginBottom: 4,
   },
-  h1Inline: { fontSize: 16, fontWeight: 700, color: "#1F1F2D", marginTop: 12, marginBottom: 6 },
-  h2: { fontSize: 13, fontWeight: 700, color: "#1F1F2D", marginTop: 10, marginBottom: 4 },
-  h3: { fontSize: 11, fontWeight: 700, color: "#475569", marginTop: 8, marginBottom: 2 },
-  p: { fontSize: 11, color: "#1F1F2D", marginBottom: 6 },
-  bullet: { fontSize: 11, color: "#1F1F2D", marginBottom: 4, paddingLeft: 12 },
+  sectionTitulo: {
+    fontSize: 26,
+    fontWeight: 800,
+    color: C.ink,
+    lineHeight: 1.15,
+    letterSpacing: -0.4,
+  },
+  sectionSubtitulo: {
+    fontSize: 11,
+    color: C.body,
+    marginTop: 6,
+    lineHeight: 1.5,
+  },
 
+  // ═══════════════ TIPOGRAFIA DE CONTEÚDO ═══════════════
+  h1Inline: { fontSize: 15, fontWeight: 700, color: C.ink, marginTop: 14, marginBottom: 6, lineHeight: 1.3 },
+  h2: { fontSize: 13, fontWeight: 700, color: C.ink, marginTop: 12, marginBottom: 4, lineHeight: 1.3 },
+  h3: { fontSize: 11, fontWeight: 700, color: C.body, marginTop: 10, marginBottom: 2, lineHeight: 1.3 },
+  p: { fontSize: 11, color: C.inkSoft, marginBottom: 8, lineHeight: 1.55 },
+  bullet: { fontSize: 11, color: C.inkSoft, marginBottom: 5, paddingLeft: 12, lineHeight: 1.5 },
+
+  // ═══════════════ INVESTIMENTO BOX ═══════════════
   investBox: {
     flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
-    padding: 16,
-    backgroundColor: "#F5EFFE",
-    borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: "#7E30E1",
+    gap: 16,
+    marginBottom: 18,
+    padding: 20,
+    backgroundColor: "#F8F4FE",
+    borderRadius: 12,
+    borderLeftWidth: 3,
   },
   investItem: { flex: 1 },
-  investLabel: { fontSize: 8, color: "#64748B", textTransform: "uppercase", letterSpacing: 1 },
-  investValor: { fontSize: 18, fontWeight: 700, color: "#54199F", marginTop: 4 },
+  investLabel: { fontSize: 8, color: C.muted, textTransform: "uppercase", letterSpacing: 1.2, fontWeight: 600 },
+  investValor: { fontSize: 20, fontWeight: 800, marginTop: 6, lineHeight: 1.1, letterSpacing: -0.3 },
 
-  // ─── Blocos extras ───
-  subtitulo: { fontSize: 10, color: "#64748B", marginBottom: 16, marginTop: -8 },
-
-  // Cases
+  // ═══════════════ CASES ═══════════════
   cardBox: {
-    padding: 14,
-    borderRadius: 8,
-    backgroundColor: "#FAFAFC",
+    padding: 18,
+    borderRadius: 10,
+    backgroundColor: C.cardBg,
     borderLeftWidth: 3,
-    borderLeftColor: "#7E30E1",
   },
-  // lineHeight: 1.1 trava o line-box do número grande pra não invadir a linha de baixo;
-  // marginBottom maior dá respiro real entre métrica e nome do cliente.
-  cardMetrica: { fontSize: 24, fontWeight: 800, color: "#7E30E1", lineHeight: 1.1, marginBottom: 10 },
-  cardTitulo: { fontSize: 13, fontWeight: 700, color: "#1F1F2D", lineHeight: 1.3 },
-  cardSub: { fontSize: 8, color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1, marginTop: 4 },
-  cardTexto: { fontSize: 11, color: "#1F1F2D", marginTop: 8, fontWeight: 500 },
-  cardDescricao: { fontSize: 9, color: "#64748B", marginTop: 4, lineHeight: 1.5 },
-
-  // KPIs
-  kpiGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 },
-  kpiCardPdf: {
-    padding: 12,
+  cardHeader: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 12 },
+  cardMetricaChip: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: 8,
-    borderWidth: 1,
-    width: "31%",
-    minHeight: 80,
-    backgroundColor: "#FAFAFC",
-    alignItems: "center",
-    justifyContent: "center",
   },
-  kpiLabelPdf: { fontSize: 7.5, color: "#64748B", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4, textAlign: "center" },
-  kpiAtualPdf: { fontSize: 12, color: "#94A3B8", textDecoration: "line-through", fontWeight: 700, lineHeight: 1.1 },
-  kpiMetaPdf: { fontSize: 22, fontWeight: 800, color: "#7E30E1", lineHeight: 1.1 },
-  kpiVariacaoPdf: { fontSize: 9, color: "#10B981", fontWeight: 700, marginTop: 6 },
+  cardMetricaTexto: { fontSize: 18, fontWeight: 800, lineHeight: 1, letterSpacing: -0.3 },
+  cardTitulo: { fontSize: 13, fontWeight: 700, color: C.ink, lineHeight: 1.3 },
+  cardSub: { fontSize: 7.5, color: C.muted, textTransform: "uppercase", letterSpacing: 1.2, marginTop: 3, fontWeight: 600 },
+  cardTexto: { fontSize: 11, color: C.inkSoft, fontWeight: 600, lineHeight: 1.4 },
+  cardDescricao: { fontSize: 9.5, color: C.body, marginTop: 6, lineHeight: 1.55 },
 
-  // Pacotes
-  pacoteGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 },
-  pacoteBoxPdf: {
+  // ═══════════════ KPIs ═══════════════
+  kpiGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 4 },
+  kpiCardPdf: {
     padding: 14,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#E5E5EE",
     width: "31%",
-    backgroundColor: "#FAFAFC",
+    minHeight: 100,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  pacoteBadgePdf: {
-    fontSize: 7,
-    fontWeight: 700,
-    padding: 2,
-    paddingHorizontal: 6,
+  kpiLabelPdf: { fontSize: 7.5, color: C.muted, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 10, textAlign: "center", fontWeight: 600 },
+  kpiValorRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  kpiAtualPdf: { fontSize: 11, color: C.muted, textDecoration: "line-through", fontWeight: 600, lineHeight: 1.1 },
+  kpiArrow: { fontSize: 11, fontWeight: 700 },
+  kpiMetaPdf: { fontSize: 22, fontWeight: 800, lineHeight: 1.1, letterSpacing: -0.3 },
+  kpiVariacaoChip: {
+    marginTop: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    backgroundColor: "#E6F9F0",
+    borderRadius: 6,
+  },
+  kpiVariacaoPdf: { fontSize: 8.5, color: "#10A86A", fontWeight: 700, letterSpacing: 0.3 },
+
+  // ═══════════════ PACOTES ═══════════════
+  pacoteGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 4 },
+  pacoteBoxPdf: {
+    padding: 18,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: C.border,
+    width: "31.5%",
+    backgroundColor: "#FFFFFF",
+  },
+  // Badge "RECOMENDADO" como pill colorido no topo do card destaque
+  pacoteBadgeWrap: {
+    alignSelf: "flex-start",
+    paddingVertical: 4,
+    paddingHorizontal: 10,
     borderRadius: 999,
-    marginBottom: 6,
-    textAlign: "center",
-    letterSpacing: 1,
+    marginBottom: 10,
   },
-  pacoteSubPdf: { fontSize: 7.5, color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
-  pacoteNomePdf: { fontSize: 14, fontWeight: 700, color: "#1F1F2D", marginTop: 4, lineHeight: 1.2 },
-  pacoteValorPdf: { fontSize: 16, fontWeight: 700, marginTop: 6, lineHeight: 1.2, marginBottom: 4 },
-  pacoteFeaturePdf: { fontSize: 8.5, color: "#475569", marginBottom: 4, lineHeight: 1.4 },
+  pacoteBadgeText: { fontSize: 7, fontWeight: 800, color: "#FFFFFF", letterSpacing: 1.5 },
+  // Spacer pra alinhar topos de cards sem destaque com os com destaque
+  pacoteBadgeSpacer: { height: 18, marginBottom: 10 },
+  pacoteSubPdf: { fontSize: 7.5, color: C.muted, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 600 },
+  pacoteNomePdf: { fontSize: 16, fontWeight: 700, color: C.ink, marginTop: 4, lineHeight: 1.2, letterSpacing: -0.2 },
+  pacoteValorPdf: { fontSize: 18, fontWeight: 800, marginTop: 6, lineHeight: 1.15, letterSpacing: -0.3 },
+  pacoteDivisor: { height: 1, marginTop: 14, marginBottom: 12 },
+  pacoteFeatureRow: { flexDirection: "row", alignItems: "flex-start", gap: 6, marginBottom: 6 },
+  pacoteFeatureIcone: { fontSize: 9, fontWeight: 700, lineHeight: 1.4, width: 10 },
+  pacoteFeaturePdf: { fontSize: 8.5, color: C.body, lineHeight: 1.45, flex: 1 },
 
-  // Equipe
-  equipeGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 12, justifyContent: "center" },
-  membroBox: { width: "28%", alignItems: "center", textAlign: "center", marginBottom: 14 },
-  membroFotoPdf: { width: 72, height: 72, borderRadius: 36, borderWidth: 2, marginBottom: 6, objectFit: "cover" },
-  membroFotoFallbackPdf: { alignItems: "center", justifyContent: "center", backgroundColor: "#F5EFFE" },
-  membroNomePdf: { fontSize: 11, fontWeight: 700, color: "#1F1F2D" },
-  membroCargoPdf: { fontSize: 8, textTransform: "uppercase", letterSpacing: 1, marginTop: 2 },
-  membroBioPdf: { fontSize: 9, color: "#64748B", marginTop: 6, lineHeight: 1.4, textAlign: "center" },
+  // ═══════════════ EQUIPE ═══════════════
+  equipeGrid: { flexDirection: "row", flexWrap: "wrap", gap: 14, marginTop: 8, justifyContent: "center" },
+  membroBox: { width: "28%", alignItems: "center", textAlign: "center", marginBottom: 16 },
+  membroFotoPdf: { width: 76, height: 76, borderRadius: 38, borderWidth: 2, marginBottom: 8, objectFit: "cover" },
+  membroFotoFallbackPdf: { alignItems: "center", justifyContent: "center", backgroundColor: "#F8F4FE" },
+  membroNomePdf: { fontSize: 11, fontWeight: 700, color: C.ink, lineHeight: 1.2 },
+  membroCargoPdf: { fontSize: 8, textTransform: "uppercase", letterSpacing: 1.2, marginTop: 3, fontWeight: 600 },
+  membroBioPdf: { fontSize: 9, color: C.body, marginTop: 6, lineHeight: 1.5, textAlign: "center" },
 
-  // FAQ
-  faqItem: { padding: 10, marginTop: 8, borderRadius: 8, backgroundColor: "#FAFAFC", borderWidth: 1, borderColor: "#E5E5EE" },
-  faqPergunta: { fontSize: 11, fontWeight: 700, color: "#1F1F2D" },
-  faqResposta: { fontSize: 10, color: "#475569", marginTop: 4, lineHeight: 1.5 },
+  // ═══════════════ FAQ ═══════════════
+  faqItem: {
+    padding: 14,
+    marginTop: 10,
+    borderRadius: 10,
+    backgroundColor: C.cardBg,
+    borderWidth: 1,
+    borderColor: C.borderLight,
+  },
+  faqHeader: { flexDirection: "row", alignItems: "center", gap: 8 },
+  faqDot: { width: 6, height: 6, borderRadius: 3 },
+  faqPergunta: { fontSize: 11, fontWeight: 700, color: C.ink, flex: 1, lineHeight: 1.3 },
+  faqResposta: { fontSize: 10, color: C.body, marginTop: 6, marginLeft: 14, lineHeight: 1.55 },
 
-  // Timeline
-  marcoBox: { flexDirection: "row", marginTop: 10, gap: 12, alignItems: "flex-start" },
+  // ═══════════════ TIMELINE ═══════════════
+  timelineWrap: { marginTop: 4 },
+  marcoBox: { flexDirection: "row", marginBottom: 16, gap: 14, alignItems: "flex-start", position: "relative" },
+  // Linha vertical conectando os marcadores
+  marcoLinha: {
+    position: "absolute",
+    left: 15,
+    top: 30,
+    width: 2,
+    bottom: -16,
+    borderRadius: 1,
+  },
   marcoCirculo: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
   },
-  marcoCirculoTexto: { fontSize: 14, fontWeight: 700 },
-  marcoConteudo: { flex: 1, paddingTop: 2 },
-  marcoPeriodo: { fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 },
-  marcoTitulo: { fontSize: 12, fontWeight: 700, color: "#1F1F2D" },
-  marcoDescricao: { fontSize: 9.5, color: "#64748B", marginTop: 3, lineHeight: 1.5 },
+  marcoCirculoTexto: { fontSize: 14, fontWeight: 800 },
+  marcoConteudo: { flex: 1, paddingTop: 3 },
+  marcoPeriodo: { fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 3 },
+  marcoTitulo: { fontSize: 13, fontWeight: 700, color: C.ink, lineHeight: 1.3 },
+  marcoDescricao: { fontSize: 9.5, color: C.body, marginTop: 4, lineHeight: 1.55 },
 
-  // Garantias
-  garantiaGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 },
+  // ═══════════════ GARANTIAS ═══════════════
+  garantiaGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 4 },
   garantiaBox: {
-    padding: 14,
-    borderRadius: 10,
+    padding: 18,
+    borderRadius: 12,
     borderWidth: 1,
-    width: "48%",
-    backgroundColor: "#FAFAFC",
+    width: "48.5%",
     alignItems: "center",
     textAlign: "center",
-    minHeight: 90,
+    minHeight: 110,
   },
-  garantiaIcone: { fontSize: 24, marginBottom: 6 },
-  garantiaTitulo: { fontSize: 11, fontWeight: 700, color: "#1F1F2D" },
-  garantiaDescricao: { fontSize: 9, color: "#64748B", marginTop: 4, lineHeight: 1.4, textAlign: "center" },
-
-  // Assinatura digital
-  assinaturaBox: {
-    marginTop: 20,
-    padding: 24,
-    borderRadius: 12,
-    borderWidth: 2,
+  // Ícone em "bolinha" de fundo (chip arredondado) — fica mais polido
+  garantiaIconeWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
   },
-  assinaturaTitulo: { fontSize: 9, fontWeight: 700, letterSpacing: 2, marginBottom: 12 },
-  assinaturaNome: { fontSize: 18, fontWeight: 700, color: "#1F1F2D" },
-  assinaturaDoc: { fontSize: 13, fontFamily: "Courier", color: "#475569", marginTop: 6 },
-  assinaturaSep: { width: 60, height: 1, backgroundColor: "#CBD5E1", marginVertical: 14 },
-  assinaturaMeta: { fontSize: 9, color: "#64748B", marginTop: 4, textAlign: "center" },
+  garantiaIcone: { fontSize: 22, lineHeight: 1 },
+  garantiaTitulo: { fontSize: 11, fontWeight: 700, color: C.ink, lineHeight: 1.3 },
+  garantiaDescricao: { fontSize: 9, color: C.body, marginTop: 6, lineHeight: 1.5, textAlign: "center" },
+
+  // ═══════════════ ASSINATURA DIGITAL ═══════════════
+  assinaturaBox: {
+    marginTop: 12,
+    padding: 28,
+    paddingTop: 32,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    alignItems: "center",
+    position: "relative",
+  },
+  // Badge verde "PROPOSTA ACEITA" no topo da caixa
+  assinaturaBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    marginBottom: 18,
+  },
+  assinaturaBadgeIcone: { fontSize: 9, color: "#FFFFFF", fontWeight: 800 },
+  assinaturaBadgeTexto: { fontSize: 8, color: "#FFFFFF", fontWeight: 800, letterSpacing: 1.5 },
+  assinaturaTitulo: { fontSize: 8.5, fontWeight: 700, letterSpacing: 2, marginBottom: 10 },
+  assinaturaNome: { fontSize: 20, fontWeight: 800, color: C.ink, letterSpacing: -0.3 },
+  assinaturaDoc: { fontSize: 12, fontFamily: "Courier", color: C.body, marginTop: 8 },
+  assinaturaSep: { width: 60, height: 1, marginVertical: 18 },
+  assinaturaMeta: { fontSize: 9, color: C.body, marginTop: 4, textAlign: "center" },
+  assinaturaMetaLegal: { fontSize: 8, marginTop: 14, textAlign: "center", fontStyle: "italic" },
 });
