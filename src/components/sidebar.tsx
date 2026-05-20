@@ -7,8 +7,9 @@ import { createPortal } from "react-dom";
 import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
-  Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send, TrendingUp, Settings, Calendar, BookOpen,
+  Mic, FileText, GitBranch, Cpu, Database, Send, TrendingUp, Settings, Calendar, BookOpen,
   ChevronLeft, ChevronRight,
+  Palette, Target, LayoutTemplate,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
@@ -30,7 +31,8 @@ const groups: NavGroup[] = [
     label: "Produção",
     items: [
       { label: "Editorial", href: "/editorial", icon: CalendarDays },
-      { label: "Criativos Ads", href: "/criativos", icon: Megaphone },
+      // Palette: assets visuais (imagens/videos) pra ads — destaca o aspecto criativo
+      { label: "Criativos Ads", href: "/criativos", icon: Palette },
       { label: "Projetos", href: "/projetos", icon: KanbanSquare },
       { label: "Tarefas", href: "/tarefas", icon: ListChecks },
     ],
@@ -41,12 +43,14 @@ const groups: NavGroup[] = [
       { label: "Reuniões", href: "/reunioes", icon: Mic },
       { label: "Notas", href: "/notas", icon: FileText },
       { label: "Mapas mentais", href: "/mapas", icon: GitBranch },
-      { label: "Templates", href: "/templates", icon: Sparkles },
+      // LayoutTemplate evita conflito com Sparkles (usado em botoes "Gerar com IA")
+      { label: "Templates", href: "/templates", icon: LayoutTemplate },
     ],
   },
   {
     label: "Marketing SAL",
     items: [
+      // Megaphone mantido aqui — agencia "anunciando" conteudo proprio
       { label: "Conteúdo SAL", href: "/conteudo-sal", icon: Megaphone },
       { label: "Manual SAL", href: "/manual", icon: BookOpen },
     ],
@@ -72,7 +76,8 @@ const groups: NavGroup[] = [
     items: [
       { label: "Redes Sociais", href: "/relatorios/redes-sociais", icon: BarChart3 },
       { label: "SEO", href: "/relatorios/seo", icon: Search },
-      { label: "Tráfego Pago", href: "/relatorios/trafego-pago", icon: Megaphone },
+      // Target: trafego pago = segmentacao + conversao (alvo)
+      { label: "Tráfego Pago", href: "/relatorios/trafego-pago", icon: Target },
     ],
   },
   {
