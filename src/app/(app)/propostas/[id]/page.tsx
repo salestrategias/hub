@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/page-shell";
 import { PropostaEditor } from "@/components/proposta-editor";
+import type { AnaliseProposta } from "@/components/proposta-analise-ia";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,8 @@ export default async function PropostaPage({ params }: { params: { id: string } 
           versao: proposta.versao,
           versaoAtual: proposta.versaoAtual,
           motivoRevisao: proposta.motivoRevisao,
+          analiseIA: (proposta.analiseIA as AnaliseProposta | null) ?? null,
+          analiseIAEm: proposta.analiseIAEm?.toISOString() ?? null,
         }}
         clientes={clientes}
       />

@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { PropostaBlocosEditor } from "@/components/proposta-blocos-editor";
 import type { PropostaExtras } from "@/lib/proposta-blocos";
 import { PropostaVersoesHeader } from "@/components/proposta-versoes";
+import { PropostaAnaliseIa, type AnaliseProposta } from "@/components/proposta-analise-ia";
 
 type PropostaStatus = "RASCUNHO" | "ENVIADA" | "VISTA" | "ACEITA" | "RECUSADA" | "EXPIRADA";
 
@@ -79,6 +80,8 @@ type PropostaFull = {
   versao: number;
   versaoAtual: boolean;
   motivoRevisao: string | null;
+  analiseIA: AnaliseProposta | null;
+  analiseIAEm: string | null;
 };
 
 type Cliente = { id: string; nome: string; email: string | null };
@@ -240,6 +243,11 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
           >
             <Sparkles className="h-3.5 w-3.5" /> Gerar com IA
           </Button>
+          <PropostaAnaliseIa
+            propostaId={proposta.id}
+            analise={proposta.analiseIA}
+            analiseEm={proposta.analiseIAEm}
+          />
           <Button variant="outline" size="sm" onClick={abrirPdf}>
             <Download className="h-3.5 w-3.5" /> PDF
           </Button>
