@@ -9,7 +9,12 @@
  * Atalhos atuais:
  *   G → abre /calendario (Calendário unificado)
  *
- * (`C` é gerenciado separadamente pelo QuickCaptureProvider.)
+ * Outros atalhos globais (gerenciados em outros providers):
+ *   C        → QuickCaptureProvider (modal nota)
+ *   Shift+L  → QuickCreateProvider (modal lead)
+ *   Shift+T  → QuickCreateProvider (modal tarefa)
+ *   Shift+F  → QuickCreateProvider (modal lançamento)
+ *   [        → SidebarCollapsedProvider (toggle sidebar)
  *
  * Pra adicionar mais (ex: L→/leads, T→/tarefas), só estender o map
  * abaixo.

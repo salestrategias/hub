@@ -5,6 +5,7 @@ import { NextAuthProvider } from "@/components/session-provider";
 import { HideValuesProvider } from "@/components/hide-values-provider";
 import { QuickCaptureProvider } from "@/components/quick-capture-provider";
 import { QuickCreateProvider } from "@/components/quick-create-provider";
+import { SidebarCollapsedProvider } from "@/components/sidebar-collapsed-provider";
 import { AtalhosGlobais } from "@/components/atalhos-globais";
 import { Toaster } from "@/components/ui/toast";
 import "./globals.css";
@@ -45,9 +46,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <HideValuesProvider>
               <QuickCaptureProvider>
                 <QuickCreateProvider>
-                  <AtalhosGlobais />
-                  {children}
-                  <Toaster />
+                  <SidebarCollapsedProvider>
+                    <AtalhosGlobais />
+                    {children}
+                    <Toaster />
+                  </SidebarCollapsedProvider>
                 </QuickCreateProvider>
               </QuickCaptureProvider>
             </HideValuesProvider>

@@ -8,9 +8,11 @@ import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
   Mic, FileText, GitBranch, Cpu, Database, Sparkles, Send, TrendingUp, Settings, Calendar, BookOpen,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
+import { useSidebarCollapsed } from "@/components/sidebar-collapsed-provider";
 
 type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
 type NavGroup = { label: string; items: NavItem[] };
@@ -95,15 +97,39 @@ const groups: NavGroup[] = [
  *
  * Header e footer têm `shrink-0`. Nav tem `flex-1 min-h-0` pra esticar
  * e habilitar scroll interno.
+ *
+ * `collapsed=true` (só no desktop): mostra apenas ícones (sem labels nem
+ * grupos), tooltip nativo via `title` ao hover. Botão de toggle ao final.
  */
-function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarConteudo({
+  onNavigate,
+  collapsed = false,
+  onToggleCollapse,
+}: {
+  onNavigate?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+}) {
   const pathname = usePathname();
   return (
     <>
-      <div className="px-4 pt-5 pb-4 border-b border-border shrink-0 bg-card">
-        <Link href="/" onClick={onNavigate} className="flex items-center gap-2.5">
+      <div
+        className={cn(
+          "border-b border-border shrink-0 bg-card",
+          collapsed ? "px-2 pt-3 pb-3" : "px-4 pt-5 pb-4"
+        )}
+      >
+        <Link
+          href="/"
+          onClick={onNavigate}
+          className={cn(
+            "flex items-center gap-2.5",
+            collapsed && "justify-center"
+          )}
+          title={collapsed ? "SAL Hub" : undefined}
+        >
           <div
-            className="h-9 w-9 rounded-lg flex items-center justify-center"
+            className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0"
             style={{
               background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)",
               boxShadow: "0 4px 14px rgba(126,48,225,0.4), 0 1px 0 rgba(255,255,255,0.1) inset",
@@ -111,21 +137,35 @@ function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
           >
             <Image src="/sal-logo-white.svg" alt="SAL" width={20} height={20} className="brightness-0 invert" />
           </div>
-          <div>
-            <div className="font-display font-semibold text-[14px] leading-none">SAL Hub</div>
-            <div className="text-[10px] text-muted-foreground/70 mt-0.5 uppercase tracking-wider">Estratégias de Marketing</div>
-          </div>
+          {!collapsed && (
+            <div>
+              <div className="font-display font-semibold text-[14px] leading-none">SAL Hub</div>
+              <div className="text-[10px] text-muted-foreground/70 mt-0.5 uppercase tracking-wider">
+                Estratégias de Marketing
+              </div>
+            </div>
+          )}
         </Link>
-        <div className="mt-3.5">
-          <SidebarSearchTrigger />
-        </div>
+        {!collapsed && (
+          <div className="mt-3.5">
+            <SidebarSearchTrigger />
+          </div>
+        )}
       </div>
-      <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-4">
+
+      <nav
+        className={cn(
+          "flex-1 min-h-0 overflow-y-auto py-3 space-y-4",
+          collapsed ? "px-1.5" : "px-3"
+        )}
+      >
         {groups.map((g) => (
           <div key={g.label}>
-            <div className="px-2.5 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground/70">
-              {g.label}
-            </div>
+            {!collapsed && (
+              <div className="px-2.5 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground/70">
+                {g.label}
+              </div>
+            )}
             <ul className="space-y-0.5">
               {g.items.map((item) => {
                 const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -137,8 +177,12 @@ function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
                       href={item.href}
                       prefetch={isPrivilegedRoute ? false : undefined}
                       onClick={onNavigate}
+                      title={collapsed ? item.label : undefined}
                       className={cn(
-                        "flex items-center gap-2.5 rounded-md px-2.5 py-2 md:py-1.5 text-[13px] transition-colors font-medium",
+                        "flex items-center rounded-md text-[13px] transition-colors font-medium",
+                        collapsed
+                          ? "justify-center px-2 py-2"
+                          : "gap-2.5 px-2.5 py-2 md:py-1.5",
                         active
                           ? "bg-primary/15 text-sal-400"
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
@@ -146,7 +190,7 @@ function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
                       style={active ? { boxShadow: "inset 2px 0 0 #7E30E1" } : undefined}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
-                      <span>{item.label}</span>
+                      {!collapsed && <span>{item.label}</span>}
                     </Link>
                   </li>
                 );
@@ -155,8 +199,38 @@ function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         ))}
       </nav>
-      <div className="px-4 py-3 border-t border-border text-[10px] text-muted-foreground/60 shrink-0">
-        v1.0.0 · Self-hosted
+
+      <div
+        className={cn(
+          "border-t border-border shrink-0",
+          collapsed ? "px-2 py-2" : "px-4 py-3"
+        )}
+      >
+        {onToggleCollapse && (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className={cn(
+              "w-full flex items-center rounded-md py-1.5 text-[11px] text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition",
+              collapsed ? "justify-center px-2" : "justify-end px-2.5 gap-1.5"
+            )}
+            title={collapsed ? "Expandir menu (atalho: [ )" : "Recolher menu (atalho: [ )"}
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <>
+                <span>Recolher</span>
+                <ChevronLeft className="h-3.5 w-3.5" />
+              </>
+            )}
+          </button>
+        )}
+        {!collapsed && (
+          <div className="text-[10px] text-muted-foreground/60 mt-1.5 text-center">
+            v1.0.0 · Self-hosted
+          </div>
+        )}
       </div>
     </>
   );
@@ -164,11 +238,24 @@ function SidebarConteudo({ onNavigate }: { onNavigate?: () => void }) {
 
 /**
  * Sidebar desktop — fixa à esquerda. Escondida no mobile (< md).
+ *
+ * Largura é dinâmica conforme `collapsed` do SidebarCollapsedProvider:
+ *   expandida: 232px (labels + grupos visíveis)
+ *   colapsada: 56px (só ícones, tooltip nativo no hover)
+ *
+ * A transição é animada (transição de width). O conteúdo da page se
+ * ajusta automaticamente porque o aside é `shrink-0` num flex parent.
  */
 export function Sidebar() {
+  const { collapsed, toggle } = useSidebarCollapsed();
   return (
-    <aside className="hidden md:flex w-[232px] shrink-0 flex-col border-r border-border bg-card/40 sticky top-0 h-screen">
-      <SidebarConteudo />
+    <aside
+      className={cn(
+        "hidden md:flex shrink-0 flex-col border-r border-border bg-card/40 sticky top-0 h-screen transition-[width] duration-200 ease-out",
+        collapsed ? "w-[56px]" : "w-[232px]"
+      )}
+    >
+      <SidebarConteudo collapsed={collapsed} onToggleCollapse={toggle} />
     </aside>
   );
 }
