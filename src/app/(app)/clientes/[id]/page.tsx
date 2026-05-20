@@ -24,6 +24,7 @@ import { AtividadeChart } from "@/components/cliente-detalhe/atividade-chart";
 import { ClienteTimeline } from "@/components/cliente-detalhe/cliente-timeline";
 import { MarketingPerformance } from "@/components/cliente-detalhe/marketing-performance";
 import { DocumentosCliente } from "@/components/cliente-detalhe/documentos-cliente";
+import { BriefingIaCard, type Briefing } from "@/components/cliente-detalhe/briefing-ia-card";
 
 export const dynamic = "force-dynamic";
 
@@ -79,6 +80,14 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
       {cliente.tags.length > 0 && (
         <div className="-mt-2"><TagsBadges tags={cliente.tags} /></div>
       )}
+
+      {/* ─── BRIEFING IA (Claude Max copy-paste) ─────────────────── */}
+      <BriefingIaCard
+        clienteId={cliente.id}
+        clienteNome={cliente.nome}
+        briefing={(cliente.briefingIA as Briefing | null) ?? null}
+        briefingEm={cliente.briefingIAEm?.toISOString() ?? null}
+      />
 
       {/* ─── BLOCO DE INTELIGÊNCIA ──────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr_280px] gap-3">

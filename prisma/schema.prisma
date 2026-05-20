@@ -150,6 +150,14 @@ model Cliente {
   acesso       ClienteAcesso?
   criativos    Criativo[]
 
+  // ── Briefing IA (gerado via Claude Max copy-paste) ────────────
+  // JSON estruturado: { resumo, pontosAtencao[], proximasAcoes[], riscoChurn }
+  // Gerado pelo wizard `/api/clientes/[id]/preparar-briefing-ia` e aplicado
+  // por `/api/clientes/[id]/aplicar-briefing-ia`. Permite re-gerar quando dados
+  // ficam desatualizados (mostra "atualizado há X dias" no card).
+  briefingIA       Json?
+  briefingIAEm     DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -1036,6 +1044,12 @@ model Proposta {
   versaoAtual     Boolean        @default(true)
   motivoRevisao   String?        @db.Text
 
+  // ── Análise IA (peer review da proposta via Claude Max) ──────
+  // JSON: { pontosFortes[], pontosFracos[], gapsInformacao[], sugestoesMelhoria[], riscoObjecoes[], notaGeral }
+  // Gerada sob demanda — não persiste histórico, sobrescreve a cada execução.
+  analiseIA       Json?
+  analiseIAEm     DateTime?
+
   // Audit
   criadoPor       String
   user            User           @relation(fields: [criadoPor], references: [id], onDelete: Cascade)
@@ -1147,6 +1161,14 @@ model Lead {
 
   // Propostas vinculadas (1:N)
   propostas             Proposta[]
+
+  // ── Enrichment IA (Claude Max copy-paste) ──────────────────
+  // JSON: { qualidade, icpFit, segmentoSugerido, abordagemSugerida, justificativa }
+  // qualidadeIA é extraído pra coluna separada pra permitir filtros no kanban
+  // sem precisar destrinchar o JSON. ENV: Marcelo pode usar pra filtrar leads frios.
+  qualidadeIA           Int?
+  enriquecimentoIA      Json?
+  enriquecimentoIAEm    DateTime?
 
   // Responsável
   responsavel           String
