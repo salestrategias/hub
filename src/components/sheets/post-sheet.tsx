@@ -13,6 +13,7 @@ import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { PostArquivosEditor } from "@/components/post-arquivos-editor";
+import { PostCopyIaButton } from "@/components/post-copy-ia-button";
 import { useDebouncedSave } from "@/lib/use-debounced-save";
 import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 
@@ -77,18 +78,26 @@ export function PostSheet({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  async function fetchPost(showLoading = true) {
+    if (!postId) return;
+    if (showLoading) setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch(`/api/posts/${postId}`);
+      if (!r.ok) throw new Error("Falha ao carregar post");
+      const data = await r.json();
+      setPost(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erro");
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (!postId || !open) return;
-    setLoading(true);
-    setError(null);
-    fetch(`/api/posts/${postId}`)
-      .then(async (r) => {
-        if (!r.ok) throw new Error("Falha ao carregar post");
-        return r.json();
-      })
-      .then(setPost)
-      .catch((e) => setError(e instanceof Error ? e.message : "Erro"))
-      .finally(() => setLoading(false));
+    void fetchPost(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, open]);
 
   async function patchPost(patch: Record<string, unknown>) {
@@ -237,6 +246,19 @@ export function PostSheet({
                 className="col-span-2"
               />
             )}
+          </div>
+
+          {/* Botão "Gerar copy com IA" */}
+          <div className="flex items-center justify-between gap-3 rounded-md border border-amber-500/20 bg-amber-500/5 px-3 py-2.5">
+            <div className="flex-1 min-w-0">
+              <div className="text-[12px] font-semibold flex items-center gap-1.5">
+                ✨ Acelerar com IA
+              </div>
+              <div className="text-[10.5px] text-muted-foreground mt-0.5">
+                Gera legenda + hashtags + CTA + notas de produção respeitando tom de voz do cliente.
+              </div>
+            </div>
+            <PostCopyIaButton postId={postId} onApplied={() => fetchPost(false)} />
           </div>
 
           {/* Tabs: Copy | Artes | Hashtags+CTA | Produção | Comentários do cliente */}

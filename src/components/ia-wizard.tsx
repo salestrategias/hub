@@ -54,6 +54,7 @@ export function IaWizard<TResultado = unknown>({
   exemploResposta,
   renderResultado,
   refreshOnSuccess = true,
+  onSuccess,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
@@ -73,6 +74,8 @@ export function IaWizard<TResultado = unknown>({
   renderResultado?: (resultado: TResultado) => ReactNode;
   /** Após sucesso, chama `router.refresh()` pra revalidar a página atual. */
   refreshOnSuccess?: boolean;
+  /** Callback após aplicar com sucesso. Recebe o resultado do aplicarEndpoint. */
+  onSuccess?: (resultado: TResultado) => void;
 }) {
   const router = useRouter();
   const [etapa, setEtapa] = useState<Etapa>("preparar");
@@ -144,6 +147,7 @@ export function IaWizard<TResultado = unknown>({
       setResultado(data);
       setEtapa("feito");
       if (refreshOnSuccess) router.refresh();
+      onSuccess?.(data as TResultado);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Erro de rede");
     } finally {
