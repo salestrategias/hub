@@ -15,6 +15,7 @@ import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import { MoneyValue } from "@/components/money-value";
 import type { LeadCard } from "@/components/leads-kanban";
+import { LeadEnrichmentIa, type LeadEnrichment } from "@/components/lead-enrichment-ia";
 
 type LeadFull = LeadCard & {
   notas: string | null;
@@ -28,6 +29,10 @@ type LeadFull = LeadCard & {
     valorMensal: number | null;
     updatedAt: string;
   }>;
+  // Enrichment IA
+  qualidadeIA: number | null;
+  enriquecimentoIA: LeadEnrichment | null;
+  enriquecimentoIAEm: string | null;
 };
 
 const STATUS_OPTIONS = [
@@ -91,32 +96,41 @@ export function LeadSheet({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  async function fetchLead(showLoading = true) {
+    if (!leadId) return;
+    if (showLoading) setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch(`/api/leads/${leadId}`);
+      if (!r.ok) throw new Error("Falha ao carregar");
+      const data = await r.json();
+      setLead({
+        ...data,
+        valorEstimadoMensal: data.valorEstimadoMensal ? Number(data.valorEstimadoMensal) : null,
+        proximaAcaoEm: data.proximaAcaoEm,
+        convertidoEm: data.convertidoEm,
+        totalPropostas: data.propostas?.length ?? 0,
+        clienteNome: data.cliente?.nome ?? null,
+        propostas: (data.propostas ?? []).map((p: { id: string; numero: string; titulo: string; status: PropostaStatus; valorMensal: string | number | null; updatedAt: string }) => ({
+          ...p,
+          valorMensal: p.valorMensal ? Number(p.valorMensal) : null,
+          updatedAt: p.updatedAt,
+        })),
+        qualidadeIA: data.qualidadeIA ?? null,
+        enriquecimentoIA: (data.enriquecimentoIA as LeadEnrichment | null) ?? null,
+        enriquecimentoIAEm: data.enriquecimentoIAEm ?? null,
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erro");
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (!leadId || !open) return;
-    setLoading(true);
-    setError(null);
-    fetch(`/api/leads/${leadId}`)
-      .then(async (r) => {
-        if (!r.ok) throw new Error("Falha ao carregar");
-        return r.json();
-      })
-      .then((data) => {
-        setLead({
-          ...data,
-          valorEstimadoMensal: data.valorEstimadoMensal ? Number(data.valorEstimadoMensal) : null,
-          proximaAcaoEm: data.proximaAcaoEm,
-          convertidoEm: data.convertidoEm,
-          totalPropostas: data.propostas?.length ?? 0,
-          clienteNome: data.cliente?.nome ?? null,
-          propostas: (data.propostas ?? []).map((p: { id: string; numero: string; titulo: string; status: PropostaStatus; valorMensal: string | number | null; updatedAt: string }) => ({
-            ...p,
-            valorMensal: p.valorMensal ? Number(p.valorMensal) : null,
-            updatedAt: p.updatedAt,
-          })),
-        });
-      })
-      .catch((e) => setError(e instanceof Error ? e.message : "Erro"))
-      .finally(() => setLoading(false));
+    void fetchLead(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leadId, open]);
 
   async function patchLead(patch: Record<string, unknown>) {
@@ -216,6 +230,14 @@ export function LeadSheet({
     >
       {lead && (
         <div className="space-y-4">
+          {/* Enrichment IA — qualifica lead e sugere abordagem */}
+          <LeadEnrichmentIa
+            leadId={lead.id}
+            enrichment={lead.enriquecimentoIA}
+            enrichmentEm={lead.enriquecimentoIAEm}
+            onApplied={() => fetchLead(false)}
+          />
+
           <div className="grid grid-cols-2 gap-3">
             <InlineField
               type="text"

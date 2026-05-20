@@ -65,6 +65,8 @@ export type LeadCard = {
   scoreManual: number | null;
   totalPropostas: number;
   updatedAt: string;
+  // Score IA (vem do enrichment). Mostrado como badge separado no card.
+  qualidadeIA: number | null;
 };
 
 type Cliente = { id: string; nome: string; status: string };
@@ -375,6 +377,22 @@ function LeadCardItem({
             {lead.empresa}
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            {lead.qualidadeIA !== null && (
+              <Badge
+                variant="outline"
+                className="text-[9px] uppercase px-1.5 gap-0.5 font-mono"
+                style={{
+                  color:
+                    lead.qualidadeIA >= 75 ? "#10B981" : lead.qualidadeIA >= 50 ? "#F59E0B" : "#94A3B8",
+                  borderColor:
+                    (lead.qualidadeIA >= 75 ? "#10B981" : lead.qualidadeIA >= 50 ? "#F59E0B" : "#94A3B8") +
+                    "55",
+                }}
+                title={`Score IA: ${lead.qualidadeIA}/100`}
+              >
+                IA {lead.qualidadeIA}
+              </Badge>
+            )}
             <ScoreBadge score={lead.scoreManual ?? lead.score} />
             {lead.prioridade !== "NORMAL" && lead.prioridade !== "BAIXA" && (
               <Badge variant="outline" className="text-[9px] uppercase px-1.5">

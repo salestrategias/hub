@@ -52,6 +52,7 @@ export default async function LeadsPage() {
           scoreManual: l.scoreManual,
           totalPropostas: l._count.propostas,
           updatedAt: l.updatedAt.toISOString(),
+          qualidadeIA: l.qualidadeIA,
         }))}
         clientes={clientes}
       />
