@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { auth } from "@/auth";
 import { Header } from "@/components/header";
 import { DashboardGreeting } from "@/components/dashboard/dashboard-greeting";
 import { DashboardKpis } from "@/components/dashboard/dashboard-kpis";
@@ -7,6 +8,8 @@ import { DashboardAtencao } from "@/components/dashboard/dashboard-atencao";
 import { DashboardPulse } from "@/components/dashboard/dashboard-pulse";
 import { DashboardCharts } from "@/components/dashboard-charts";
 import { DashboardComercial } from "@/components/dashboard/dashboard-comercial";
+import { DashboardRenderer } from "@/components/dashboard/dashboard-renderer";
+import { normalizarLayout, type WidgetId } from "@/lib/dashboard-widgets";
 
 export const dynamic = "force-dynamic";
 
@@ -431,61 +434,90 @@ export default async function DashboardPage() {
     })
   );
 
+  // Layout customizado do usuário (ordem + visibilidade de widgets)
+  const sessao = await auth();
+  const userId = sessao?.user?.id;
+  const userRaw = userId
+    ? await prisma.user.findUnique({
+        where: { id: userId },
+        select: { dashboardLayout: true },
+      })
+    : null;
+  const layout = normalizarLayout(userRaw?.dashboardLayout);
+
+  // Mapeamento ID → React node renderizado no server.
+  // Adicionar widget novo aqui é 1 linha (key + JSX).
+  const widgetsRender: Partial<Record<WidgetId, React.ReactNode>> = {
+    saudacao: <DashboardGreeting />,
+    kpis: (
+      <DashboardKpis
+        data={{
+          mrr,
+          receitaMesAtual,
+          receitaMesAnterior,
+          saldoMesAtual: _saldoMesAtual,
+          clientesAtivos,
+          clientesProspect,
+          postsMes,
+          reunioesMes,
+        }}
+      />
+    ),
+    hoje: (
+      <div className="grid lg:grid-cols-[1fr_1fr] gap-3">
+        <DashboardHoje
+          reunioes={reunioesHojeData}
+          tarefas={tarefasUrgentesHojeData}
+          posts={postsHojeData}
+        />
+        <DashboardAtencao
+          contratos={contratosData}
+          tarefasAtrasadas={tarefasAtrasadasData}
+          actionItems={actionsAtrasadosData}
+        />
+      </div>
+    ),
+    atencao: (
+      <DashboardAtencao
+        contratos={contratosData}
+        tarefasAtrasadas={tarefasAtrasadasData}
+        actionItems={actionsAtrasadosData}
+      />
+    ),
+    pulse: (
+      <DashboardPulse
+        atividades={todasAtividades}
+        posts={postsBreakdownData}
+        tarefasAbertas={tarefasAbertas}
+        tarefasConcluidasMes={tarefasConcluidasMes}
+      />
+    ),
+    comercial: (
+      <DashboardComercial
+        pipelineValor={pipelineValor}
+        pipelineCount={pipelineCount}
+        leadsPorStatus={leadsPorStatus}
+        taxaConversao={taxaConversao}
+        ganhosTrimestre={ganhosCount}
+        ticketMedioGanho={ticketMedioGanho}
+        tempoMedioFechamentoDias={tempoMedioFechamentoDias}
+        propostasAtivas={propostasAtivasCount}
+        propostasAceitas30d={propostasAceitas30dCount}
+        propostasRecusadas30d={propostasRecusadas30dCount}
+      />
+    ),
+    charts: (
+      <div className="animate-slide-up" style={{ animationDelay: "300ms" }}>
+        <DashboardCharts receitaMensal={receitaMensal} receitaPorCliente={receitaPorClienteData} />
+      </div>
+    ),
+  };
+
   return (
     <>
       <Header />
       <div className="px-3 sm:px-6 lg:px-8 py-4 sm:py-7 space-y-5 sm:space-y-7 max-w-[1400px] mx-auto">
-        <DashboardGreeting />
-
-        <DashboardKpis
-          data={{
-            mrr,
-            receitaMesAtual,
-            receitaMesAnterior,
-            saldoMesAtual: _saldoMesAtual,
-            clientesAtivos,
-            clientesProspect,
-            postsMes,
-            reunioesMes,
-          }}
-        />
-
-        <div className="grid lg:grid-cols-[1fr_1fr] gap-3">
-          <DashboardHoje
-            reunioes={reunioesHojeData}
-            tarefas={tarefasUrgentesHojeData}
-            posts={postsHojeData}
-          />
-          <DashboardAtencao
-            contratos={contratosData}
-            tarefasAtrasadas={tarefasAtrasadasData}
-            actionItems={actionsAtrasadosData}
-          />
-        </div>
-
-        <DashboardPulse
-          atividades={todasAtividades}
-          posts={postsBreakdownData}
-          tarefasAbertas={tarefasAbertas}
-          tarefasConcluidasMes={tarefasConcluidasMes}
-        />
-
-        <DashboardComercial
-          pipelineValor={pipelineValor}
-          pipelineCount={pipelineCount}
-          leadsPorStatus={leadsPorStatus}
-          taxaConversao={taxaConversao}
-          ganhosTrimestre={ganhosCount}
-          ticketMedioGanho={ticketMedioGanho}
-          tempoMedioFechamentoDias={tempoMedioFechamentoDias}
-          propostasAtivas={propostasAtivasCount}
-          propostasAceitas30d={propostasAceitas30dCount}
-          propostasRecusadas30d={propostasRecusadas30dCount}
-        />
-
-        <div className="animate-slide-up" style={{ animationDelay: "300ms" }}>
-          <DashboardCharts receitaMensal={receitaMensal} receitaPorCliente={receitaPorClienteData} />
-        </div>
+        <DashboardRenderer layout={layout} widgets={widgetsRender} />
       </div>
     </>
   );

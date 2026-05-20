@@ -36,6 +36,11 @@ model User {
   shares        PublicShare[]
   leads         Lead[]
 
+  // Layout personalizado da dashboard — JSON com ordem + visibilidade dos
+  // widgets. Schema (validado client-side): { widgets: [{id, visivel}] }
+  // Quando null, usa o layout default (definido no codigo).
+  dashboardLayout Json?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
