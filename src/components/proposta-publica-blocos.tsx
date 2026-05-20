@@ -53,7 +53,18 @@ export function PacotesPublico({ bloco }: { bloco: BlocoPacotes }) {
                   </li>
                 ))}
               </ul>
-              {p.cta && <div className="pacote-cta">{p.cta}</div>}
+              {p.cta && (
+                // Se ctaUrl está setado, abre URL externa (WhatsApp/Calendly/etc).
+                // Senão rola até a seção de aceite no fim da proposta (#cta).
+                <a
+                  href={p.ctaUrl?.trim() || "#cta"}
+                  className="pacote-cta"
+                  target={p.ctaUrl?.startsWith("http") ? "_blank" : undefined}
+                  rel={p.ctaUrl?.startsWith("http") ? "noopener noreferrer" : undefined}
+                >
+                  {p.cta}
+                </a>
+              )}
             </div>
           ))}
         </div>

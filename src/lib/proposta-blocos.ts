@@ -28,7 +28,11 @@ export type Pacote = {
   destaque?: boolean; // marca como "Recomendado"
   valor: string; // "R$ 2.500/mês" — string livre pra permitir variações
   subtitulo?: string; // "Pra começar" / "Mais escolhido" / "Tudo + custom"
-  cta?: string; // "Quero esse" / "Falar com vendas"
+  cta?: string; // Texto do botão: "Quero esse" / "Falar com vendas"
+  // URL do CTA. Vazio = rola pra seção "#cta" (aceitar/recusar embutido).
+  // Útil pra apontar pra WhatsApp/Calendly externo, ex:
+  // "https://wa.me/5511999999999?text=Quero%20o%20Starter"
+  ctaUrl?: string;
   features: PacoteFeature[];
 };
 

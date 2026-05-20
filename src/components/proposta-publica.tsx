@@ -283,8 +283,8 @@ export function PropostaPublica({ token }: { token: string }) {
         {/* Sequência interceptada: seções texto + blocos extras nas posições estratégicas */}
         {renderizarSequencia(proposta, extras)}
 
-        {/* CTA Aceite / Recusa */}
-        <section className="cta">
+        {/* CTA Aceite / Recusa — ancora #cta usada pelos botões dos pacotes */}
+        <section className="cta" id="cta">
           <div className="cta-inner">
             {aceita ? (
               <div className="cta-decidida cta-aceita">
@@ -748,6 +748,7 @@ export function PropostaPublica({ token }: { token: string }) {
         .pacote-check { color: #10B981; flex-shrink: 0; margin-top: 1px; }
         .pacote-x { color: #6B7280; flex-shrink: 0; margin-top: 1px; opacity: 0.5; }
         .pacote-cta {
+          display: block;
           margin-top: auto;
           padding: 12px;
           background: rgba(126, 48, 225, 0.1);
@@ -757,11 +758,23 @@ export function PropostaPublica({ token }: { token: string }) {
           font-size: 13px;
           font-weight: 600;
           color: var(--cor-primaria);
+          text-decoration: none;
+          cursor: pointer;
+          transition: background 0.15s, transform 0.15s, border-color 0.15s;
+        }
+        .pacote-cta:hover {
+          background: rgba(126, 48, 225, 0.18);
+          border-color: rgba(126, 48, 225, 0.45);
+          transform: translateY(-1px);
         }
         .pacote-destaque .pacote-cta {
           background: var(--cor-primaria);
           color: #FFFFFF;
           border-color: transparent;
+        }
+        .pacote-destaque .pacote-cta:hover {
+          background: var(--cor-primaria-escura);
+          filter: brightness(1.05);
         }
 
         /* CASES */

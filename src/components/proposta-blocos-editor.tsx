@@ -437,12 +437,23 @@ function PacotesEditor({
                   className="h-8 text-xs"
                 />
               </div>
-              <Input
-                value={pacote.cta ?? ""}
-                onChange={(e) => setPacote(idx, { cta: e.target.value })}
-                placeholder="Texto do botão (ex: Quero esse)"
-                className="h-8 text-xs"
-              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  value={pacote.cta ?? ""}
+                  onChange={(e) => setPacote(idx, { cta: e.target.value })}
+                  placeholder="Texto do botão (ex: Quero esse)"
+                  className="h-8 text-xs"
+                />
+                <Input
+                  value={pacote.ctaUrl ?? ""}
+                  onChange={(e) => setPacote(idx, { ctaUrl: e.target.value })}
+                  placeholder="URL do botão (vazio = vai pro aceite)"
+                  className="h-8 text-xs"
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground/70 -mt-1">
+                Vazio: clica e rola pra seção de aceite. Setar URL (WhatsApp/Calendly) abre em nova aba.
+              </p>
               <div className="space-y-1 pt-1 border-t border-border/40">
                 <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
                   Features
