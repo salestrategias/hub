@@ -38,6 +38,10 @@ services:
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      # ─── Formulário público do site (salestrategias.com.br) ──
+      SITE_FORM_TOKEN: ${SITE_FORM_TOKEN}
+      SITE_FORM_DEFAULT_OWNER_ID: ${SITE_FORM_DEFAULT_OWNER_ID}
+      SITE_FORM_ALLOWED_ORIGINS: ${SITE_FORM_ALLOWED_ORIGINS:-https://salestrategias.com.br,https://www.salestrategias.com.br}
       NODE_ENV: production
       TZ: America/Sao_Paulo
     expose:
