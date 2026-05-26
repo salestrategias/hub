@@ -19,6 +19,7 @@ export const authConfig: NextAuthConfig = {
         // - /api/propostas/:id/aceitar e /recusar — autenticadas por token, não sessão
         // - /api/propostas/:id/pdf?token=... — download público do PDF
         // - /api/mcp — endpoint MCP (autenticado via Bearer token, não session)
+        // - /api/leads/capture — formulário público do site (Bearer token via SITE_FORM_TOKEN)
         // - /.well-known/* — discovery endpoints (OAuth metadata pro Claude Desktop)
         // - /register, /token — OAuth endpoints públicos (DCR + token exchange)
         //   /authorize NÃO entra aqui porque PRECISA do user logado pra consent
@@ -28,6 +29,7 @@ export const authConfig: NextAuthConfig = {
         path.startsWith("/api/p/cliente/") ||
         path === "/api/mcp" ||
         path.startsWith("/api/mcp/") ||
+        path === "/api/leads/capture" ||
         path.startsWith("/.well-known/") ||
         path === "/register" ||
         path === "/token" ||
