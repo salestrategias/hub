@@ -9,6 +9,7 @@ import { MobileNavTrigger } from "@/components/mobile-nav-trigger";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, LogOut } from "lucide-react";
 import { AjudaTrigger } from "@/components/ajuda-trigger";
+import { QuickCreateButton } from "@/components/quick-create-button";
 
 export async function Header({ title, subtitle, parent }: { title?: string; subtitle?: React.ReactNode; parent?: { label: string; href: string } }) {
   const session = await auth();
@@ -58,6 +59,7 @@ export async function Header({ title, subtitle, parent }: { title?: string; subt
           (Ajuda, ThemeToggle, HideValues, nome do user, logout) pra
           liberar espaço — ficam acessíveis pelo /perfil. */}
       <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+        <QuickCreateButton />
         <QuickCaptureTrigger />
         <span className="hidden sm:inline-flex"><HideValuesToggle /></span>
         <NotificacoesBell />
