@@ -175,7 +175,7 @@ export function PropostaDocumento({
       {/* Chrome interativo (CTA aceite/recusa, toolbar, TOC, CTA fixo) — só na pública */}
       {!modoApresentacao && children}
 
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .proposta-publica {
           max-width: 920px;
           margin: 0 auto;
@@ -880,7 +880,7 @@ export function PropostaDocumento({
           .case-metrica { font-size: 32px; }
           .kpi-meta { font-size: 28px; }
         }
-      `}</style>
+      `}} />
 
       {/* ──────────────────────────────────────────────────────────────
           MODO PRINT (documento limpo pro Chromium headless → PDF)
@@ -891,7 +891,7 @@ export function PropostaDocumento({
           - evita cortar cards no meio entre páginas A4.
           ────────────────────────────────────────────────────────────── */}
       {print && (
-        <style jsx global>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           .proposta-print {
             max-width: 100%;
             padding-bottom: 0;
@@ -921,7 +921,7 @@ export function PropostaDocumento({
           .secao, .bloco, .capa, .cta {
             break-inside: avoid;
           }
-        `}</style>
+        `}} />
       )}
     </div>
   );
