@@ -7,10 +7,10 @@ import { HideValuesToggle } from "@/components/hide-values-toggle";
 import { QuickCaptureTrigger } from "@/components/quick-capture-trigger";
 import { MobileNavTrigger } from "@/components/mobile-nav-trigger";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { ChevronLeft, LogOut } from "lucide-react";
 import { AjudaTrigger } from "@/components/ajuda-trigger";
 
-export async function Header({ title, subtitle }: { title?: string; subtitle?: React.ReactNode }) {
+export async function Header({ title, subtitle, parent }: { title?: string; subtitle?: React.ReactNode; parent?: { label: string; href: string } }) {
   const session = await auth();
 
   // Avatar é dataURL grande — não cabe em cookie (limite ~4KB → erro 431).
@@ -32,6 +32,15 @@ export async function Header({ title, subtitle }: { title?: string; subtitle?: R
       <div className="flex items-center gap-2 min-w-0">
         <MobileNavTrigger />
         <div className="min-w-0">
+          {parent && (
+            <Link
+              href={parent.href}
+              className="inline-flex items-center gap-0.5 text-[11px] font-medium text-muted-foreground hover:text-foreground transition mb-0.5"
+            >
+              <ChevronLeft className="h-3 w-3 shrink-0" />
+              <span className="truncate max-w-[50vw]">{parent.label}</span>
+            </Link>
+          )}
           {title && (
             <h1 className="font-display text-[16px] sm:text-[20px] font-semibold tracking-tight leading-none truncate">
               {title}

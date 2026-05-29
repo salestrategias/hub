@@ -10,7 +10,7 @@ export default async function MapaPage({ params }: { params: { id: string } }) {
   if (!mapa) notFound();
 
   return (
-    <PageShell title={mapa.titulo} subtitle={mapa.descricao ?? "Canvas livre — arraste, conecte, edite"}>
+    <PageShell title={mapa.titulo} subtitle={mapa.descricao ?? "Canvas livre — arraste, conecte, edite"} parent={{ label: "Mapas Mentais", href: "/mapas" }}>
       <MindMapCanvas
         id={mapa.id}
         titulo={mapa.titulo}

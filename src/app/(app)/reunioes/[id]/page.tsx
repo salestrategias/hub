@@ -26,6 +26,7 @@ export default async function ReuniaoDetalhePage({ params }: { params: { id: str
     <PageShell
       title={reuniao.titulo}
       subtitle={`${dataStr} · ${horaStr}${dur ? ` · ${dur}` : ""} · ${reuniao.participantes.length} participante(s)`}
+      parent={{ label: "Reuniões", href: "/reunioes" }}
     >
       <ReuniaoDetalhe
         reuniao={{

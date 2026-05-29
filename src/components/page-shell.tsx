@@ -3,17 +3,19 @@ import { Header } from "@/components/header";
 export async function PageShell({
   title,
   subtitle,
+  parent,
   actions,
   children,
 }: {
   title: string;
   subtitle?: React.ReactNode;
+  parent?: { label: string; href: string };
   actions?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <>
-      <Header title={title} subtitle={subtitle} />
+      <Header title={title} subtitle={subtitle} parent={parent} />
       <div className="px-3 sm:px-6 lg:px-8 py-4 sm:py-7 space-y-5 sm:space-y-6 animate-slide-up">
         {actions && <div className="flex flex-wrap justify-end gap-2">{actions}</div>}
         {children}

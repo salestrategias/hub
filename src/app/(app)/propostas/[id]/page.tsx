@@ -24,7 +24,7 @@ export default async function PropostaPage({ params }: { params: { id: string } 
   if (!proposta) notFound();
 
   return (
-    <PageShell title={`Proposta ${proposta.numero}`} subtitle={`${proposta.clienteNome} · ${proposta.titulo}`}>
+    <PageShell title={`Proposta ${proposta.numero}`} subtitle={`${proposta.clienteNome} · ${proposta.titulo}`} parent={{ label: "Propostas", href: "/propostas" }}>
       <PropostaEditor
         proposta={{
           id: proposta.id,

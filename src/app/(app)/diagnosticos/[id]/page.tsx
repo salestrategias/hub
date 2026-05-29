@@ -50,6 +50,7 @@ export default async function DiagnosticoPage({ params }: { params: { id: string
     <PageShell
       title={`Diagnóstico ${diagnostico.numero}`}
       subtitle={`${diagnostico.clienteNome} · ${diagnostico.titulo}`}
+      parent={{ label: "Diagnósticos", href: "/diagnosticos" }}
     >
       <DiagnosticoEditor
         diagnostico={{

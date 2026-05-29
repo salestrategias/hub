@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 export function PageHeaderSkeleton() {
   return (
-    <div className="px-8 py-3.5 border-b border-border">
+    <div className="px-3 sm:px-6 lg:px-8 py-3 sm:py-3.5 border-b border-border">
       <Skeleton className="h-5 w-48" />
       <Skeleton className="h-3 w-72 mt-2" />
     </div>
@@ -112,7 +112,7 @@ export function PageSkeleton({ children }: { children: React.ReactNode }) {
   return (
     <>
       <PageHeaderSkeleton />
-      <div className="px-8 py-7 space-y-6">{children}</div>
+      <div className="px-3 sm:px-6 lg:px-8 py-4 sm:py-7 space-y-5 sm:space-y-6">{children}</div>
     </>
   );
 }

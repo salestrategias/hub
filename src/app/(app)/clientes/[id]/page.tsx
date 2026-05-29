@@ -63,6 +63,7 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
           <MoneyValue value={Number(cliente.valorContratoMensal)} className="font-mono" /> /mês
         </span>
       }
+      parent={{ label: "Clientes", href: "/clientes" }}
       actions={
         <div className="flex gap-2">
           <ClienteDriveButton clienteId={cliente.id} folderUrl={cliente.googleDriveFolderUrl} />
