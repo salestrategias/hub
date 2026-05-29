@@ -29,12 +29,18 @@ RUN npx prisma generate && npm run build
 
 # ───── Stage 3: runner (imagem final mínima) ─────────────────────
 FROM node:20-alpine AS runner
-RUN apk add --no-cache libc6-compat openssl tzdata
+# chromium + libs de fonte: usados pelo gerador de PDF da proposta
+# (puppeteer-core → Chromium headless renderiza a página de print).
+RUN apk add --no-cache libc6-compat openssl tzdata \
+    chromium nss freetype harfbuzz ca-certificates ttf-freefont
 ENV TZ=America/Sao_Paulo
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# puppeteer-core usa o Chromium do sistema (não baixa o próprio binário)
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_SKIP_DOWNLOAD=1
 
 RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 
