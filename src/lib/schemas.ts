@@ -346,6 +346,10 @@ export const propostaSchema = z.object({
   capaImagemUrl: z.string().max(2_500_000).optional().nullable().or(z.literal("")),
   /** Blocos extras de personalização avançada (pacotes, cases, KPIs, equipe, FAQ). */
   extras: z.unknown().optional().nullable(),
+  /** Fase 1: array unificado de blocos (substitui gradualmente as 8 colunas + extras). Normalizado em src/lib/blocos.ts. */
+  secoes: z.unknown().optional().nullable(),
+  /** Fase 1: tema visual avançado (cores/fonte/estilo de capa). */
+  tema: z.unknown().optional().nullable(),
 });
 export type PropostaInput = z.infer<typeof propostaSchema>;
 
