@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { tarefaSchema, type TarefaInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { formatDate, diffDias, cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ import { EmptyState } from "@/components/empty-state";
 import { RichTextField, BlockRenderer } from "@/components/editor";
 import { TarefaSheet } from "@/components/sheets/tarefa-sheet";
 import { useEntitySheet } from "@/components/entity-sheet";
-import { Plus, Trash2, CalendarPlus, Check, ListChecks, FilterX } from "lucide-react";
+import { Plus, Trash2, CalendarPlus, Check, ListChecks, FilterX, LayoutList, Table2 } from "lucide-react";
 
 type CheckItem = { id: string; texto: string; concluido: boolean; ordem: number };
 type Tarefa = {
@@ -53,6 +54,15 @@ export function TarefasClient({
   const [filtroCliente, setFiltroCliente] = useState<string>("");
   const router = useRouter();
   const sheet = useEntitySheet("tarefa");
+  const [view, setView] = useState<"lista" | "tabela">("lista");
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem("tarefas-view") : null;
+    if (saved === "tabela" || saved === "lista") setView(saved);
+  }, []);
+  function trocarView(v: "lista" | "tabela") {
+    setView(v);
+    try { localStorage.setItem("tarefas-view", v); } catch {}
+  }
 
   const filtradas = useMemo(() => {
     const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
@@ -84,6 +94,7 @@ export function TarefasClient({
         </Tabs>
 
         <div className="flex items-center gap-2">
+          <ViewToggle view={view} onChange={trocarView} />
           <Select value={filtroCliente} onValueChange={(v) => setFiltroCliente(v === "all" ? "" : v)}>
             <SelectTrigger className="w-[200px]"><SelectValue placeholder="Filtrar cliente" /></SelectTrigger>
             <SelectContent>
@@ -96,7 +107,7 @@ export function TarefasClient({
       </div>
 
       <div className="space-y-3">
-        {filtradas.length === 0 && (
+        {filtradas.length === 0 ? (
           <Card>
             <CardContent className="p-0">
               {tarefas.length === 0 ? (
@@ -115,16 +126,23 @@ export function TarefasClient({
               )}
             </CardContent>
           </Card>
-        )}
-        {filtradas.map((t) => (
-          <TarefaCard
-            key={t.id}
-            tarefa={t}
+        ) : view === "tabela" ? (
+          <TarefaTabela
+            tarefas={filtradas}
+            onOpen={(id) => sheet.open(id)}
             onChange={() => router.refresh()}
-            onOpen={() => sheet.open(t.id)}
-            ativa={sheet.id === t.id}
           />
-        ))}
+        ) : (
+          filtradas.map((t) => (
+            <TarefaCard
+              key={t.id}
+              tarefa={t}
+              onChange={() => router.refresh()}
+              onOpen={() => sheet.open(t.id)}
+              ativa={sheet.id === t.id}
+            />
+          ))
+        )}
       </div>
 
       <TarefaSheet
@@ -139,6 +157,107 @@ export function TarefasClient({
         projetos={projetos}
       />
     </div>
+  );
+}
+
+function ViewToggle({ view, onChange }: { view: "lista" | "tabela"; onChange: (v: "lista" | "tabela") => void }) {
+  return (
+    <div className="inline-flex rounded-md border border-border p-0.5">
+      <button
+        type="button"
+        onClick={() => onChange("lista")}
+        className={cn(
+          "inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors",
+          view === "lista" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+        )}
+        title="Ver em lista"
+      >
+        <LayoutList className="h-3.5 w-3.5" /> Lista
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("tabela")}
+        className={cn(
+          "inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors",
+          view === "tabela" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+        )}
+        title="Ver em tabela"
+      >
+        <Table2 className="h-3.5 w-3.5" /> Tabela
+      </button>
+    </div>
+  );
+}
+
+function TarefaTabela({
+  tarefas,
+  onOpen,
+  onChange,
+}: {
+  tarefas: Tarefa[];
+  onOpen: (id: string) => void;
+  onChange: () => void;
+}) {
+  async function toggle(t: Tarefa) {
+    await fetch(`/api/tarefas/${t.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ concluida: !t.concluida }),
+    });
+    onChange();
+  }
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-10" />
+              <TableHead>Tarefa</TableHead>
+              <TableHead className="hidden md:table-cell">Prioridade</TableHead>
+              <TableHead className="hidden md:table-cell">Cliente</TableHead>
+              <TableHead className="hidden lg:table-cell">Projeto</TableHead>
+              <TableHead className="text-right">Prazo</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {tarefas.map((t) => {
+              const atrasada = !t.concluida && t.dataEntrega && diffDias(t.dataEntrega) < 0;
+              return (
+                <TableRow key={t.id} className="cursor-pointer" onClick={() => onOpen(t.id)}>
+                  <TableCell>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggle(t);
+                      }}
+                      className={cn(
+                        "h-5 w-5 rounded border-2 flex items-center justify-center shrink-0",
+                        t.concluida ? "bg-primary border-primary" : "border-muted-foreground/40"
+                      )}
+                      aria-label="Concluir"
+                    >
+                      {t.concluida && <Check className="h-3 w-3 text-primary-foreground" />}
+                    </button>
+                  </TableCell>
+                  <TableCell className={cn("font-medium", t.concluida && "line-through text-muted-foreground")}>
+                    {t.titulo}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Badge variant={PRIO_COLOR[t.prioridade]}>{t.prioridade.toLowerCase()}</Badge>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-muted-foreground">{t.cliente?.nome ?? "—"}</TableCell>
+                  <TableCell className="hidden lg:table-cell text-muted-foreground">{t.projeto?.nome ?? "—"}</TableCell>
+                  <TableCell className={cn("text-right font-mono text-xs whitespace-nowrap", atrasada && "text-destructive")}>
+                    {t.dataEntrega ? formatDate(t.dataEntrega) : "—"}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
 
