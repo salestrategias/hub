@@ -14,6 +14,10 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
           select: { id: true, numero: true, titulo: true, status: true, valorMensal: true, updatedAt: true },
           orderBy: { updatedAt: "desc" },
         },
+        diagnosticos: {
+          select: { id: true, numero: true, titulo: true, status: true, updatedAt: true },
+          orderBy: { updatedAt: "desc" },
+        },
         user: { select: { id: true, name: true } },
       },
     });

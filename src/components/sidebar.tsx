@@ -9,7 +9,7 @@ import {
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
   Mic, FileText, GitBranch, Cpu, Database, Send, TrendingUp, Settings, Calendar, BookOpen,
   ChevronLeft, ChevronRight,
-  Palette, Target, LayoutTemplate,
+  Palette, Target, LayoutTemplate, Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
@@ -59,6 +59,7 @@ const groups: NavGroup[] = [
     label: "Comercial",
     items: [
       { label: "Pipeline", href: "/leads", icon: TrendingUp },
+      { label: "Diagnósticos", href: "/diagnosticos", icon: Stethoscope },
       { label: "Propostas", href: "/propostas", icon: Send },
       { label: "Contratos", href: "/contratos", icon: FileSignature },
       { label: "Financeiro", href: "/financeiro", icon: Wallet },

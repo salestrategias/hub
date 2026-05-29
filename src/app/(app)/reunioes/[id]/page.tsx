@@ -13,6 +13,7 @@ export default async function ReuniaoDetalhePage({ params }: { params: { id: str
       blocks: { orderBy: { ordem: "asc" } },
       actionItems: { orderBy: { ordem: "asc" } },
       capitulos: { orderBy: { ordem: "asc" } },
+      diagnosticos: { select: { id: true, numero: true, titulo: true, status: true }, orderBy: { updatedAt: "desc" } },
     },
   });
   if (!reuniao) notFound();
@@ -35,7 +36,9 @@ export default async function ReuniaoDetalhePage({ params }: { params: { id: str
           status: reuniao.status,
           participantes: reuniao.participantes,
           tagsLivres: reuniao.tagsLivres,
+          clienteId: reuniao.cliente?.id ?? null,
           clienteNome: reuniao.cliente?.nome ?? null,
+          diagnosticos: reuniao.diagnosticos.map((d) => ({ id: d.id, numero: d.numero, titulo: d.titulo, status: d.status })),
           resumoIA: reuniao.resumoIA,
           notasLivres: reuniao.notasLivres,
           audioUrl: reuniao.audioUrl,

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { PageShell } from "@/components/page-shell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,6 +41,9 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
         tarefas: { orderBy: { dataEntrega: "asc" } },
         contratos: { orderBy: { dataInicio: "desc" } },
         lancamentos: { orderBy: { data: "desc" }, take: 50 },
+        reunioes: { orderBy: { data: "desc" }, take: 50 },
+        propostas: { where: { versaoAtual: true }, orderBy: { updatedAt: "desc" } },
+        diagnosticos: { orderBy: { updatedAt: "desc" } },
       },
     }),
     buildClienteInsights(params.id),
@@ -137,6 +141,9 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="reunioes">Reuniões ({cliente.reunioes.length})</TabsTrigger>
+          <TabsTrigger value="propostas">Propostas ({cliente.propostas.length})</TabsTrigger>
+          <TabsTrigger value="diagnosticos">Diagnósticos ({cliente.diagnosticos.length})</TabsTrigger>
           <TabsTrigger value="posts">Posts ({cliente.posts.length})</TabsTrigger>
           <TabsTrigger value="projetos">Projetos ({cliente.projetos.length})</TabsTrigger>
           <TabsTrigger value="tarefas">Tarefas ({cliente.tarefas.length})</TabsTrigger>
@@ -164,12 +171,44 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
           </div>
         </TabsContent>
 
+        <TabsContent value="reunioes">
+          <SimpleTable
+            cols={["Título", "Data", "Status"]}
+            rows={cliente.reunioes.map((r) => [
+              r.titulo, formatDate(r.data), <Badge key={r.id} variant="outline">{r.status}</Badge>,
+            ])}
+            hrefs={cliente.reunioes.map((r) => `/reunioes/${r.id}`)}
+          />
+        </TabsContent>
+
+        <TabsContent value="propostas">
+          <SimpleTable
+            cols={["Número", "Título", "Status", "Valor/mês"]}
+            rows={cliente.propostas.map((p) => [
+              p.numero, p.titulo, <Badge key={p.id} variant="outline">{p.status}</Badge>,
+              p.valorMensal ? formatBRL(Number(p.valorMensal)) : "—",
+            ])}
+            hrefs={cliente.propostas.map((p) => `/propostas/${p.id}`)}
+          />
+        </TabsContent>
+
+        <TabsContent value="diagnosticos">
+          <SimpleTable
+            cols={["Número", "Título", "Status"]}
+            rows={cliente.diagnosticos.map((d) => [
+              d.numero, d.titulo, <Badge key={d.id} variant="outline">{d.status}</Badge>,
+            ])}
+            hrefs={cliente.diagnosticos.map((d) => `/diagnosticos/${d.id}`)}
+          />
+        </TabsContent>
+
         <TabsContent value="posts">
           <SimpleTable
             cols={["Título", "Formato", "Status", "Publicação"]}
             rows={cliente.posts.map((p) => [
               p.titulo, p.formato, <Badge key={p.id} variant="outline">{p.status}</Badge>, formatDate(p.dataPublicacao),
             ])}
+            hrefs={cliente.posts.map((p) => `/editorial?post=${p.id}`)}
           />
         </TabsContent>
 
@@ -177,6 +216,7 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
           <SimpleTable
             cols={["Nome", "Status", "Prioridade", "Entrega"]}
             rows={cliente.projetos.map((p) => [p.nome, p.status, p.prioridade, formatDate(p.dataEntrega)])}
+            hrefs={cliente.projetos.map((p) => `/projetos?projeto=${p.id}`)}
           />
         </TabsContent>
 
@@ -184,6 +224,7 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
           <SimpleTable
             cols={["Título", "Prioridade", "Concluída", "Entrega"]}
             rows={cliente.tarefas.map((t) => [t.titulo, t.prioridade, t.concluida ? "✔" : "—", formatDate(t.dataEntrega)])}
+            hrefs={cliente.tarefas.map((t) => `/tarefas?tarefa=${t.id}`)}
           />
         </TabsContent>
 
@@ -221,7 +262,15 @@ function Info({ label, value }: { label: string; value?: string | null }) {
   );
 }
 
-function SimpleTable({ cols, rows }: { cols: string[]; rows: React.ReactNode[][] }) {
+function SimpleTable({
+  cols,
+  rows,
+  hrefs,
+}: {
+  cols: string[];
+  rows: React.ReactNode[][];
+  hrefs?: (string | null)[];
+}) {
   return (
     <Card><CardContent className="p-0">
       <Table>
@@ -230,11 +279,24 @@ function SimpleTable({ cols, rows }: { cols: string[]; rows: React.ReactNode[][]
           {rows.length === 0 && (
             <TableRow><TableCell colSpan={cols.length} className="text-center text-muted-foreground py-6">Sem registros.</TableCell></TableRow>
           )}
-          {rows.map((row, i) => (
-            <TableRow key={i}>
-              {row.map((cell, j) => <TableCell key={j}>{cell}</TableCell>)}
-            </TableRow>
-          ))}
+          {rows.map((row, i) => {
+            const href = hrefs?.[i] ?? null;
+            return (
+              <TableRow key={i} className={href ? "hover:bg-secondary/40 transition-colors" : undefined}>
+                {row.map((cell, j) => (
+                  <TableCell key={j}>
+                    {href && j === 0 ? (
+                      <Link href={href} className="font-medium hover:text-sal-400 hover:underline">
+                        {cell}
+                      </Link>
+                    ) : (
+                      cell
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </CardContent></Card>

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/toast";
-import { Sparkles, CheckSquare, Bookmark, Search, Plus, Trash2, ExternalLink, Share2, Download, Play, Rewind, RefreshCw, Mic } from "lucide-react";
+import { Sparkles, CheckSquare, Bookmark, Search, Plus, Trash2, ExternalLink, Share2, Download, Play, Rewind, RefreshCw, Mic, Stethoscope, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BlockEditor, BlockRenderer } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
@@ -19,6 +20,7 @@ import { ReuniaoPlayer } from "@/components/reuniao-player";
 type Block = { id: string; ordem: number; timestamp: number; speaker: string; speakerCor: string | null; texto: string };
 type Action = { id: string; texto: string; responsavel: string | null; prazo: string | null; concluido: boolean };
 type Capitulo = { id: string; timestamp: number; titulo: string };
+type Diagnostico = { id: string; numero: string; titulo: string; status: string };
 
 type Reuniao = {
   id: string;
@@ -28,6 +30,7 @@ type Reuniao = {
   status: string;
   participantes: string[];
   tagsLivres: string[];
+  clienteId: string | null;
   clienteNome: string | null;
   resumoIA: string | null;
   notasLivres: string | null;
@@ -35,6 +38,7 @@ type Reuniao = {
   blocks: Block[];
   actions: Action[];
   capitulos: Capitulo[];
+  diagnosticos: Diagnostico[];
 };
 
 const SPEAKER_CORES = ["#7E30E1", "#10B981", "#F59E0B", "#3B82F6", "#EC4899", "#14B8A6"];
@@ -64,6 +68,21 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
 
   return (
     <div className="space-y-5 animate-slide-up">
+      {reuniao.clienteNome && (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Cliente:</span>
+          {reuniao.clienteId ? (
+            <Link
+              href={`/clientes/${reuniao.clienteId}`}
+              className="inline-flex items-center gap-1.5 font-medium text-sal-400 hover:underline"
+            >
+              <Users className="h-3.5 w-3.5" /> {reuniao.clienteNome}
+            </Link>
+          ) : (
+            <span className="font-medium">{reuniao.clienteNome}</span>
+          )}
+        </div>
+      )}
       <div className="flex flex-wrap justify-end gap-2">
         <Button variant="outline" size="sm" onClick={() => setImportarMeetOpen(true)} className="flex-1 sm:flex-none">
           <Mic className="h-3.5 w-3.5" /> <span className="truncate">Importar do Meet</span>
@@ -295,6 +314,28 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
                 <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Tags</div>
                 <div className="flex flex-wrap gap-1">
                   {reuniao.tagsLivres.map((t) => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {reuniao.diagnosticos.length > 0 && (
+            <Card>
+              <CardContent className="p-5">
+                <div className="text-sm font-semibold flex items-center gap-2 mb-3">
+                  <Stethoscope className="h-3.5 w-3.5 text-sal-400" /> Diagnósticos
+                </div>
+                <div className="space-y-1">
+                  {reuniao.diagnosticos.map((d) => (
+                    <Link
+                      key={d.id}
+                      href={`/diagnosticos/${d.id}`}
+                      className="flex items-center gap-2 -mx-2 px-2 py-1.5 rounded-md hover:bg-secondary/60 transition text-[12px]"
+                    >
+                      <span className="font-mono text-[10px] text-muted-foreground/70 shrink-0">{d.numero}</span>
+                      <span className="flex-1 truncate">{d.titulo}</span>
+                    </Link>
+                  ))}
                 </div>
               </CardContent>
             </Card>

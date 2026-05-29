@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LeadStatus, LeadPorte, Prioridade, PropostaStatus } from "@prisma/client";
 import type { EditorBlock as PartialBlock } from "@/components/editor/types";
-import { TrendingUp, Trash2, Sparkles, FileSignature, Mail, Phone, Target, RotateCcw } from "lucide-react";
+import { TrendingUp, Trash2, Sparkles, FileSignature, Mail, Phone, Target, RotateCcw, Stethoscope } from "lucide-react";
 import { calcularLeadScore } from "@/lib/lead-score";
 import { cn } from "@/lib/utils";
 import { EntitySheet } from "@/components/entity-sheet";
@@ -27,6 +27,13 @@ type LeadFull = LeadCard & {
     titulo: string;
     status: PropostaStatus;
     valorMensal: number | null;
+    updatedAt: string;
+  }>;
+  diagnosticos: Array<{
+    id: string;
+    numero: string;
+    titulo: string;
+    status: DiagnosticoStatus;
     updatedAt: string;
   }>;
   // Enrichment IA
@@ -78,6 +85,16 @@ const PROPOSTA_STATUS_COR: Record<PropostaStatus, string> = {
   EXPIRADA: "#9696A8",
 };
 
+type DiagnosticoStatus = "RASCUNHO" | "PRONTO" | "ENVIADO" | "VISTO" | "ARQUIVADO";
+
+const DIAGNOSTICO_STATUS_COR: Record<DiagnosticoStatus, string> = {
+  RASCUNHO: "#9696A8",
+  PRONTO: "#10B981",
+  ENVIADO: "#3B82F6",
+  VISTO: "#F59E0B",
+  ARQUIVADO: "#9696A8",
+};
+
 export function LeadSheet({
   leadId,
   open,
@@ -116,6 +133,7 @@ export function LeadSheet({
           valorMensal: p.valorMensal ? Number(p.valorMensal) : null,
           updatedAt: p.updatedAt,
         })),
+        diagnosticos: data.diagnosticos ?? [],
         qualidadeIA: data.qualidadeIA ?? null,
         enriquecimentoIA: (data.enriquecimentoIA as LeadEnrichment | null) ?? null,
         enriquecimentoIAEm: data.enriquecimentoIAEm ?? null,
@@ -429,6 +447,35 @@ export function LeadSheet({
                         style={{ color: PROPOSTA_STATUS_COR[p.status], borderColor: `${PROPOSTA_STATUS_COR[p.status]}55` }}
                       >
                         {p.status}
+                      </Badge>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Diagnósticos vinculados */}
+          {lead.diagnosticos.length > 0 && (
+            <div>
+              <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+                <Stethoscope className="h-3 w-3" /> Diagnósticos vinculados ({lead.diagnosticos.length})
+              </div>
+              <ul className="space-y-1">
+                {lead.diagnosticos.map((d) => (
+                  <li key={d.id}>
+                    <Link
+                      href={`/diagnosticos/${d.id}`}
+                      className="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-secondary/60 transition"
+                    >
+                      <span className="font-mono text-[10px] text-muted-foreground/70 w-16 shrink-0">{d.numero}</span>
+                      <span className="flex-1 text-[12px] truncate">{d.titulo}</span>
+                      <Badge
+                        variant="outline"
+                        className="text-[9.5px] shrink-0"
+                        style={{ color: DIAGNOSTICO_STATUS_COR[d.status], borderColor: `${DIAGNOSTICO_STATUS_COR[d.status]}55` }}
+                      >
+                        {d.status}
                       </Badge>
                     </Link>
                   </li>

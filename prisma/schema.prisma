@@ -35,6 +35,7 @@ model User {
   propostas     Proposta[]
   shares        PublicShare[]
   leads         Lead[]
+  diagnosticos  Diagnostico[]
 
   // Layout personalizado da dashboard — JSON com ordem + visibilidade dos
   // widgets. Schema (validado client-side): { widgets: [{id, visivel}] }
@@ -154,6 +155,7 @@ model Cliente {
   integracoesSheets IntegracaoSheets[]
   acesso       ClienteAcesso?
   criativos    Criativo[]
+  diagnosticos Diagnostico[]
 
   // ── Briefing IA (gerado via Claude Max copy-paste) ────────────
   // JSON estruturado: { resumo, pontosAtencao[], proximasAcoes[], riscoChurn }
@@ -207,6 +209,7 @@ model Reuniao {
   blocks      ReuniaoBlock[]
   actionItems ReuniaoAction[]
   capitulos   ReuniaoCapitulo[]
+  diagnosticos Diagnostico[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1031,6 +1034,9 @@ model Proposta {
   leadId          String?
   lead            Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
+  // Diagnóstico que originou esta proposta (reverse da ponte 1-1)
+  diagnosticoOrigem Diagnostico? @relation("DiagnosticoProposta")
+
   // ── Versionamento ─────────────────────────────────────────────
   // Quando cliente pede ajuste/Marcelo refina, cria-se nova versão
   // duplicando o registro. Histórico fica preservado.
@@ -1076,6 +1082,88 @@ enum PropostaStatus {
   ACEITA
   RECUSADA
   EXPIRADA
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Diagnóstico estratégico — entrega de valor independente, apresentada
+// antes (e separada) da proposta comercial.
+//
+// Espelha Proposta (lista + editor de seções + IA Claude Max + PDF +
+// share por token), mas com 3 diferenças centrais:
+//  1. Seções MODULARES — campo `secoes Json` (array ordenável/toggleável),
+//     em vez de colunas fixas. Ver `src/lib/diagnostico-secoes.ts`.
+//  2. Ancorado numa Reunião (transcrição + gravação alimentam a IA).
+//  3. Ponte opcional pra Proposta (botão "gerar proposta" → propostaId).
+//
+// Vínculos a Cliente/Lead/Reunião são OPCIONAIS (prospect entra sem
+// cadastro). Sem versionamento no MVP (versaoAtual só pra query de lista).
+// ─────────────────────────────────────────────────────────────────────
+model Diagnostico {
+  id              String            @id @default(cuid())
+  numero          String            @unique  // "2026-001"
+  titulo          String
+
+  // Vínculos opcionais — prospect pode entrar sem cliente cadastrado
+  clienteId       String?
+  cliente         Cliente?          @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  clienteNome     String            // snapshot — preserva mesmo se cliente mudar
+  clienteEmail    String?
+
+  leadId          String?
+  lead            Lead?             @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  // Reunião que alimenta o diagnóstico (transcrição + gravação como contexto)
+  reuniaoId       String?
+  reuniao         Reuniao?          @relation(fields: [reuniaoId], references: [id], onDelete: SetNull)
+
+  // Seções modulares — array ordenável/toggleável serializado.
+  // Estrutura: [{ id, tipo, titulo, conteudo (BlockNote JSON string), visivel, ordem }]
+  // Ver `src/lib/diagnostico-secoes.ts` pro catálogo de tipos.
+  secoes          Json
+
+  // Customização visual (espelha proposta)
+  logoUrl         String?           @db.Text   // dataURL ou URL externa
+  corPrimaria     String?           // hex (#7E30E1 default no front)
+  capaImagemUrl   String?           @db.Text   // imagem hero opcional na capa
+
+  // Status
+  status          DiagnosticoStatus @default(RASCUNHO)
+  enviadoEm       DateTime?
+  vistoEm         DateTime?
+
+  // Share público (leitura — diagnóstico não é contrato, sem aceite)
+  shareToken      String?           @unique
+  shareExpiraEm   DateTime?
+  shareSenha      String?           // bcrypt hash, opcional (UI depois)
+  shareViews      Int               @default(0)
+
+  // Ponte pra proposta — populado quando "gerar proposta" (1-1 opcional)
+  propostaId      String?           @unique
+  proposta        Proposta?         @relation("DiagnosticoProposta", fields: [propostaId], references: [id], onDelete: SetNull)
+
+  // Versionamento — só `versaoAtual` no MVP (filtro da lista)
+  versaoAtual     Boolean           @default(true)
+
+  // Audit
+  criadoPor       String
+  user            User              @relation(fields: [criadoPor], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([clienteId, status])
+  @@index([status, updatedAt])
+  @@index([shareToken])
+  @@index([leadId])
+  @@index([reuniaoId])
+}
+
+enum DiagnosticoStatus {
+  RASCUNHO
+  PRONTO
+  ENVIADO
+  VISTO
+  ARQUIVADO
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1166,6 +1254,7 @@ model Lead {
 
   // Propostas vinculadas (1:N)
   propostas             Proposta[]
+  diagnosticos          Diagnostico[]
 
   // ── Enrichment IA (Claude Max copy-paste) ──────────────────
   // JSON: { qualidade, icpFit, segmentoSugerido, abordagemSugerida, justificativa }

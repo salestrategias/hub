@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,8 @@ import {
   Sparkles,
   Loader2,
   Wand2,
+  Stethoscope,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PropostaBlocosEditor } from "@/components/proposta-blocos-editor";
@@ -82,6 +85,8 @@ type PropostaFull = {
   motivoRevisao: string | null;
   analiseIA: AnaliseProposta | null;
   analiseIAEm: string | null;
+  lead: { id: string; empresa: string } | null;
+  diagnosticoOrigem: { id: string; numero: string; titulo: string } | null;
 };
 
 type Cliente = { id: string; nome: string; email: string | null };
@@ -232,6 +237,25 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
           <span className="text-[10.5px] text-muted-foreground">
             Expira em {new Date(proposta.shareExpiraEm).toLocaleDateString("pt-BR")}
           </span>
+        )}
+
+        {proposta.diagnosticoOrigem && (
+          <Link
+            href={`/diagnosticos/${proposta.diagnosticoOrigem.id}`}
+            className="inline-flex items-center gap-1.5 text-[10.5px] text-sal-400 hover:underline"
+            title={`Gerada a partir do diagnóstico: ${proposta.diagnosticoOrigem.titulo}`}
+          >
+            <Stethoscope className="h-3 w-3" /> do diagnóstico {proposta.diagnosticoOrigem.numero}
+          </Link>
+        )}
+        {proposta.lead && (
+          <Link
+            href={`/leads?lead=${proposta.lead.id}`}
+            className="inline-flex items-center gap-1.5 text-[10.5px] text-muted-foreground hover:text-foreground hover:underline"
+            title={`Lead de origem: ${proposta.lead.empresa}`}
+          >
+            <TrendingUp className="h-3 w-3" /> do lead {proposta.lead.empresa}
+          </Link>
         )}
 
         <div className="ml-auto flex items-center gap-2">

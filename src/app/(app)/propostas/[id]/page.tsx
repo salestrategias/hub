@@ -10,7 +10,11 @@ export default async function PropostaPage({ params }: { params: { id: string } 
   const [proposta, clientes] = await Promise.all([
     prisma.proposta.findUnique({
       where: { id: params.id },
-      include: { cliente: { select: { id: true, nome: true } } },
+      include: {
+        cliente: { select: { id: true, nome: true } },
+        lead: { select: { id: true, empresa: true } },
+        diagnosticoOrigem: { select: { id: true, numero: true, titulo: true } },
+      },
     }),
     prisma.cliente.findMany({
       select: { id: true, nome: true, email: true },
@@ -59,6 +63,10 @@ export default async function PropostaPage({ params }: { params: { id: string } 
           motivoRevisao: proposta.motivoRevisao,
           analiseIA: (proposta.analiseIA as AnaliseProposta | null) ?? null,
           analiseIAEm: proposta.analiseIAEm?.toISOString() ?? null,
+          lead: proposta.lead ? { id: proposta.lead.id, empresa: proposta.lead.empresa } : null,
+          diagnosticoOrigem: proposta.diagnosticoOrigem
+            ? { id: proposta.diagnosticoOrigem.id, numero: proposta.diagnosticoOrigem.numero, titulo: proposta.diagnosticoOrigem.titulo }
+            : null,
         }}
         clientes={clientes}
       />

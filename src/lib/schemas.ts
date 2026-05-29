@@ -361,6 +361,54 @@ export const propostaRecusarSchema = z.object({
   motivo: z.string().max(500).optional(),
 });
 
+// ─── Diagnóstico estratégico ──────────────────────────────────────
+// Seção modular do diagnóstico. `conteudo` é JSON BlockNote serializado.
+// Catálogo de tipos em `src/lib/diagnostico-secoes.ts`.
+export const diagnosticoSecaoSchema = z.object({
+  id: z.string().min(1),
+  tipo: z.string().min(1),
+  titulo: z.string().max(200),
+  conteudo: z.string().default(""),
+  visivel: z.boolean().default(true),
+  ordem: z.coerce.number().int().default(0),
+});
+export type DiagnosticoSecaoInput = z.infer<typeof diagnosticoSecaoSchema>;
+
+export const diagnosticoSchema = z.object({
+  titulo: z.string().min(1).max(200),
+  clienteId: z.string().optional().nullable(),
+  clienteNome: z.string().min(1).max(200),
+  clienteEmail: z.string().email().optional().nullable().or(z.literal("")),
+  leadId: z.string().optional().nullable(),
+  reuniaoId: z.string().optional().nullable(),
+  // Array completo de seções — o editor envia tudo (PATCH otimista).
+  // No create é ignorado (server gera defaultSecoes()).
+  secoes: z.array(diagnosticoSecaoSchema).optional(),
+  logoUrl: z.string().max(500_000).optional().nullable().or(z.literal("")),
+  corPrimaria: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, "Cor inválida (use formato #RRGGBB)")
+    .optional()
+    .nullable()
+    .or(z.literal("")),
+  capaImagemUrl: z.string().max(2_500_000).optional().nullable().or(z.literal("")),
+  status: z.enum(["RASCUNHO", "PRONTO", "ENVIADO", "VISTO", "ARQUIVADO"]).optional(),
+});
+export type DiagnosticoInput = z.infer<typeof diagnosticoSchema>;
+
+export const diagnosticoEnviarSchema = z.object({
+  /** Dias até o link público expirar. Default 60 (diagnóstico vale mais tempo que proposta). */
+  validadeDias: z.coerce.number().int().positive().max(365).optional(),
+  senha: z.string().min(4).max(40).optional().or(z.literal("")),
+});
+export type DiagnosticoEnviarInput = z.infer<typeof diagnosticoEnviarSchema>;
+
+// Input do gerador "gerar proposta a partir do diagnóstico" (ponte opcional).
+export const diagnosticoGerarPropostaSchema = z.object({
+  /** Título da proposta. Default = "Proposta — {titulo do diagnóstico}". */
+  titulo: z.string().max(200).optional(),
+});
+
 // ─── Lead (pipeline pré-cliente) ──────────────────────────────────
 export const leadSchema = z.object({
   empresa: z.string().min(1, "Empresa obrigatória").max(200),
