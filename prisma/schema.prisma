@@ -1010,6 +1010,13 @@ model Proposta {
   // posições estratégicas da proposta pública.
   extras          Json?
 
+  // Fase 1 (upgrade Hub): modelo unificado de blocos — array ordenável/toggável
+  // (mesmo espírito de diagnostico.secoes). Nullable durante a transição: quando
+  // null, deriva-se das 8 colunas acima + extras (dual-read, src/lib/blocos.ts).
+  secoes          Json?
+  // Customização visual avançada (cores/fonte/estilo de capa) — Fase 1C.
+  tema            Json?
+
   // Status
   status          PropostaStatus @default(RASCUNHO)
   enviadaEm       DateTime?
@@ -1125,6 +1132,7 @@ model Diagnostico {
   logoUrl         String?           @db.Text   // dataURL ou URL externa
   corPrimaria     String?           // hex (#7E30E1 default no front)
   capaImagemUrl   String?           @db.Text   // imagem hero opcional na capa
+  tema            Json?             // Fase 1: customização visual avançada (cores/fonte/estilo)
 
   // Status
   status          DiagnosticoStatus @default(RASCUNHO)
