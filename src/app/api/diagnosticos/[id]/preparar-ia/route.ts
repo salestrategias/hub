@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
-import { normalizarSecoes, catalogoDe, type DiagnosticoSecao } from "@/lib/diagnostico-secoes";
+import {
+  normalizarSecoes,
+  catalogoDe,
+  secaoEhEstruturada,
+  type DiagnosticoSecao,
+} from "@/lib/diagnostico-secoes";
 import { extrairTextoDeBlocos } from "@/lib/proposta-helpers";
 
 /**
@@ -81,16 +86,20 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
     const secoes = normalizarSecoes(diagnostico.secoes);
 
-    // Alvos: foco numa seção (por id) ou todas as visíveis.
-    const alvos = body.secaoFoco
-      ? secoes.filter((s) => s.id === body.secaoFoco)
-      : secoes.filter((s) => s.visivel);
+    // Alvos: foco numa seção (por id) ou todas as visíveis. A IA SÓ redige
+    // seções de TEXTO — blocos visuais estruturados (KPIs/timeline/cases/etc.)
+    // são curados à mão e nunca entram no prompt.
+    const alvos = (
+      body.secaoFoco
+        ? secoes.filter((s) => s.id === body.secaoFoco)
+        : secoes.filter((s) => s.visivel)
+    ).filter((s) => !secaoEhEstruturada(s.tipo));
 
     if (alvos.length === 0) {
       throw new Error(
         body.secaoFoco
-          ? "Seção não encontrada. Recarregue a página e tente de novo."
-          : "Nenhuma seção visível pra gerar. Ative ao menos uma seção no navegador à esquerda."
+          ? "Esta seção é um bloco visual (KPIs, timeline, cases…). A IA não preenche blocos visuais — edite os dados direto no card. Pra gerar texto, escolha uma seção de texto."
+          : "Nenhuma seção de texto visível pra gerar. Ative ao menos uma seção de texto no navegador à esquerda (os blocos visuais você preenche à mão)."
       );
     }
 

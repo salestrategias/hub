@@ -83,16 +83,55 @@ import {
   PanelRightOpen,
   Mic,
   ListChecks,
+  BarChart3,
+  Calendar,
+  Trophy,
+  ShieldCheck,
+  HelpCircle,
+  Package,
+  LayoutGrid,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   type DiagnosticoSecao,
   type SecaoTipo,
+  type SecaoTipoTexto,
+  type SecaoTipoEstruturado,
+  type SecaoDados,
   CATALOGO_SECOES,
+  CATALOGO_BLOCOS,
   ORDEM_CATALOGO,
+  ORDEM_BLOCOS,
   catalogoDe,
   gerarSecaoId,
+  secaoEhEstruturada,
+  defaultDadosDe,
 } from "@/lib/diagnostico-secoes";
+import {
+  KpisEditor,
+  TimelineEditor,
+  CasesEditor,
+  GarantiasEditor,
+  EquipeEditor,
+  FaqEditor,
+  PacotesEditor,
+} from "@/components/proposta-blocos-editor";
+import {
+  type BlocoKpis,
+  type BlocoTimeline,
+  type BlocoCases,
+  type BlocoGarantias,
+  type BlocoEquipe,
+  type BlocoFaq,
+  type BlocoPacotes,
+  defaultKpis,
+  defaultTimeline,
+  defaultCases,
+  defaultGarantias,
+  defaultEquipe,
+  defaultFaq,
+  defaultPacotes,
+} from "@/lib/proposta-blocos";
 
 type DiagnosticoStatus = "RASCUNHO" | "PRONTO" | "ENVIADO" | "VISTO" | "ARQUIVADO";
 
@@ -153,6 +192,13 @@ const ICONES: Record<string, React.ComponentType<{ className?: string }>> = {
   Gauge,
   Flag,
   SquarePen,
+  // Blocos visuais estruturados
+  BarChart3,
+  Calendar,
+  Trophy,
+  ShieldCheck,
+  HelpCircle,
+  Package,
 };
 
 function iconeDe(tipo: SecaoTipo): React.ComponentType<{ className?: string }> {
@@ -185,7 +231,8 @@ const STATUS_COR: Record<DiagnosticoStatus, string> = {
 };
 
 /** Tipos do catálogo que ainda não estão no diagnóstico (pra "adicionar seção"). */
-function tiposDisponiveis(secoes: DiagnosticoSecao[]): Array<Exclude<SecaoTipo, "custom">> {
+/** Tipos de TEXTO do catálogo ainda não presentes (pra "Adicionar seção"). */
+function tiposDisponiveis(secoes: DiagnosticoSecao[]): Array<Exclude<SecaoTipoTexto, "custom">> {
   const presentes = new Set(secoes.map((s) => s.tipo));
   return ORDEM_CATALOGO.filter((t) => !presentes.has(t));
 }
@@ -297,13 +344,16 @@ export function DiagnosticoEditor({
     persistirSecoes(reindexar(novas), true);
   }
 
-  function adicionarSecao(tipo: Exclude<SecaoTipo, "custom"> | "custom") {
+  function adicionarSecao(tipo: SecaoTipo) {
     const cat = catalogoDe(tipo);
     const nova: DiagnosticoSecao = {
       id: gerarSecaoId(tipo),
       tipo,
       titulo: cat.titulo,
       conteudo: "",
+      // Estruturada já nasce com o `dados` default (KPIs/timeline/etc.);
+      // texto fica sem `dados`.
+      dados: defaultDadosDe(tipo),
       visivel: true,
       ordem: secoes.length,
     };
@@ -596,9 +646,7 @@ export function DiagnosticoEditor({
                 onRemover={removerSecao}
               />
 
-              {disponiveis.length > 0 && (
-                <AdicionarSecao disponiveis={disponiveis} onAdicionar={adicionarSecao} />
-              )}
+              <AdicionarSecao disponiveis={disponiveis} onAdicionar={adicionarSecao} />
             </CardContent>
           </Card>
         </div>
@@ -627,7 +675,9 @@ export function DiagnosticoEditor({
                       {catalogoDe(secaoAtiva.tipo).placeholder}
                     </p>
                   </div>
-                  {temReuniao && (
+                  {/* "Gerar seção com IA" só faz sentido em seção de TEXTO —
+                      a IA não preenche blocos visuais estruturados. */}
+                  {temReuniao && !secaoEhEstruturada(secaoAtiva.tipo) && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -641,10 +691,16 @@ export function DiagnosticoEditor({
                       <Sparkles className="h-3.5 w-3.5" /> Gerar seção
                     </Button>
                   )}
+                  {secaoEhEstruturada(secaoAtiva.tipo) && (
+                    <Badge variant="outline" className="shrink-0 text-[10px] text-muted-foreground gap-1">
+                      <LayoutGrid className="h-3 w-3" /> Bloco visual
+                    </Badge>
+                  )}
                 </div>
 
-                {/* Guia de perguntas (metodologia SAL) */}
-                {catalogoDe(secaoAtiva.tipo).perguntasGuia.length > 0 && (
+                {/* Guia de perguntas (metodologia SAL) — só em seções de TEXTO */}
+                {!secaoEhEstruturada(secaoAtiva.tipo) &&
+                  catalogoDe(secaoAtiva.tipo).perguntasGuia.length > 0 && (
                   <div className="rounded-md border border-border bg-secondary/30 overflow-hidden">
                     <button
                       type="button"
@@ -674,18 +730,28 @@ export function DiagnosticoEditor({
                   </div>
                 )}
 
-                <div className="rounded-md border border-border bg-background/40 p-3">
-                  <BlockEditor
+                {secaoEhEstruturada(secaoAtiva.tipo) ? (
+                  // Bloco visual: reusa o sub-editor da proposta, editando `dados`.
+                  <BlocoEstruturadoEditor
                     key={secaoAtiva.id}
-                    value={secaoAtiva.conteudo || ""}
-                    onChange={(blocks: PartialBlock[]) => {
-                      const json = JSON.stringify(blocks);
-                      atualizarSecao(secaoAtiva.id, { conteudo: json });
-                    }}
-                    placeholder={catalogoDe(secaoAtiva.tipo).placeholder}
-                    minHeight="320px"
+                    tipo={secaoAtiva.tipo}
+                    dados={secaoAtiva.dados}
+                    onDadosChange={(dados) => atualizarSecao(secaoAtiva.id, { dados })}
                   />
-                </div>
+                ) : (
+                  <div className="rounded-md border border-border bg-background/40 p-3">
+                    <BlockEditor
+                      key={secaoAtiva.id}
+                      value={secaoAtiva.conteudo || ""}
+                      onChange={(blocks: PartialBlock[]) => {
+                        const json = JSON.stringify(blocks);
+                        atualizarSecao(secaoAtiva.id, { conteudo: json });
+                      }}
+                      placeholder={catalogoDe(secaoAtiva.tipo).placeholder}
+                      minHeight="320px"
+                    />
+                  </div>
+                )}
 
                 {!secaoAtiva.visivel && (
                   <p className="text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-md px-3 py-2">
@@ -917,10 +983,14 @@ function AdicionarSecao({
   disponiveis,
   onAdicionar,
 }: {
-  disponiveis: Array<Exclude<SecaoTipo, "custom">>;
-  onAdicionar: (tipo: Exclude<SecaoTipo, "custom"> | "custom") => void;
+  disponiveis: Array<Exclude<SecaoTipoTexto, "custom">>;
+  onAdicionar: (tipo: SecaoTipo) => void;
 }) {
   const [aberto, setAberto] = useState(false);
+  function escolher(tipo: SecaoTipo) {
+    onAdicionar(tipo);
+    setAberto(false);
+  }
   return (
     <div className="pt-1">
       {!aberto ? (
@@ -934,20 +1004,50 @@ function AdicionarSecao({
         </Button>
       ) : (
         <div className="rounded-md border border-border bg-background/40 p-1.5 space-y-0.5">
-          <div className="px-1.5 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-            Catálogo
+          {/* ── Seções de texto (semânticas, com guia + IA) ── */}
+          {disponiveis.length > 0 && (
+            <>
+              <div className="px-1.5 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                Seções (texto)
+              </div>
+              {disponiveis.map((tipo) => {
+                const cat = CATALOGO_SECOES[tipo];
+                const Icon = ICONES[cat.icone] ?? SquarePen;
+                return (
+                  <button
+                    key={tipo}
+                    type="button"
+                    onClick={() => escolher(tipo)}
+                    className="w-full flex items-center gap-2 px-1.5 py-1.5 rounded text-left hover:bg-secondary/60 transition"
+                  >
+                    <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <span className="text-[12px] truncate">{cat.titulo}</span>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => escolher("custom")}
+                className="w-full flex items-center gap-2 px-1.5 py-1.5 rounded text-left hover:bg-secondary/60 transition"
+              >
+                <SquarePen className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span className="text-[12px]">Seção personalizada</span>
+              </button>
+            </>
+          )}
+
+          {/* ── Blocos visuais (estruturados, reuso da proposta) ── */}
+          <div className="px-1.5 py-1 mt-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold border-t border-border/40 pt-2 flex items-center gap-1.5">
+            <LayoutGrid className="h-3 w-3 text-sal-400/70" /> Blocos visuais
           </div>
-          {disponiveis.map((tipo) => {
-            const cat = CATALOGO_SECOES[tipo];
-            const Icon = ICONES[cat.icone] ?? SquarePen;
+          {ORDEM_BLOCOS.map((tipo) => {
+            const cat = CATALOGO_BLOCOS[tipo];
+            const Icon = ICONES[cat.icone] ?? LayoutGrid;
             return (
               <button
                 key={tipo}
                 type="button"
-                onClick={() => {
-                  onAdicionar(tipo);
-                  setAberto(false);
-                }}
+                onClick={() => escolher(tipo)}
                 className="w-full flex items-center gap-2 px-1.5 py-1.5 rounded text-left hover:bg-secondary/60 transition"
               >
                 <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
@@ -955,21 +1055,11 @@ function AdicionarSecao({
               </button>
             );
           })}
-          <button
-            type="button"
-            onClick={() => {
-              onAdicionar("custom");
-              setAberto(false);
-            }}
-            className="w-full flex items-center gap-2 px-1.5 py-1.5 rounded text-left hover:bg-secondary/60 transition border-t border-border/40 mt-0.5 pt-2"
-          >
-            <SquarePen className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <span className="text-[12px]">Seção personalizada</span>
-          </button>
+
           <button
             type="button"
             onClick={() => setAberto(false)}
-            className="w-full px-1.5 py-1 text-[10.5px] text-muted-foreground hover:text-foreground"
+            className="w-full px-1.5 py-1 mt-0.5 text-[10.5px] text-muted-foreground hover:text-foreground border-t border-border/40 pt-2"
           >
             Cancelar
           </button>
@@ -977,6 +1067,78 @@ function AdicionarSecao({
       )}
     </div>
   );
+}
+
+// ─── Editor de bloco visual estruturado (reuso da proposta) ────────────
+
+/**
+ * Despacha o sub-editor estruturado certo (reusado de `proposta-blocos-editor`),
+ * editando `secao.dados`. Cada editor recebe `{ ...defaultX(), ...(dados as X) }`
+ * pra tolerar `dados` parcial/antigo sem quebrar. Idêntico ao padrão do
+ * `proposta-editor` — zero duplicação de formulário.
+ */
+function BlocoEstruturadoEditor({
+  tipo,
+  dados,
+  onDadosChange,
+}: {
+  tipo: SecaoTipoEstruturado;
+  dados: SecaoDados | undefined;
+  onDadosChange: (dados: SecaoDados) => void;
+}) {
+  switch (tipo) {
+    case "kpis":
+      return (
+        <KpisEditor
+          bloco={{ ...defaultKpis(), ...(dados as BlocoKpis) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "timeline":
+      return (
+        <TimelineEditor
+          bloco={{ ...defaultTimeline(), ...(dados as BlocoTimeline) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "cases":
+      return (
+        <CasesEditor
+          bloco={{ ...defaultCases(), ...(dados as BlocoCases) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "garantias":
+      return (
+        <GarantiasEditor
+          bloco={{ ...defaultGarantias(), ...(dados as BlocoGarantias) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "equipe":
+      return (
+        <EquipeEditor
+          bloco={{ ...defaultEquipe(), ...(dados as BlocoEquipe) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "faq":
+      return (
+        <FaqEditor
+          bloco={{ ...defaultFaq(), ...(dados as BlocoFaq) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "pacotes":
+      return (
+        <PacotesEditor
+          bloco={{ ...defaultPacotes(), ...(dados as BlocoPacotes) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    default:
+      return null;
+  }
 }
 
 // ─── Painel de contexto da reunião ─────────────────────────────────────

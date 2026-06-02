@@ -373,6 +373,9 @@ export const diagnosticoSecaoSchema = z.object({
   tipo: z.string().min(1),
   titulo: z.string().max(200),
   conteudo: z.string().default(""),
+  // Payload dos blocos visuais estruturados (kpis/timeline/cases/etc.).
+  // Json livre — o shape é validado em runtime por normalizarSecoes.
+  dados: z.unknown().optional().nullable(),
   visivel: z.boolean().default(true),
   ordem: z.coerce.number().int().default(0),
 });

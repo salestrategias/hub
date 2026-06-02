@@ -3,7 +3,11 @@ import { Prisma } from "@prisma/client";
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { textToBlocks } from "@/components/editor/text-to-blocks";
-import { normalizarSecoes, type DiagnosticoSecao } from "@/lib/diagnostico-secoes";
+import {
+  normalizarSecoes,
+  secaoEhEstruturada,
+  type DiagnosticoSecao,
+} from "@/lib/diagnostico-secoes";
 import { extrairTextoDeBlocos } from "@/lib/proposta-helpers";
 
 /**
@@ -49,11 +53,16 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     });
     const secoes = normalizarSecoes(diagnostico.secoes);
 
+    // A IA só preenche seções de TEXTO. Blocos visuais estruturados
+    // (KPIs/timeline/cases/etc.) NUNCA recebem markdown — ficam fora do index
+    // de casamento, então mesmo um id/título coincidente do Claude é ignorado.
+    const secoesTexto = secoes.filter((s) => !secaoEhEstruturada(s.tipo));
+
     // Index pra casar chaves do JSON com seções (id → tipo → titulo).
-    const porId = new Map(secoes.map((s) => [s.id, s]));
+    const porId = new Map(secoesTexto.map((s) => [s.id, s]));
     const porTipo = new Map<string, DiagnosticoSecao>();
     const porTitulo = new Map<string, DiagnosticoSecao>();
-    for (const s of secoes) {
+    for (const s of secoesTexto) {
       // primeira ocorrência ganha (tipos podem repetir se Marcelo duplicou)
       if (!porTipo.has(s.tipo)) porTipo.set(s.tipo, s);
       const tn = normalizarChave(s.titulo);

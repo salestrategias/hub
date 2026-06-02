@@ -46,10 +46,10 @@ export default async function DiagnosticoPrintPage({
   if (!diagnostico) notFound();
 
   // Só seções visíveis, na ordem — mesma regra da rota pública, pra o print
-  // ficar idêntico ao que o cliente vê na web.
+  // ficar idêntico ao que o cliente vê na web. `dados` = blocos visuais.
   const secoes = normalizarSecoes(diagnostico.secoes)
     .filter((s) => s.visivel)
-    .map((s) => ({ id: s.id, tipo: s.tipo, titulo: s.titulo, conteudo: s.conteudo }));
+    .map((s) => ({ id: s.id, tipo: s.tipo, titulo: s.titulo, conteudo: s.conteudo, dados: s.dados }));
 
   const data: DiagnosticoDocumentoData = {
     id: diagnostico.id,

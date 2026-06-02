@@ -87,9 +87,10 @@ async function handlePublic(token: string, senhaProvida: string | null) {
   }
 
   // Só seções visíveis, na ordem — diagnóstico é leitura elegante.
+  // `dados` carrega o payload dos blocos visuais estruturados.
   const secoes = normalizarSecoes(diagnostico.secoes)
     .filter((s) => s.visivel)
-    .map((s) => ({ id: s.id, tipo: s.tipo, titulo: s.titulo, conteudo: s.conteudo }));
+    .map((s) => ({ id: s.id, tipo: s.tipo, titulo: s.titulo, conteudo: s.conteudo, dados: s.dados }));
 
   return {
     id: diagnostico.id,

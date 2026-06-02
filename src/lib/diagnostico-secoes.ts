@@ -6,11 +6,19 @@
  * desliga e reordena por cliente — e pode até adicionar seções custom.
  *
  * Cada seção:
- *  - `tipo`    — chave do catálogo (ou "custom" pra seções livres)
+ *  - `tipo`    — chave do catálogo (texto, "custom", ou bloco visual)
  *  - `titulo`  — editável (default vem do catálogo)
- *  - `conteudo`— JSON BlockNote serializado (string). "" = vazia.
+ *  - `conteudo`— JSON BlockNote serializado (seções de TEXTO). "" = vazia.
+ *  - `dados`   — payload do bloco visual (seções ESTRUTURADAS). Json no banco.
  *  - `visivel` — toggle on/off na apresentação/PDF
  *  - `ordem`   — posição na renderização
+ *
+ * Dois tipos de seção:
+ *  - TEXTO (capa, sumário, gargalos…): corpo em `conteudo`, ancoradas em
+ *    `perguntasGuia`, preenchíveis pela IA.
+ *  - BLOCO VISUAL (kpis, timeline, cases, garantias, equipe, faq, pacotes):
+ *    reusam 100% a biblioteca da proposta (`proposta-blocos.ts`) — editor,
+ *    render público e defaults. Corpo em `dados`. A IA NÃO toca neles.
  *
  * As `perguntasGuia` do catálogo têm DOIS usos:
  *  1. Checklist de qualidade no editor (Marcelo vê o que não pode faltar).
@@ -26,9 +34,30 @@
  *  - audiência: lojistas, negócios locais, e-commerces, marcas (NUNCA "PMEs").
  */
 
+import {
+  type BlocoKpis,
+  type BlocoTimeline,
+  type BlocoCases,
+  type BlocoGarantias,
+  type BlocoEquipe,
+  type BlocoFaq,
+  type BlocoPacotes,
+  defaultKpis,
+  defaultTimeline,
+  defaultCases,
+  defaultGarantias,
+  defaultEquipe,
+  defaultFaq,
+  defaultPacotes,
+} from "@/lib/proposta-blocos";
+
 // ─── Tipos ────────────────────────────────────────────────────────────
 
-export type SecaoTipo =
+/**
+ * Tipos de seção de TEXTO (corpo em BlockNote, ancorado em `perguntasGuia`,
+ * preenchível pela IA).
+ */
+export type SecaoTipoTexto =
   | "capa"
   | "sumarioExecutivo"
   | "contextoNegocio"
@@ -43,12 +72,40 @@ export type SecaoTipo =
   | "proximosPassos"
   | "custom";
 
+/**
+ * Tipos de BLOCO VISUAL estruturado — reusam 100% a biblioteca de blocos da
+ * proposta (`proposta-blocos.ts`): editor, render público e defaults. O corpo
+ * fica em `dados` (objeto do bloco), não em `conteudo`. A IA NÃO mexe neles.
+ */
+export type SecaoTipoEstruturado =
+  | "kpis"
+  | "timeline"
+  | "cases"
+  | "garantias"
+  | "equipe"
+  | "faq"
+  | "pacotes";
+
+export type SecaoTipo = SecaoTipoTexto | SecaoTipoEstruturado;
+
+/** Payload estruturado de uma seção visual (espelha BlocoDados da proposta). */
+export type SecaoDados =
+  | BlocoKpis
+  | BlocoTimeline
+  | BlocoCases
+  | BlocoGarantias
+  | BlocoEquipe
+  | BlocoFaq
+  | BlocoPacotes;
+
 export type DiagnosticoSecao = {
   id: string;
   tipo: SecaoTipo;
   titulo: string;
-  /** JSON BlockNote serializado. "" = vazia. */
+  /** JSON BlockNote serializado (seções de TEXTO). "" = vazia. */
   conteudo: string;
+  /** Payload do bloco visual (seções ESTRUTURADAS). Json no banco. */
+  dados?: SecaoDados;
   visivel: boolean;
   ordem: number;
 };
@@ -62,11 +119,15 @@ export type CatalogoEntrada = {
   visivelPorPadrao: boolean;
   /** Perguntas que a seção precisa responder — checklist + insumo da IA. */
   perguntasGuia: string[];
+  /** Bloco visual estruturado (edita `dados`, não `conteudo`; IA ignora). */
+  estruturado?: boolean;
+  /** Factory do `dados` default (só nos estruturados). */
+  defaultDados?: () => SecaoDados;
 };
 
 // ─── Catálogo (ordem = ordem default no diagnóstico) ──────────────────
 
-export const CATALOGO_SECOES: Record<Exclude<SecaoTipo, "custom">, CatalogoEntrada> = {
+export const CATALOGO_SECOES: Record<Exclude<SecaoTipoTexto, "custom">, CatalogoEntrada> = {
   capa: {
     titulo: "Identificação",
     placeholder:
@@ -218,8 +279,82 @@ export const CATALOGO_SECOES: Record<Exclude<SecaoTipo, "custom">, CatalogoEntra
   },
 };
 
-/** Ordem canônica dos tipos no catálogo (= ordem default no diagnóstico). */
-export const ORDEM_CATALOGO: Array<Exclude<SecaoTipo, "custom">> = [
+/**
+ * Catálogo dos BLOCOS VISUAIS estruturados disponíveis no diagnóstico.
+ *
+ * Reusa a biblioteca da proposta (`proposta-blocos.ts`): mesmos tipos de dados,
+ * mesmos `default*()` e os mesmos componentes de editor/render. Aqui só
+ * registramos título + ícone + a factory de `dados` — a IA NUNCA toca neles
+ * (não têm `perguntasGuia`).
+ */
+export const CATALOGO_BLOCOS: Record<SecaoTipoEstruturado, CatalogoEntrada> = {
+  kpis: {
+    titulo: "KPIs / Metas",
+    placeholder: "Cards com metas em destaque (baseline → meta) — compromisso mensurável.",
+    icone: "BarChart3",
+    visivelPorPadrao: true,
+    perguntasGuia: [],
+    estruturado: true,
+    defaultDados: () => ({ ...defaultKpis(), visivel: true }),
+  },
+  timeline: {
+    titulo: "Cronograma",
+    placeholder: "Marcos visuais com período + status (concluído / em andamento / pendente).",
+    icone: "Calendar",
+    visivelPorPadrao: true,
+    perguntasGuia: [],
+    estruturado: true,
+    defaultDados: () => ({ ...defaultTimeline(), visivel: true }),
+  },
+  cases: {
+    titulo: "Cases / Prova social",
+    placeholder: "Grid de resultados de clientes anteriores — credibilidade.",
+    icone: "Trophy",
+    visivelPorPadrao: true,
+    perguntasGuia: [],
+    estruturado: true,
+    defaultDados: () => ({ ...defaultCases(), visivel: true }),
+  },
+  garantias: {
+    titulo: "Garantias",
+    placeholder: "Selos de confiança (transparência, sem fidelidade, suporte).",
+    icone: "ShieldCheck",
+    visivelPorPadrao: true,
+    perguntasGuia: [],
+    estruturado: true,
+    defaultDados: () => ({ ...defaultGarantias(), visivel: true }),
+  },
+  equipe: {
+    titulo: "Equipe",
+    placeholder: "Headshots + bios de quem vai cuidar do cliente — humaniza.",
+    icone: "Users",
+    visivelPorPadrao: true,
+    perguntasGuia: [],
+    estruturado: true,
+    defaultDados: () => ({ ...defaultEquipe(), visivel: true }),
+  },
+  faq: {
+    titulo: "FAQ",
+    placeholder: "Perguntas frequentes — mata objeções.",
+    icone: "HelpCircle",
+    visivelPorPadrao: true,
+    perguntasGuia: [],
+    estruturado: true,
+    defaultDados: () => ({ ...defaultFaq(), visivel: true }),
+  },
+  pacotes: {
+    titulo: "Tabela de pacotes",
+    placeholder: "Tabela comparativa de pacotes com features.",
+    icone: "Package",
+    visivelPorPadrao: true,
+    perguntasGuia: [],
+    estruturado: true,
+    defaultDados: () => ({ ...defaultPacotes(), visivel: true }),
+  },
+};
+
+/** Ordem canônica dos tipos de TEXTO (= ordem default no diagnóstico). */
+export const ORDEM_CATALOGO: Array<Exclude<SecaoTipoTexto, "custom">> = [
   "capa",
   "sumarioExecutivo",
   "contextoNegocio",
@@ -233,6 +368,25 @@ export const ORDEM_CATALOGO: Array<Exclude<SecaoTipo, "custom">> = [
   "metasKpis",
   "proximosPassos",
 ];
+
+/** Ordem canônica dos blocos visuais no menu "Adicionar". */
+export const ORDEM_BLOCOS: SecaoTipoEstruturado[] = [
+  "kpis",
+  "timeline",
+  "cases",
+  "garantias",
+  "equipe",
+  "faq",
+  "pacotes",
+];
+
+/**
+ * Uma seção é um bloco visual estruturado (edita `dados`, IA ignora)?
+ * Aceita `string` (o tipo vem do banco como Json) e estreita pro literal.
+ */
+export function secaoEhEstruturada(tipo: SecaoTipo | string): tipo is SecaoTipoEstruturado {
+  return tipo in CATALOGO_BLOCOS;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
@@ -258,6 +412,9 @@ export function defaultSecoes(): DiagnosticoSecao[] {
 
 /** Metadados de catálogo de uma seção (perguntas-guia, ícone, placeholder). */
 export function catalogoDe(tipo: SecaoTipo): CatalogoEntrada {
+  if (secaoEhEstruturada(tipo)) {
+    return CATALOGO_BLOCOS[tipo];
+  }
   if (tipo === "custom" || !(tipo in CATALOGO_SECOES)) {
     return {
       titulo: "Seção personalizada",
@@ -267,7 +424,12 @@ export function catalogoDe(tipo: SecaoTipo): CatalogoEntrada {
       perguntasGuia: [],
     };
   }
-  return CATALOGO_SECOES[tipo as Exclude<SecaoTipo, "custom">];
+  return CATALOGO_SECOES[tipo as Exclude<SecaoTipoTexto, "custom">];
+}
+
+/** `dados` default pra uma seção estruturada nova (vazio nos tipos de texto). */
+export function defaultDadosDe(tipo: SecaoTipo): SecaoDados | undefined {
+  return secaoEhEstruturada(tipo) ? CATALOGO_BLOCOS[tipo].defaultDados?.() : undefined;
 }
 
 /**
@@ -280,8 +442,9 @@ export function normalizarSecoes(raw: unknown): DiagnosticoSecao[] {
   }
   const secoes = raw
     .filter((s): s is Record<string, unknown> => !!s && typeof s === "object")
-    .map((s, i) => {
+    .map((s, i): DiagnosticoSecao => {
       const tipo = (typeof s.tipo === "string" ? s.tipo : "custom") as SecaoTipo;
+      const estruturada = secaoEhEstruturada(tipo);
       return {
         id: typeof s.id === "string" && s.id ? s.id : gerarSecaoId(tipo),
         tipo,
@@ -290,6 +453,11 @@ export function normalizarSecoes(raw: unknown): DiagnosticoSecao[] {
             ? s.titulo
             : catalogoDe(tipo).titulo,
         conteudo: typeof s.conteudo === "string" ? s.conteudo : "",
+        // Preserva o payload do bloco visual. Estruturada sem `dados` (criada
+        // por algum caminho antigo) cai no default pra não quebrar o render.
+        dados: estruturada
+          ? ((s.dados as SecaoDados | undefined) ?? defaultDadosDe(tipo))
+          : (s.dados as SecaoDados | undefined),
         visivel: typeof s.visivel === "boolean" ? s.visivel : true,
         ordem: typeof s.ordem === "number" ? s.ordem : i,
       };
