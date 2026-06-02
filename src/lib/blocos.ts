@@ -124,20 +124,28 @@ export function deriveBlocosFromProposta(p: PropostaColunas): Bloco[] {
     conteudo: p.capa ?? null,
     dados: { imagemUrl: p.capaImagemUrl ?? undefined },
   });
+  // A ORDEM abaixo espelha EXATAMENTE a sequência que `renderizarSequencia`
+  // produzia na pública/print antes da Fase 1 (path B) — pra que a proposta
+  // legada (secoes null) renderize pixel-idêntica. Não reordene sem ajustar o
+  // render: capa → diagnóstico → cases → objetivo → kpis → escopo →
+  // (cronograma|timeline) → investimento → pacotes → garantias →
+  // próximos passos → termos → equipe → faq.
   texto("Diagnóstico", p.diagnostico);
   if (ex.cases) add({ id: gerarBlocoId("cases"), tipo: "cases", titulo: ex.cases.titulo, visivel: ex.cases.visivel, dados: ex.cases });
   texto("Objetivo", p.objetivo);
   if (ex.kpis) add({ id: gerarBlocoId("kpis"), tipo: "kpis", titulo: ex.kpis.titulo, visivel: ex.kpis.visivel, dados: ex.kpis });
-  texto("Escopo", p.escopo);
+  texto("Estratégia & escopo", p.escopo);
+  // Cronograma texto e timeline ocupam o MESMO slot: o render mostra a timeline
+  // quando ela está ativa e suprime o texto (mutuamente exclusivos, como antes).
   texto("Cronograma", p.cronograma);
   if (ex.timeline) add({ id: gerarBlocoId("timeline"), tipo: "timeline", titulo: ex.timeline.titulo, visivel: ex.timeline.visivel, dados: ex.timeline });
   texto("Investimento", p.investimento);
   if (ex.pacotes) add({ id: gerarBlocoId("pacotes"), tipo: "pacotes", titulo: ex.pacotes.titulo, visivel: ex.pacotes.visivel, dados: ex.pacotes });
+  if (ex.garantias) add({ id: gerarBlocoId("garantias"), tipo: "garantias", titulo: ex.garantias.titulo, visivel: ex.garantias.visivel, dados: ex.garantias });
   texto("Próximos passos", p.proximosPassos);
+  texto("Termos & condições", p.termos);
   if (ex.equipe) add({ id: gerarBlocoId("equipe"), tipo: "equipe", titulo: ex.equipe.titulo, visivel: ex.equipe.visivel, dados: ex.equipe });
   if (ex.faq) add({ id: gerarBlocoId("faq"), tipo: "faq", titulo: ex.faq.titulo, visivel: ex.faq.visivel, dados: ex.faq });
-  if (ex.garantias) add({ id: gerarBlocoId("garantias"), tipo: "garantias", titulo: ex.garantias.titulo, visivel: ex.garantias.visivel, dados: ex.garantias });
-  texto("Termos", p.termos);
 
   return blocos;
 }

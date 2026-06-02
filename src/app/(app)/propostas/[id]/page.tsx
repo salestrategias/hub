@@ -49,6 +49,7 @@ export default async function PropostaPage({ params }: { params: { id: string } 
           corPrimaria: proposta.corPrimaria,
           capaImagemUrl: proposta.capaImagemUrl,
           extras: proposta.extras,
+          secoes: proposta.secoes,
           status: proposta.status,
           shareToken: proposta.shareToken,
           shareExpiraEm: proposta.shareExpiraEm?.toISOString() ?? null,

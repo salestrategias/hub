@@ -317,7 +317,7 @@ function BlocoCard({
 
 // ─── PACOTES editor ───────────────────────────────────────────────────
 
-function PacotesEditor({
+export function PacotesEditor({
   bloco,
   onChange,
 }: {
@@ -519,7 +519,7 @@ function PacotesEditor({
 
 // ─── CASES editor ─────────────────────────────────────────────────────
 
-function CasesEditor({
+export function CasesEditor({
   bloco,
   onChange,
 }: {
@@ -621,7 +621,7 @@ function CasesEditor({
 
 // ─── KPIs editor ──────────────────────────────────────────────────────
 
-function KpisEditor({
+export function KpisEditor({
   bloco,
   onChange,
 }: {
@@ -709,7 +709,7 @@ function KpisEditor({
 
 // ─── EQUIPE editor ────────────────────────────────────────────────────
 
-function EquipeEditor({
+export function EquipeEditor({
   bloco,
   onChange,
 }: {
@@ -838,7 +838,7 @@ function EquipeEditor({
 
 // ─── FAQ editor ───────────────────────────────────────────────────────
 
-function FaqEditor({
+export function FaqEditor({
   bloco,
   onChange,
 }: {
@@ -920,7 +920,7 @@ function FaqEditor({
 
 // ─── TIMELINE editor ──────────────────────────────────────────────────
 
-function TimelineEditor({
+export function TimelineEditor({
   bloco,
   onChange,
 }: {
@@ -1072,7 +1072,7 @@ function TimelineEditor({
 
 // ─── GARANTIAS editor ─────────────────────────────────────────────────
 
-function GarantiasEditor({
+export function GarantiasEditor({
   bloco,
   onChange,
 }: {

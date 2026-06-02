@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { verifyPrintToken } from "@/lib/print-token";
-import { propostaContexto, expandirSecaoProposta } from "@/lib/proposta-helpers";
+import { propostaContexto, expandirSecaoProposta, expandirBlocosProposta } from "@/lib/proposta-helpers";
 import { PropostaDocumento, type PropostaDocumentoData } from "@/components/proposta-documento";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +69,8 @@ export default async function PropostaPrintPage({
     corPrimaria: proposta.corPrimaria,
     capaImagemUrl: proposta.capaImagemUrl,
     extras: proposta.extras,
+    // Fase 1 (path B): array de blocos (fonte da verdade quando presente).
+    secoes: expandirBlocosProposta(proposta.secoes, ctx),
     capa: expandirSecaoProposta(proposta.capa, ctx),
     diagnostico: expandirSecaoProposta(proposta.diagnostico, ctx),
     objetivo: expandirSecaoProposta(proposta.objetivo, ctx),

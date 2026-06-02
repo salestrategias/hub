@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { apiHandler } from "@/lib/api";
 import { prisma } from "@/lib/db";
-import { propostaContexto, expandirSecaoProposta } from "@/lib/proposta-helpers";
+import { propostaContexto, expandirSecaoProposta, expandirBlocosProposta } from "@/lib/proposta-helpers";
 
 /**
  * Endpoint público que serve a proposta pra o link compartilhado.
@@ -143,6 +143,9 @@ async function handlePublic(token: string, senhaProvida: string | null) {
     corPrimaria: proposta.corPrimaria,
     capaImagemUrl: proposta.capaImagemUrl,
     extras: proposta.extras,
+    // Fase 1 (path B): array de blocos (fonte da verdade quando presente).
+    // Mantemos as colunas legadas no payload pro dual-read continuar funcionando.
+    secoes: expandirBlocosProposta(proposta.secoes, ctx),
     capa: expandirSecaoProposta(proposta.capa, ctx),
     diagnostico: expandirSecaoProposta(proposta.diagnostico, ctx),
     objetivo: expandirSecaoProposta(proposta.objetivo, ctx),

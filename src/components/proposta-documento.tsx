@@ -21,7 +21,16 @@
 import { BlockRenderer } from "@/components/editor";
 import { cn } from "@/lib/utils";
 import { AlertTriangle } from "lucide-react";
-import { normalizarExtras, type PropostaExtras } from "@/lib/proposta-blocos";
+import {
+  type BlocoPacotes,
+  type BlocoCases,
+  type BlocoKpis,
+  type BlocoEquipe,
+  type BlocoFaq,
+  type BlocoTimeline,
+  type BlocoGarantias,
+} from "@/lib/proposta-blocos";
+import { type Bloco, blocosDaProposta } from "@/lib/blocos";
 import {
   PacotesPublico,
   CasesPublico,
@@ -42,6 +51,8 @@ export type PropostaDocumentoData = {
   corPrimaria: string | null;
   capaImagemUrl: string | null;
   extras: unknown;
+  /** Fase 1 (path B): array unificado de blocos. Quando presente, é a fonte da verdade. */
+  secoes?: unknown;
   capa: string | null;
   diagnostico: string | null;
   objetivo: string | null;
@@ -85,7 +96,10 @@ export function PropostaDocumento({
   const corPrim = proposta.corPrimaria ?? "#7E30E1";
   const corPrimEscura = escurecer(corPrim, 0.3);
   const corPrimClara = clarear(corPrim, 0.4);
-  const extras = normalizarExtras(proposta.extras);
+  // Fase 1 (path B): a sequência do documento vem do array de blocos.
+  // Dual-read: usa `proposta.secoes` se migrada; senão deriva das colunas+extras
+  // preservando a ordem legada (resultado pixel-idêntico ao de antes).
+  const blocos = blocosDaProposta(proposta);
 
   return (
     <div
@@ -169,8 +183,9 @@ export function PropostaDocumento({
         </div>
       </section>
 
-      {/* Sequência interceptada: seções texto + blocos extras nas posições estratégicas */}
-      {renderizarSequencia(proposta, extras)}
+      {/* Sequência do documento: itera o array de blocos (ordenado, pulando ocultos),
+          despachando por tipo. Legado deriva na ordem antiga → pixel-idêntico. */}
+      {renderizarBlocos(blocos, proposta)}
 
       {/* Chrome interativo (CTA aceite/recusa, toolbar, TOC, CTA fixo) — só na pública */}
       {!modoApresentacao && children}
@@ -952,120 +967,198 @@ function Secao({
   );
 }
 
-// ─── Sequência intercalada de seções + blocos extras ──────────────────
+// ─── Render do documento a partir do array de blocos ──────────────────
 
-type PropostaParaRender = {
-  id: string;
-  capa: string | null;
-  diagnostico: string | null;
-  objetivo: string | null;
-  escopo: string | null;
-  cronograma: string | null;
-  investimento: string | null;
-  proximosPassos: string | null;
-  termos: string | null;
+type PropostaParaResumo = {
   valorMensal: number | null;
   valorTotal: number | null;
   duracaoMeses: number | null;
 };
 
-function renderizarSequencia(proposta: PropostaParaRender, extras: PropostaExtras) {
+/**
+ * Mapeia título legado → âncora fixa do TOC (parity com a sequência antiga).
+ * Cobre os rótulos que `deriveBlocosFromProposta` gera pra blocos de texto/capa.
+ */
+const ANCORA_POR_TITULO: Record<string, string> = {
+  "Capa": "apresentacao",
+  "Apresentação": "apresentacao",
+  "Apresentação / capa": "apresentacao",
+  "Diagnóstico": "diagnostico",
+  "Objetivo": "objetivo",
+  "Escopo": "escopo",
+  "Estratégia & escopo": "escopo",
+  "Cronograma": "cronograma",
+  "Investimento": "investimento",
+  "Próximos passos": "proximos-passos",
+  "Termos": "termos",
+  "Termos & condições": "termos",
+};
+
+/** Âncoras fixas dos blocos estruturados (iguais aos ids que cada componente já renderiza). */
+const ANCORA_ESTRUTURADO: Record<string, string> = {
+  cases: "cases",
+  kpis: "kpis",
+  pacotes: "pacotes",
+  timeline: "timeline",
+  garantias: "garantias",
+  equipe: "equipe",
+  faq: "faq",
+};
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/** Âncora (#id) determinística de um bloco. Preserva os ids legados do TOC. */
+export function ancoraDoBloco(bloco: Bloco): string {
+  if (bloco.tipo === "capa") return "apresentacao";
+  if (ANCORA_ESTRUTURADO[bloco.tipo]) return ANCORA_ESTRUTURADO[bloco.tipo];
+  const titulo = bloco.titulo ?? "";
+  return ANCORA_POR_TITULO[titulo] ?? (slugify(titulo) || `bloco-${bloco.id}`);
+}
+
+/** Rótulo curto do bloco pro TOC (encurta os rótulos longos como na pública). */
+export function labelDoBloco(bloco: Bloco): string {
+  const t = bloco.titulo ?? "";
+  if (bloco.tipo === "capa") return "Apresentação";
+  if (bloco.tipo === "cases") return "Cases";
+  if (bloco.tipo === "kpis") return "Metas";
+  if (bloco.tipo === "pacotes") return "Pacotes";
+  if (bloco.tipo === "timeline") return "Cronograma";
+  if (bloco.tipo === "garantias") return "Garantias";
+  if (bloco.tipo === "equipe") return "Equipe";
+  if (bloco.tipo === "faq") return "FAQ";
+  // Texto: encurta os rótulos legados pra bater com o TOC antigo.
+  if (t === "Estratégia & escopo") return "Estratégia";
+  if (t === "Termos & condições") return "Termos";
+  return t || "Seção";
+}
+
+/** Tem um bloco de timeline que efetivamente aparece? (pra regra cronograma↔timeline). */
+function temTimelineAtiva(blocos: Bloco[]): boolean {
+  return blocos.some((b) => b.tipo === "timeline" && aparece(b));
+}
+
+/** Avaliação "sozinha" de um bloco: visível + conteúdo renderizável. */
+function aparece(bloco: Bloco): boolean {
+  if (!bloco.visivel) return false;
+  if (bloco.tipo === "texto" || bloco.tipo === "capa") {
+    return hasContent(bloco.conteudo ?? "");
+  }
+  // Estruturados: o array de itens precisa ter ao menos um elemento.
+  const d = bloco.dados as Record<string, unknown> | undefined;
+  if (!d) return false;
+  const itens =
+    (d.pacotes as unknown[]) ??
+    (d.cases as unknown[]) ??
+    (d.kpis as unknown[]) ??
+    (d.membros as unknown[]) ??
+    (d.perguntas as unknown[]) ??
+    (d.marcos as unknown[]) ??
+    (d.garantias as unknown[]);
+  return Array.isArray(itens) && itens.length > 0;
+}
+
+/**
+ * Um bloco aparece no documento?
+ *
+ * `contexto` (o array completo) ativa a regra de parity legada: quando há um
+ * bloco de TIMELINE ativo, o bloco de TEXTO de Cronograma é suprimido — igual
+ * ao `if (timeline) … else if (cronograma)` da render antiga (mutuamente
+ * exclusivos). Sem contexto, avalia o bloco isoladamente.
+ */
+export function blocoAparece(bloco: Bloco, contexto?: Bloco[]): boolean {
+  if (!aparece(bloco)) return false;
+  if (
+    contexto &&
+    bloco.tipo === "texto" &&
+    ancoraDoBloco(bloco) === "cronograma" &&
+    temTimelineAtiva(contexto)
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/** TOC derivado dos blocos visíveis — usado pela pública (lockstep com o render). */
+export function tocDosBlocos(blocos: Bloco[]): Array<{ id: string; label: string }> {
+  return blocos
+    .filter((b) => blocoAparece(b, blocos))
+    .map((b) => ({ id: ancoraDoBloco(b), label: labelDoBloco(b) }));
+}
+
+/**
+ * Renderiza a sequência do documento iterando os blocos (já ordenados por
+ * `blocosDaProposta`), pulando ocultos/vazios, despachando por tipo. Reusa
+ * os componentes de render que já existiam — sem reescrever o visual.
+ */
+function renderizarBlocos(blocos: Bloco[], proposta: PropostaParaResumo): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
 
-  // Capa custom (apresentação)
-  if (proposta.capa && hasContent(proposta.capa)) {
-    nodes.push(<Secao key="capa" id="apresentacao" label="Apresentação" conteudo={proposta.capa} />);
-  }
+  for (const bloco of blocos) {
+    if (!blocoAparece(bloco, blocos)) continue;
+    const ancora = ancoraDoBloco(bloco);
 
-  // Diagnóstico
-  if (proposta.diagnostico && hasContent(proposta.diagnostico)) {
-    nodes.push(
-      <Secao key="diagnostico" id="diagnostico" label="Diagnóstico" conteudo={proposta.diagnostico} />
-    );
-  }
-
-  // BLOCO: Cases (após diagnóstico — prova social)
-  if (extras.cases?.visivel) {
-    nodes.push(<CasesPublico key="cases" bloco={extras.cases} />);
-  }
-
-  // Objetivo
-  if (proposta.objetivo && hasContent(proposta.objetivo)) {
-    nodes.push(<Secao key="objetivo" id="objetivo" label="Objetivo" conteudo={proposta.objetivo} />);
-  }
-
-  // BLOCO: KPIs (após objetivo — metas SMART)
-  if (extras.kpis?.visivel) {
-    nodes.push(<KpisPublico key="kpis" bloco={extras.kpis} />);
-  }
-
-  // Escopo
-  if (proposta.escopo && hasContent(proposta.escopo)) {
-    nodes.push(
-      <Secao key="escopo" id="escopo" label="Estratégia & escopo" conteudo={proposta.escopo} />
-    );
-  }
-
-  // Cronograma (texto OU timeline visual)
-  if (extras.timeline?.visivel) {
-    nodes.push(<TimelinePublico key="timeline" bloco={extras.timeline} />);
-  } else if (proposta.cronograma && hasContent(proposta.cronograma)) {
-    nodes.push(
-      <Secao key="cronograma" id="cronograma" label="Cronograma" conteudo={proposta.cronograma} />
-    );
-  }
-
-  // Investimento + resumo financeiro
-  if (proposta.investimento && hasContent(proposta.investimento)) {
-    nodes.push(
-      <Secao key="investimento" id="investimento" label="Investimento" conteudo={proposta.investimento}>
-        <ResumoInvestimento
-          valorMensal={proposta.valorMensal}
-          valorTotal={proposta.valorTotal}
-          duracaoMeses={proposta.duracaoMeses}
-        />
-      </Secao>
-    );
-  }
-
-  // BLOCO: Pacotes (após investimento — comparativo)
-  if (extras.pacotes?.visivel) {
-    nodes.push(<PacotesPublico key="pacotes" bloco={extras.pacotes} />);
-  }
-
-  // BLOCO: Garantias (após investimento/pacotes — antes dos próximos passos)
-  if (extras.garantias?.visivel) {
-    nodes.push(<GarantiasPublico key="garantias" bloco={extras.garantias} />);
-  }
-
-  // Próximos passos
-  if (proposta.proximosPassos && hasContent(proposta.proximosPassos)) {
-    nodes.push(
-      <Secao
-        key="proximos"
-        id="proximos-passos"
-        label="Próximos passos"
-        conteudo={proposta.proximosPassos}
-      />
-    );
-  }
-
-  // Termos
-  if (proposta.termos && hasContent(proposta.termos)) {
-    nodes.push(<Secao key="termos" id="termos" label="Termos & condições" conteudo={proposta.termos} />);
-  }
-
-  // BLOCO: Equipe (antes do CTA — humaniza)
-  if (extras.equipe?.visivel) {
-    nodes.push(<EquipePublico key="equipe" bloco={extras.equipe} />);
-  }
-
-  // BLOCO: FAQ (antes do CTA — mata objeções)
-  if (extras.faq?.visivel) {
-    nodes.push(<FaqPublico key="faq" bloco={extras.faq} />);
+    switch (bloco.tipo) {
+      case "capa":
+      case "texto": {
+        // Capa: o corpo é o texto de "Apresentação" (o hero é renderizado à
+        // parte, acima). Texto: usa o próprio título (já no rótulo legado).
+        const label = bloco.tipo === "capa" ? "Apresentação" : bloco.titulo ?? "Seção";
+        const ehInvestimento = ancora === "investimento";
+        nodes.push(
+          <Secao key={bloco.id} id={ancora} label={label} conteudo={bloco.conteudo ?? ""}>
+            {ehInvestimento ? (
+              <ResumoInvestimento
+                valorMensal={proposta.valorMensal}
+                valorTotal={proposta.valorTotal}
+                duracaoMeses={proposta.duracaoMeses}
+              />
+            ) : undefined}
+          </Secao>
+        );
+        break;
+      }
+      case "pacotes":
+        nodes.push(<PacotesPublico key={bloco.id} bloco={dadosVisiveis<BlocoPacotes>(bloco)} />);
+        break;
+      case "cases":
+        nodes.push(<CasesPublico key={bloco.id} bloco={dadosVisiveis<BlocoCases>(bloco)} />);
+        break;
+      case "kpis":
+        nodes.push(<KpisPublico key={bloco.id} bloco={dadosVisiveis<BlocoKpis>(bloco)} />);
+        break;
+      case "equipe":
+        nodes.push(<EquipePublico key={bloco.id} bloco={dadosVisiveis<BlocoEquipe>(bloco)} />);
+        break;
+      case "faq":
+        nodes.push(<FaqPublico key={bloco.id} bloco={dadosVisiveis<BlocoFaq>(bloco)} />);
+        break;
+      case "timeline":
+        nodes.push(<TimelinePublico key={bloco.id} bloco={dadosVisiveis<BlocoTimeline>(bloco)} />);
+        break;
+      case "garantias":
+        nodes.push(<GarantiasPublico key={bloco.id} bloco={dadosVisiveis<BlocoGarantias>(bloco)} />);
+        break;
+    }
   }
 
   return nodes;
+}
+
+/**
+ * Une o toggle do bloco (`bloco.visivel`) ao shape que os componentes de
+ * render esperam (`{ visivel, ...dados }`). A fonte de verdade do toggle
+ * passa a ser o bloco; `dados.visivel` legado é sobreposto.
+ */
+function dadosVisiveis<T extends { visivel: boolean }>(bloco: Bloco): T {
+  const dados = (bloco.dados ?? {}) as T;
+  return { ...dados, visivel: bloco.visivel } as T;
 }
 
 function ResumoInvestimento({

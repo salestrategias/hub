@@ -14,12 +14,12 @@ import {
 import { toast } from "@/components/ui/toast";
 import { CheckCircle2, XCircle, Lock, Download, Loader2, Clock, List } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { normalizarExtras, type PropostaExtras } from "@/lib/proposta-blocos";
+import { blocosDaProposta } from "@/lib/blocos";
 import {
   PropostaDocumento,
   type PropostaDocumentoData,
   formatBRL,
-  hasContent,
+  tocDosBlocos,
 } from "@/components/proposta-documento";
 
 // Re-export do tipo de dados (compatibilidade): a pública e a print compartilham
@@ -143,10 +143,9 @@ export function PropostaPublica({ token }: { token: string }) {
   const aceita = proposta.status === "ACEITA";
   const recusada = proposta.status === "RECUSADA";
   const decidida = aceita || recusada;
-  const extras = normalizarExtras(proposta.extras);
 
-  // TOC: monta lista de âncoras visíveis pra navegação lateral
-  const tocItems = construirToc(proposta, extras);
+  // TOC: derivado dos MESMOS blocos que o documento renderiza (lockstep).
+  const tocItems = tocDosBlocos(blocosDaProposta(proposta));
 
   return (
     <>
@@ -294,28 +293,9 @@ export function PropostaPublica({ token }: { token: string }) {
 }
 
 // ─── TOC (table of contents) lateral fixo ─────────────────────────────
+// Os itens vêm de `tocDosBlocos(...)` (mesma fonte que o render do documento).
 
 type TocItem = { id: string; label: string };
-
-function construirToc(proposta: PropostaPublicaData, extras: PropostaExtras): TocItem[] {
-  const items: TocItem[] = [];
-  if (proposta.capa && hasContent(proposta.capa)) items.push({ id: "apresentacao", label: "Apresentação" });
-  if (proposta.diagnostico && hasContent(proposta.diagnostico)) items.push({ id: "diagnostico", label: "Diagnóstico" });
-  if (extras.cases?.visivel) items.push({ id: "cases", label: "Cases" });
-  if (proposta.objetivo && hasContent(proposta.objetivo)) items.push({ id: "objetivo", label: "Objetivo" });
-  if (extras.kpis?.visivel) items.push({ id: "kpis", label: "Metas" });
-  if (proposta.escopo && hasContent(proposta.escopo)) items.push({ id: "escopo", label: "Estratégia" });
-  if (extras.timeline?.visivel) items.push({ id: "timeline", label: "Cronograma" });
-  else if (proposta.cronograma && hasContent(proposta.cronograma)) items.push({ id: "cronograma", label: "Cronograma" });
-  if (proposta.investimento && hasContent(proposta.investimento)) items.push({ id: "investimento", label: "Investimento" });
-  if (extras.pacotes?.visivel) items.push({ id: "pacotes", label: "Pacotes" });
-  if (extras.garantias?.visivel) items.push({ id: "garantias", label: "Garantias" });
-  if (proposta.proximosPassos && hasContent(proposta.proximosPassos)) items.push({ id: "proximos-passos", label: "Próximos passos" });
-  if (proposta.termos && hasContent(proposta.termos)) items.push({ id: "termos", label: "Termos" });
-  if (extras.equipe?.visivel) items.push({ id: "equipe", label: "Equipe" });
-  if (extras.faq?.visivel) items.push({ id: "faq", label: "FAQ" });
-  return items;
-}
 
 function Toc({ itens }: { itens: TocItem[] }) {
   const [ativo, setAtivo] = useState<string>("");

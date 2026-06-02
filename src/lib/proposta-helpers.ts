@@ -66,6 +66,26 @@ export function expandirSecaoProposta(
 }
 
 /**
+ * Expande {{vars}} dentro do array de blocos (`proposta.secoes`).
+ *
+ * Só toca o `conteudo` (rich text dos blocos de texto/capa) — os blocos
+ * estruturados carregam dados em `dados` (strings já finais, sem template).
+ * Devolve o array intacto se `secoes` não for um array (proposta legada com
+ * `secoes` null → o render deriva das colunas, que já são expandidas).
+ */
+export function expandirBlocosProposta(secoes: unknown, ctx: TemplateContext): unknown {
+  if (!Array.isArray(secoes)) return secoes;
+  return secoes.map((b) => {
+    if (!b || typeof b !== "object") return b;
+    const bloco = b as Record<string, unknown>;
+    if (typeof bloco.conteudo === "string" && bloco.conteudo) {
+      return { ...bloco, conteudo: expandTemplateVariables(bloco.conteudo, ctx) };
+    }
+    return bloco;
+  });
+}
+
+/**
  * Extrai texto plano de um JSON BlockNote, preservando ordem e quebras
  * de linha entre blocos. Usado pelo PDF generator (que renderiza com
  * react-pdf e prefere texto puro com tags simples).

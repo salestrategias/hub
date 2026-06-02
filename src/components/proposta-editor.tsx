@@ -1,5 +1,29 @@
 "use client";
-import { useState } from "react";
+/**
+ * PropostaEditor — editor MODULAR de blocos da proposta (Fase 1, path B).
+ *
+ * Espelha o DiagnosticoEditor: layout 2-zonas com navegador de blocos à
+ * esquerda (reordenar drag + ↑↓, ligar/desligar, adicionar do catálogo,
+ * remover) + card "Informações" e "Valores" e "Identidade visual"; à
+ * direita, a edição do bloco ativo.
+ *
+ * Edição por tipo:
+ *  - `texto`/`capa` → BlockEditor rico em `bloco.conteudo` (a capa edita só
+ *    o texto de apresentação; logo/cor/hero ficam no card de identidade).
+ *  - estruturados (pacotes/cases/kpis/equipe/faq/timeline/garantias) →
+ *    reusa os formulários de `proposta-blocos-editor`, agora editando
+ *    `bloco.dados`.
+ *
+ * Persistência: a fonte da verdade passa a ser `proposta.secoes` (array de
+ * blocos). PATCH `{ secoes }` com debounce 700ms na digitação e imediato em
+ * ações discretas (toggle/reordenar/add/remove). As 8 colunas legadas +
+ * `extras` NÃO são mais escritas (ficam congeladas pro dual-read/rollback).
+ *
+ * Preserva 100% das outras features: IA peer-review, gerar com IA,
+ * enviar/share + aceite/recusa, PDF, versionamento, origem (lead/diagnóstico),
+ * status, excluir.
+ */
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { EditorBlock as PartialBlock } from "@/components/editor/types";
@@ -16,7 +40,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
@@ -36,13 +59,56 @@ import {
   Lock,
   Sparkles,
   Loader2,
-  Wand2,
   Stethoscope,
   TrendingUp,
+  GripVertical,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+  Type,
+  Image as ImageIcon,
+  Package,
+  Trophy,
+  BarChart3,
+  Users,
+  HelpCircle,
+  Calendar,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PropostaBlocosEditor } from "@/components/proposta-blocos-editor";
-import type { PropostaExtras } from "@/lib/proposta-blocos";
+import {
+  PacotesEditor,
+  CasesEditor,
+  KpisEditor,
+  EquipeEditor,
+  FaqEditor,
+  TimelineEditor,
+  GarantiasEditor,
+} from "@/components/proposta-blocos-editor";
+import {
+  type BlocoPacotes,
+  type BlocoCases,
+  type BlocoKpis,
+  type BlocoEquipe,
+  type BlocoFaq,
+  type BlocoTimeline,
+  type BlocoGarantias,
+  defaultPacotes,
+  defaultCases,
+  defaultKpis,
+  defaultEquipe,
+  defaultFaq,
+  defaultTimeline,
+  defaultGarantias,
+} from "@/lib/proposta-blocos";
+import {
+  type Bloco,
+  type BlocoTipo,
+  BLOCO_LABEL,
+  blocosDaProposta,
+  blocoTemRichText,
+  gerarBlocoId,
+} from "@/lib/blocos";
 import { PropostaVersoesHeader } from "@/components/proposta-versoes";
 import { PropostaAnaliseIa, type AnaliseProposta } from "@/components/proposta-analise-ia";
 
@@ -71,6 +137,7 @@ type PropostaFull = {
   corPrimaria: string | null;
   capaImagemUrl: string | null;
   extras: unknown;
+  secoes: unknown;
   status: PropostaStatus;
   shareToken: string | null;
   shareExpiraEm: string | null;
@@ -90,17 +157,6 @@ type PropostaFull = {
 };
 
 type Cliente = { id: string; nome: string; email: string | null };
-
-const SECOES: Array<{ key: keyof PropostaFull; label: string; placeholder: string; minHeight: string }> = [
-  { key: "capa", label: "Apresentação / capa", placeholder: "Quem somos, posicionamento, autoridade. Saudação personalizada usando @cliente.nome.", minHeight: "120px" },
-  { key: "diagnostico", label: "Diagnóstico", placeholder: "O que entendemos do cliente: contexto, dores, sintomas. Pode usar @cliente pra cruzar com notas.", minHeight: "160px" },
-  { key: "objetivo", label: "Objetivo", placeholder: "O que vamos atacar e o que vai mudar. Objetivos SMART quando possível.", minHeight: "120px" },
-  { key: "escopo", label: "Estratégia & escopo", placeholder: "Pilares, canais, frequência. Listas detalhadas do que entregamos.", minHeight: "200px" },
-  { key: "cronograma", label: "Cronograma", placeholder: "Timeline visual. Marcos por mês ou trimestre.", minHeight: "140px" },
-  { key: "investimento", label: "Investimento", placeholder: "Detalhamento de valores, escopo do que está incluído, condições de pagamento.", minHeight: "160px" },
-  { key: "proximosPassos", label: "Próximos passos", placeholder: "Como aceitar, kickoff, prazo até o início. Mantenha simples.", minHeight: "100px" },
-  { key: "termos", label: "Termos & condições", placeholder: "Vigência, cancelamento, reajuste, propriedade intelectual.", minHeight: "120px" },
-];
 
 const STATUS_LABEL: Record<PropostaStatus, string> = {
   RASCUNHO: "Rascunho",
@@ -129,12 +185,80 @@ const STATUS_COR: Record<PropostaStatus, string> = {
   EXPIRADA: "#9696A8",
 };
 
+/** Ícone por tipo de bloco (pro navegador + catálogo). */
+const BLOCO_ICON: Record<BlocoTipo, React.ComponentType<{ className?: string }>> = {
+  texto: Type,
+  capa: ImageIcon,
+  pacotes: Package,
+  cases: Trophy,
+  kpis: BarChart3,
+  equipe: Users,
+  faq: HelpCircle,
+  timeline: Calendar,
+  garantias: ShieldCheck,
+};
+
+/** Ordem do catálogo "Adicionar bloco". */
+const ORDEM_CATALOGO: BlocoTipo[] = [
+  "texto",
+  "capa",
+  "pacotes",
+  "cases",
+  "kpis",
+  "timeline",
+  "garantias",
+  "equipe",
+  "faq",
+];
+
+/** Dados default por tipo, ao adicionar um bloco novo. */
+function dadosDefault(tipo: BlocoTipo): Bloco["dados"] | undefined {
+  switch (tipo) {
+    case "pacotes":
+      return { ...defaultPacotes(), visivel: true };
+    case "cases":
+      return { ...defaultCases(), visivel: true };
+    case "kpis":
+      return { ...defaultKpis(), visivel: true };
+    case "equipe":
+      return { ...defaultEquipe(), visivel: true };
+    case "faq":
+      return { ...defaultFaq(), visivel: true };
+    case "timeline":
+      return { ...defaultTimeline(), visivel: true };
+    case "garantias":
+      return { ...defaultGarantias(), visivel: true };
+    case "capa":
+      return { imagemUrl: undefined };
+    default:
+      return undefined;
+  }
+}
+
+function tituloDefault(tipo: BlocoTipo): string {
+  return BLOCO_LABEL[tipo];
+}
+
 export function PropostaEditor({ proposta: initial, clientes }: { proposta: PropostaFull; clientes: Cliente[] }) {
   const router = useRouter();
   const [proposta, setProposta] = useState(initial);
+  // Deriva os blocos UMA vez (pra proposta legada, `deriveBlocosFromProposta`
+  // gera ids aleatórios — chamar duas vezes daria ids divergentes).
+  const blocosIniciais = useMemo(() => blocosDaProposta(initial), [initial]);
+  const [blocos, setBlocos] = useState<Bloco[]>(blocosIniciais);
+  const [ativoId, setAtivoId] = useState<string>(blocosIniciais[0]?.id ?? "");
   const [enviarOpen, setEnviarOpen] = useState(false);
   const [iaOpen, setIaOpen] = useState(false);
 
+  // Debounce do save do array de blocos (escreve o array inteiro a cada edição).
+  const saveTimer = useRef<NodeJS.Timeout | null>(null);
+  const [salvandoSecoes, setSalvandoSecoes] = useState(false);
+  const [salvoEm, setSalvoEm] = useState<string | null>(null);
+
+  const blocoAtivo = blocos.find((b) => b.id === ativoId) ?? blocos[0] ?? null;
+  const visiveis = blocos.filter((b) => b.visivel).length;
+
+  /** PATCH parcial de campos NÃO-bloco (info comercial, identidade, status). */
   async function patchProposta(patch: Record<string, unknown>) {
     const res = await fetch(`/api/propostas/${proposta.id}`, {
       method: "PATCH",
@@ -162,6 +286,75 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
           : new Date(updated.enviadaEm).toISOString()
         : null,
     }));
+  }
+
+  /** Persiste o array de blocos em `secoes`. `imediato` pula o debounce. */
+  function persistirSecoes(novos: Bloco[], imediato = false) {
+    setBlocos(novos);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    const fazer = async () => {
+      setSalvandoSecoes(true);
+      try {
+        await fetch(`/api/propostas/${proposta.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ secoes: novos }),
+        });
+        setSalvoEm(new Date().toISOString());
+      } catch {
+        toast.error("Falha ao salvar blocos");
+      } finally {
+        setSalvandoSecoes(false);
+      }
+    };
+    if (imediato) void fazer();
+    else saveTimer.current = setTimeout(fazer, 700);
+  }
+
+  function atualizarBloco(id: string, patch: Partial<Bloco>, imediato = false) {
+    persistirSecoes(
+      blocos.map((b) => (b.id === id ? { ...b, ...patch } : b)),
+      imediato
+    );
+  }
+
+  function moverBloco(idx: number, dir: -1 | 1) {
+    const ni = idx + dir;
+    if (ni < 0 || ni >= blocos.length) return;
+    const novos = [...blocos];
+    [novos[idx], novos[ni]] = [novos[ni], novos[idx]];
+    persistirSecoes(reindexar(novos), true);
+  }
+
+  function reordenarPorDrag(de: number, para: number) {
+    if (de === para) return;
+    const novos = [...blocos];
+    const [movido] = novos.splice(de, 1);
+    novos.splice(para, 0, movido);
+    persistirSecoes(reindexar(novos), true);
+  }
+
+  function adicionarBloco(tipo: BlocoTipo) {
+    const novo: Bloco = {
+      id: gerarBlocoId(tipo),
+      tipo,
+      titulo: tituloDefault(tipo),
+      visivel: true,
+      ordem: blocos.length,
+      conteudo: blocoTemRichText(tipo) ? "" : null,
+      dados: dadosDefault(tipo),
+    };
+    persistirSecoes(reindexar([...blocos, novo]), true);
+    setAtivoId(novo.id);
+  }
+
+  function removerBloco(id: string) {
+    const alvo = blocos.find((b) => b.id === id);
+    if (!alvo) return;
+    if (!confirm(`Remover o bloco "${alvo.titulo ?? BLOCO_LABEL[alvo.tipo]}"? O conteúdo dele será perdido.`)) return;
+    const novos = reindexar(blocos.filter((b) => b.id !== id));
+    persistirSecoes(novos, true);
+    if (ativoId === id) setAtivoId(novos[0]?.id ?? "");
   }
 
   async function excluir() {
@@ -216,6 +409,19 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
           <StatusIcon className="h-3 w-3" />
           {STATUS_LABEL[proposta.status]}
         </Badge>
+
+        <span className="text-[10.5px] text-muted-foreground">
+          {visiveis} de {blocos.length} blocos visíveis
+        </span>
+        {salvandoSecoes ? (
+          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/70">
+            <Loader2 className="h-2.5 w-2.5 animate-spin" /> salvando
+          </span>
+        ) : salvoEm ? (
+          <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400">
+            <CheckCircle2 className="h-2.5 w-2.5" /> salvo
+          </span>
+        ) : null}
 
         {proposta.shareViews > 0 && (
           <span className="text-[10.5px] text-muted-foreground font-mono">
@@ -304,9 +510,9 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
         </div>
       </div>
 
-      {/* Layout 2-col: metadata esquerda, seções direita */}
-      <div className="grid lg:grid-cols-[320px_1fr] gap-5">
-        {/* Metadata */}
+      {/* Layout 2-zonas: esquerda = info + navegador de blocos; centro = edição do bloco */}
+      <div className="grid lg:grid-cols-[300px_1fr] gap-5 items-start">
+        {/* ── ESQUERDA ── */}
         <div className="space-y-4">
           <Card>
             <CardContent className="p-4 space-y-3">
@@ -396,6 +602,37 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
             </CardContent>
           </Card>
 
+          <Card>
+            <CardContent className="p-3 space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  Blocos
+                </div>
+                {salvandoSecoes ? (
+                  <span className="inline-flex items-center gap-1 text-[9.5px] text-muted-foreground/70">
+                    <Loader2 className="h-2.5 w-2.5 animate-spin" /> salvando
+                  </span>
+                ) : salvoEm ? (
+                  <span className="inline-flex items-center gap-1 text-[9.5px] text-emerald-400">
+                    <CheckCircle2 className="h-2.5 w-2.5" /> salvo
+                  </span>
+                ) : null}
+              </div>
+
+              <BlocoNavegador
+                blocos={blocos}
+                ativoId={ativoId}
+                onSelecionar={setAtivoId}
+                onToggle={(id, visivel) => atualizarBloco(id, { visivel }, true)}
+                onMover={moverBloco}
+                onReordenar={reordenarPorDrag}
+                onRemover={removerBloco}
+              />
+
+              <AdicionarBloco onAdicionar={adicionarBloco} />
+            </CardContent>
+          </Card>
+
           <IdentidadeVisualCard
             logoUrl={proposta.logoUrl}
             corPrimaria={proposta.corPrimaria ?? "#7E30E1"}
@@ -419,9 +656,7 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
               <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
                 Variáveis disponíveis
               </div>
-              <p className="leading-relaxed">
-                Use nas seções pra preenchimento automático:
-              </p>
+              <p className="leading-relaxed">Use nos blocos de texto pra preenchimento automático:</p>
               <ul className="space-y-0.5 font-mono text-[10px]">
                 <li>{"{{cliente.nome}}"}</li>
                 <li>{"{{valor.mensal}}"} · {"{{valor.total}}"}</li>
@@ -434,73 +669,24 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
           </Card>
         </div>
 
-        {/* Seções */}
-        <Tabs defaultValue={SECOES[0].key as string}>
-          <TabsList className="w-full flex-wrap h-auto">
-            {SECOES.map((s) => (
-              <TabsTrigger key={s.key as string} value={s.key as string}>
-                {s.label}
-              </TabsTrigger>
-            ))}
-            <TabsTrigger value="__extras" className="data-[state=active]:text-primary">
-              <Wand2 className="h-3.5 w-3.5 mr-1" />
-              Personalização avançada
-            </TabsTrigger>
-          </TabsList>
-
-          {SECOES.map((s) => (
-            <TabsContent key={s.key as string} value={s.key as string} className="mt-4">
-              <Card>
-                <CardContent className="p-5 space-y-3">
-                  <div>
-                    <h3 className="text-sm font-semibold">{s.label}</h3>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{s.placeholder}</p>
-                  </div>
-                  <div className="rounded-md border border-border bg-background/40 p-3">
-                    <BlockEditor
-                      key={s.key as string}
-                      value={(proposta[s.key] as string | null) ?? ""}
-                      onChange={(blocks: PartialBlock[]) => {
-                        const json = JSON.stringify(blocks);
-                        // optimistic local update + persiste
-                        setProposta((p) => ({ ...p, [s.key]: json }));
-                        void patchProposta({ [s.key]: json });
-                      }}
-                      placeholder={s.placeholder}
-                      minHeight={s.minHeight}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          ))}
-
-          {/* Aba: Personalização avançada — 5 blocos extras */}
-          <TabsContent value="__extras" className="mt-4">
+        {/* ── CENTRO: edição do bloco ativo ── */}
+        <div className="space-y-4 min-w-0">
+          {blocoAtivo ? (
+            <BlocoEditorCentro
+              key={blocoAtivo.id}
+              bloco={blocoAtivo}
+              onTituloChange={(titulo) => atualizarBloco(blocoAtivo.id, { titulo })}
+              onConteudoChange={(conteudo) => atualizarBloco(blocoAtivo.id, { conteudo })}
+              onDadosChange={(dados) => atualizarBloco(blocoAtivo.id, { dados })}
+            />
+          ) : (
             <Card>
-              <CardContent className="p-5 space-y-4">
-                <div>
-                  <h3 className="text-sm font-semibold flex items-center gap-2">
-                    <Wand2 className="h-4 w-4 text-primary" />
-                    Personalização avançada
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Adicione blocos visuais que impactam o cliente: pacotes comparativos, cases de
-                    sucesso, KPIs em destaque, equipe dedicada, FAQ. Ative só os que fazem sentido
-                    pra essa proposta.
-                  </p>
-                </div>
-                <PropostaBlocosEditor
-                  extras={proposta.extras}
-                  onSave={(novosExtras: PropostaExtras) => {
-                    setProposta((p) => ({ ...p, extras: novosExtras }));
-                    void patchProposta({ extras: novosExtras });
-                  }}
-                />
+              <CardContent className="p-10 text-center text-sm text-muted-foreground">
+                Nenhum bloco. Adicione um bloco do catálogo à esquerda pra começar.
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </div>
 
       {iaOpen && (
@@ -539,6 +725,334 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
   );
 }
 
+function reindexar(blocos: Bloco[]): Bloco[] {
+  return blocos.map((b, i) => ({ ...b, ordem: i }));
+}
+
+// ─── Navegador de blocos (reordenável + toggle + remover) ──────────────
+
+function BlocoNavegador({
+  blocos,
+  ativoId,
+  onSelecionar,
+  onToggle,
+  onMover,
+  onReordenar,
+  onRemover,
+}: {
+  blocos: Bloco[];
+  ativoId: string;
+  onSelecionar: (id: string) => void;
+  onToggle: (id: string, visivel: boolean) => void;
+  onMover: (idx: number, dir: -1 | 1) => void;
+  onReordenar: (de: number, para: number) => void;
+  onRemover: (id: string) => void;
+}) {
+  const dragIdx = useRef<number | null>(null);
+  const [sobre, setSobre] = useState<number | null>(null);
+
+  return (
+    <ul className="space-y-1">
+      {blocos.map((b, idx) => {
+        const Icon = BLOCO_ICON[b.tipo];
+        const ativo = b.id === ativoId;
+        return (
+          <li
+            key={b.id}
+            draggable
+            onDragStart={() => (dragIdx.current = idx)}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setSobre(idx);
+            }}
+            onDragLeave={() => setSobre((cur) => (cur === idx ? null : cur))}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (dragIdx.current !== null) onReordenar(dragIdx.current, idx);
+              dragIdx.current = null;
+              setSobre(null);
+            }}
+            onDragEnd={() => {
+              dragIdx.current = null;
+              setSobre(null);
+            }}
+            className={cn(
+              "group flex items-center gap-1.5 rounded-md pl-1.5 pr-1 py-1 transition-colors border border-transparent",
+              ativo ? "bg-primary/15" : "hover:bg-secondary/60",
+              sobre === idx && "border-sal-500/60",
+              !b.visivel && "opacity-60"
+            )}
+          >
+            <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 cursor-grab shrink-0" />
+            <button
+              type="button"
+              onClick={() => onSelecionar(b.id)}
+              className="flex items-center gap-2 flex-1 min-w-0 text-left"
+            >
+              <Icon className={cn("h-3.5 w-3.5 shrink-0", ativo ? "text-sal-400" : "text-muted-foreground")} />
+              <span
+                className={cn(
+                  "text-[12px] truncate",
+                  ativo ? "font-medium text-foreground" : "text-muted-foreground"
+                )}
+              >
+                {b.titulo ?? BLOCO_LABEL[b.tipo]}
+              </span>
+            </button>
+
+            <div className="flex items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                type="button"
+                onClick={() => onMover(idx, -1)}
+                disabled={idx === 0}
+                className="h-5 w-4 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"
+                title="Subir"
+              >
+                <ChevronUp className="h-3 w-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onMover(idx, 1)}
+                disabled={idx === blocos.length - 1}
+                className="h-5 w-4 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"
+                title="Descer"
+              >
+                <ChevronDown className="h-3 w-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onRemover(b.id)}
+                className="h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-destructive"
+                title="Remover bloco"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </div>
+
+            <button
+              type="button"
+              role="switch"
+              aria-checked={b.visivel}
+              onClick={() => onToggle(b.id, !b.visivel)}
+              className={cn(
+                "relative inline-flex h-4 w-7 items-center rounded-full transition-colors shrink-0 ml-0.5",
+                b.visivel ? "bg-primary" : "bg-muted/60"
+              )}
+              title={b.visivel ? "Visível — clique pra ocultar" : "Oculto — clique pra mostrar"}
+            >
+              <span
+                className={cn(
+                  "inline-block h-2.5 w-2.5 rounded-full bg-white shadow transition-transform",
+                  b.visivel ? "translate-x-[15px]" : "translate-x-[3px]"
+                )}
+              />
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function AdicionarBloco({ onAdicionar }: { onAdicionar: (tipo: BlocoTipo) => void }) {
+  const [aberto, setAberto] = useState(false);
+  return (
+    <div className="pt-1">
+      {!aberto ? (
+        <Button variant="outline" size="sm" className="w-full h-8 text-[11px]" onClick={() => setAberto(true)}>
+          <Plus className="h-3.5 w-3.5" /> Adicionar bloco
+        </Button>
+      ) : (
+        <div className="rounded-md border border-border bg-background/40 p-1.5 space-y-0.5">
+          <div className="px-1.5 py-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            Catálogo de blocos
+          </div>
+          {ORDEM_CATALOGO.map((tipo) => {
+            const Icon = BLOCO_ICON[tipo];
+            return (
+              <button
+                key={tipo}
+                type="button"
+                onClick={() => {
+                  onAdicionar(tipo);
+                  setAberto(false);
+                }}
+                className="w-full flex items-center gap-2 px-1.5 py-1.5 rounded text-left hover:bg-secondary/60 transition"
+              >
+                <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span className="text-[12px] truncate">{BLOCO_LABEL[tipo]}</span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setAberto(false)}
+            className="w-full px-1.5 py-1 text-[10.5px] text-muted-foreground hover:text-foreground"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Centro: edição do bloco ativo (despacha por tipo) ─────────────────
+
+function BlocoEditorCentro({
+  bloco,
+  onTituloChange,
+  onConteudoChange,
+  onDadosChange,
+}: {
+  bloco: Bloco;
+  onTituloChange: (titulo: string) => void;
+  onConteudoChange: (conteudo: string) => void;
+  onDadosChange: (dados: Bloco["dados"]) => void;
+}) {
+  const Icon = BLOCO_ICON[bloco.tipo];
+  const richText = blocoTemRichText(bloco.tipo);
+
+  return (
+    <Card>
+      <CardContent className="p-5 space-y-4">
+        <div className="flex items-start gap-3">
+          <div className="h-9 w-9 rounded-md bg-primary/15 text-primary flex items-center justify-center shrink-0 mt-0.5">
+            <Icon className="h-4 w-4" />
+          </div>
+          <div className="flex-1 min-w-0 space-y-1">
+            <Input
+              value={bloco.titulo ?? ""}
+              onChange={(e) => onTituloChange(e.target.value)}
+              className="h-9 text-sm font-semibold border-transparent bg-transparent px-0 focus-visible:bg-background/40 focus-visible:px-2"
+              placeholder={`Título do bloco (${BLOCO_LABEL[bloco.tipo]})`}
+            />
+            <p className="text-[11px] text-muted-foreground">{descricaoTipo(bloco.tipo)}</p>
+          </div>
+          <Badge variant="outline" className="shrink-0 text-[10px] text-muted-foreground">
+            {BLOCO_LABEL[bloco.tipo]}
+          </Badge>
+        </div>
+
+        {bloco.tipo === "capa" && (
+          <p className="text-[11px] text-muted-foreground bg-secondary/30 rounded-md px-3 py-2 leading-relaxed">
+            A imagem de fundo (hero), o logo e a cor da capa ficam no card{" "}
+            <strong>Identidade visual</strong> à esquerda. Aqui você edita o texto de apresentação
+            que aparece logo abaixo da capa.
+          </p>
+        )}
+
+        {richText ? (
+          <div className="rounded-md border border-border bg-background/40 p-3">
+            <BlockEditor
+              key={bloco.id}
+              value={bloco.conteudo || ""}
+              onChange={(blocks: PartialBlock[]) => onConteudoChange(JSON.stringify(blocks))}
+              placeholder={descricaoTipo(bloco.tipo)}
+              minHeight="320px"
+            />
+          </div>
+        ) : (
+          <BlocoEstruturadoEditor bloco={bloco} onDadosChange={onDadosChange} />
+        )}
+
+        {!bloco.visivel && (
+          <p className="text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-md px-3 py-2">
+            Este bloco está <strong>oculto</strong> — não aparece na proposta pública nem no PDF.
+            Ative no navegador à esquerda pra incluí-lo.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Despacha o formulário estruturado certo, editando `bloco.dados`. */
+function BlocoEstruturadoEditor({
+  bloco,
+  onDadosChange,
+}: {
+  bloco: Bloco;
+  onDadosChange: (dados: Bloco["dados"]) => void;
+}) {
+  switch (bloco.tipo) {
+    case "pacotes":
+      return (
+        <PacotesEditor
+          bloco={{ ...defaultPacotes(), ...(bloco.dados as BlocoPacotes) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "cases":
+      return (
+        <CasesEditor
+          bloco={{ ...defaultCases(), ...(bloco.dados as BlocoCases) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "kpis":
+      return (
+        <KpisEditor
+          bloco={{ ...defaultKpis(), ...(bloco.dados as BlocoKpis) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "equipe":
+      return (
+        <EquipeEditor
+          bloco={{ ...defaultEquipe(), ...(bloco.dados as BlocoEquipe) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "faq":
+      return (
+        <FaqEditor
+          bloco={{ ...defaultFaq(), ...(bloco.dados as BlocoFaq) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "timeline":
+      return (
+        <TimelineEditor
+          bloco={{ ...defaultTimeline(), ...(bloco.dados as BlocoTimeline) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    case "garantias":
+      return (
+        <GarantiasEditor
+          bloco={{ ...defaultGarantias(), ...(bloco.dados as BlocoGarantias) }}
+          onChange={(b) => onDadosChange(b)}
+        />
+      );
+    default:
+      return null;
+  }
+}
+
+function descricaoTipo(tipo: BlocoTipo): string {
+  switch (tipo) {
+    case "texto":
+      return "Bloco de texto rico. Use @cliente e variáveis {{...}} pra personalizar.";
+    case "capa":
+      return "Texto de apresentação: quem somos, posicionamento, autoridade. Saudação com {{cliente.nome}}.";
+    case "pacotes":
+      return "Tabela comparativa de pacotes (Starter / Profissional / Premium) com features.";
+    case "cases":
+      return "Grid de resultados de clientes anteriores — prova social.";
+    case "kpis":
+      return "Cards com metas SMART em destaque — compromisso público.";
+    case "equipe":
+      return "Headshots + bios de quem vai cuidar do cliente.";
+    case "faq":
+      return "Perguntas frequentes — mata objeções antes do CTA.";
+    case "timeline":
+      return "Marcos visuais com período + status (concluído / em andamento / pendente).";
+    case "garantias":
+      return "Selos de confiança (sem fidelidade, suporte 24h, etc).";
+  }
+}
+
 /**
  * Modal "Gerar com Claude (modo Max)" — 3 etapas, custo zero, copy-paste
  * entre Hub e Claude Desktop/Web:
@@ -546,7 +1060,7 @@ export function PropostaEditor({ proposta: initial, clientes }: { proposta: Prop
  *   1. Contexto: descreve oportunidade + tom de voz
  *   2. Copiar prompt: Hub monta prompt completo, mostra com "Copiar"
  *      e link "Abrir Claude". Marcelo cola, recebe JSON
- *   3. Aplicar: cola resposta JSON, Hub parseia + grava nas 8 seções
+ *   3. Aplicar: cola resposta JSON, Hub parseia + grava nas seções
  *
  * Sem chamada de API programática — usa o Claude Max que ele já paga.
  */
@@ -680,9 +1194,7 @@ function GerarComIaDialog({
               <div className="space-y-1.5">
                 <Label className="flex items-center justify-between">
                   <span>1. Descreva a oportunidade</span>
-                  <span className="text-[10px] text-muted-foreground/70 font-mono">
-                    {prompt.length}/4000
-                  </span>
+                  <span className="text-[10px] text-muted-foreground/70 font-mono">{prompt.length}/4000</span>
                 </Label>
                 <textarea
                   value={prompt}
@@ -767,7 +1279,7 @@ function GerarComIaDialog({
               </div>
 
               <div className="text-[10.5px] text-muted-foreground/70 bg-secondary/30 rounded-md p-2.5 border-l-2 border-sal-600/30">
-                💡 Dica: o Claude vai retornar um bloco JSON com 8 seções. Copia
+                💡 Dica: o Claude vai retornar um bloco JSON com as seções. Copia
                 <strong> tudo</strong> que ele responder e cola no próximo passo —
                 a gente extrai o JSON automaticamente.
               </div>
@@ -843,11 +1355,7 @@ function GerarComIaDialog({
                 )}
               </Button>
             )}
-            {etapa === 2 && (
-              <Button onClick={() => setEtapa(3)}>
-                Já tenho a resposta →
-              </Button>
-            )}
+            {etapa === 2 && <Button onClick={() => setEtapa(3)}>Já tenho a resposta →</Button>}
             {etapa === 3 && (
               <Button onClick={aplicar} disabled={aplicando || resposta.trim().length < 20}>
                 {aplicando ? (
@@ -869,7 +1377,7 @@ function GerarComIaDialog({
 }
 
 /**
- * Card de identidade visual: logo (upload ou URL) + cor primária.
+ * Card de identidade visual: logo (upload ou URL) + cor primária + hero da capa.
  * Logo é comprimido pra ~256x96 antes de virar dataURL pra caber no banco
  * sem inflar (mesma técnica do avatar).
  */
@@ -1173,9 +1681,7 @@ function EnviarDialog({
     <Dialog open onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {jaEnviada ? `Re-enviar ${numero}` : `Enviar ${numero}`}
-          </DialogTitle>
+          <DialogTitle>{jaEnviada ? `Re-enviar ${numero}` : `Enviar ${numero}`}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           {jaEnviada && (
