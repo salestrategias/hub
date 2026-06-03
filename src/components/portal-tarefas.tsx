@@ -5,9 +5,10 @@
  * concluídas (últimos 30 dias).
  */
 import { useEffect, useState } from "react";
-import { ListChecks, Loader2, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { ListChecks, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Tarefa = {
   id: string;
@@ -47,8 +48,19 @@ export function PortalTarefas({ token }: { token: string }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-28 mb-3" />
+        {[0, 1, 2, 3].map((i) => (
+          <Card key={i}>
+            <CardContent className="p-3.5 flex items-start gap-3">
+              <Skeleton className="h-4 w-4 rounded-full shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-3.5 w-3/4" />
+                <Skeleton className="h-4 w-20 rounded-full" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }

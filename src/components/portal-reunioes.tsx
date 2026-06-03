@@ -4,8 +4,9 @@
  * Lista de reuniões com resumo + action items.
  */
 import { useEffect, useState } from "react";
-import { Mic, Loader2, CheckSquare, Square } from "lucide-react";
+import { Mic, CheckSquare, Square } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BlockRenderer } from "@/components/editor";
 
 type Action = {
@@ -39,8 +40,20 @@ export function PortalReunioes({ token }: { token: string }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      <div className="space-y-4">
+        {[0, 1].map((i) => (
+          <Card key={i}>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-3.5 w-3.5 rounded-full" />
+                <Skeleton className="h-4 flex-1 max-w-[60%]" />
+                <Skeleton className="h-3 w-12 ml-auto" />
+              </div>
+              <Skeleton className="h-16 w-full rounded-md" />
+              <Skeleton className="h-10 w-full rounded-md" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }

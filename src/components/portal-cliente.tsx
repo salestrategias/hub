@@ -169,14 +169,15 @@ export function PortalCliente({ token }: { token: string }) {
 
   // Estado OK — renderiza portal completo
   const { permissoes, clienteNome, clienteId } = estado;
-  const tabsVisiveis: { id: Tab; label: string; icon: typeof Calendar; visivel: boolean }[] = [
-    { id: "calendario", label: "Calendário", icon: Calendar, visivel: permissoes.verCalendario },
-    { id: "criativos", label: "Criativos", icon: Megaphone, visivel: permissoes.verCriativos },
-    { id: "tarefas", label: "Tarefas", icon: ListChecks, visivel: permissoes.verTarefas },
-    { id: "reunioes", label: "Reuniões", icon: Mic, visivel: permissoes.verReunioes },
-    { id: "relatorios", label: "Relatórios", icon: BarChart3, visivel: permissoes.verRelatorios },
+  const tabsVisiveis: { id: Tab; label: string; labelCurto: string; icon: typeof Calendar; visivel: boolean }[] = [
+    { id: "calendario", label: "Calendário", labelCurto: "Agenda", icon: Calendar, visivel: permissoes.verCalendario },
+    { id: "criativos", label: "Criativos", labelCurto: "Criativos", icon: Megaphone, visivel: permissoes.verCriativos },
+    { id: "tarefas", label: "Tarefas", labelCurto: "Tarefas", icon: ListChecks, visivel: permissoes.verTarefas },
+    { id: "reunioes", label: "Reuniões", labelCurto: "Reuniões", icon: Mic, visivel: permissoes.verReunioes },
+    { id: "relatorios", label: "Relatórios", labelCurto: "Relatórios", icon: BarChart3, visivel: permissoes.verRelatorios },
   ];
   const visiveis = tabsVisiveis.filter((t) => t.visivel);
+  const temBottomNav = visiveis.length > 1;
 
   return (
     <div className="min-h-screen bg-background pb-[env(safe-area-inset-bottom)]">
@@ -195,9 +196,9 @@ export function PortalCliente({ token }: { token: string }) {
           </div>
         </div>
 
-        {/* Tabs — scroll horizontal sem scrollbar visível, touch targets maiores em mobile */}
+        {/* Tabs no TOPO — só em >= sm (no mobile vira bottom-nav app-like) */}
         {visiveis.length > 1 && (
-          <nav className="max-w-5xl mx-auto px-1 sm:px-6 flex gap-0.5 sm:gap-1 portal-tabs-scroll overflow-x-auto border-t border-border/30">
+          <nav className="hidden sm:flex max-w-5xl mx-auto px-6 gap-1 portal-tabs-scroll overflow-x-auto border-t border-border/30">
             {visiveis.map((t) => {
               const Icon = t.icon;
               const ativo = tab === t.id;
@@ -205,14 +206,14 @@ export function PortalCliente({ token }: { token: string }) {
                 <button
                   key={t.id}
                   onClick={() => setTab(t.id)}
-                  className={`touch-feedback flex items-center gap-1.5 px-3.5 sm:px-3 py-3 sm:py-2 text-[12.5px] sm:text-[12px] font-medium whitespace-nowrap transition-colors relative ${
+                  className={`touch-feedback flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium whitespace-nowrap transition-colors relative ${
                     ativo
                       ? "text-foreground"
                       : "text-muted-foreground active:text-foreground hover:text-foreground"
                   }`}
                   style={ativo ? { boxShadow: "inset 0 -2px 0 0 #7E30E1" } : undefined}
                 >
-                  <Icon className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5" />
+                  <Icon className="h-3.5 w-3.5" />
                   {t.label}
                 </button>
               );
@@ -221,8 +222,12 @@ export function PortalCliente({ token }: { token: string }) {
         )}
       </header>
 
-      {/* Conteúdo */}
-      <main className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-5">
+      {/* Conteúdo — padding-bottom extra no mobile pra não ficar atrás da bottom-nav */}
+      <main
+        className={`max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-5 ${
+          temBottomNav ? "pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-5" : ""
+        }`}
+      >
         {tab === "calendario" && permissoes.verCalendario && (
           <PortalCalendario
             token={token}
@@ -253,9 +258,51 @@ export function PortalCliente({ token }: { token: string }) {
         )}
       </main>
 
-      <footer className="max-w-5xl mx-auto px-3 sm:px-6 py-6 text-center text-[10.5px] text-muted-foreground/70 safe-area-inset-bottom">
+      <footer
+        className={`max-w-5xl mx-auto px-3 sm:px-6 py-6 text-center text-[10.5px] text-muted-foreground/70 ${
+          temBottomNav ? "hidden sm:block" : "safe-area-inset-bottom"
+        }`}
+      >
         SAL Estratégias de Marketing · Portal do Cliente
       </footer>
+
+      {/* Bottom-nav app-like — só no mobile (< sm). Tabs fixas no rodapé,
+          alcance do polegar. Tab ativa destacada na cor SAL. */}
+      {temBottomNav && (
+        <nav
+          className="sm:hidden fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)]"
+          aria-label="Navegação principal"
+        >
+          <div className="mx-auto flex max-w-5xl items-stretch justify-around">
+            {visiveis.map((t) => {
+              const Icon = t.icon;
+              const ativo = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  aria-current={ativo ? "page" : undefined}
+                  className="touch-feedback relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 min-h-[56px]"
+                >
+                  <span
+                    className="flex h-7 w-12 items-center justify-center rounded-full transition-colors"
+                    style={ativo ? { background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" } : undefined}
+                  >
+                    <Icon className={`h-[18px] w-[18px] ${ativo ? "text-white" : "text-muted-foreground"}`} />
+                  </span>
+                  <span
+                    className={`text-[10px] font-medium leading-none ${
+                      ativo ? "text-foreground" : "text-muted-foreground"
+                    }`}
+                  >
+                    {t.labelCurto}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      )}
     </div>
   );
 }

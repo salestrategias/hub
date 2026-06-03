@@ -11,13 +11,14 @@
  * Status visíveis: COPY_PRONTA, DESIGN_PRONTO, AGENDADO, PUBLICADO.
  * Rascunhos não chegam aqui (filtrado no backend).
  */
-import { useEffect, useState } from "react";
-import { Calendar, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, FileText, Link2, Video, Hash } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Calendar, CalendarDays, List, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, FileText, Link2, Video, Hash } from "lucide-react";
 import { BlockRenderer } from "@/components/editor";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -78,6 +79,32 @@ const FORMATO_LABEL: Record<string, string> = {
   STORIES: "Stories",
 };
 
+type CalView = "lista" | "calendario";
+const VIEW_STORAGE_KEY = "portal-cal-view";
+const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+
+// ─── Helpers de data ───────────────────────────────────────────────────
+// A grade usa data LOCAL (getDate/getMonth) — consistente com a lista e o
+// cabeçalho do PostCard, que já interpretam dataPublicacao em local time.
+// (database-calendar usa UTC porque lá a data é date-only; aqui o backend
+//  manda ISO com hora, então casamos com o resto do componente.)
+/** "YYYY-MM-DD" (local) a partir de uma data ISO/string. */
+function isoDia(data: string | Date): string {
+  const d = typeof data === "string" ? new Date(data) : data;
+  return isoLocal(d.getFullYear(), d.getMonth(), d.getDate());
+}
+/** "YYYY-MM-DD" do par (ano, mês 0-based, dia). */
+function isoLocal(ano: number, mes: number, dia: number): string {
+  return `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+}
+/** Label "junho 2026" do mês exibido (local). */
+function rotuloMes(ano: number, mes: number): string {
+  return new Date(ano, mes, 1).toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
 export function PortalCalendario({
   token,
   podeAprovar,
@@ -94,6 +121,26 @@ export function PortalCalendario({
   const [comentando, setComentando] = useState<Post | null>(null);
   const [submissoes, setSubmissoes] = useState<Submissao[]>([]);
   const [enviando, setEnviando] = useState(false);
+  const [view, setView] = useState<CalView>("lista");
+
+  // Restaura a preferência de view (lista/calendário) do localStorage.
+  useEffect(() => {
+    try {
+      const salvo = localStorage.getItem(VIEW_STORAGE_KEY);
+      if (salvo === "lista" || salvo === "calendario") setView(salvo);
+    } catch {
+      /* localStorage indisponível — mantém default */
+    }
+  }, []);
+
+  function trocarView(v: CalView) {
+    setView(v);
+    try {
+      localStorage.setItem(VIEW_STORAGE_KEY, v);
+    } catch {
+      /* ignora */
+    }
+  }
 
   async function carregar() {
     setLoading(true);
@@ -136,11 +183,7 @@ export function PortalCalendario({
   }
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <CalendarioSkeleton />;
   }
 
   // Agrupa por mês
@@ -158,6 +201,38 @@ export function PortalCalendario({
       {/* Enviar post pra revisão (caminho inverso — só se habilitado) */}
       {podeEnviar && <BotaoEnviar modo="post" onClick={() => setEnviando(true)} />}
 
+      {/* Toggle Lista ↔ Calendário (só faz sentido se há conteúdo) */}
+      {posts.length > 0 && (
+        <div className="flex items-center justify-end">
+          <div className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5">
+            <button
+              type="button"
+              onClick={() => trocarView("lista")}
+              aria-pressed={view === "lista"}
+              className={`touch-feedback flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                view === "lista"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <List className="h-3.5 w-3.5" /> Lista
+            </button>
+            <button
+              type="button"
+              onClick={() => trocarView("calendario")}
+              aria-pressed={view === "calendario"}
+              className={`touch-feedback flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                view === "calendario"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <CalendarDays className="h-3.5 w-3.5" /> Calendário
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Conteúdo produzido pela SAL */}
       {posts.length === 0 ? (
         <Card>
@@ -169,6 +244,14 @@ export function PortalCalendario({
             </p>
           </CardContent>
         </Card>
+      ) : view === "calendario" ? (
+        <CalendarioGrade
+          posts={posts}
+          podeAprovar={podeAprovar}
+          podeComentar={podeComentar}
+          onAprovar={aprovar}
+          onComentar={setComentando}
+        />
       ) : (
         Array.from(grupos.entries()).map(([mes, postsMes]) => (
           <section key={mes} className="space-y-2">
@@ -217,6 +300,311 @@ export function PortalCalendario({
           }}
         />
       )}
+    </div>
+  );
+}
+
+/**
+ * View grade/mês do portal. Espelha o padrão leve de database-calendar
+ * (grade própria, sem libs pesadas — bom pro mobile). Posts viram chips
+ * coloridos por status no dia; tocar num dia seleciona e mostra os posts
+ * dele como o MESMO PostCard de detalhe/aprovação usado na lista.
+ */
+function CalendarioGrade({
+  posts,
+  podeAprovar,
+  podeComentar,
+  onAprovar,
+  onComentar,
+}: {
+  posts: Post[];
+  podeAprovar: boolean;
+  podeComentar: boolean;
+  onAprovar: (post: Post) => void;
+  onComentar: (post: Post) => void;
+}) {
+  // Posts por dia ("YYYY-MM-DD").
+  const porDia = useMemo(() => {
+    const m = new Map<string, Post[]>();
+    for (const p of posts) {
+      const k = isoDia(p.dataPublicacao);
+      const arr = m.get(k);
+      if (arr) arr.push(p);
+      else m.set(k, [p]);
+    }
+    return m;
+  }, [posts]);
+
+  const hoje = new Date();
+  const hojeIso = isoLocal(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+
+  // Mês inicial: o do próximo post a partir de hoje, senão o do 1º post, senão hoje.
+  const inicio = useMemo(() => {
+    const datas = posts.map((p) => p.dataPublicacao).sort();
+    const alvo = datas.find((d) => isoDia(d) >= hojeIso) ?? datas[0];
+    if (!alvo) return { ano: hoje.getFullYear(), mes: hoje.getMonth() };
+    const d = new Date(alvo);
+    return { ano: d.getFullYear(), mes: d.getMonth() };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [posts]);
+
+  const [cursor, setCursor] = useState<{ ano: number; mes: number }>(inicio);
+  const [diaSel, setDiaSel] = useState<string | null>(null);
+
+  function irMes(delta: number) {
+    setDiaSel(null);
+    setCursor((c) => {
+      const d = new Date(c.ano, c.mes + delta, 1);
+      return { ano: d.getFullYear(), mes: d.getMonth() };
+    });
+  }
+  function irHoje() {
+    setCursor({ ano: hoje.getFullYear(), mes: hoje.getMonth() });
+    setDiaSel(porDia.has(hojeIso) ? hojeIso : null);
+  }
+
+  // Monta as células da grade (semanas começando no domingo). Datas LOCAIS.
+  const primeiroDiaSemana = new Date(cursor.ano, cursor.mes, 1).getDay();
+  const diasNoMes = new Date(cursor.ano, cursor.mes + 1, 0).getDate();
+  const totalCelulas = Math.ceil((primeiroDiaSemana + diasNoMes) / 7) * 7;
+  type Celula = { iso: string; dia: number; doMes: boolean };
+  const celulas: Celula[] = [];
+  for (let i = 0; i < totalCelulas; i++) {
+    const offset = i - primeiroDiaSemana;
+    const d = new Date(cursor.ano, cursor.mes, 1 + offset);
+    celulas.push({
+      iso: isoLocal(d.getFullYear(), d.getMonth(), d.getDate()),
+      dia: d.getDate(),
+      doMes: d.getMonth() === cursor.mes,
+    });
+  }
+
+  const postsDoDia = diaSel ? porDia.get(diaSel) ?? [] : [];
+
+  return (
+    <div className="space-y-3">
+      {/* Navegação de mês + label "junho 2026". */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 min-w-0">
+          <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="font-display text-base font-semibold capitalize truncate">
+            {rotuloMes(cursor.ano, cursor.mes)}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => irMes(-1)}
+            className="touch-feedback h-8 w-8 flex items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+            aria-label="Mês anterior"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={irHoje}
+            className="touch-feedback h-8 px-3 flex items-center rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:bg-muted"
+          >
+            Hoje
+          </button>
+          <button
+            type="button"
+            onClick={() => irMes(1)}
+            className="touch-feedback h-8 w-8 flex items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+            aria-label="Próximo mês"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Grade do mês. */}
+      <div className="rounded-lg border border-border overflow-hidden">
+        <div className="grid grid-cols-7 bg-muted/40 border-b border-border">
+          {DIAS_SEMANA.map((d) => (
+            <div
+              key={d}
+              className="px-1 py-1.5 text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-muted-foreground text-center"
+            >
+              {d}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7">
+          {celulas.map((cel) => (
+            <DiaCelula
+              key={cel.iso}
+              iso={cel.iso}
+              dia={cel.dia}
+              doMes={cel.doMes}
+              ehHoje={cel.iso === hojeIso}
+              selecionado={cel.iso === diaSel}
+              posts={porDia.get(cel.iso) ?? []}
+              onSelecionar={() => setDiaSel((atual) => (atual === cel.iso ? null : cel.iso))}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Legenda de status (pontos coloridos). */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-0.5">
+        {Object.entries(STATUS_LABEL).map(([st, label]) => (
+          <span key={st} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            <span className="h-2 w-2 rounded-full" style={{ background: STATUS_COR[st] }} />
+            {label}
+          </span>
+        ))}
+      </div>
+
+      {/* Agenda do dia selecionado — reusa o PostCard de detalhe/aprovação. */}
+      {diaSel && (
+        <section className="space-y-2 pt-1">
+          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {new Date(diaSel + "T00:00:00").toLocaleDateString("pt-BR", {
+              weekday: "long",
+              day: "2-digit",
+              month: "long",
+            })}
+            {postsDoDia.length > 0 ? ` · ${postsDoDia.length}` : ""}
+          </h2>
+          {postsDoDia.length === 0 ? (
+            <Card>
+              <CardContent className="p-6 text-center text-[12px] text-muted-foreground">
+                Nenhum conteúdo neste dia.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {postsDoDia.map((p) => (
+                <PostCard
+                  key={p.id}
+                  post={p}
+                  podeAprovar={podeAprovar}
+                  podeComentar={podeComentar}
+                  onAprovar={() => onAprovar(p)}
+                  onComentar={() => onComentar(p)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+    </div>
+  );
+}
+
+// ─── Uma célula (dia) da grade ─────────────────────────────────────────
+function DiaCelula({
+  iso,
+  dia,
+  doMes,
+  ehHoje,
+  selecionado,
+  posts,
+  onSelecionar,
+}: {
+  iso: string;
+  dia: number;
+  doMes: boolean;
+  ehHoje: boolean;
+  selecionado: boolean;
+  posts: Post[];
+  onSelecionar: () => void;
+}) {
+  const temPosts = posts.length > 0;
+  return (
+    <button
+      type="button"
+      onClick={onSelecionar}
+      aria-label={`${dia} — ${temPosts ? `${posts.length} conteúdo(s)` : "sem conteúdo"}`}
+      aria-pressed={selecionado}
+      className={`touch-feedback group/dia relative min-h-[64px] sm:min-h-[88px] border-b border-r border-border p-1 text-left transition-colors [&:nth-child(7n)]:border-r-0 ${
+        doMes ? "bg-background" : "bg-muted/20"
+      } ${selecionado ? "ring-2 ring-inset ring-primary/60 bg-primary/5" : "hover:bg-muted/40"}`}
+    >
+      {/* Número do dia. */}
+      <div className="flex items-center justify-center sm:justify-start px-0.5 pt-0.5">
+        <span
+          className={`text-[12px] tabular-nums ${
+            ehHoje
+              ? "h-5 w-5 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
+              : doMes
+                ? "text-foreground/80"
+                : "text-muted-foreground/40"
+          }`}
+        >
+          {dia}
+        </span>
+      </div>
+
+      {/* Mobile (< sm): pontos coloridos por status. */}
+      {temPosts && (
+        <div className="mt-1 flex flex-wrap justify-center gap-0.5 sm:hidden">
+          {posts.slice(0, 4).map((p) => (
+            <span
+              key={p.id}
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ background: STATUS_COR[p.status] ?? "#9CA3AF" }}
+            />
+          ))}
+          {posts.length > 4 && (
+            <span className="text-[8px] leading-none text-muted-foreground">+{posts.length - 4}</span>
+          )}
+        </div>
+      )}
+
+      {/* Desktop (>= sm): chips com título, cor por status. */}
+      {temPosts && (
+        <div className="mt-1 hidden sm:block space-y-1">
+          {posts.slice(0, 3).map((p) => {
+            const cor = STATUS_COR[p.status] ?? "#9CA3AF";
+            return (
+              <span
+                key={p.id}
+                className="block w-full truncate rounded px-1.5 py-0.5 text-[11px] font-medium"
+                style={{ background: `${cor}1A`, color: cor, border: `1px solid ${cor}40` }}
+                title={p.titulo}
+              >
+                {p.titulo}
+              </span>
+            );
+          })}
+          {posts.length > 3 && (
+            <span className="block px-1.5 text-[10px] text-muted-foreground">
+              +{posts.length - 3} mais
+            </span>
+          )}
+        </div>
+      )}
+    </button>
+  );
+}
+
+/** Skeleton de carregamento (em vez de só um spinner). */
+function CalendarioSkeleton() {
+  return (
+    <div className="space-y-5">
+      <div className="flex justify-end">
+        <Skeleton className="h-8 w-44" />
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-28" />
+        {[0, 1, 2].map((i) => (
+          <Card key={i}>
+            <CardContent className="p-4 flex items-start gap-3">
+              <Skeleton className="h-12 w-12 rounded-md shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-2/3" />
+                <div className="flex gap-1.5">
+                  <Skeleton className="h-4 w-24 rounded-full" />
+                  <Skeleton className="h-4 w-20 rounded-full" />
+                </div>
+                <Skeleton className="h-16 w-full rounded-md" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

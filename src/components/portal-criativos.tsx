@@ -31,6 +31,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -177,8 +178,23 @@ export function PortalCriativos({
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      <div className="space-y-5">
+        <Skeleton className="h-3 w-32" />
+        {[0, 1].map((i) => (
+          <Card key={i}>
+            <CardContent className="p-4 flex items-start gap-3">
+              <Skeleton className="h-12 w-12 rounded-md shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-2/3" />
+                <div className="flex gap-1.5">
+                  <Skeleton className="h-4 w-24 rounded-full" />
+                  <Skeleton className="h-4 w-20 rounded-full" />
+                </div>
+                <Skeleton className="h-20 w-full rounded-md" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
