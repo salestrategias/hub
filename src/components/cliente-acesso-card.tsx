@@ -28,6 +28,7 @@ type AcessoInfo = {
   podeAprovarPosts: boolean;
   podeAprovarCriativos: boolean;
   podeComentar: boolean;
+  podeEnviarConteudo: boolean;
   ultimoAcesso: string | null;
   totalAcessos: number;
 };
@@ -217,6 +218,19 @@ export function ClienteAcessoCard({ clienteId }: { clienteId: string }) {
             <Toggle label="Aprovar criativos" ativo={acesso.podeAprovarCriativos} onToggle={() => patch({ podeAprovarCriativos: !acesso.podeAprovarCriativos })} />
             <Toggle label="Pedir ajustes" ativo={acesso.podeComentar} onToggle={() => patch({ podeComentar: !acesso.podeComentar })} />
           </div>
+        </div>
+
+        {/* Caminho inverso — cliente submete conteúdo (consultoria) */}
+        <div className="space-y-1.5 pt-1 border-t border-border">
+          <Label className="text-[10.5px] uppercase tracking-wider text-muted-foreground">O que o cliente pode fazer</Label>
+          <Toggle
+            label="Pode enviar conteúdo (posts/criativos)"
+            ativo={acesso.podeEnviarConteudo}
+            onToggle={() => patch({ podeEnviarConteudo: !acesso.podeEnviarConteudo })}
+          />
+          <p className="text-[10px] text-muted-foreground/70 leading-snug">
+            Habilita o caminho inverso: o cliente envia posts/criativos pra você revisar (útil em consultoria).
+          </p>
         </div>
 
         {/* Audit */}

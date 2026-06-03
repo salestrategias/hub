@@ -37,6 +37,7 @@ async function montarInfo(token: string) {
       podeAprovarPosts: r.acesso.podeAprovarPosts,
       podeAprovarCriativos: r.acesso.podeAprovarCriativos,
       podeComentar: r.acesso.podeComentar,
+      podeEnviarConteudo: r.acesso.podeEnviarConteudo,
     },
   };
 }

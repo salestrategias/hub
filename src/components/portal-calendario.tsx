@@ -20,6 +20,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  BotaoEnviar,
+  EnviarConteudoDialog,
+  MinhasSubmissoes,
+  type Submissao,
+} from "@/components/portal-enviar-conteudo";
 
 type Comentario = {
   id: string;
@@ -76,14 +82,18 @@ export function PortalCalendario({
   token,
   podeAprovar,
   podeComentar,
+  podeEnviar,
 }: {
   token: string;
   podeAprovar: boolean;
   podeComentar: boolean;
+  podeEnviar: boolean;
 }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [comentando, setComentando] = useState<Post | null>(null);
+  const [submissoes, setSubmissoes] = useState<Submissao[]>([]);
+  const [enviando, setEnviando] = useState(false);
 
   async function carregar() {
     setLoading(true);
@@ -96,8 +106,20 @@ export function PortalCalendario({
     }
   }
 
+  async function carregarSubmissoes() {
+    if (!podeEnviar) return;
+    try {
+      const res = await fetch(`/api/p/cliente/${token}/posts`);
+      const data = await res.json();
+      if (Array.isArray(data)) setSubmissoes(data);
+    } catch {
+      /* silencioso — submissões são complementares */
+    }
+  }
+
   useEffect(() => {
     void carregar();
+    void carregarSubmissoes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -121,20 +143,6 @@ export function PortalCalendario({
     );
   }
 
-  if (posts.length === 0) {
-    return (
-      <Card>
-        <CardContent className="p-8 text-center space-y-2">
-          <Calendar className="h-10 w-10 mx-auto text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">Nenhum conteúdo pra mostrar agora.</p>
-          <p className="text-[11px] text-muted-foreground/70">
-            Quando a SAL produzir conteúdo novo pra aprovação, aparece aqui.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   // Agrupa por mês
   const grupos = new Map<string, Post[]>();
   for (const p of posts) {
@@ -147,25 +155,44 @@ export function PortalCalendario({
 
   return (
     <div className="space-y-5">
-      {Array.from(grupos.entries()).map(([mes, postsMes]) => (
-        <section key={mes} className="space-y-2">
-          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground capitalize">
-            {mes}
-          </h2>
-          <div className="space-y-2">
-            {postsMes.map((p) => (
-              <PostCard
-                key={p.id}
-                post={p}
-                podeAprovar={podeAprovar}
-                podeComentar={podeComentar}
-                onAprovar={() => aprovar(p)}
-                onComentar={() => setComentando(p)}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+      {/* Enviar post pra revisão (caminho inverso — só se habilitado) */}
+      {podeEnviar && <BotaoEnviar modo="post" onClick={() => setEnviando(true)} />}
+
+      {/* Conteúdo produzido pela SAL */}
+      {posts.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center space-y-2">
+            <Calendar className="h-10 w-10 mx-auto text-muted-foreground/40" />
+            <p className="text-sm text-muted-foreground">Nenhum conteúdo pra mostrar agora.</p>
+            <p className="text-[11px] text-muted-foreground/70">
+              Quando a SAL produzir conteúdo novo pra aprovação, aparece aqui.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        Array.from(grupos.entries()).map(([mes, postsMes]) => (
+          <section key={mes} className="space-y-2">
+            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground capitalize">
+              {mes}
+            </h2>
+            <div className="space-y-2">
+              {postsMes.map((p) => (
+                <PostCard
+                  key={p.id}
+                  post={p}
+                  podeAprovar={podeAprovar}
+                  podeComentar={podeComentar}
+                  onAprovar={() => aprovar(p)}
+                  onComentar={() => setComentando(p)}
+                />
+              ))}
+            </div>
+          </section>
+        ))
+      )}
+
+      {/* Submissões do próprio cliente (separadas visualmente da SAL) */}
+      {podeEnviar && <MinhasSubmissoes modo="post" submissoes={submissoes} />}
 
       {comentando && (
         <ComentarDialog
@@ -175,6 +202,18 @@ export function PortalCalendario({
           onSuccess={() => {
             setComentando(null);
             carregar();
+          }}
+        />
+      )}
+
+      {enviando && (
+        <EnviarConteudoDialog
+          modo="post"
+          token={token}
+          onClose={() => setEnviando(false)}
+          onSuccess={() => {
+            setEnviando(false);
+            carregarSubmissoes();
           }}
         />
       )}

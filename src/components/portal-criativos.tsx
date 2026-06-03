@@ -33,6 +33,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  BotaoEnviar,
+  EnviarConteudoDialog,
+  MinhasSubmissoes,
+  type Submissao,
+} from "@/components/portal-enviar-conteudo";
 
 type Comentario = {
   id: string;
@@ -110,14 +116,18 @@ export function PortalCriativos({
   token,
   podeAprovar,
   podeComentar,
+  podeEnviar,
 }: {
   token: string;
   podeAprovar: boolean;
   podeComentar: boolean;
+  podeEnviar: boolean;
 }) {
   const [criativos, setCriativos] = useState<Criativo[]>([]);
   const [loading, setLoading] = useState(true);
   const [comentando, setComentando] = useState<Criativo | null>(null);
+  const [submissoes, setSubmissoes] = useState<Submissao[]>([]);
+  const [enviando, setEnviando] = useState(false);
 
   async function carregar() {
     setLoading(true);
@@ -130,8 +140,20 @@ export function PortalCriativos({
     }
   }
 
+  async function carregarSubmissoes() {
+    if (!podeEnviar) return;
+    try {
+      const res = await fetch(`/api/p/cliente/${token}/criativos-enviar`);
+      const data = await res.json();
+      if (Array.isArray(data)) setSubmissoes(data);
+    } catch {
+      /* silencioso — submissões são complementares */
+    }
+  }
+
   useEffect(() => {
     void carregar();
+    void carregarSubmissoes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -161,20 +183,6 @@ export function PortalCriativos({
     );
   }
 
-  if (criativos.length === 0) {
-    return (
-      <Card>
-        <CardContent className="p-8 text-center space-y-2">
-          <Megaphone className="h-10 w-10 mx-auto text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">Nenhum criativo pra mostrar agora.</p>
-          <p className="text-[11px] text-muted-foreground/70">
-            Quando a SAL produzir novos criativos de anúncio pra aprovação, aparecem aqui.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   // Agrupa por status pra priorizar o que precisa de ação
   const grupos = new Map<string, Criativo[]>();
   for (const c of criativos) {
@@ -188,28 +196,47 @@ export function PortalCriativos({
 
   return (
     <div className="space-y-5">
-      {gruposOrdenados.map(([status, lista]) => (
-        <section key={status} className="space-y-2">
-          <h2
-            className="text-[11px] font-semibold uppercase tracking-wider"
-            style={{ color: STATUS_COR[status] ?? "#9CA3AF" }}
-          >
-            {STATUS_LABEL[status] ?? status} ({lista.length})
-          </h2>
-          <div className="space-y-2">
-            {lista.map((c) => (
-              <CriativoCard
-                key={c.id}
-                criativo={c}
-                podeAprovar={podeAprovar}
-                podeComentar={podeComentar}
-                onAprovar={() => aprovar(c)}
-                onComentar={() => setComentando(c)}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+      {/* Enviar criativo pra revisão (caminho inverso — só se habilitado) */}
+      {podeEnviar && <BotaoEnviar modo="criativo" onClick={() => setEnviando(true)} />}
+
+      {/* Criativos produzidos pela SAL */}
+      {criativos.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center space-y-2">
+            <Megaphone className="h-10 w-10 mx-auto text-muted-foreground/40" />
+            <p className="text-sm text-muted-foreground">Nenhum criativo pra mostrar agora.</p>
+            <p className="text-[11px] text-muted-foreground/70">
+              Quando a SAL produzir novos criativos de anúncio pra aprovação, aparecem aqui.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        gruposOrdenados.map(([status, lista]) => (
+          <section key={status} className="space-y-2">
+            <h2
+              className="text-[11px] font-semibold uppercase tracking-wider"
+              style={{ color: STATUS_COR[status] ?? "#9CA3AF" }}
+            >
+              {STATUS_LABEL[status] ?? status} ({lista.length})
+            </h2>
+            <div className="space-y-2">
+              {lista.map((c) => (
+                <CriativoCard
+                  key={c.id}
+                  criativo={c}
+                  podeAprovar={podeAprovar}
+                  podeComentar={podeComentar}
+                  onAprovar={() => aprovar(c)}
+                  onComentar={() => setComentando(c)}
+                />
+              ))}
+            </div>
+          </section>
+        ))
+      )}
+
+      {/* Submissões do próprio cliente (separadas visualmente da SAL) */}
+      {podeEnviar && <MinhasSubmissoes modo="criativo" submissoes={submissoes} />}
 
       {comentando && (
         <ComentarDialog
@@ -219,6 +246,18 @@ export function PortalCriativos({
           onSuccess={() => {
             setComentando(null);
             carregar();
+          }}
+        />
+      )}
+
+      {enviando && (
+        <EnviarConteudoDialog
+          modo="criativo"
+          token={token}
+          onClose={() => setEnviando(false)}
+          onSuccess={() => {
+            setEnviando(false);
+            carregarSubmissoes();
           }}
         />
       )}

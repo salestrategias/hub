@@ -31,6 +31,7 @@ type Permissoes = {
   podeAprovarPosts: boolean;
   podeAprovarCriativos: boolean;
   podeComentar: boolean;
+  podeEnviarConteudo: boolean;
 };
 
 type EstadoInicial =
@@ -227,6 +228,7 @@ export function PortalCliente({ token }: { token: string }) {
             token={token}
             podeAprovar={permissoes.podeAprovarPosts}
             podeComentar={permissoes.podeComentar}
+            podeEnviar={permissoes.podeEnviarConteudo}
           />
         )}
         {tab === "criativos" && permissoes.verCriativos && (
@@ -234,6 +236,7 @@ export function PortalCliente({ token }: { token: string }) {
             token={token}
             podeAprovar={permissoes.podeAprovarCriativos}
             podeComentar={permissoes.podeComentar}
+            podeEnviar={permissoes.podeEnviarConteudo}
           />
         )}
         {tab === "tarefas" && permissoes.verTarefas && <PortalTarefas token={token} />}

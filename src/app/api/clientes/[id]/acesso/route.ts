@@ -28,6 +28,7 @@ const acessoSchema = z.object({
   podeAprovarPosts: z.boolean().optional(),
   podeAprovarCriativos: z.boolean().optional(),
   podeComentar: z.boolean().optional(),
+  podeEnviarConteudo: z.boolean().optional(),
   senha: z.string().min(4).max(40).nullable().optional(),
 });
 
@@ -52,6 +53,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       podeAprovarPosts: acesso.podeAprovarPosts,
       podeAprovarCriativos: acesso.podeAprovarCriativos,
       podeComentar: acesso.podeComentar,
+      podeEnviarConteudo: acesso.podeEnviarConteudo,
       ultimoAcesso: acesso.ultimoAcesso?.toISOString() ?? null,
       totalAcessos: acesso.totalAcessos,
       createdAt: acesso.createdAt.toISOString(),
@@ -87,6 +89,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
           ...(body.podeAprovarPosts !== undefined ? { podeAprovarPosts: body.podeAprovarPosts } : {}),
           ...(body.podeAprovarCriativos !== undefined ? { podeAprovarCriativos: body.podeAprovarCriativos } : {}),
           ...(body.podeComentar !== undefined ? { podeComentar: body.podeComentar } : {}),
+          ...(body.podeEnviarConteudo !== undefined ? { podeEnviarConteudo: body.podeEnviarConteudo } : {}),
           ...(senhaHashUpdate !== undefined ? { senhaHash: senhaHashUpdate } : {}),
         },
       });
@@ -109,6 +112,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         podeAprovarPosts: body.podeAprovarPosts ?? true,
         podeAprovarCriativos: body.podeAprovarCriativos ?? true,
         podeComentar: body.podeComentar ?? true,
+        podeEnviarConteudo: body.podeEnviarConteudo ?? false,
         criadoPor: user.id,
       },
     });

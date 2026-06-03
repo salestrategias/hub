@@ -95,6 +95,49 @@ export const criativoVincularCampanhaSchema = z.object({
   campanhaPagaId: z.string().nullable(),
 });
 
+// ─── Portal v2 — submissão de conteúdo pelo CLIENTE ───────────────
+// Cliente envia post/criativo pra Marcelo revisar (caminho inverso).
+// Reusa as mesmas regras de arquivo (dataURL até 5MB ou URL externa).
+// clienteId NÃO vem do body — é derivado do token da sessão. Status e
+// origem/revisão são forçados no servidor (RASCUNHO + CLIENTE + PENDENTE).
+const portalArquivoSchema = z.object({
+  tipo: z.enum(["IMAGEM", "VIDEO", "DOCUMENTO", "LINK_EXTERNO"]),
+  url: z.string().min(10, "URL ou arquivo inválido").max(5_000_000, "Arquivo muito grande (5MB max)"),
+  nome: z.string().max(120).optional().nullable().or(z.literal("")),
+  legenda: z.string().max(500).optional().nullable().or(z.literal("")),
+  ordem: z.coerce.number().int().default(0),
+});
+
+export const portalPostSubmissaoSchema = z.object({
+  titulo: z.string().min(1, "Título obrigatório").max(200),
+  legenda: z.string().max(20_000).optional().nullable().or(z.literal("")),
+  formato: z.enum(["FEED", "STORIES", "REELS", "CARROSSEL"]),
+  dataPublicacao: z.coerce.date(),
+  hashtags: z.array(z.string().max(80)).max(60).default([]),
+  arquivos: z.array(portalArquivoSchema).max(20).default([]),
+});
+export type PortalPostSubmissaoInput = z.infer<typeof portalPostSubmissaoSchema>;
+
+export const portalCriativoSubmissaoSchema = z.object({
+  titulo: z.string().min(1, "Título obrigatório").max(200),
+  textoPrincipal: z.string().max(5000).optional().nullable().or(z.literal("")),
+  headline: z.string().max(200).optional().nullable().or(z.literal("")),
+  plataforma: z.enum(["META_ADS", "GOOGLE_ADS", "TIKTOK_ADS", "YOUTUBE_ADS", "LINKEDIN_ADS"]),
+  formato: z.enum([
+    "POST_IMAGEM",
+    "POST_VIDEO",
+    "CARROSSEL",
+    "COLLECTION",
+    "STORY",
+    "REELS_AD",
+    "RESPONSIVE_DISPLAY",
+    "SEARCH_AD",
+    "PERFORMANCE_MAX",
+  ]),
+  arquivos: z.array(portalArquivoSchema).max(20).default([]),
+});
+export type PortalCriativoSubmissaoInput = z.infer<typeof portalCriativoSubmissaoSchema>;
+
 // ─── Contrato ─────────────────────────────────────────────────────
 export const contratoSchema = z.object({
   clienteId: z.string().min(1),
