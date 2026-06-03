@@ -20,12 +20,12 @@
  * O COMPORTAMENTO de cada tipo (config, coerção, formatação, cores) vem de
  * src/lib/database.ts — este arquivo é só a casca de UI. ZERO <style jsx>.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as Icons from "lucide-react";
 import {
-  Plus, Trash2, MoreHorizontal, Table as TableIcon,
-  GripVertical, X, ExternalLink, Check,
+  Plus, Trash2, MoreHorizontal,
+  GripVertical, X, Check, ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,66 +37,22 @@ import {
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import {
-  type PropertyConfig, type SelectOption, type SelectCor, type CellValue,
+  type PropertyConfig, type SelectCor, type CellValue,
   type NumeroFormato,
-  lerConfig, coerceValor, formatarNumero, formatarData,
-  metaDe, iconeDoTipo, TIPOS_DISPONIVEIS,
-  SELECT_CORES, SELECT_COR_CLASSES, SELECT_COR_SWATCH,
+  lerConfig, metaDe, iconeDoTipo, TIPOS_DISPONIVEIS,
+  SELECT_CORES, SELECT_COR_SWATCH,
   novaOpcao,
 } from "@/lib/database";
 import type { PropertyTipo, ViewTipo } from "@prisma/client";
+import {
+  type DbProperty, type DbView, type DbRow, type DatabaseFull, type ViewConfig,
+  LucideIcon, api, CelulaEditavel, lerViewConfig,
+} from "@/components/database-cells";
+import { RowPanel } from "@/components/database-row-panel";
+import { BoardView } from "@/components/database-board";
 
-// ─── Tipos do payload (serializado do server) ──────────────────────
-export type DbProperty = {
-  id: string;
-  nome: string;
-  tipo: PropertyTipo;
-  config: unknown;
-  ordem: number;
-};
-export type DbView = {
-  id: string;
-  nome: string;
-  tipo: ViewTipo;
-  config: unknown;
-  ordem: number;
-};
-export type DbRow = {
-  id: string;
-  valores: Record<string, unknown>;
-  ordem: number;
-};
-export type DatabaseFull = {
-  id: string;
-  nome: string;
-  icone: string | null;
-  descricao: string | null;
-  parentPageId: string | null;
-  propriedades: DbProperty[];
-  views: DbView[];
-  linhas: DbRow[];
-};
-
-// ─── Ícone lucide dinâmico por nome (do engine) ────────────────────
-function LucideIcon({ name, className }: { name: string; className?: string }) {
-  const Cmp = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[name];
-  if (!Cmp) return <TableIcon className={className} />;
-  return <Cmp className={className} />;
-}
-
-// ─── helper fetch JSON com erro ────────────────────────────────────
-async function api(url: string, method: string, body?: unknown) {
-  const res = await fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const j = await res.json().catch(() => ({}));
-    throw new Error(j.error || "Falha na operação");
-  }
-  return res.status === 204 ? null : res.json().catch(() => null);
-}
+// Re-export dos tipos do payload (consumidos por quem importa este módulo).
+export type { DbProperty, DbView, DbRow, DatabaseFull };
 
 // ════════════════════════════════════════════════════════════════════
 // Componente raiz
@@ -110,6 +66,13 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
     dbInicial.views[0]?.id ?? ""
   );
   const viewAtiva = db.views.find((v) => v.id === viewAtivaId) ?? db.views[0];
+
+  // ── Painel da linha (row detail) ─────────────────────────────────
+  const [rowPanelId, setRowPanelId] = useState<string | null>(null);
+  const rowPanel = rowPanelId ? db.linhas.find((r) => r.id === rowPanelId) ?? null : null;
+
+  // Qual view tem o popover de config aberto (controlado p/ o board abrir).
+  const [configViewId, setConfigViewId] = useState<string | null>(null);
 
   // ── Mutadores de meta (nome/ícone/descrição) ─────────────────────
   async function patchDb(campos: Partial<Pick<DatabaseFull, "nome" | "icone" | "descricao">>) {
@@ -172,20 +135,26 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
   }
 
   // ── Linhas (rows) ────────────────────────────────────────────────
-  async function addLinha() {
+  /** Cria uma linha (opcionalmente com valores iniciais). Retorna o id. */
+  async function addLinhaCom(valores?: Record<string, CellValue>): Promise<string | null> {
     try {
       const nova: { id: string; valores: Record<string, unknown>; ordem: number } = await api(
         `/api/databases/${db.id}/rows`,
         "POST",
-        {}
+        valores ? { valores } : {}
       );
       setDb((d) => ({
         ...d,
         linhas: [...d.linhas, { id: nova.id, valores: nova.valores ?? {}, ordem: nova.ordem }],
       }));
+      return nova.id;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Falha ao criar linha");
+      return null;
     }
+  }
+  function addLinha() {
+    void addLinhaCom();
   }
 
   async function deleteLinha(rowId: string) {
@@ -216,26 +185,92 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
     }
   }
 
+  // ── Views (criar / renomear / config / excluir / trocar) ─────────
+  async function addView(tipo: ViewTipo) {
+    try {
+      const nova: DbView = await api(`/api/databases/${db.id}/views`, "POST", { tipo });
+      setDb((d) => ({ ...d, views: [...d.views, nova] }));
+      setViewAtivaId(nova.id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao criar view");
+    }
+  }
+
+  function renomearViewLocal(viewId: string, nome: string) {
+    setDb((d) => ({
+      ...d,
+      views: d.views.map((v) => (v.id === viewId ? { ...v, nome } : v)),
+    }));
+  }
+
+  async function patchViewConfig(viewId: string, config: ViewConfig) {
+    setDb((d) => ({
+      ...d,
+      views: d.views.map((v) => (v.id === viewId ? { ...v, config } : v)),
+    }));
+    try {
+      await api(`/api/databases/${db.id}/views/${viewId}`, "PATCH", { config });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao salvar a view");
+      router.refresh();
+    }
+  }
+
+  async function deleteView(viewId: string) {
+    if (db.views.length <= 1) {
+      toast.error("Não dá pra excluir a última view.");
+      return;
+    }
+    const restantes = db.views.filter((v) => v.id !== viewId);
+    setDb((d) => ({ ...d, views: restantes }));
+    if (viewAtivaId === viewId) setViewAtivaId(restantes[0]?.id ?? "");
+    try {
+      await api(`/api/databases/${db.id}/views/${viewId}`, "DELETE");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao excluir view");
+      router.refresh();
+    }
+  }
+
+  // "+ card" do board: cria a row já com o valor do select e abre o painel.
+  async function addCardBoard(groupByPropId: string, valorOpcaoId: string | null) {
+    const id = await addLinhaCom({ [groupByPropId]: valorOpcaoId });
+    if (id) setRowPanelId(id);
+  }
+
+  const viewCfg = viewAtiva ? lerViewConfig(viewAtiva.config) : {};
+
   return (
     <div className="space-y-4">
       <DatabaseHeader db={db} onPatch={patchDb} />
 
-      {/* Barra de views (abas). Só Tabela funciona neste bloco. */}
+      {/* Barra de views (abas + criar/renomear/config/excluir). */}
       <BarraViews
         views={db.views}
+        propriedades={db.propriedades}
         ativaId={viewAtiva?.id ?? ""}
         onTrocar={setViewAtivaId}
         dbId={db.id}
-        onRenomeada={(viewId, nome) =>
-          setDb((d) => ({
-            ...d,
-            views: d.views.map((v) => (v.id === viewId ? { ...v, nome } : v)),
-          }))
-        }
+        onRenomeada={renomearViewLocal}
+        onAddView={addView}
+        onPatchConfig={patchViewConfig}
+        onDeleteView={deleteView}
+        configViewId={configViewId}
+        onConfigViewIdChange={setConfigViewId}
       />
 
       {/* View ativa */}
-      {viewAtiva?.tipo === "TABELA" ? (
+      {viewAtiva?.tipo === "BOARD" ? (
+        <BoardView
+          propriedades={db.propriedades}
+          linhas={db.linhas}
+          config={viewCfg}
+          onSetCelula={(rowId, propId, valor) => setCelula(rowId, propId, valor)}
+          onAddCard={addCardBoard}
+          onAbrirRow={setRowPanelId}
+          onConfigurar={() => setConfigViewId(viewAtiva.id)}
+        />
+      ) : viewAtiva?.tipo === "TABELA" ? (
         <TabelaView
           propriedades={db.propriedades}
           linhas={db.linhas}
@@ -245,13 +280,26 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
           onAddLinha={addLinha}
           onDeleteLinha={deleteLinha}
           onSetCelula={setCelula}
+          onAbrirRow={setRowPanelId}
         />
       ) : (
         <div className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           A view <strong>{viewAtiva?.nome}</strong> ({viewAtiva?.tipo}) chega num próximo bloco.
-          Use a aba <strong>Tabela</strong> por enquanto.
+          Use as abas <strong>Tabela</strong> ou <strong>Board</strong> por enquanto.
         </div>
       )}
+
+      {/* Painel da linha — compartilhado entre Tabela e Board. */}
+      <RowPanel
+        open={rowPanelId !== null}
+        onOpenChange={(o) => {
+          if (!o) setRowPanelId(null);
+        }}
+        row={rowPanel}
+        propriedades={db.propriedades}
+        onSetCelula={setCelula}
+        onDelete={deleteLinha}
+      />
     </div>
   );
 }
@@ -305,21 +353,36 @@ const VIEW_ICONE: Record<ViewTipo, string> = {
 
 function BarraViews({
   views,
+  propriedades,
   ativaId,
   onTrocar,
   dbId,
   onRenomeada,
+  onAddView,
+  onPatchConfig,
+  onDeleteView,
+  configViewId,
+  onConfigViewIdChange,
 }: {
   views: DbView[];
+  propriedades: DbProperty[];
   ativaId: string;
   onTrocar: (id: string) => void;
   dbId: string;
   onRenomeada: (viewId: string, nome: string) => void;
+  onAddView: (tipo: ViewTipo) => void;
+  onPatchConfig: (viewId: string, config: ViewConfig) => void;
+  onDeleteView: (viewId: string) => void;
+  configViewId: string | null;
+  onConfigViewIdChange: (id: string | null) => void;
 }) {
+  const ordenadas = [...views].sort((a, b) => a.ordem - b.ordem);
+  const podeExcluir = views.length > 1;
+
   async function renomear(view: DbView) {
     const nome = window.prompt("Nome da view:", view.nome);
     if (nome == null) return;
-    const limpo = nome.trim() || "Tabela";
+    const limpo = nome.trim() || view.nome;
     onRenomeada(view.id, limpo);
     try {
       await api(`/api/databases/${dbId}/views/${view.id}`, "PATCH", { nome: limpo });
@@ -329,39 +392,294 @@ function BarraViews({
   }
 
   return (
-    <div className="flex items-center gap-1 border-b border-border">
-      {views.map((v) => {
+    <div className="flex items-center gap-1 border-b border-border overflow-x-auto">
+      {ordenadas.map((v) => {
         const ativo = v.id === ativaId;
-        const desabilitada = v.tipo !== "TABELA";
+        const desabilitada = v.tipo === "CALENDARIO"; // Calendário: próximo bloco.
         return (
-          <button
-            key={v.id}
-            type="button"
-            onClick={() => !desabilitada && onTrocar(v.id)}
-            onDoubleClick={() => renomear(v)}
-            disabled={desabilitada}
-            title={desabilitada ? "Disponível num próximo bloco" : "Duplo-clique pra renomear"}
-            className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-2 text-[13px] -mb-px border-b-2 transition-colors",
-              ativo
-                ? "border-primary text-foreground font-medium"
-                : "border-transparent text-muted-foreground hover:text-foreground",
-              desabilitada && "opacity-40 cursor-not-allowed"
+          <div key={v.id} className="flex items-center -mb-px shrink-0">
+            <button
+              type="button"
+              onClick={() => !desabilitada && onTrocar(v.id)}
+              onDoubleClick={() => !desabilitada && renomear(v)}
+              disabled={desabilitada}
+              title={desabilitada ? "Calendário chega num próximo bloco" : "Duplo-clique pra renomear"}
+              className={cn(
+                "inline-flex items-center gap-1.5 pl-3 pr-1.5 py-2 text-[13px] border-b-2 transition-colors",
+                ativo
+                  ? "border-primary text-foreground font-medium"
+                  : "border-transparent text-muted-foreground hover:text-foreground",
+                desabilitada && "opacity-40 cursor-not-allowed"
+              )}
+            >
+              <LucideIcon name={VIEW_ICONE[v.tipo]} className="h-3.5 w-3.5" />
+              {v.nome}
+              {desabilitada && <span className="text-[10px] text-muted-foreground/60">(em breve)</span>}
+            </button>
+
+            {/* Config + menu da view (só na aba ativa e habilitada) */}
+            {ativo && !desabilitada && (
+              <ViewMenu
+                view={v}
+                propriedades={propriedades}
+                podeExcluir={podeExcluir}
+                onRenomear={() => renomear(v)}
+                onPatchConfig={(cfg) => onPatchConfig(v.id, cfg)}
+                onExcluir={() => onDeleteView(v.id)}
+                configAberto={configViewId === v.id}
+                onConfigAbertoChange={(o) => onConfigViewIdChange(o ? v.id : null)}
+              />
             )}
-          >
-            <LucideIcon name={VIEW_ICONE[v.tipo]} className="h-3.5 w-3.5" />
-            {v.nome}
-          </button>
+          </div>
         );
       })}
-      {/* Placeholder "+ view" — criação de views chega num próximo bloco. */}
-      <span
-        className="inline-flex items-center gap-1 px-2 py-2 text-[13px] text-muted-foreground/40 cursor-not-allowed"
-        title="Novas views (Board/Calendário) chegam num próximo bloco"
-      >
-        <Plus className="h-3.5 w-3.5" />
-      </span>
+
+      {/* "+ view" — escolhe Tabela / Board (Calendário em breve). */}
+      <AddViewBtn onAdd={onAddView} />
     </div>
+  );
+}
+
+// ─── Menu + config da view (groupBy / data / props visíveis) ───────
+function ViewMenu({
+  view,
+  propriedades,
+  podeExcluir,
+  onRenomear,
+  onPatchConfig,
+  onExcluir,
+  configAberto,
+  onConfigAbertoChange,
+}: {
+  view: DbView;
+  propriedades: DbProperty[];
+  podeExcluir: boolean;
+  onRenomear: () => void;
+  onPatchConfig: (config: ViewConfig) => void;
+  onExcluir: () => void;
+  configAberto: boolean;
+  onConfigAbertoChange: (aberto: boolean) => void;
+}) {
+  const cfg = lerViewConfig(view.config);
+  const props = [...propriedades].sort((a, b) => a.ordem - b.ordem);
+  const selects = props.filter((p) => p.tipo === "SELECT");
+  const datas = props.filter((p) => p.tipo === "DATA");
+
+  return (
+    <div className="flex items-center">
+      <Popover open={configAberto} onOpenChange={onConfigAbertoChange}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="h-6 w-6 flex items-center justify-center rounded text-muted-foreground/60 hover:text-foreground hover:bg-muted"
+            title="Configurar view"
+          >
+            <Icons.SlidersHorizontal className="h-3.5 w-3.5" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-72 space-y-3">
+          {view.tipo === "BOARD" && (
+            <SeletorPropriedade
+              label="Agrupar por (seleção)"
+              vazioLabel="Escolha uma propriedade de seleção"
+              opcoes={selects}
+              valor={cfg.groupByPropertyId}
+              onChange={(id) => onPatchConfig({ ...cfg, groupByPropertyId: id ?? undefined })}
+              avisoSemOpcoes="Crie uma coluna do tipo Seleção primeiro."
+            />
+          )}
+          {view.tipo === "CALENDARIO" && (
+            <SeletorPropriedade
+              label="Propriedade de data"
+              vazioLabel="Escolha uma propriedade de data"
+              opcoes={datas}
+              valor={cfg.datePropertyId}
+              onChange={(id) => onPatchConfig({ ...cfg, datePropertyId: id ?? undefined })}
+              avisoSemOpcoes="Crie uma coluna do tipo Data primeiro."
+            />
+          )}
+          <PropsVisiveis
+            propriedades={props}
+            selecionadas={cfg.propsVisiveis ?? []}
+            onChange={(ids) => onPatchConfig({ ...cfg, propsVisiveis: ids })}
+          />
+        </PopoverContent>
+      </Popover>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="h-6 w-6 mr-1 flex items-center justify-center rounded text-muted-foreground/60 hover:text-foreground hover:bg-muted"
+            title="Opções da view"
+          >
+            <MoreHorizontal className="h-3.5 w-3.5" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-44">
+          <DropdownMenuItem onSelect={() => setTimeout(onRenomear, 0)}>
+            <Icons.Pencil className="h-3.5 w-3.5 mr-2" /> Renomear
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setTimeout(() => onConfigAbertoChange(true), 0)}>
+            <Icons.SlidersHorizontal className="h-3.5 w-3.5 mr-2" /> Configurar
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            disabled={!podeExcluir}
+            onSelect={() => {
+              if (!podeExcluir) return;
+              if (confirm(`Excluir a view "${view.nome}"?`)) onExcluir();
+            }}
+            className={cn("text-destructive", !podeExcluir && "opacity-40 cursor-not-allowed")}
+          >
+            <Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir view
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
+function SeletorPropriedade({
+  label,
+  vazioLabel,
+  opcoes,
+  valor,
+  onChange,
+  avisoSemOpcoes,
+}: {
+  label: string;
+  vazioLabel: string;
+  opcoes: DbProperty[];
+  valor: string | undefined;
+  onChange: (id: string | null) => void;
+  avisoSemOpcoes: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</p>
+      {opcoes.length === 0 ? (
+        <p className="text-[11px] text-muted-foreground italic">{avisoSemOpcoes}</p>
+      ) : (
+        <div className="space-y-0.5">
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className={cn(
+              "flex items-center gap-2 w-full px-2 py-1.5 rounded text-[12px] text-left hover:bg-muted",
+              !valor && "bg-accent/50"
+            )}
+          >
+            <span className="flex-1 text-muted-foreground">{vazioLabel}</span>
+            {!valor && <Check className="h-3.5 w-3.5" />}
+          </button>
+          {opcoes.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => onChange(p.id)}
+              className={cn(
+                "flex items-center gap-2 w-full px-2 py-1.5 rounded text-[12px] text-left hover:bg-muted",
+                valor === p.id && "bg-accent/50"
+              )}
+            >
+              <LucideIcon name={iconeDoTipo(p.tipo)} className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="flex-1 truncate">{p.nome}</span>
+              {valor === p.id && <Check className="h-3.5 w-3.5" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PropsVisiveis({
+  propriedades,
+  selecionadas,
+  onChange,
+}: {
+  propriedades: DbProperty[];
+  selecionadas: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  function toggle(id: string) {
+    onChange(selecionadas.includes(id) ? selecionadas.filter((x) => x !== id) : [...selecionadas, id]);
+  }
+  return (
+    <div className="space-y-1.5 border-t border-border pt-2">
+      <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+        Propriedades visíveis
+      </p>
+      <p className="text-[10px] text-muted-foreground/70">Resumo mostrado nos cards do board.</p>
+      <div className="space-y-0.5 max-h-44 overflow-y-auto">
+        {propriedades.map((p) => {
+          const on = selecionadas.includes(p.id);
+          return (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => toggle(p.id)}
+              className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-left"
+            >
+              <span
+                className={cn(
+                  "h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0",
+                  on ? "bg-primary border-primary text-primary-foreground" : "border-input"
+                )}
+              >
+                {on && <Check className="h-2.5 w-2.5" />}
+              </span>
+              <LucideIcon name={iconeDoTipo(p.tipo)} className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="flex-1 truncate text-[12px]">{p.nome}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function AddViewBtn({ onAdd }: { onAdd: (tipo: ViewTipo) => void }) {
+  const [aberto, setAberto] = useState(false);
+  const tipos: { tipo: ViewTipo; label: string; desabilitada?: boolean }[] = [
+    { tipo: "TABELA", label: "Tabela" },
+    { tipo: "BOARD", label: "Board" },
+    { tipo: "CALENDARIO", label: "Calendário", desabilitada: true },
+  ];
+  return (
+    <DropdownMenu open={aberto} onOpenChange={setAberto}>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 px-2 py-2 text-[13px] text-muted-foreground hover:text-foreground shrink-0"
+          title="Nova view"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-44">
+        <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          Nova view
+        </DropdownMenuLabel>
+        {tipos.map((t) => (
+          <DropdownMenuItem
+            key={t.tipo}
+            disabled={t.desabilitada}
+            onSelect={() => {
+              if (t.desabilitada) return;
+              onAdd(t.tipo);
+              setAberto(false);
+            }}
+            className={cn(t.desabilitada && "opacity-40 cursor-not-allowed")}
+          >
+            <LucideIcon name={VIEW_ICONE[t.tipo]} className="h-3.5 w-3.5 mr-2" />
+            <span className="flex-1">{t.label}</span>
+            {t.desabilitada && <span className="text-[10px] text-muted-foreground/60">em breve</span>}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -377,6 +695,7 @@ function TabelaView({
   onAddLinha,
   onDeleteLinha,
   onSetCelula,
+  onAbrirRow,
 }: {
   propriedades: DbProperty[];
   linhas: DbRow[];
@@ -386,6 +705,7 @@ function TabelaView({
   onAddLinha: () => void;
   onDeleteLinha: (rowId: string) => void;
   onSetCelula: (rowId: string, propId: string, valor: CellValue) => void;
+  onAbrirRow: (rowId: string) => void;
 }) {
   const props = useMemo(
     () => [...propriedades].sort((a, b) => a.ordem - b.ordem),
@@ -441,9 +761,17 @@ function TabelaView({
                         onChange={(v) => onSetCelula(row.id, p.id, v)}
                       />
                     </div>
-                    {/* Menu da linha — só na 1ª coluna, aparece no hover */}
+                    {/* Abrir painel + menu da linha — só na 1ª coluna, no hover */}
                     {i === 0 && (
-                      <div className="flex items-center pr-1 opacity-0 group-hover/row:opacity-100 transition">
+                      <div className="flex items-center gap-0.5 pr-1 opacity-0 group-hover/row:opacity-100 transition">
+                        <button
+                          type="button"
+                          onClick={() => onAbrirRow(row.id)}
+                          className="h-5 px-1 flex items-center gap-0.5 rounded text-[11px] text-muted-foreground/70 hover:text-foreground hover:bg-muted"
+                          title="Abrir linha"
+                        >
+                          <ChevronRight className="h-3.5 w-3.5" /> abrir
+                        </button>
                         <MenuLinha onExcluir={() => onDeleteLinha(row.id)} />
                       </div>
                     )}
@@ -831,423 +1159,6 @@ function MenuLinha({ onExcluir }: { onExcluir: () => void }) {
     </DropdownMenu>
   );
 }
-
-// ════════════════════════════════════════════════════════════════════
-// Célula editável — switch por tipo
-// ════════════════════════════════════════════════════════════════════
-function CelulaEditavel({
-  prop,
-  valor,
-  onChange,
-}: {
-  prop: DbProperty;
-  valor: unknown;
-  onChange: (v: CellValue) => void;
-}) {
-  const cfg = lerConfig(prop.config);
-  // Normaliza o valor cru pro formato canônico antes de renderizar.
-  const v = coerceValor(prop.tipo, valor, cfg);
-
-  switch (prop.tipo) {
-    case "NUMERO":
-      return <CelulaNumero valor={v as number | null} cfg={cfg} onChange={onChange} />;
-    case "CHECKBOX":
-      return <CelulaCheckbox valor={v as boolean} onChange={onChange} />;
-    case "SELECT":
-      return <CelulaSelect valor={v as string | null} cfg={cfg} onChange={onChange} />;
-    case "MULTISELECT":
-      return <CelulaMultiSelect valor={v as string[]} cfg={cfg} onChange={onChange} />;
-    case "DATA":
-      return <CelulaData valor={v as string | null} onChange={onChange} />;
-    case "URL":
-      return <CelulaUrl valor={v as string} onChange={onChange} />;
-    case "RELACAO":
-      return (
-        <div className="px-2 py-1.5 text-[12px] text-muted-foreground/60 italic">
-          relação (próximo bloco)
-        </div>
-      );
-    default:
-      return <CelulaTexto valor={v as string} onChange={onChange} />;
-  }
-}
-
-// ── TEXTO (input, debounce) ────────────────────────────────────────
-function CelulaTexto({ valor, onChange }: { valor: string; onChange: (v: string) => void }) {
-  const [local, setLocal] = useState(valor);
-  const timer = useRef<NodeJS.Timeout | null>(null);
-  useEffect(() => setLocal(valor), [valor]);
-
-  function digitar(novo: string) {
-    setLocal(novo);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => onChange(novo), 600);
-  }
-  function flush() {
-    if (timer.current) clearTimeout(timer.current);
-    if (local !== valor) onChange(local);
-  }
-
-  return (
-    <input
-      value={local}
-      onChange={(e) => digitar(e.target.value)}
-      onBlur={flush}
-      className="w-full bg-transparent px-2 py-1.5 text-[13px] outline-none focus:bg-muted/40"
-    />
-  );
-}
-
-// ── NÚMERO (number, debounce, exibe formatado quando blur) ─────────
-function CelulaNumero({
-  valor,
-  cfg,
-  onChange,
-}: {
-  valor: number | null;
-  cfg: PropertyConfig;
-  onChange: (v: CellValue) => void;
-}) {
-  const [editando, setEditando] = useState(false);
-  const [local, setLocal] = useState(valor == null ? "" : String(valor));
-  const timer = useRef<NodeJS.Timeout | null>(null);
-  useEffect(() => {
-    if (!editando) setLocal(valor == null ? "" : String(valor));
-  }, [valor, editando]);
-
-  function digitar(novo: string) {
-    setLocal(novo);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      onChange(novo === "" ? null : coerceValor("NUMERO", novo, cfg));
-    }, 600);
-  }
-  function flush() {
-    if (timer.current) clearTimeout(timer.current);
-    setEditando(false);
-    onChange(local === "" ? null : coerceValor("NUMERO", local, cfg));
-  }
-
-  if (editando) {
-    return (
-      <input
-        autoFocus
-        type="number"
-        value={local}
-        onChange={(e) => digitar(e.target.value)}
-        onBlur={flush}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
-        }}
-        className="w-full bg-transparent px-2 py-1.5 text-[13px] font-mono outline-none focus:bg-muted/40"
-      />
-    );
-  }
-  return (
-    <button
-      type="button"
-      onClick={() => setEditando(true)}
-      className="w-full text-left px-2 py-1.5 text-[13px] font-mono hover:bg-muted/30 min-h-[30px]"
-    >
-      {valor == null ? (
-        <span className="text-muted-foreground/40">—</span>
-      ) : (
-        formatarNumero(valor, cfg)
-      )}
-    </button>
-  );
-}
-
-// ── CHECKBOX ───────────────────────────────────────────────────────
-function CelulaCheckbox({ valor, onChange }: { valor: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <div className="flex items-center justify-center px-2 py-1.5 min-h-[30px]">
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={valor}
-        onClick={() => onChange(!valor)}
-        className={cn(
-          "h-4 w-4 rounded border flex items-center justify-center transition-colors",
-          valor ? "bg-primary border-primary text-primary-foreground" : "border-input bg-background hover:border-primary"
-        )}
-      >
-        {valor && <Check className="h-3 w-3" />}
-      </button>
-    </div>
-  );
-}
-
-// ── SELECT (uma opção colorida) ────────────────────────────────────
-function CelulaSelect({
-  valor,
-  cfg,
-  onChange,
-}: {
-  valor: string | null;
-  cfg: PropertyConfig;
-  onChange: (v: string | null) => void;
-}) {
-  const [aberto, setAberto] = useState(false);
-  const opcoes = cfg.opcoes ?? [];
-  const atual = opcoes.find((o) => o.id === valor) ?? null;
-
-  return (
-    <Popover open={aberto} onOpenChange={setAberto}>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          className="w-full text-left px-2 py-1.5 min-h-[30px] hover:bg-muted/30 flex items-center"
-        >
-          {atual ? (
-            <ChipOpcao opcao={atual} />
-          ) : (
-            <span className="text-muted-foreground/40 text-[13px]">—</span>
-          )}
-        </button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-56 p-1">
-        <ListaOpcoes
-          opcoes={opcoes}
-          selecionadas={valor ? [valor] : []}
-          onToggle={(id) => {
-            onChange(valor === id ? null : id);
-            setAberto(false);
-          }}
-          permitirLimpar={!!valor}
-          onLimpar={() => {
-            onChange(null);
-            setAberto(false);
-          }}
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-// ── MULTISELECT (chips multi) ──────────────────────────────────────
-function CelulaMultiSelect({
-  valor,
-  cfg,
-  onChange,
-}: {
-  valor: string[];
-  cfg: PropertyConfig;
-  onChange: (v: string[]) => void;
-}) {
-  const [aberto, setAberto] = useState(false);
-  const opcoes = cfg.opcoes ?? [];
-  const selec = opcoes.filter((o) => valor.includes(o.id));
-
-  function toggle(id: string) {
-    onChange(valor.includes(id) ? valor.filter((x) => x !== id) : [...valor, id]);
-  }
-
-  return (
-    <Popover open={aberto} onOpenChange={setAberto}>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          className="w-full text-left px-2 py-1.5 min-h-[30px] hover:bg-muted/30 flex items-center gap-1 flex-wrap"
-        >
-          {selec.length ? (
-            selec.map((o) => <ChipOpcao key={o.id} opcao={o} />)
-          ) : (
-            <span className="text-muted-foreground/40 text-[13px]">—</span>
-          )}
-        </button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-56 p-1">
-        <ListaOpcoes opcoes={opcoes} selecionadas={valor} onToggle={toggle} multi />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-function ChipOpcao({ opcao }: { opcao: SelectOption }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded px-1.5 py-0.5 text-[11.5px] font-medium border",
-        SELECT_COR_CLASSES[opcao.cor]
-      )}
-    >
-      {opcao.nome}
-    </span>
-  );
-}
-
-function ListaOpcoes({
-  opcoes,
-  selecionadas,
-  onToggle,
-  multi,
-  permitirLimpar,
-  onLimpar,
-}: {
-  opcoes: SelectOption[];
-  selecionadas: string[];
-  onToggle: (id: string) => void;
-  multi?: boolean;
-  permitirLimpar?: boolean;
-  onLimpar?: () => void;
-}) {
-  if (opcoes.length === 0) {
-    return (
-      <p className="px-2 py-3 text-[12px] text-muted-foreground text-center">
-        Sem opções. Configure a coluna (menu ⋯ → Configurar).
-      </p>
-    );
-  }
-  return (
-    <div className="space-y-0.5 max-h-60 overflow-y-auto">
-      {permitirLimpar && onLimpar && (
-        <button
-          type="button"
-          onClick={onLimpar}
-          className="flex items-center gap-2 w-full px-2 py-1.5 rounded text-[12px] text-muted-foreground hover:bg-muted"
-        >
-          <X className="h-3 w-3" /> Limpar
-        </button>
-      )}
-      {opcoes.map((o) => {
-        const on = selecionadas.includes(o.id);
-        return (
-          <button
-            key={o.id}
-            type="button"
-            onClick={() => onToggle(o.id)}
-            className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-left"
-          >
-            {multi && (
-              <span
-                className={cn(
-                  "h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0",
-                  on ? "bg-primary border-primary text-primary-foreground" : "border-input"
-                )}
-              >
-                {on && <Check className="h-2.5 w-2.5" />}
-              </span>
-            )}
-            <ChipOpcao opcao={o} />
-            {!multi && on && <Check className="h-3.5 w-3.5 ml-auto text-foreground" />}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── DATA ───────────────────────────────────────────────────────────
-function CelulaData({ valor, onChange }: { valor: string | null; onChange: (v: string | null) => void }) {
-  const [editando, setEditando] = useState(false);
-
-  if (editando) {
-    return (
-      <input
-        autoFocus
-        type="date"
-        defaultValue={valor ?? ""}
-        onBlur={(e) => {
-          setEditando(false);
-          const v = e.target.value;
-          onChange(v || null);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
-        }}
-        className="w-full bg-transparent px-2 py-1.5 text-[13px] font-mono outline-none focus:bg-muted/40"
-      />
-    );
-  }
-  return (
-    <button
-      type="button"
-      onClick={() => setEditando(true)}
-      className="w-full text-left px-2 py-1.5 text-[13px] hover:bg-muted/30 min-h-[30px] flex items-center"
-    >
-      {valor ? (
-        <span className="inline-flex items-center gap-1.5">
-          <Icons.Calendar className="h-3 w-3 text-muted-foreground" />
-          {formatarData(valor)}
-        </span>
-      ) : (
-        <span className="text-muted-foreground/40">—</span>
-      )}
-    </button>
-  );
-}
-
-// ── URL (link clicável + edição inline) ────────────────────────────
-function CelulaUrl({ valor, onChange }: { valor: string; onChange: (v: string) => void }) {
-  const [editando, setEditando] = useState(false);
-  const [local, setLocal] = useState(valor);
-  useEffect(() => setLocal(valor), [valor]);
-
-  if (editando) {
-    return (
-      <input
-        autoFocus
-        value={local}
-        onChange={(e) => setLocal(e.target.value)}
-        onBlur={() => {
-          setEditando(false);
-          if (local !== valor) onChange(local);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") (e.currentTarget as HTMLInputElement).blur();
-          else if (e.key === "Escape") {
-            setLocal(valor);
-            setEditando(false);
-          }
-        }}
-        placeholder="https://…"
-        className="w-full bg-transparent px-2 py-1.5 text-[13px] outline-none focus:bg-muted/40"
-      />
-    );
-  }
-  return (
-    <div className="group/url flex items-center gap-1 px-2 py-1.5 min-h-[30px]">
-      {valor ? (
-        <>
-          <a
-            href={hrefSeguro(valor)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[13px] text-primary hover:underline truncate flex items-center gap-1 min-w-0"
-            title={valor}
-          >
-            <ExternalLink className="h-3 w-3 shrink-0" />
-            <span className="truncate">{valor}</span>
-          </a>
-          <button
-            type="button"
-            onClick={() => setEditando(true)}
-            className="opacity-0 group-hover/url:opacity-100 text-muted-foreground/60 hover:text-foreground shrink-0"
-            title="Editar"
-          >
-            <Icons.Pencil className="h-3 w-3" />
-          </button>
-        </>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setEditando(true)}
-          className="w-full text-left text-muted-foreground/40 text-[13px]"
-        >
-          —
-        </button>
-      )}
-    </div>
-  );
-}
-
-function hrefSeguro(url: string): string {
-  const u = url.trim();
-  if (/^https?:\/\//i.test(u) || u.startsWith("mailto:")) return u;
-  return `https://${u}`;
-}
-
 // ════════════════════════════════════════════════════════════════════
 // Inline genéricos (nome/descrição do header)
 // ════════════════════════════════════════════════════════════════════

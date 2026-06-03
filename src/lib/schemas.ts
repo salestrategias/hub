@@ -622,6 +622,16 @@ export const databaseViewSchema = z.object({
 });
 export type DatabaseViewInput = z.infer<typeof databaseViewSchema>;
 
+// Criação de view: `tipo` obrigatório (TABELA/BOARD/CALENDARIO); nome default
+// por tipo é aplicado no handler. config (Json livre) coerido na UI.
+export const databaseViewCreateSchema = z.object({
+  tipo: viewTipoEnum,
+  nome: z.string().min(1).max(120).optional(),
+  config: z.unknown().optional().nullable(),
+  ordem: z.coerce.number().int().optional(),
+});
+export type DatabaseViewCreateInput = z.infer<typeof databaseViewCreateSchema>;
+
 // ─── PublicShare ───────────────────────────────────────────────────
 export const publicShareSchema = z.object({
   entidadeTipo: z.enum(["NOTA", "BRIEFING", "REUNIAO", "RELATORIO", "MANUAL_SECAO"]),
