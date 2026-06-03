@@ -16,7 +16,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import * as Icons from "lucide-react";
-import { Table as TableIcon, X, ExternalLink, Check } from "lucide-react";
+import { Table as TableIcon, X, ExternalLink, Check, Search } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import {
@@ -32,6 +32,7 @@ import {
 import {
   type Filtro, type Ordenacao, lerFiltros, lerOrdenacoes,
 } from "@/lib/database-query";
+import { useRelacaoAlvo } from "@/components/database-relacao";
 import type { PropertyTipo, ViewTipo } from "@prisma/client";
 
 // ─── Tipos do payload (serializado do server) ──────────────────────
@@ -141,11 +142,7 @@ export function CelulaEditavel({
     case "URL":
       return <CelulaUrl valor={v as string} onChange={onChange} />;
     case "RELACAO":
-      return (
-        <div className="px-2 py-1.5 text-[12px] text-muted-foreground/60 italic">
-          relação (próximo bloco)
-        </div>
-      );
+      return <CelulaRelacao valor={v as string[]} cfg={cfg} onChange={onChange} />;
     default:
       return <CelulaTexto valor={v as string} onChange={onChange} />;
   }
@@ -340,6 +337,116 @@ function CelulaMultiSelect({
         <ListaOpcoes opcoes={opcoes} selecionadas={valor} onToggle={toggle} multi />
       </PopoverContent>
     </Popover>
+  );
+}
+
+// ── RELACAO (chips com títulos de linhas de OUTRO database) ────────
+function CelulaRelacao({
+  valor,
+  cfg,
+  onChange,
+}: {
+  valor: string[];
+  cfg: PropertyConfig;
+  onChange: (v: string[]) => void;
+}) {
+  const [aberto, setAberto] = useState(false);
+  const [busca, setBusca] = useState("");
+  const alvoId = cfg.databaseAlvoId;
+  const { rows, tituloDe, loading, erro } = useRelacaoAlvo(alvoId);
+
+  // Sem alvo configurado → CTA pra abrir a config da coluna (menu ⋯).
+  if (!alvoId) {
+    return (
+      <div className="px-2 py-1.5 text-[12px] text-muted-foreground/60 italic min-h-[30px] flex items-center">
+        configure o database alvo (menu ⋯ → Configurar)
+      </div>
+    );
+  }
+
+  function toggle(id: string) {
+    onChange(valor.includes(id) ? valor.filter((x) => x !== id) : [...valor, id]);
+  }
+
+  const q = busca.trim().toLowerCase();
+  const filtradas = q
+    ? rows.filter((r) => r.titulo.toLowerCase().includes(q))
+    : rows;
+
+  return (
+    <Popover open={aberto} onOpenChange={setAberto}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="w-full text-left px-2 py-1.5 min-h-[30px] hover:bg-muted/30 flex items-center gap-1 flex-wrap"
+        >
+          {valor.length ? (
+            valor.map((id) => (
+              <ChipRelacao key={id} titulo={tituloDe(id) ?? (loading ? "…" : "(removido)")} />
+            ))
+          ) : (
+            <span className="text-muted-foreground/40 text-[13px]">—</span>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64 p-0">
+        <div className="flex items-center gap-1.5 border-b border-border px-2 py-1.5">
+          <Search className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+          <input
+            autoFocus
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Buscar linhas…"
+            className="w-full bg-transparent text-[12px] outline-none placeholder:text-muted-foreground/50"
+          />
+        </div>
+        <div className="space-y-0.5 max-h-60 overflow-y-auto p-1">
+          {erro ? (
+            <p className="px-2 py-3 text-[12px] text-destructive text-center">
+              Falha ao carregar o database alvo.
+            </p>
+          ) : loading ? (
+            <p className="px-2 py-3 text-[12px] text-muted-foreground text-center">Carregando…</p>
+          ) : filtradas.length === 0 ? (
+            <p className="px-2 py-3 text-[12px] text-muted-foreground text-center">
+              {rows.length === 0 ? "O database alvo não tem linhas." : "Nada encontrado."}
+            </p>
+          ) : (
+            filtradas.map((r) => {
+              const on = valor.includes(r.id);
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => toggle(r.id)}
+                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-left"
+                >
+                  <span
+                    className={cn(
+                      "h-3.5 w-3.5 rounded border flex items-center justify-center shrink-0",
+                      on ? "bg-primary border-primary text-primary-foreground" : "border-input"
+                    )}
+                  >
+                    {on && <Check className="h-2.5 w-2.5" />}
+                  </span>
+                  <ChipRelacao titulo={r.titulo} />
+                </button>
+              );
+            })
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/** Chip de uma linha vinculada (RELACAO). Visual neutro, ícone de link. */
+export function ChipRelacao({ titulo }: { titulo: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11.5px] font-medium border border-border bg-muted/50 text-foreground/90 max-w-[180px]">
+      <Icons.Link2 className="h-2.5 w-2.5 shrink-0 text-muted-foreground" />
+      <span className="truncate">{titulo || "Sem título"}</span>
+    </span>
   );
 }
 
@@ -582,6 +689,11 @@ export function ResumoValor({ prop, row }: { prop: DbProperty; row: DbRow }) {
       </span>
     );
   }
+  if (prop.tipo === "RELACAO") {
+    const ids = (v as string[]) ?? [];
+    if (!ids.length) return null;
+    return <ResumoRelacao ids={ids} cfg={cfg} />;
+  }
   if (v == null || (typeof v === "string" && v.trim() === "")) return null;
 
   let texto: string;
@@ -593,5 +705,17 @@ export function ResumoValor({ prop, row }: { prop: DbProperty; row: DbRow }) {
     <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium border border-border bg-muted/40 text-muted-foreground max-w-full truncate">
       {texto}
     </span>
+  );
+}
+
+/** Resumo read-only de uma RELACAO (chips com títulos do alvo) — board cards. */
+function ResumoRelacao({ ids, cfg }: { ids: string[]; cfg: PropertyConfig }) {
+  const { tituloDe, loading } = useRelacaoAlvo(cfg.databaseAlvoId);
+  return (
+    <>
+      {ids.map((id) => (
+        <ChipRelacao key={id} titulo={tituloDe(id) ?? (loading ? "…" : "(removido)")} />
+      ))}
+    </>
   );
 }

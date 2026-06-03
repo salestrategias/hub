@@ -55,9 +55,17 @@ import {
 import { RowPanel } from "@/components/database-row-panel";
 import { BoardView } from "@/components/database-board";
 import { CalendarView } from "@/components/database-calendar";
+import { RelacaoProvider, useDatabasesLista } from "@/components/database-relacao";
 
 // Re-export dos tipos do payload (consumidos por quem importa este módulo).
 export type { DbProperty, DbView, DbRow, DatabaseFull };
+
+/**
+ * Tipos oferecidos ao criar/converter uma COLUNA aqui na UI. Reusa a lista do
+ * engine (`TIPOS_DISPONIVEIS`) e acrescenta RELACAO (link pra outro database),
+ * que o engine mantém fora do set "filtrável" de propósito.
+ */
+const TIPOS_COLUNA: PropertyTipo[] = [...TIPOS_DISPONIVEIS, "RELACAO"];
 
 // ════════════════════════════════════════════════════════════════════
 // Componente raiz
@@ -266,6 +274,7 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
   }
 
   return (
+    <RelacaoProvider>
     <div className="space-y-4">
       <DatabaseHeader db={db} onPatch={patchDb} />
 
@@ -338,6 +347,7 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
         onDelete={deleteLinha}
       />
     </div>
+    </RelacaoProvider>
   );
 }
 
@@ -1373,7 +1383,7 @@ function ColunaHeader({
           <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
             Mudar tipo
           </DropdownMenuLabel>
-          {TIPOS_DISPONIVEIS.map((t) => (
+          {TIPOS_COLUNA.map((t) => (
             <DropdownMenuItem
               key={t}
               onSelect={() => {
@@ -1405,7 +1415,7 @@ function ColunaHeader({
 }
 
 function temConfig(tipo: PropertyTipo): boolean {
-  return tipo === "SELECT" || tipo === "MULTISELECT" || tipo === "NUMERO";
+  return tipo === "SELECT" || tipo === "MULTISELECT" || tipo === "NUMERO" || tipo === "RELACAO";
 }
 
 // ─── Configurar coluna (opções de SELECT / formato de NÚMERO) ──────
@@ -1459,10 +1469,80 @@ function ConfigurarColuna({
     return <EditorOpcoes cfg={cfg} onPatch={(c) => onPatch({ config: c })} />;
   }
 
+  if (prop.tipo === "RELACAO") {
+    return <RelacaoConfig cfg={cfg} onPatch={(c) => onPatch({ config: c })} />;
+  }
+
   return (
     <p className="text-[12px] text-muted-foreground">
       Este tipo não tem configurações.
     </p>
+  );
+}
+
+// ─── Configurar RELACAO (escolher o database ALVO) ─────────────────
+function RelacaoConfig({
+  cfg,
+  onPatch,
+}: {
+  cfg: PropertyConfig;
+  onPatch: (config: PropertyConfig) => void;
+}) {
+  const { lista, loading } = useDatabasesLista();
+  const atualId = cfg.databaseAlvoId;
+  const alvo = lista.find((d) => d.id === atualId) ?? null;
+
+  return (
+    <div className="space-y-2">
+      <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+        Database alvo
+      </p>
+      <p className="text-[10px] text-muted-foreground/70">
+        Linhas desta coluna vão linkar pra linhas do database escolhido.
+      </p>
+
+      {atualId && (
+        <div className="flex items-center gap-1.5 text-[12px] rounded-md border border-border bg-muted/30 px-2 py-1.5">
+          <Icons.Database className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span className="flex-1 truncate">{alvo ? alvo.nome : "Database selecionado"}</span>
+          <button
+            type="button"
+            onClick={() => onPatch({ ...cfg, databaseAlvoId: undefined })}
+            className="h-5 w-5 shrink-0 flex items-center justify-center rounded text-muted-foreground/60 hover:text-destructive"
+            title="Remover alvo"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {loading ? (
+        <p className="text-[11px] text-muted-foreground italic">Carregando databases…</p>
+      ) : lista.length === 0 ? (
+        <p className="text-[11px] text-muted-foreground italic">Nenhum database disponível.</p>
+      ) : (
+        <div className="space-y-0.5 max-h-56 overflow-y-auto">
+          {lista.map((d) => {
+            const on = d.id === atualId;
+            return (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => onPatch({ ...cfg, databaseAlvoId: d.id })}
+                className={cn(
+                  "flex items-center gap-2 w-full px-2 py-1.5 rounded text-[12px] text-left hover:bg-muted",
+                  on && "bg-accent/50"
+                )}
+              >
+                <span className="text-base leading-none shrink-0">{d.icone || "🗂️"}</span>
+                <span className="flex-1 truncate">{d.nome}</span>
+                {on && <Check className="h-3.5 w-3.5 shrink-0" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1598,7 +1678,7 @@ function AddColunaBtn({ onAdd }: { onAdd: (tipo: PropertyTipo) => void }) {
         <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
           Nova coluna
         </DropdownMenuLabel>
-        {TIPOS_DISPONIVEIS.map((t) => {
+        {TIPOS_COLUNA.map((t) => {
           const meta = metaDe(t);
           return (
             <DropdownMenuItem
