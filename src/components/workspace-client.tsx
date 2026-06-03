@@ -28,7 +28,7 @@ import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import {
   Plus, Trash2, Loader2, FileText, ChevronRight, ChevronDown,
-  ArrowUp, ArrowDown, NotebookPen, ImagePlus, X,
+  ArrowUp, ArrowDown, NotebookPen, ImagePlus, X, Table as TableIcon,
 } from "lucide-react";
 
 export type PageFlat = {
@@ -37,6 +37,15 @@ export type PageFlat = {
   icone: string | null;
   ordem: number;
   parentId: string | null;
+};
+
+/** Database na árvore — leaf node aninhado sob uma página (ou top-level). */
+export type DatabaseFlat = {
+  id: string;
+  nome: string;
+  icone: string | null;
+  ordem: number;
+  parentPageId: string | null;
 };
 
 export type PageFull = {
@@ -49,12 +58,18 @@ export type PageFull = {
   atualizadoEm: string;
 };
 
-type TreeNode = PageFlat & { filhas: TreeNode[] };
+/**
+ * Nó da árvore. Pode ser uma PÁGINA (com filhas: páginas e/ou databases) ou
+ * um DATABASE (leaf — sem filhas). Discriminado por `kind`.
+ */
+type PageNode = PageFlat & { kind: "page"; filhas: TreeNode[] };
+type DatabaseNode = { kind: "db"; id: string; titulo: string; icone: string | null; ordem: number; parentId: string | null };
+type TreeNode = PageNode | DatabaseNode;
 
-/** Monta árvore aninhada (recursiva) a partir da lista flat. */
-function montarArvore(pages: PageFlat[]): TreeNode[] {
-  const byId = new Map<string, TreeNode>();
-  for (const p of pages) byId.set(p.id, { ...p, filhas: [] });
+/** Monta árvore aninhada (recursiva) com páginas + databases aninhados. */
+function montarArvore(pages: PageFlat[], databases: DatabaseFlat[]): TreeNode[] {
+  const byId = new Map<string, PageNode>();
+  for (const p of pages) byId.set(p.id, { ...p, kind: "page", filhas: [] });
   const raizes: TreeNode[] = [];
   for (const p of pages) {
     const node = byId.get(p.id)!;
@@ -64,9 +79,27 @@ function montarArvore(pages: PageFlat[]): TreeNode[] {
       raizes.push(node);
     }
   }
+  // Databases entram como leaf nodes sob a página pai (ou no topo).
+  for (const d of databases) {
+    const node: DatabaseNode = {
+      kind: "db",
+      id: d.id,
+      titulo: d.nome,
+      icone: d.icone,
+      ordem: d.ordem,
+      parentId: d.parentPageId,
+    };
+    if (d.parentPageId && byId.has(d.parentPageId)) {
+      byId.get(d.parentPageId)!.filhas.push(node);
+    } else {
+      raizes.push(node);
+    }
+  }
   const ordenar = (arr: TreeNode[]) => {
     arr.sort((a, b) => a.ordem - b.ordem || a.titulo.localeCompare(b.titulo));
-    arr.forEach((n) => ordenar(n.filhas));
+    arr.forEach((n) => {
+      if (n.kind === "page") ordenar(n.filhas);
+    });
   };
   ordenar(raizes);
   return raizes;
@@ -89,9 +122,11 @@ function caminhoAncestrais(pages: PageFlat[], id: string): PageFlat[] {
 
 export function WorkspaceClient({
   pages: pagesInicial,
+  databases: databasesInicial = [],
   activePage,
 }: {
   pages: PageFlat[];
+  databases?: DatabaseFlat[];
   activePage: PageFull | null;
 }) {
   const router = useRouter();
@@ -100,10 +135,29 @@ export function WorkspaceClient({
   // Sincroniza quando o servidor re-renderiza (router.refresh / navegação).
   const [pages, setPages] = useState<PageFlat[]>(pagesInicial);
   useEffect(() => setPages(pagesInicial), [pagesInicial]);
+  const [databases, setDatabases] = useState<DatabaseFlat[]>(databasesInicial);
+  useEffect(() => setDatabases(databasesInicial), [databasesInicial]);
 
   const [criandoTop, setCriandoTop] = useState(false);
-  const arvore = useMemo(() => montarArvore(pages), [pages]);
+  const arvore = useMemo(() => montarArvore(pages, databases), [pages, databases]);
   const ancestrais = activePage ? caminhoAncestrais(pages, activePage.id) : [];
+
+  // ── Criar database (top-level ou aninhado sob uma página) ─────────
+  async function criarDatabase(parentPageId: string | null) {
+    const res = await fetch("/api/databases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ parentPageId }),
+    });
+    if (!res.ok) {
+      toast.error("Falha ao criar database");
+      return;
+    }
+    const novo = await res.json();
+    toast.success("Database criado");
+    router.push(`/workspace/db/${novo.id}`);
+    router.refresh();
+  }
 
   // ── Criar página ──────────────────────────────────────────────────
   async function criarPagina(parentId: string | null) {
@@ -141,6 +195,20 @@ export function WorkspaceClient({
     if (ativaAfetada) {
       router.push("/workspace");
     }
+    router.refresh();
+  }
+
+  async function excluirDatabase(d: DatabaseNode) {
+    if (!confirm(`Excluir o database "${d.titulo}" e todas as linhas? Não tem volta.`)) return;
+    // Optimistic
+    setDatabases((prev) => prev.filter((x) => x.id !== d.id));
+    const res = await fetch(`/api/databases/${d.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      toast.error("Falha ao excluir database");
+      router.refresh();
+      return;
+    }
+    toast.success("Database excluído");
     router.refresh();
   }
 
@@ -192,40 +260,54 @@ export function WorkspaceClient({
       <aside className="space-y-2 md:sticky md:top-[72px] md:self-start md:h-[calc(100vh-100px)] md:overflow-y-auto pr-1">
         <div className="flex items-center gap-2 pt-1">
           <NotebookPen className="h-4 w-4 text-primary" />
-          <h2 className="font-display font-semibold text-sm">Páginas</h2>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="ml-auto h-7 gap-1 text-xs"
-            onClick={async () => {
-              setCriandoTop(true);
-              await criarPagina(null);
-              setCriandoTop(false);
-            }}
-            disabled={criandoTop}
-            title="Nova página"
-          >
-            {criandoTop ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-            nova
-          </Button>
+          <h2 className="font-display font-semibold text-sm">Workspace</h2>
+          <div className="ml-auto flex items-center gap-0.5">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 gap-1 text-xs"
+              onClick={async () => {
+                setCriandoTop(true);
+                await criarPagina(null);
+                setCriandoTop(false);
+              }}
+              disabled={criandoTop}
+              title="Nova página"
+            >
+              {criandoTop ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+              página
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 gap-1 text-xs"
+              onClick={() => criarDatabase(null)}
+              title="Novo database (tabela)"
+            >
+              <TableIcon className="h-3.5 w-3.5" />
+              base
+            </Button>
+          </div>
         </div>
 
         <nav className="space-y-0.5 pt-1">
           {arvore.map((node) => (
             <ItemArvore
-              key={node.id}
+              key={`${node.kind}-${node.id}`}
               node={node}
               nivel={0}
               activeId={activePage?.id ?? null}
               ancestralIds={ancestrais.map((a) => a.id)}
               onNovaSub={(id) => criarPagina(id)}
+              onNovaDatabase={(id) => criarDatabase(id)}
               onExcluir={excluirPagina}
+              onExcluirDatabase={excluirDatabase}
               onMover={mover}
             />
           ))}
           {arvore.length === 0 && (
             <p className="text-[11px] text-muted-foreground italic px-2 py-3">
-              Nenhuma página ainda — crie uma com o + acima
+              Nada ainda — crie uma página ou um database com os botões acima
             </p>
           )}
         </nav>
@@ -248,24 +330,79 @@ export function WorkspaceClient({
   );
 }
 
-// ─── Item recursivo da árvore ──────────────────────────────────────
-function ItemArvore({
-  node,
-  nivel,
-  activeId,
-  ancestralIds,
-  onNovaSub,
-  onExcluir,
-  onMover,
-}: {
+// ─── Item recursivo da árvore (página ou database) ─────────────────
+type ItemArvoreProps = {
   node: TreeNode;
   nivel: number;
   activeId: string | null;
   ancestralIds: string[];
   onNovaSub: (parentId: string) => void;
+  onNovaDatabase: (parentPageId: string) => void;
   onExcluir: (p: PageFlat) => void;
+  onExcluirDatabase: (d: DatabaseNode) => void;
   onMover: (p: PageFlat, dir: -1 | 1) => void;
+};
+
+function ItemArvore(props: ItemArvoreProps) {
+  if (props.node.kind === "db") {
+    return <ItemDatabase node={props.node} nivel={props.nivel} onExcluir={props.onExcluirDatabase} />;
+  }
+  return <ItemPagina {...props} node={props.node} />;
+}
+
+/** Leaf da árvore: um database. Navega pra /workspace/db/[id]. */
+function ItemDatabase({
+  node,
+  nivel,
+  onExcluir,
+}: {
+  node: DatabaseNode;
+  nivel: number;
+  onExcluir: (d: DatabaseNode) => void;
 }) {
+  const router = useRouter();
+  return (
+    <div
+      className="group flex items-center gap-0.5 rounded-md pr-1 transition-colors hover:bg-secondary/50"
+      style={{ paddingLeft: `${nivel * 14}px` }}
+    >
+      <span className="h-5 w-5 shrink-0" />
+      <button
+        type="button"
+        onClick={() => router.push(`/workspace/db/${node.id}`)}
+        className="flex items-center gap-1.5 flex-1 min-w-0 py-1 text-left text-[12.5px] text-muted-foreground hover:text-foreground"
+      >
+        <span className="shrink-0 text-sm leading-none flex items-center">
+          {node.icone ? node.icone : <TableIcon className="h-3.5 w-3.5" />}
+        </span>
+        <span className="truncate flex-1">{node.titulo || "Database"}</span>
+      </button>
+      <div className="flex items-center gap-0 opacity-0 group-hover:opacity-100 transition shrink-0">
+        <button
+          type="button"
+          onClick={() => onExcluir(node)}
+          className="h-5 w-5 flex items-center justify-center text-muted-foreground/50 hover:text-destructive"
+          title="Excluir database"
+        >
+          <Trash2 className="h-3 w-3" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Página (com filhas: subpáginas e/ou databases). */
+function ItemPagina({
+  node,
+  nivel,
+  activeId,
+  ancestralIds,
+  onNovaSub,
+  onNovaDatabase,
+  onExcluir,
+  onExcluirDatabase,
+  onMover,
+}: ItemArvoreProps & { node: PageNode }) {
   const router = useRouter();
   const temFilhas = node.filhas.length > 0;
   const ativo = node.id === activeId;
@@ -345,6 +482,17 @@ function ItemArvore({
           </button>
           <button
             type="button"
+            onClick={() => {
+              onNovaDatabase(node.id);
+              setAberto(true);
+            }}
+            className="h-5 w-5 flex items-center justify-center text-muted-foreground/50 hover:text-foreground"
+            title="Novo database aqui"
+          >
+            <TableIcon className="h-3 w-3" />
+          </button>
+          <button
+            type="button"
             onClick={() => onExcluir(node)}
             className="h-5 w-5 flex items-center justify-center text-muted-foreground/50 hover:text-destructive"
             title="Excluir"
@@ -359,13 +507,15 @@ function ItemArvore({
         <div className="mt-0.5 space-y-0.5">
           {node.filhas.map((f) => (
             <ItemArvore
-              key={f.id}
+              key={`${f.kind}-${f.id}`}
               node={f}
               nivel={nivel + 1}
               activeId={activeId}
               ancestralIds={ancestralIds}
               onNovaSub={onNovaSub}
+              onNovaDatabase={onNovaDatabase}
               onExcluir={onExcluir}
+              onExcluirDatabase={onExcluirDatabase}
               onMover={onMover}
             />
           ))}

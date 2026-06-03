@@ -10,10 +10,14 @@ export default async function WorkspacePaginaPage({
 }: {
   params: { id: string };
 }) {
-  const [pages, atual] = await Promise.all([
+  const [pages, databases, atual] = await Promise.all([
     prisma.page.findMany({
       orderBy: [{ parentId: "asc" }, { ordem: "asc" }, { titulo: "asc" }],
       select: { id: true, titulo: true, icone: true, ordem: true, parentId: true },
+    }),
+    prisma.database.findMany({
+      orderBy: [{ parentPageId: "asc" }, { ordem: "asc" }, { nome: "asc" }],
+      select: { id: true, nome: true, icone: true, ordem: true, parentPageId: true },
     }),
     prisma.page.findUnique({ where: { id: params.id } }),
   ]);
@@ -29,6 +33,7 @@ export default async function WorkspacePaginaPage({
     >
       <WorkspaceClient
         pages={pages}
+        databases={databases}
         activePage={{
           id: atual.id,
           titulo: atual.titulo,

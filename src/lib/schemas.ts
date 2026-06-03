@@ -576,6 +576,52 @@ export const pageSchema = z.object({
 });
 export type PageInput = z.infer<typeof pageSchema>;
 
+// ─── Workspace: Databases (motor estilo Notion) ───────────────────
+// Engine do comportamento por tipo vive em src/lib/database.ts. Aqui só
+// validamos o shape de entrada da API. `config`/`valores` são Json livre
+// (validados/coeridos em runtime pelo engine).
+export const propertyTipoEnum = z.enum([
+  "TEXTO",
+  "NUMERO",
+  "SELECT",
+  "MULTISELECT",
+  "DATA",
+  "CHECKBOX",
+  "URL",
+  "RELACAO",
+]);
+export const viewTipoEnum = z.enum(["TABELA", "BOARD", "CALENDARIO"]);
+
+export const databaseSchema = z.object({
+  nome: z.string().min(1).max(200).default("Novo database"),
+  icone: z.string().max(40).optional().nullable().or(z.literal("")),
+  descricao: z.string().max(2000).optional().nullable().or(z.literal("")),
+  parentPageId: z.string().optional().nullable(),
+  ordem: z.coerce.number().int().default(0),
+});
+export type DatabaseInput = z.infer<typeof databaseSchema>;
+
+export const databasePropertySchema = z.object({
+  nome: z.string().min(1).max(120).default("Propriedade"),
+  tipo: propertyTipoEnum.default("TEXTO"),
+  config: z.unknown().optional().nullable(),
+  ordem: z.coerce.number().int().default(0),
+});
+export type DatabasePropertyInput = z.infer<typeof databasePropertySchema>;
+
+export const databaseRowSchema = z.object({
+  // Merge parcial no Json — só as chaves enviadas são atualizadas.
+  valores: z.record(z.string(), z.unknown()).optional(),
+  ordem: z.coerce.number().int().optional(),
+});
+export type DatabaseRowInput = z.infer<typeof databaseRowSchema>;
+
+export const databaseViewSchema = z.object({
+  nome: z.string().min(1).max(120).optional(),
+  config: z.unknown().optional().nullable(),
+});
+export type DatabaseViewInput = z.infer<typeof databaseViewSchema>;
+
 // ─── PublicShare ───────────────────────────────────────────────────
 export const publicShareSchema = z.object({
   entidadeTipo: z.enum(["NOTA", "BRIEFING", "REUNIAO", "RELATORIO", "MANUAL_SECAO"]),
