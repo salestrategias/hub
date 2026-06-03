@@ -562,6 +562,20 @@ export const docReordenarSchema = z.object({
   ),
 });
 
+// ─── Workspace: Páginas livres (estilo Notion) ─────────────────────
+// `conteudo` é JSON do editor (Tiptap/BlockNote) serializado. Árvore
+// hierárquica via parentId (self-relation Cascade no schema). Databases
+// podem ser aninhados sob páginas (outro bloco — não tratado aqui).
+export const pageSchema = z.object({
+  titulo: z.string().min(1).max(200).default("Sem título"),
+  icone: z.string().max(40).optional().nullable().or(z.literal("")),
+  capaUrl: z.string().max(2_500_000).optional().nullable().or(z.literal("")),
+  conteudo: z.string().default(""),
+  parentId: z.string().optional().nullable(),
+  ordem: z.coerce.number().int().default(0),
+});
+export type PageInput = z.infer<typeof pageSchema>;
+
 // ─── PublicShare ───────────────────────────────────────────────────
 export const publicShareSchema = z.object({
   entidadeTipo: z.enum(["NOTA", "BRIEFING", "REUNIAO", "RELATORIO", "MANUAL_SECAO"]),

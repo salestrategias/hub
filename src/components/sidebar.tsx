@@ -9,7 +9,7 @@ import {
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
   Mic, FileText, GitBranch, Cpu, Database, Send, TrendingUp, Settings, Calendar, BookOpen,
   ChevronLeft, ChevronRight,
-  Palette, Target, LayoutTemplate, Stethoscope,
+  Palette, Target, LayoutTemplate, Stethoscope, NotebookPen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
@@ -40,6 +40,8 @@ const groups: NavGroup[] = [
   {
     label: "Workspace",
     items: [
+      // NotebookPen: páginas livres estilo Notion (árvore + editor de blocos)
+      { label: "Páginas", href: "/workspace", icon: NotebookPen },
       { label: "Reuniões", href: "/reunioes", icon: Mic },
       { label: "Notas", href: "/notas", icon: FileText },
       { label: "Mapas mentais", href: "/mapas", icon: GitBranch },
