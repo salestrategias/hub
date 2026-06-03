@@ -424,6 +424,7 @@ model PostArquivo {
   nome      String?                              // "Slide 1", "Capa", etc
   legenda   String?          @db.Text            // legenda específica deste arquivo
   ordem     Int              @default(0)
+  enviadoPorCliente Boolean   @default(false)  // Portal v2: arte anexada pelo cliente (vs. produzida pela SAL)
   createdAt DateTime         @default(now())
 
   @@index([postId, ordem])
