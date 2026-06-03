@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { useForm } from "react-hook-form";
@@ -14,10 +14,11 @@ import { Label } from "@/components/ui/label";
 import { RichTextField } from "@/components/editor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { projetoSchema, type ProjetoInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { formatDate, cn } from "@/lib/utils";
-import { Plus } from "lucide-react";
+import { Plus, KanbanSquare, Table2 } from "lucide-react";
 import { ProjetoSheet } from "@/components/sheets/projeto-sheet";
 import { useEntitySheet } from "@/components/entity-sheet";
 
@@ -42,10 +43,27 @@ const COLUNAS: { key: ProjetoStatus; label: string }[] = [
 
 const PRIO_COLOR = { URGENTE: "destructive", ALTA: "warning", NORMAL: "secondary", BAIXA: "muted" } as const;
 
+const STATUS_LABEL: Record<ProjetoStatus, string> = {
+  BRIEFING: "Briefing",
+  PRODUCAO: "Produção",
+  REVISAO: "Revisão",
+  APROVACAO: "Aprovação",
+  ENTREGUE: "Entregue",
+};
+
 export function ProjetosKanban({
   projetos: initial, clientes,
 }: { projetos: Card[]; clientes: { id: string; nome: string }[] }) {
   const [cards, setCards] = useState(initial);
+  const [view, setView] = useState<"board" | "tabela">("board");
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem("projetos-view") : null;
+    if (saved === "board" || saved === "tabela") setView(saved);
+  }, []);
+  function trocarView(v: "board" | "tabela") {
+    setView(v);
+    try { localStorage.setItem("projetos-view", v); } catch {}
+  }
   const router = useRouter();
   const sheet = useEntitySheet("projeto");
 
@@ -66,7 +84,13 @@ export function ProjetosKanban({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end"><NovoProjeto clientes={clientes} /></div>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <ViewToggle view={view} onChange={trocarView} />
+        <NovoProjeto clientes={clientes} />
+      </div>
+      {view === "tabela" ? (
+        <TabelaProjetos cards={cards} onOpen={(id) => sheet.open(id)} ativaId={sheet.id ?? null} />
+      ) : (
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="overflow-x-auto pb-4 -mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"><div className="grid grid-cols-5 gap-3 min-w-[1100px]">
           {COLUNAS.map((col) => {
@@ -124,6 +148,7 @@ export function ProjetosKanban({
           })}
         </div></div>
       </DragDropContext>
+      )}
 
       <ProjetoSheet
         projetoId={sheet.id}
@@ -136,6 +161,91 @@ export function ProjetosKanban({
         clientes={clientes}
       />
     </div>
+  );
+}
+
+function ViewToggle({ view, onChange }: { view: "board" | "tabela"; onChange: (v: "board" | "tabela") => void }) {
+  return (
+    <div className="inline-flex rounded-md border border-border p-0.5">
+      <button
+        type="button"
+        onClick={() => onChange("board")}
+        className={cn(
+          "inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors",
+          view === "board" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+        )}
+        title="Quadro (kanban)"
+      >
+        <KanbanSquare className="h-3.5 w-3.5" /> Quadro
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("tabela")}
+        className={cn(
+          "inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors",
+          view === "tabela" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+        )}
+        title="Tabela"
+      >
+        <Table2 className="h-3.5 w-3.5" /> Tabela
+      </button>
+    </div>
+  );
+}
+
+function TabelaProjetos({
+  cards,
+  onOpen,
+  ativaId,
+}: {
+  cards: Card[];
+  onOpen: (id: string) => void;
+  ativaId: string | null;
+}) {
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Projeto</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="hidden md:table-cell">Prioridade</TableHead>
+              <TableHead className="hidden md:table-cell">Cliente</TableHead>
+              <TableHead className="hidden lg:table-cell text-center">Tarefas</TableHead>
+              <TableHead className="text-right">Prazo</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {cards.map((c) => (
+              <TableRow
+                key={c.id}
+                className={cn("cursor-pointer", ativaId === c.id && "bg-sal-600/[0.04]")}
+                onClick={() => onOpen(c.id)}
+              >
+                <TableCell className="font-medium">{c.nome}</TableCell>
+                <TableCell><Badge variant="outline">{STATUS_LABEL[c.status]}</Badge></TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <Badge variant={PRIO_COLOR[c.prioridade]}>{c.prioridade.toLowerCase()}</Badge>
+                </TableCell>
+                <TableCell className="hidden md:table-cell text-muted-foreground">{c.clienteNome ?? "—"}</TableCell>
+                <TableCell className="hidden lg:table-cell text-center text-muted-foreground">{c.totalTarefas}</TableCell>
+                <TableCell className="text-right font-mono text-xs whitespace-nowrap">
+                  {c.dataEntrega ? formatDate(c.dataEntrega) : "—"}
+                </TableCell>
+              </TableRow>
+            ))}
+            {cards.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-8">
+                  Nenhum projeto ainda.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
 
