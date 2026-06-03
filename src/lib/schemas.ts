@@ -118,6 +118,15 @@ export const portalPostSubmissaoSchema = z.object({
 });
 export type PortalPostSubmissaoInput = z.infer<typeof portalPostSubmissaoSchema>;
 
+// Cliente ANEXA arte(s) num post EXISTENTE da SAL (não cria post novo).
+// Reusa a mesma regra de arquivo (dataURL até 5MB ou URL externa). Os
+// PostArquivo criados ganham enviadoPorCliente=true no servidor. clienteId
+// e postId vêm da URL/sessão — nunca do body.
+export const portalAnexarArteSchema = z.object({
+  arquivos: z.array(portalArquivoSchema).min(1, "Anexe pelo menos uma arte").max(20),
+});
+export type PortalAnexarArteInput = z.infer<typeof portalAnexarArteSchema>;
+
 export const portalCriativoSubmissaoSchema = z.object({
   titulo: z.string().min(1, "Título obrigatório").max(200),
   textoPrincipal: z.string().max(5000).optional().nullable().or(z.literal("")),

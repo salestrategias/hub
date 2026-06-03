@@ -41,7 +41,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 
 export type ModoEnvio = "post" | "criativo";
 
-type ArquivoLocal = {
+export type ArquivoLocal = {
   tipo: "IMAGEM" | "VIDEO" | "DOCUMENTO" | "LINK_EXTERNO";
   url: string; // dataURL ou URL externa
   nome: string | null;
@@ -210,59 +210,8 @@ export function EnviarConteudoDialog({
   const [plataforma, setPlataforma] = useState("META_ADS"); // só criativo
   const [dataPublicacao, setDataPublicacao] = useState(""); // só post (YYYY-MM-DD)
   const [arquivos, setArquivos] = useState<ArquivoLocal[]>([]);
-  const [urlExterna, setUrlExterna] = useState("");
   const [processando, setProcessando] = useState(false);
   const [enviando, setEnviando] = useState(false);
-  const inputFileRef = useRef<HTMLInputElement>(null);
-
-  async function processarArquivo(file: File) {
-    setProcessando(true);
-    try {
-      let url: string;
-      let tipo: ArquivoLocal["tipo"];
-      if (file.type.startsWith("image/")) {
-        url = await comprimirImagem(file);
-        tipo = "IMAGEM";
-      } else if (file.type.startsWith("video/")) {
-        if (file.size > 5_000_000) {
-          toast.error("Vídeo grande demais (max 5MB). Cole um link do Drive/YouTube.");
-          return;
-        }
-        url = await fileToDataURL(file);
-        tipo = "VIDEO";
-      } else if (file.type === "application/pdf") {
-        if (file.size > 5_000_000) {
-          toast.error("PDF grande demais (max 5MB).");
-          return;
-        }
-        url = await fileToDataURL(file);
-        tipo = "DOCUMENTO";
-      } else {
-        toast.error("Tipo de arquivo não suportado");
-        return;
-      }
-      setArquivos((a) => [...a, { tipo, url, nome: file.name }]);
-    } finally {
-      setProcessando(false);
-    }
-  }
-
-  function adicionarUrl() {
-    const u = urlExterna.trim();
-    if (!u) return;
-    const low = u.toLowerCase();
-    const tipo: ArquivoLocal["tipo"] = /\.(jpg|jpeg|png|gif|webp|avif)(\?|$)/.test(low)
-      ? "IMAGEM"
-      : /\.(mp4|mov|webm)(\?|$)/.test(low)
-      ? "VIDEO"
-      : "LINK_EXTERNO";
-    setArquivos((a) => [...a, { tipo, url: u, nome: null }]);
-    setUrlExterna("");
-  }
-
-  function removerArquivo(idx: number) {
-    setArquivos((a) => a.filter((_, i) => i !== idx));
-  }
 
   async function enviar() {
     if (!titulo.trim()) {
@@ -408,91 +357,11 @@ export function EnviarConteudoDialog({
 
           {/* Upload de arquivos */}
           <Campo label="Artes / vídeo (opcional)">
-            <input
-              ref={inputFileRef}
-              type="file"
-              accept="image/*,video/*,application/pdf"
-              multiple
-              className="hidden"
-              onChange={async (e) => {
-                const files = Array.from(e.target.files ?? []);
-                for (const f of files) await processarArquivo(f);
-                if (inputFileRef.current) inputFileRef.current.value = "";
-              }}
+            <UploaderArquivos
+              value={arquivos}
+              onChange={setArquivos}
+              onProcessandoChange={setProcessando}
             />
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => inputFileRef.current?.click()}
-                disabled={processando}
-                className="h-11 sm:h-10 text-sm touch-feedback w-full"
-              >
-                {processando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                Enviar do dispositivo
-              </Button>
-              <div className="flex gap-1.5">
-                <Input
-                  value={urlExterna}
-                  onChange={(e) => setUrlExterna(e.target.value)}
-                  placeholder="Ou cole link (Drive, YouTube...)"
-                  className="h-11 sm:h-10 text-base sm:text-sm"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      adicionarUrl();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={adicionarUrl}
-                  disabled={!urlExterna.trim()}
-                  className="h-11 sm:h-10 shrink-0 touch-feedback"
-                >
-                  <Link2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <p className="text-[10.5px] text-muted-foreground mt-1.5">
-              Imagens são otimizadas automaticamente. Vídeos pesados: use link do Drive/YouTube.
-            </p>
-
-            {/* Previews */}
-            {arquivos.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 mt-2.5">
-                {arquivos.map((a, i) => (
-                  <div key={i} className="relative rounded-md overflow-hidden border border-border bg-muted aspect-square">
-                    {a.tipo === "IMAGEM" ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={a.url} alt={a.nome ?? ""} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-1 text-muted-foreground">
-                        {a.tipo === "VIDEO" ? (
-                          <Video className="h-5 w-5" />
-                        ) : a.tipo === "DOCUMENTO" ? (
-                          <FileText className="h-5 w-5" />
-                        ) : (
-                          <Link2 className="h-5 w-5" />
-                        )}
-                        <span className="text-[8px] text-center leading-tight line-clamp-2 px-0.5">
-                          {a.nome ?? a.tipo}
-                        </span>
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removerArquivo(i)}
-                      className="absolute top-1 right-1 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white touch-feedback"
-                      aria-label="Remover"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </Campo>
         </div>
 
@@ -520,6 +389,173 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
     <div className="space-y-1.5">
       <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</Label>
       {children}
+    </div>
+  );
+}
+
+/**
+ * Uploader de artes/vídeo reutilizável (upload comprimido + paste de URL +
+ * previews com remover). Mesma mecânica usada no envio de post novo e no
+ * "Anexar arte" num post existente. Owner do estado é o pai (controlled via
+ * value/onChange) pra o caller poder enviar pro endpoint que quiser.
+ *
+ * `processando` é reportado via onProcessandoChange pra o pai desabilitar o
+ * botão de submit enquanto uma imagem comprime.
+ */
+export function UploaderArquivos({
+  value,
+  onChange,
+  onProcessandoChange,
+}: {
+  value: ArquivoLocal[];
+  onChange: (arquivos: ArquivoLocal[]) => void;
+  onProcessandoChange?: (processando: boolean) => void;
+}) {
+  const [urlExterna, setUrlExterna] = useState("");
+  const [processando, setProcessando] = useState(false);
+  const inputFileRef = useRef<HTMLInputElement>(null);
+
+  function setProc(v: boolean) {
+    setProcessando(v);
+    onProcessandoChange?.(v);
+  }
+
+  async function processarArquivo(file: File) {
+    setProc(true);
+    try {
+      let url: string;
+      let tipo: ArquivoLocal["tipo"];
+      if (file.type.startsWith("image/")) {
+        url = await comprimirImagem(file);
+        tipo = "IMAGEM";
+      } else if (file.type.startsWith("video/")) {
+        if (file.size > 5_000_000) {
+          toast.error("Vídeo grande demais (max 5MB). Cole um link do Drive/YouTube.");
+          return;
+        }
+        url = await fileToDataURL(file);
+        tipo = "VIDEO";
+      } else if (file.type === "application/pdf") {
+        if (file.size > 5_000_000) {
+          toast.error("PDF grande demais (max 5MB).");
+          return;
+        }
+        url = await fileToDataURL(file);
+        tipo = "DOCUMENTO";
+      } else {
+        toast.error("Tipo de arquivo não suportado");
+        return;
+      }
+      onChange([...value, { tipo, url, nome: file.name }]);
+    } finally {
+      setProc(false);
+    }
+  }
+
+  function adicionarUrl() {
+    const u = urlExterna.trim();
+    if (!u) return;
+    const low = u.toLowerCase();
+    const tipo: ArquivoLocal["tipo"] = /\.(jpg|jpeg|png|gif|webp|avif)(\?|$)/.test(low)
+      ? "IMAGEM"
+      : /\.(mp4|mov|webm)(\?|$)/.test(low)
+      ? "VIDEO"
+      : "LINK_EXTERNO";
+    onChange([...value, { tipo, url: u, nome: null }]);
+    setUrlExterna("");
+  }
+
+  function removerArquivo(idx: number) {
+    onChange(value.filter((_, i) => i !== idx));
+  }
+
+  return (
+    <div>
+      <input
+        ref={inputFileRef}
+        type="file"
+        accept="image/*,video/*,application/pdf"
+        multiple
+        className="hidden"
+        onChange={async (e) => {
+          const files = Array.from(e.target.files ?? []);
+          for (const f of files) await processarArquivo(f);
+          if (inputFileRef.current) inputFileRef.current.value = "";
+        }}
+      />
+      <div className="flex flex-col gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => inputFileRef.current?.click()}
+          disabled={processando}
+          className="h-11 sm:h-10 text-sm touch-feedback w-full"
+        >
+          {processando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+          Enviar do dispositivo
+        </Button>
+        <div className="flex gap-1.5">
+          <Input
+            value={urlExterna}
+            onChange={(e) => setUrlExterna(e.target.value)}
+            placeholder="Ou cole link (Drive, YouTube...)"
+            className="h-11 sm:h-10 text-base sm:text-sm"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                adicionarUrl();
+              }
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={adicionarUrl}
+            disabled={!urlExterna.trim()}
+            className="h-11 sm:h-10 shrink-0 touch-feedback"
+          >
+            <Link2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      <p className="text-[10.5px] text-muted-foreground mt-1.5">
+        Imagens são otimizadas automaticamente. Vídeos pesados: use link do Drive/YouTube.
+      </p>
+
+      {/* Previews */}
+      {value.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 mt-2.5">
+          {value.map((a, i) => (
+            <div key={i} className="relative rounded-md overflow-hidden border border-border bg-muted aspect-square">
+              {a.tipo === "IMAGEM" ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={a.url} alt={a.nome ?? ""} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-1 p-1 text-muted-foreground">
+                  {a.tipo === "VIDEO" ? (
+                    <Video className="h-5 w-5" />
+                  ) : a.tipo === "DOCUMENTO" ? (
+                    <FileText className="h-5 w-5" />
+                  ) : (
+                    <Link2 className="h-5 w-5" />
+                  )}
+                  <span className="text-[8px] text-center leading-tight line-clamp-2 px-0.5">
+                    {a.nome ?? a.tipo}
+                  </span>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => removerArquivo(i)}
+                className="absolute top-1 right-1 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white touch-feedback"
+                aria-label="Remover"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -561,7 +597,7 @@ function parseHashtags(raw: string): string[] {
     .slice(0, 60);
 }
 
-async function fileToDataURL(file: File): Promise<string> {
+export async function fileToDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
@@ -571,7 +607,7 @@ async function fileToDataURL(file: File): Promise<string> {
 }
 
 /** Resize máx 1600px, JPEG 80% → dataURL pequeno que cabe no @db.Text. */
-async function comprimirImagem(file: File, maxLado = 1600, qualidade = 0.8): Promise<string> {
+export async function comprimirImagem(file: File, maxLado = 1600, qualidade = 0.8): Promise<string> {
   const bitmap = await createImageBitmap(file);
   const ratio = Math.min(1, maxLado / Math.max(bitmap.width, bitmap.height));
   const w = Math.round(bitmap.width * ratio);

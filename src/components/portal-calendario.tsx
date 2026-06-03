@@ -12,7 +12,7 @@
  * Rascunhos não chegam aqui (filtrado no backend).
  */
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, CalendarDays, List, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, FileText, Link2, Video, Hash } from "lucide-react";
+import { Calendar, CalendarDays, List, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, FileText, Link2, Video, Hash, Inbox, Trash2 } from "lucide-react";
 import { BlockRenderer } from "@/components/editor";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ import {
   MinhasSubmissoes,
   type Submissao,
 } from "@/components/portal-enviar-conteudo";
+import { BotaoAnexarArte, AnexarArteDialog } from "@/components/portal-anexar-arte";
 
 type Comentario = {
   id: string;
@@ -42,6 +43,7 @@ type Arquivo = {
   nome: string | null;
   legenda: string | null;
   ordem: number;
+  enviadoPorCliente?: boolean;
 };
 
 type Post = {
@@ -249,8 +251,11 @@ export function PortalCalendario({
           posts={posts}
           podeAprovar={podeAprovar}
           podeComentar={podeComentar}
+          podeEnviar={podeEnviar}
+          token={token}
           onAprovar={aprovar}
           onComentar={setComentando}
+          onAlterado={carregar}
         />
       ) : (
         Array.from(grupos.entries()).map(([mes, postsMes]) => (
@@ -265,8 +270,11 @@ export function PortalCalendario({
                   post={p}
                   podeAprovar={podeAprovar}
                   podeComentar={podeComentar}
+                  podeEnviar={podeEnviar}
+                  token={token}
                   onAprovar={() => aprovar(p)}
                   onComentar={() => setComentando(p)}
+                  onAlterado={carregar}
                 />
               ))}
             </div>
@@ -314,14 +322,20 @@ function CalendarioGrade({
   posts,
   podeAprovar,
   podeComentar,
+  podeEnviar,
+  token,
   onAprovar,
   onComentar,
+  onAlterado,
 }: {
   posts: Post[];
   podeAprovar: boolean;
   podeComentar: boolean;
+  podeEnviar: boolean;
+  token: string;
   onAprovar: (post: Post) => void;
   onComentar: (post: Post) => void;
+  onAlterado: () => void;
 }) {
   // Posts por dia ("YYYY-MM-DD").
   const porDia = useMemo(() => {
@@ -481,8 +495,11 @@ function CalendarioGrade({
                   post={p}
                   podeAprovar={podeAprovar}
                   podeComentar={podeComentar}
+                  podeEnviar={podeEnviar}
+                  token={token}
                   onAprovar={() => onAprovar(p)}
                   onComentar={() => onComentar(p)}
+                  onAlterado={onAlterado}
                 />
               ))}
             </div>
@@ -613,21 +630,42 @@ function PostCard({
   post,
   podeAprovar,
   podeComentar,
+  podeEnviar,
+  token,
   onAprovar,
   onComentar,
+  onAlterado,
 }: {
   post: Post;
   podeAprovar: boolean;
   podeComentar: boolean;
+  podeEnviar: boolean;
+  token: string;
   onAprovar: () => void;
   onComentar: () => void;
+  onAlterado: () => void;
 }) {
+  const [anexando, setAnexando] = useState(false);
   const data = new Date(post.dataPublicacao);
   const cor = STATUS_COR[post.status] ?? "#9CA3AF";
   const aprovavel = post.status === "COPY_PRONTA" && podeAprovar;
   const jaAprovouSAL = post.comentarios.some((c) => c.tipo === "APROVOU");
   const ultimoAjuste = post.comentarios.find((c) => c.tipo === "PEDIU_AJUSTE");
   const temArtes = post.arquivos.length > 0;
+
+  async function removerArte(arquivoId: string) {
+    if (!confirm("Remover esta arte que você anexou?")) return;
+    const res = await fetch(`/api/p/cliente/${token}/posts/${post.id}/arquivos/${arquivoId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d?.error ?? "Falha ao remover");
+      return;
+    }
+    toast.success("Arte removida");
+    onAlterado();
+  }
 
   return (
     <Card>
@@ -662,7 +700,12 @@ function PostCard({
         </div>
 
         {/* Carrossel de artes (se tiver) */}
-        {temArtes && <ArtesCarrossel arquivos={post.arquivos} />}
+        {temArtes && (
+          <ArtesCarrossel
+            arquivos={post.arquivos}
+            onRemover={podeEnviar ? removerArte : undefined}
+          />
+        )}
 
         <div className="px-4 pb-4 space-y-3">
           {post.legenda && (
@@ -726,8 +769,8 @@ function PostCard({
           )}
 
           {/* Ações — touch targets 44px em mobile, 36px em desktop */}
-          {(aprovavel || podeComentar) && (
-            <div className="flex gap-2 pt-1">
+          {(aprovavel || podeComentar || podeEnviar) && (
+            <div className="flex flex-wrap gap-2 pt-1">
               {aprovavel && (
                 <Button
                   onClick={onAprovar}
@@ -742,10 +785,24 @@ function PostCard({
                   <MessageSquare className="h-4 w-4 sm:h-3.5 sm:w-3.5" /> Pedir ajuste
                 </Button>
               )}
+              {podeEnviar && <BotaoAnexarArte onClick={() => setAnexando(true)} />}
             </div>
           )}
         </div>
       </CardContent>
+
+      {anexando && (
+        <AnexarArteDialog
+          token={token}
+          postId={post.id}
+          postTitulo={post.titulo}
+          onClose={() => setAnexando(false)}
+          onSuccess={() => {
+            setAnexando(false);
+            onAlterado();
+          }}
+        />
+      )}
     </Card>
   );
 }
@@ -755,10 +812,20 @@ function PostCard({
  * desktop. IMAGEM e VIDEO renderizam inline; DOCUMENTO/LINK_EXTERNO
  * viram link estilizado.
  */
-function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
+function ArtesCarrossel({
+  arquivos,
+  onRemover,
+}: {
+  arquivos: Arquivo[];
+  /** Se definido, mostra selo + botão remover nas artes que o cliente anexou. */
+  onRemover?: (arquivoId: string) => void;
+}) {
   const [atual, setAtual] = useState(0);
   const total = arquivos.length;
-  const arquivoAtual = arquivos[atual];
+  // `atual` pode ficar fora do range se uma arte for removida — clampa.
+  const idx = Math.min(atual, total - 1);
+  const arquivoAtual = arquivos[idx];
+  const doCliente = !!arquivoAtual?.enviadoPorCliente;
 
   function anterior() {
     setAtual((a) => (a - 1 + total) % total);
@@ -847,11 +914,31 @@ function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
                 key={i}
                 onClick={() => setAtual(i)}
                 className={`h-2 sm:h-1.5 rounded-full transition-all ${
-                  i === atual ? "w-7 bg-white" : "w-2 sm:w-1.5 bg-white/50"
+                  i === idx ? "w-7 bg-white" : "w-2 sm:w-1.5 bg-white/50"
                 }`}
                 aria-label={`Ir pra slide ${i + 1}`}
               />
             ))}
+          </div>
+        )}
+
+        {/* Selo "sua arte" + remover — só nas artes que o cliente anexou */}
+        {doCliente && (
+          <div className="absolute top-2 left-2 flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/90 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+              <Inbox className="h-3 w-3" /> Sua arte
+            </span>
+            {onRemover && (
+              <button
+                type="button"
+                onClick={() => onRemover(arquivoAtual.id)}
+                className="touch-feedback inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm hover:bg-rose-600/80"
+                aria-label="Remover sua arte"
+                title="Remover sua arte"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -860,7 +947,7 @@ function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
       {arquivoAtual.legenda && (
         <div className="px-4 py-2 text-[11.5px] text-muted-foreground bg-muted/40">
           <span className="font-medium text-foreground">
-            {arquivoAtual.nome ?? `Slide ${atual + 1}`}:
+            {arquivoAtual.nome ?? `Slide ${idx + 1}`}:
           </span>{" "}
           {arquivoAtual.legenda}
         </div>
@@ -869,7 +956,7 @@ function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
       {/* Contador */}
       {total > 1 && (
         <div className="px-4 py-1.5 text-[10.5px] text-muted-foreground/70 text-center">
-          {atual + 1} de {total} {total === 1 ? "arte" : "artes"} · arraste pra navegar
+          {idx + 1} de {total} {total === 1 ? "arte" : "artes"} · arraste pra navegar
         </div>
       )}
     </div>

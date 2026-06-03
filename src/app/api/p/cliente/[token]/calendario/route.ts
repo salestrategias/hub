@@ -40,7 +40,7 @@ export async function GET(req: Request, { params }: { params: { token: string } 
         },
         arquivos: {
           orderBy: { ordem: "asc" },
-          select: { id: true, tipo: true, url: true, nome: true, legenda: true, ordem: true },
+          select: { id: true, tipo: true, url: true, nome: true, legenda: true, ordem: true, enviadoPorCliente: true },
         },
       },
       orderBy: { dataPublicacao: "asc" },

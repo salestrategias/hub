@@ -13,7 +13,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
-import { Image as ImageIcon, FileText, Link2, Trash2, GripVertical, Upload, Loader2, Plus, Video } from "lucide-react";
+import { Image as ImageIcon, FileText, Link2, Trash2, GripVertical, Upload, Loader2, Plus, Video, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ type Arquivo = {
   nome: string | null;
   legenda: string | null;
   ordem: number;
+  enviadoPorCliente?: boolean;
 };
 
 export function PostArquivosEditor({ postId }: { postId: string }) {
@@ -248,6 +249,14 @@ export function PostArquivosEditor({ postId }: { postId: string }) {
                           <div className="flex items-center gap-2 text-[11px]">
                             <span className="font-medium truncate">{a.nome ?? a.tipo}</span>
                             <span className="text-muted-foreground/60">#{idx + 1}</span>
+                            {a.enviadoPorCliente && (
+                              <span
+                                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-sky-500/40 px-1.5 py-0.5 text-[9.5px] font-medium text-sky-500"
+                                title="Arte anexada pelo cliente pelo portal"
+                              >
+                                <Inbox className="h-2.5 w-2.5" /> Enviado pelo cliente
+                              </span>
+                            )}
                           </div>
                           <Input
                             defaultValue={a.legenda ?? ""}
