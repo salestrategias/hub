@@ -203,19 +203,29 @@ model Reuniao {
   participantes String[]       // array PG nativo
   tagsLivres    String[]
 
+  // Fase 2: classificação + pauta/notas (campo que recebe templates de reunião)
+  tipo          ReuniaoTipo?
+  conteudo      String?        @db.Text
+
   clienteId String?
   cliente   Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+
+  // Fase 2: reunião pode pertencer a um Lead (espinha comercial lead↔reunião)
+  leadId    String?
+  lead      Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
   blocks      ReuniaoBlock[]
   actionItems ReuniaoAction[]
   capitulos   ReuniaoCapitulo[]
   diagnosticos Diagnostico[]
+  tarefas     Tarefa[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([data])
   @@index([clienteId])
+  @@index([leadId])
 }
 
 enum ReuniaoStatus {
@@ -223,6 +233,15 @@ enum ReuniaoStatus {
   PROCESSANDO
   TRANSCRITA
   GRAVADA
+}
+
+enum ReuniaoTipo {
+  DIAGNOSTICO
+  ALINHAMENTO
+  KICKOFF
+  RETRO
+  COMERCIAL
+  INTERNA
 }
 
 model ReuniaoBlock {
@@ -249,6 +268,10 @@ model ReuniaoAction {
 
   reuniaoId String
   reuniao   Reuniao @relation(fields: [reuniaoId], references: [id], onDelete: Cascade)
+
+  // Fase 2: action item pode virar uma Tarefa real (1-1 opcional)
+  tarefaId  String?  @unique
+  tarefa    Tarefa?  @relation("AcaoVirouTarefa", fields: [tarefaId], references: [id], onDelete: SetNull)
 }
 
 model ReuniaoCapitulo {
@@ -259,6 +282,39 @@ model ReuniaoCapitulo {
 
   reuniaoId String
   reuniao   Reuniao @relation(fields: [reuniaoId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Anexo — arquivo genérico anexável a QUALQUER entidade (polimórfico,
+// mesmo padrão da Notificacao). `url` = dataURL (até ~5MB) ou link
+// externo/Drive. Consultado por (entidadeTipo, entidadeId).
+// ─────────────────────────────────────────────────────────────────────
+model Anexo {
+  id           String    @id @default(cuid())
+  nome         String
+  url          String    @db.Text
+  tipo         AnexoTipo @default(DOCUMENTO)
+  tamanhoBytes Int?
+
+  // Contexto polimórfico — entidade dona do anexo
+  entidadeTipo String // "REUNIAO" | "LEAD" | "CLIENTE" | "PROPOSTA" | ...
+  entidadeId   String
+
+  ordem        Int      @default(0)
+  criadoPor    String?
+  createdAt    DateTime @default(now())
+
+  @@index([entidadeTipo, entidadeId])
+}
+
+enum AnexoTipo {
+  IMAGEM
+  VIDEO
+  DOCUMENTO
+  PLANILHA
+  APRESENTACAO
+  LINK
+  OUTRO
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -480,12 +536,18 @@ model Tarefa {
   projetoId String?
   projeto   Projeto? @relation(fields: [projetoId], references: [id], onDelete: SetNull)
 
+  // Fase 2: tarefa pode ter origem numa reunião (e num action item específico)
+  reuniaoId  String?
+  reuniao    Reuniao?       @relation(fields: [reuniaoId], references: [id], onDelete: SetNull)
+  acaoOrigem ReuniaoAction? @relation("AcaoVirouTarefa")
+
   checklist CheckItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([dataEntrega])
+  @@index([reuniaoId])
 }
 
 model CheckItem {
@@ -1263,6 +1325,7 @@ model Lead {
   // Propostas vinculadas (1:N)
   propostas             Proposta[]
   diagnosticos          Diagnostico[]
+  reunioes              Reuniao[]
 
   // ── Enrichment IA (Claude Max copy-paste) ──────────────────
   // JSON: { qualidade, icpFit, segmentoSugerido, abordagemSugerida, justificativa }

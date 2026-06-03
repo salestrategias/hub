@@ -7,20 +7,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/toast";
-import { Sparkles, CheckSquare, Bookmark, Search, Plus, Trash2, ExternalLink, Share2, Download, Play, Rewind, RefreshCw, Mic, Stethoscope, Users } from "lucide-react";
+import { Sparkles, CheckSquare, Bookmark, Search, Plus, Trash2, RefreshCw, Mic, Stethoscope, Users, TrendingUp, ListChecks, CheckCircle2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BlockEditor, BlockRenderer } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { ImportarMeetDialog } from "@/components/importar-meet-dialog";
 import { ReuniaoIaWizard } from "@/components/reuniao-ia-wizard";
 import { ReuniaoPlayer } from "@/components/reuniao-player";
+import { Anexos } from "@/components/anexos";
+import { REUNIAO_TIPOS, type ReuniaoTipo } from "@/lib/reuniao-tipos";
 
 type Block = { id: string; ordem: number; timestamp: number; speaker: string; speakerCor: string | null; texto: string };
-type Action = { id: string; texto: string; responsavel: string | null; prazo: string | null; concluido: boolean };
+type Action = { id: string; texto: string; responsavel: string | null; prazo: string | null; concluido: boolean; tarefaId: string | null };
 type Capitulo = { id: string; timestamp: number; titulo: string };
 type Diagnostico = { id: string; numero: string; titulo: string; status: string };
+type LeadOption = { id: string; empresa: string };
 
 type Reuniao = {
   id: string;
@@ -28,10 +32,14 @@ type Reuniao = {
   data: string;
   duracaoSeg: number | null;
   status: string;
+  tipo: ReuniaoTipo | null;
+  conteudo: string | null;
   participantes: string[];
   tagsLivres: string[];
   clienteId: string | null;
   clienteNome: string | null;
+  leadId: string | null;
+  leadEmpresa: string | null;
   resumoIA: string | null;
   notasLivres: string | null;
   audioUrl: string | null;
@@ -43,7 +51,7 @@ type Reuniao = {
 
 const SPEAKER_CORES = ["#7E30E1", "#10B981", "#F59E0B", "#3B82F6", "#EC4899", "#14B8A6"];
 
-export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
+export function ReuniaoDetalhe({ reuniao, leads = [] }: { reuniao: Reuniao; leads?: LeadOption[] }) {
   const [busca, setBusca] = useState("");
   const [importarMeetOpen, setImportarMeetOpen] = useState(false);
   const [iaWizardOpen, setIaWizardOpen] = useState(false);
@@ -68,21 +76,32 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
 
   return (
     <div className="space-y-5 animate-slide-up">
-      {reuniao.clienteNome && (
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Cliente:</span>
-          {reuniao.clienteId ? (
-            <Link
-              href={`/clientes/${reuniao.clienteId}`}
-              className="inline-flex items-center gap-1.5 font-medium text-sal-400 hover:underline"
-            >
-              <Users className="h-3.5 w-3.5" /> {reuniao.clienteNome}
-            </Link>
-          ) : (
-            <span className="font-medium">{reuniao.clienteNome}</span>
-          )}
-        </div>
-      )}
+      {/* Meta: tipo (select+badge), cliente, lead vinculado */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+        <TipoSelector reuniaoId={reuniao.id} tipo={reuniao.tipo} onChanged={() => router.refresh()} />
+        {reuniao.clienteNome && (
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">Cliente:</span>
+            {reuniao.clienteId ? (
+              <Link
+                href={`/clientes/${reuniao.clienteId}`}
+                className="inline-flex items-center gap-1.5 font-medium text-sal-400 hover:underline"
+              >
+                <Users className="h-3.5 w-3.5" /> {reuniao.clienteNome}
+              </Link>
+            ) : (
+              <span className="font-medium">{reuniao.clienteNome}</span>
+            )}
+          </div>
+        )}
+        <LeadVinculo
+          reuniaoId={reuniao.id}
+          leadId={reuniao.leadId}
+          leadEmpresa={reuniao.leadEmpresa}
+          leads={leads}
+          onChanged={() => router.refresh()}
+        />
+      </div>
       <div className="flex flex-wrap justify-end gap-2">
         <Button variant="outline" size="sm" onClick={() => setImportarMeetOpen(true)} className="flex-1 sm:flex-none">
           <Mic className="h-3.5 w-3.5" /> <span className="truncate">Importar do Meet</span>
@@ -128,6 +147,7 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
           <Tabs defaultValue="transcricao">
             <TabsList>
               <TabsTrigger value="transcricao">Transcrição</TabsTrigger>
+              <TabsTrigger value="pauta">Pauta</TabsTrigger>
               <TabsTrigger value="resumo">Resumo IA</TabsTrigger>
               <TabsTrigger value="notas">Notas</TabsTrigger>
               <TabsTrigger value="capitulos">Capítulos</TabsTrigger>
@@ -185,6 +205,20 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
                       <div className="text-center text-sm text-muted-foreground py-8">Nenhum trecho com "{busca}".</div>
                     )}
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="pauta">
+              <Card>
+                <CardContent className="p-6">
+                  <ReuniaoFieldEditor
+                    reuniaoId={reuniao.id}
+                    field="conteudo"
+                    initial={reuniao.conteudo}
+                    placeholder="Pauta da reunião — tópicos a tratar, decisões, contexto. Digite / para abrir o menu de blocos."
+                    emptyHint="Sem pauta. Comece a digitar ou use um template de reunião."
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -282,9 +316,15 @@ export function ReuniaoDetalhe({ reuniao }: { reuniao: Reuniao }) {
                   <p className="text-xs text-muted-foreground py-2">Sem action items. Adicione manualmente ou use a IA.</p>
                 )}
                 {reuniao.actions.map((a) => (
-                  <ActionItem key={a.id} a={a} onChange={() => router.refresh()} />
+                  <ActionItem key={a.id} a={a} reuniaoId={reuniao.id} onChange={() => router.refresh()} />
                 ))}
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-5">
+              <Anexos entidadeTipo="REUNIAO" entidadeId={reuniao.id} titulo="Anexos" />
             </CardContent>
           </Card>
 
@@ -360,7 +400,7 @@ function ReuniaoFieldEditor({
   emptyHint,
 }: {
   reuniaoId: string;
-  field: "resumoIA" | "notasLivres";
+  field: "resumoIA" | "notasLivres" | "conteudo";
   initial: string | null;
   placeholder: string;
   emptyHint?: string;
@@ -398,7 +438,8 @@ function ReuniaoFieldEditor({
   );
 }
 
-function ActionItem({ a, onChange }: { a: Action; onChange: () => void }) {
+function ActionItem({ a, reuniaoId, onChange }: { a: Action; reuniaoId: string; onChange: () => void }) {
+  const [virando, setVirando] = useState(false);
   async function toggle() {
     await fetch(`/api/reunioes/actions/${a.id}`, {
       method: "PATCH",
@@ -412,6 +453,21 @@ function ActionItem({ a, onChange }: { a: Action; onChange: () => void }) {
     toast.success("Action item removido");
     onChange();
   }
+  async function virarTarefa() {
+    setVirando(true);
+    try {
+      const res = await fetch(`/api/reunioes/${reuniaoId}/actions/${a.id}/virar-tarefa`, { method: "POST" });
+      if (!res.ok) {
+        toast.error("Falha ao criar tarefa");
+        return;
+      }
+      const d = await res.json().catch(() => ({}));
+      toast.success(d?.jaExistia ? "Já tinha virado tarefa" : "Tarefa criada");
+      onChange();
+    } finally {
+      setVirando(false);
+    }
+  }
   return (
     <div className="flex items-start gap-2.5 group hover:bg-secondary/40 -mx-2 px-2 py-1.5 rounded-md transition">
       <input type="checkbox" checked={a.concluido} onChange={toggle} className="mt-0.5 accent-sal-600" />
@@ -421,6 +477,24 @@ function ActionItem({ a, onChange }: { a: Action; onChange: () => void }) {
           <div className="text-[10.5px] text-muted-foreground mt-0.5">
             {a.responsavel}{a.responsavel && a.prazo ? " · " : ""}{a.prazo}
           </div>
+        )}
+        {a.tarefaId ? (
+          <Link
+            href="/tarefas"
+            className="inline-flex items-center gap-1 text-[10.5px] text-emerald-400 hover:underline mt-1"
+          >
+            <CheckCircle2 className="h-3 w-3" /> virou tarefa
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={virarTarefa}
+            disabled={virando}
+            className="inline-flex items-center gap-1 text-[10.5px] text-muted-foreground hover:text-sal-400 mt-1 disabled:opacity-50"
+            title="Promover a uma tarefa real"
+          >
+            <ListChecks className="h-3 w-3" /> {virando ? "criando..." : "virar tarefa"}
+          </button>
         )}
       </div>
       <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={excluir}>
@@ -458,6 +532,154 @@ function ActionButton({ reuniaoId, onCreated }: { reuniaoId: string; onCreated: 
         <Button size="sm" variant="outline" className="h-6 text-[10px]" onClick={() => setEditing(false)}>Cancelar</Button>
         <Button size="sm" className="h-6 text-[10px]" onClick={salvar}>Adicionar</Button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Select pra classificar a reunião (Reuniao.tipo) + badge colorido.
+ * PATCH /api/reunioes/:id { tipo }. "Sem tipo" volta leadId → null.
+ */
+function TipoSelector({
+  reuniaoId,
+  tipo,
+  onChanged,
+}: {
+  reuniaoId: string;
+  tipo: ReuniaoTipo | null;
+  onChanged: () => void;
+}) {
+  const [saving, setSaving] = useState(false);
+  const atual = tipo ? REUNIAO_TIPOS.find((t) => t.value === tipo) : null;
+
+  async function salvar(valor: string) {
+    const novo = valor === "__none__" ? null : valor;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/reunioes/${reuniaoId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: novo }),
+      });
+      if (!res.ok) {
+        toast.error("Falha ao definir tipo");
+        return;
+      }
+      onChanged();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      {atual && (
+        <Badge
+          variant="outline"
+          className="text-[10px] gap-1"
+          style={{ color: atual.cor, borderColor: `${atual.cor}55` }}
+        >
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: atual.cor }} />
+          {atual.label}
+        </Badge>
+      )}
+      <Select value={tipo ?? "__none__"} onValueChange={salvar} disabled={saving}>
+        <SelectTrigger className="h-7 w-[150px] text-xs">
+          <SelectValue placeholder="Tipo de reunião" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__none__">Sem tipo</SelectItem>
+          {REUNIAO_TIPOS.map((t) => (
+            <SelectItem key={t.value} value={t.value}>
+              {t.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+/**
+ * Vínculo reunião↔lead (espinha comercial). Quando vinculado, mostra a
+ * empresa com link pra /leads e permite desvincular; senão, Select com
+ * a lista de leads. PATCH /api/reunioes/:id { leadId }.
+ */
+function LeadVinculo({
+  reuniaoId,
+  leadId,
+  leadEmpresa,
+  leads,
+  onChanged,
+}: {
+  reuniaoId: string;
+  leadId: string | null;
+  leadEmpresa: string | null;
+  leads: LeadOption[];
+  onChanged: () => void;
+}) {
+  const [saving, setSaving] = useState(false);
+
+  async function salvar(novo: string | null) {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/reunioes/${reuniaoId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: novo }),
+      });
+      if (!res.ok) {
+        toast.error("Falha ao vincular lead");
+        return;
+      }
+      onChanged();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (leadId) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground">Lead:</span>
+        <Link
+          href="/leads"
+          className="inline-flex items-center gap-1.5 font-medium text-sal-400 hover:underline"
+        >
+          <TrendingUp className="h-3.5 w-3.5" /> {leadEmpresa ?? "Lead vinculado"}
+        </Link>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-5 w-5 text-muted-foreground hover:text-destructive"
+          onClick={() => salvar(null)}
+          disabled={saving}
+          title="Desvincular lead"
+        >
+          <X className="h-3 w-3" />
+        </Button>
+      </div>
+    );
+  }
+
+  if (leads.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-muted-foreground">Lead:</span>
+      <Select value="__none__" onValueChange={(v) => v !== "__none__" && salvar(v)} disabled={saving}>
+        <SelectTrigger className="h-7 w-[180px] text-xs">
+          <SelectValue placeholder="Vincular a um lead" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__none__">Sem lead</SelectItem>
+          {leads.map((l) => (
+            <SelectItem key={l.id} value={l.id}>
+              {l.empresa}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

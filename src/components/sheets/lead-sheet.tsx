@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LeadStatus, LeadPorte, Prioridade, PropostaStatus } from "@prisma/client";
 import type { EditorBlock as PartialBlock } from "@/components/editor/types";
-import { TrendingUp, Trash2, Sparkles, FileSignature, Mail, Phone, Target, RotateCcw, Stethoscope } from "lucide-react";
+import { TrendingUp, Trash2, Sparkles, FileSignature, Mail, Phone, Target, RotateCcw, Stethoscope, Mic } from "lucide-react";
 import { calcularLeadScore } from "@/lib/lead-score";
+import { reuniaoTipoLabel, reuniaoTipoCor, type ReuniaoTipo } from "@/lib/reuniao-tipos";
 import { cn } from "@/lib/utils";
 import { EntitySheet } from "@/components/entity-sheet";
 import { InlineField } from "@/components/inline-field";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
+import { Anexos } from "@/components/anexos";
 import { MoneyValue } from "@/components/money-value";
 import type { LeadCard } from "@/components/leads-kanban";
 import { LeadEnrichmentIa, type LeadEnrichment } from "@/components/lead-enrichment-ia";
@@ -35,6 +37,12 @@ type LeadFull = LeadCard & {
     titulo: string;
     status: DiagnosticoStatus;
     updatedAt: string;
+  }>;
+  reunioes: Array<{
+    id: string;
+    titulo: string;
+    data: string;
+    tipo: ReuniaoTipo | null;
   }>;
   // Enrichment IA
   qualidadeIA: number | null;
@@ -134,6 +142,7 @@ export function LeadSheet({
           updatedAt: p.updatedAt,
         })),
         diagnosticos: data.diagnosticos ?? [],
+        reunioes: data.reunioes ?? [],
         qualidadeIA: data.qualidadeIA ?? null,
         enriquecimentoIA: (data.enriquecimentoIA as LeadEnrichment | null) ?? null,
         enriquecimentoIAEm: data.enriquecimentoIAEm ?? null,
@@ -483,6 +492,44 @@ export function LeadSheet({
               </ul>
             </div>
           )}
+
+          {/* Reuniões vinculadas */}
+          {lead.reunioes.length > 0 && (
+            <div>
+              <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+                <Mic className="h-3 w-3" /> Reuniões ({lead.reunioes.length})
+              </div>
+              <ul className="space-y-1">
+                {lead.reunioes.map((r) => (
+                  <li key={r.id}>
+                    <Link
+                      href={`/reunioes/${r.id}`}
+                      className="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-secondary/60 transition"
+                    >
+                      <span className="font-mono text-[10px] text-muted-foreground/70 w-16 shrink-0">
+                        {new Date(r.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}
+                      </span>
+                      <span className="flex-1 text-[12px] truncate">{r.titulo}</span>
+                      {r.tipo && (
+                        <Badge
+                          variant="outline"
+                          className="text-[9.5px] shrink-0"
+                          style={{ color: reuniaoTipoCor(r.tipo), borderColor: `${reuniaoTipoCor(r.tipo)}55` }}
+                        >
+                          {reuniaoTipoLabel(r.tipo)}
+                        </Badge>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Anexos do lead */}
+          <div className="rounded-md border border-border bg-background/40 p-3">
+            <Anexos entidadeTipo="LEAD" entidadeId={lead.id} titulo="Anexos" />
+          </div>
         </div>
       )}
     </EntitySheet>

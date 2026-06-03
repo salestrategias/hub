@@ -214,6 +214,15 @@ export const eventoSchema = z.object({
 export type EventoInput = z.infer<typeof eventoSchema>;
 
 // ─── Reunião ──────────────────────────────────────────────────────
+export const reuniaoTipoEnum = z.enum([
+  "DIAGNOSTICO",
+  "ALINHAMENTO",
+  "KICKOFF",
+  "RETRO",
+  "COMERCIAL",
+  "INTERNA",
+]);
+
 export const reuniaoSchema = z.object({
   titulo: z.string().min(1, "Título obrigatório"),
   data: z.coerce.date(),
@@ -225,6 +234,10 @@ export const reuniaoSchema = z.object({
   participantes: z.array(z.string()).default([]),
   tagsLivres: z.array(z.string()).default([]),
   clienteId: z.string().optional().nullable(),
+  // Fase 2: classificação + pauta/notas (BlockNote) + vínculo com lead
+  tipo: reuniaoTipoEnum.optional().nullable(),
+  conteudo: z.string().optional().nullable(),
+  leadId: z.string().optional().nullable(),
 });
 export type ReuniaoInput = z.infer<typeof reuniaoSchema>;
 
@@ -558,3 +571,26 @@ export const publicShareSchema = z.object({
   podeBaixarPdf: z.boolean().default(true),
 });
 export type PublicShareInput = z.infer<typeof publicShareSchema>;
+
+// ─── Anexo (arquivo polimórfico) ──────────────────────────────────
+// Anexável a qualquer entidade (REUNIAO/LEAD/CLIENTE/...). `url` aceita
+// dataURL (upload até ~5MB) ou link externo/Drive. Mesmo padrão de
+// upload de postArquivoSchema.
+export const anexoSchema = z.object({
+  nome: z.string().min(1, "Nome obrigatório").max(200),
+  url: z.string().min(5, "URL ou arquivo inválido").max(5_000_000, "Arquivo muito grande (5MB max)"),
+  tipo: z.enum(["IMAGEM", "VIDEO", "DOCUMENTO", "PLANILHA", "APRESENTACAO", "LINK", "OUTRO"]).default("DOCUMENTO"),
+  tamanhoBytes: z.coerce.number().int().nonnegative().optional().nullable(),
+  entidadeTipo: z.string().min(1).max(40),
+  entidadeId: z.string().min(1),
+  ordem: z.coerce.number().int().default(0),
+});
+export type AnexoInput = z.infer<typeof anexoSchema>;
+
+// PATCH parcial — renomear/reordenar/recategorizar.
+export const anexoPatchSchema = z.object({
+  nome: z.string().min(1).max(200).optional(),
+  ordem: z.coerce.number().int().optional(),
+  tipo: z.enum(["IMAGEM", "VIDEO", "DOCUMENTO", "PLANILHA", "APRESENTACAO", "LINK", "OUTRO"]).optional(),
+});
+export type AnexoPatchInput = z.infer<typeof anexoPatchSchema>;
