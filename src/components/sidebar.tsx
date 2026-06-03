@@ -26,7 +26,7 @@ const groups: NavGroup[] = [
       { label: "Calendário", href: "/calendario", icon: Calendar },
     ],
   },
-  { label: "Clientes", items: [{ label: "CRM", href: "/clientes", icon: Users }] },
+  { label: "Clientes", items: [{ label: "Clientes", href: "/clientes", icon: Users }] },
   {
     label: "Produção",
     items: [
@@ -60,7 +60,7 @@ const groups: NavGroup[] = [
   {
     label: "Comercial",
     items: [
-      { label: "Pipeline", href: "/leads", icon: TrendingUp },
+      { label: "Leads", href: "/leads", icon: TrendingUp },
       { label: "Diagnósticos", href: "/diagnosticos", icon: Stethoscope },
       { label: "Propostas", href: "/propostas", icon: Send },
       { label: "Contratos", href: "/contratos", icon: FileSignature },
