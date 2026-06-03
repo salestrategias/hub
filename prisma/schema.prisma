@@ -387,6 +387,11 @@ model Post {
   cta                  String?             // "Vem nos visitar — Andradas 1044"
   observacoesProducao  String?  @db.Text   // notas internas: música, estilo de arte, refs
 
+  // Portal v2 — quem criou + estado de revisão (quando submetido pelo cliente)
+  origem               OrigemConteudo @default(SAL)
+  revisao              RevisaoStatus?              // só preenchido se origem=CLIENTE
+  revisaoNota          String?  @db.Text           // feedback do Marcelo ao pedir ajuste
+
   clienteId String
   cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
@@ -444,6 +449,22 @@ enum PostStatus {
   DESIGN_PRONTO
   AGENDADO
   PUBLICADO
+}
+
+// Portal v2 — origem e revisão de conteúdo (Post/Criativo).
+// SAL = produzido pela agência (fluxo normal). CLIENTE = submetido pelo
+// cliente no portal pra Marcelo revisar (caminho inverso, consultoria).
+enum OrigemConteudo {
+  SAL
+  CLIENTE
+}
+
+// Estado de revisão de conteúdo submetido pelo CLIENTE. Null em conteúdo
+// origem SAL. Fila de revisão do Marcelo = origem=CLIENTE + revisao=PENDENTE.
+enum RevisaoStatus {
+  PENDENTE
+  APROVADO
+  AJUSTE
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -792,6 +813,11 @@ model Criativo {
 
   // Notas internas — não expõe pro cliente
   observacoesProducao String?      @db.Text
+
+  // Portal v2 — quem criou + estado de revisão (quando submetido pelo cliente)
+  origem              OrigemConteudo @default(SAL)
+  revisao             RevisaoStatus?              // só preenchido se origem=CLIENTE
+  revisaoNota         String?      @db.Text       // feedback do Marcelo ao pedir ajuste
 
   clienteId String
   cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
@@ -1628,6 +1654,7 @@ model ClienteAcesso {
   podeAprovarPosts    Boolean @default(true)
   podeAprovarCriativos Boolean @default(true)
   podeComentar        Boolean @default(true)
+  podeEnviarConteudo  Boolean @default(false)  // Portal v2: cliente pode submeter posts/criativos pra revisão
 
   // Audit
   ultimoAcesso   DateTime?
