@@ -1,11 +1,14 @@
 "use client";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mic, Clock, CheckCircle, Users } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { formatDateTime } from "@/lib/utils";
+import { REUNIAO_TIPOS, reuniaoTipoLabel, reuniaoTipoCor, type ReuniaoTipo } from "@/lib/reuniao-tipos";
 
 type Reuniao = {
   id: string;
@@ -13,6 +16,7 @@ type Reuniao = {
   data: string;
   duracaoSeg: number | null;
   status: "GRAVANDO" | "PROCESSANDO" | "TRANSCRITA" | "GRAVADA";
+  tipo: ReuniaoTipo | null;
   participantes: string[];
   tagsLivres: string[];
   clienteNome: string | null;
@@ -27,6 +31,14 @@ export function ReunioesList({
   reunioes: Reuniao[];
   kpi: { total: number; duracaoSeg: number; actions: number; clientes: number };
 }) {
+  const [filtroTipo, setFiltroTipo] = useState<string>("all");
+
+  const filtradas = useMemo(() => {
+    if (filtroTipo === "all") return reunioes;
+    if (filtroTipo === "none") return reunioes.filter((r) => !r.tipo);
+    return reunioes.filter((r) => r.tipo === filtroTipo);
+  }, [reunioes, filtroTipo]);
+
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -36,12 +48,31 @@ export function ReunioesList({
         <Kpi label="Clientes atendidos" value={String(kpi.clientes)} icon={<Users className="h-3.5 w-3.5" />} />
       </div>
 
+      <div className="flex items-center justify-end">
+        <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+          <SelectTrigger className="w-[200px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os tipos</SelectItem>
+            <SelectItem value="none">Sem tipo</SelectItem>
+            {REUNIAO_TIPOS.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full" style={{ background: t.cor }} />
+                  {t.label}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Reunião</TableHead>
+                <TableHead>Tipo</TableHead>
                 <TableHead>Cliente</TableHead>
                 <TableHead>Data</TableHead>
                 <TableHead>Duração</TableHead>
@@ -52,7 +83,7 @@ export function ReunioesList({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reunioes.map((r) => (
+              {filtradas.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell className="font-medium">
                     <Link href={`/reunioes/${r.id}`} className="flex items-center gap-2.5 hover:text-primary transition">
@@ -61,6 +92,19 @@ export function ReunioesList({
                       </span>
                       <span>{r.titulo}</span>
                     </Link>
+                  </TableCell>
+                  <TableCell>
+                    {r.tipo ? (
+                      <Badge
+                        variant="outline"
+                        className="text-[10px]"
+                        style={{ borderColor: `${reuniaoTipoCor(r.tipo)}55`, color: reuniaoTipoCor(r.tipo) }}
+                      >
+                        {reuniaoTipoLabel(r.tipo)}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{r.clienteNome ?? "—"}</TableCell>
                   <TableCell className="font-mono text-xs">{formatDateTime(r.data)}</TableCell>
@@ -95,14 +139,23 @@ export function ReunioesList({
                   </TableCell>
                 </TableRow>
               ))}
-              {reunioes.length === 0 && (
+              {filtradas.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="p-0">
-                    <EmptyState
-                      icon={Mic}
-                      titulo="Nenhuma reunião registrada"
-                      descricao="Capture decisões, action items e contexto de negociação. Você pode subir um áudio, importar transcrição ou criar manualmente."
-                    />
+                  <TableCell colSpan={9} className="p-0">
+                    {reunioes.length === 0 ? (
+                      <EmptyState
+                        icon={Mic}
+                        titulo="Nenhuma reunião registrada"
+                        descricao="Capture decisões, action items e contexto de negociação. Você pode subir um áudio, importar transcrição ou criar manualmente."
+                      />
+                    ) : (
+                      <EmptyState
+                        icon={Mic}
+                        titulo="Nenhuma reunião nesse tipo"
+                        descricao="Nenhuma reunião bate com o filtro de tipo selecionado."
+                        variante="compact"
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               )}

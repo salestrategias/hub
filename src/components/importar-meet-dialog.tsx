@@ -12,10 +12,11 @@
  */
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Mic, Loader2, ExternalLink, Search, Link2 } from "lucide-react";
+import { FileText, Mic, Loader2, ExternalLink, Search, Link2, ClipboardPaste } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,6 +44,7 @@ export function ImportarMeetDialog({
   const [loadingLista, setLoadingLista] = useState(false);
   const [busca, setBusca] = useState("");
   const [urlManual, setUrlManual] = useState("");
+  const [textoColado, setTextoColado] = useState("");
   const [importando, setImportando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -59,7 +61,7 @@ export function ImportarMeetDialog({
       .finally(() => setLoadingLista(false));
   }, [open]);
 
-  async function importar(payload: { docId?: string; docUrl?: string }) {
+  async function importar(payload: { docId?: string; docUrl?: string; textoColado?: string }) {
     setImportando(true);
     setErro(null);
     try {
@@ -104,12 +106,15 @@ export function ImportarMeetDialog({
         </DialogHeader>
 
         <Tabs defaultValue="lista">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="lista">
               <FileText className="h-3.5 w-3.5 mr-1.5" /> Docs recentes
             </TabsTrigger>
             <TabsTrigger value="url">
               <Link2 className="h-3.5 w-3.5 mr-1.5" /> URL manual
+            </TabsTrigger>
+            <TabsTrigger value="colar">
+              <ClipboardPaste className="h-3.5 w-3.5 mr-1.5" /> Colar transcrição
             </TabsTrigger>
           </TabsList>
 
@@ -204,6 +209,34 @@ export function ImportarMeetDialog({
                 disabled={!urlManual.trim() || importando}
               >
                 {importando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Importar"}
+              </Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="colar" className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Cole o texto da transcrição</Label>
+              <Textarea
+                value={textoColado}
+                onChange={(e) => setTextoColado(e.target.value)}
+                placeholder={
+                  "Cole aqui o texto cru da transcrição do Meet.\n\nFormato esperado (mesmo do Doc do Meet):\n\nMarcelo Freitas (00:00:12)\nBom dia pessoal, vamos começar?\n\nCliente (00:00:34)\nBom dia, tudo certo."
+                }
+                rows={10}
+                className="font-mono text-xs"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                O texto é parseado pelo mesmo motor do import do Drive: reconhece
+                blocos &quot;Nome (timestamp)&quot;, seções de resumo e itens de ação
+                quando presentes. Linhas sem esse padrão são ignoradas.
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                onClick={() => importar({ textoColado })}
+                disabled={!textoColado.trim() || importando}
+              >
+                {importando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Importar texto"}
               </Button>
             </div>
           </TabsContent>

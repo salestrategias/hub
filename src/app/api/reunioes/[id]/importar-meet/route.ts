@@ -24,16 +24,16 @@ const schema = z
   .object({
     docId: z.string().optional(),
     docUrl: z.string().optional(),
+    // Fase 2: caminho "colar transcrição" — texto cru colado pelo usuário,
+    // parseado pelo mesmo parsearMeetDoc (sem ida ao Drive).
+    textoColado: z.string().optional(),
   })
-  .refine((d) => d.docId || d.docUrl, "docId ou docUrl obrigatório");
+  .refine((d) => d.docId || d.docUrl || d.textoColado, "docId, docUrl ou textoColado obrigatório");
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
     await requireAuth();
     const body = schema.parse(await req.json());
-
-    const docId = body.docId ?? extrairDocId(body.docUrl ?? "");
-    if (!docId) throw new Error("ID/URL do Doc inválido");
 
     // Confirma que a reunião existe
     const reuniao = await prisma.reuniao.findUniqueOrThrow({
@@ -41,12 +41,24 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       select: { id: true },
     });
 
-    // Baixa e parseia (texto + busca de gravação MP4 em paralelo)
-    const [texto, gravacao] = await Promise.all([
-      getDocText(docId),
-      // Não falha o import se a busca da gravação der erro
-      acharGravacaoMeet(docId).catch(() => null),
-    ]);
+    // Dois caminhos pra obter o texto:
+    //  - colado: usa direto (sem gravação associável)
+    //  - Drive: baixa o Doc + busca gravação MP4 em paralelo
+    let texto: string;
+    let gravacao: Awaited<ReturnType<typeof acharGravacaoMeet>> | null = null;
+
+    if (body.textoColado && body.textoColado.trim()) {
+      texto = body.textoColado;
+    } else {
+      const docId = body.docId ?? extrairDocId(body.docUrl ?? "");
+      if (!docId) throw new Error("ID/URL do Doc inválido");
+      [texto, gravacao] = await Promise.all([
+        getDocText(docId),
+        // Não falha o import se a busca da gravação der erro
+        acharGravacaoMeet(docId).catch(() => null),
+      ]);
+    }
+
     const parsed = parsearMeetDoc(texto);
 
     // Transação: substitui SÓ o que veio no Doc atual. Preserva o resto.

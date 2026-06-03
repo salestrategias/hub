@@ -15,8 +15,15 @@ import { reuniaoSchema, type ReuniaoInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import { Mic } from "lucide-react";
 import { TemplatePicker } from "@/components/template-picker";
+import { REUNIAO_TIPOS } from "@/lib/reuniao-tipos";
 
-export function ReuniaoFormButton({ clientes }: { clientes: { id: string; nome: string }[] }) {
+export function ReuniaoFormButton({
+  clientes,
+  leads = [],
+}: {
+  clientes: { id: string; nome: string }[];
+  leads?: { id: string; empresa: string }[];
+}) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const router = useRouter();
@@ -73,15 +80,44 @@ export function ReuniaoFormButton({ clientes }: { clientes: { id: string; nome: 
               <Field label="Data e hora*"><Input type="datetime-local" {...register("data")} /></Field>
               <Field label="Duração (minutos)"><Input type="number" min={0} {...register("duracaoSeg", { setValueAs: (v) => v ? Number(v) * 60 : null })} /></Field>
             </div>
-            <Field label="Cliente">
-              <Select onValueChange={(v) => setValue("clienteId", v === "none" ? null : v)}>
-                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum (interna)</SelectItem>
-                  {clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Tipo">
+                <Select onValueChange={(v) => setValue("tipo", v === "none" ? null : (v as ReuniaoInput["tipo"]))}>
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sem tipo</SelectItem>
+                    {REUNIAO_TIPOS.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>
+                        <span className="inline-flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full" style={{ background: t.cor }} />
+                          {t.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Cliente">
+                <Select onValueChange={(v) => setValue("clienteId", v === "none" ? null : v)}>
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhum (interna)</SelectItem>
+                    {clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+            {leads.length > 0 && (
+              <Field label="Lead (vincula à espinha comercial)">
+                <Select onValueChange={(v) => setValue("leadId", v === "none" ? null : v)}>
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhum</SelectItem>
+                    {leads.map((l) => <SelectItem key={l.id} value={l.id}>{l.empresa}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
             <Field label="Participantes (separados por vírgula)">
               <Input value={participantes} onChange={(e) => setParticipantes(e.target.value)} placeholder="Marcelo, Ana, Roberto" />
             </Field>

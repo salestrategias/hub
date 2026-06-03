@@ -95,6 +95,14 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       },
     });
 
+    // Fase 2: re-parent das reuniões do lead pro cliente recém-vinculado.
+    // Mantém `leadId` intacto pra preservar o histórico da espinha comercial
+    // (lead↔reunião), mas agora as reuniões também aparecem no cliente.
+    await prisma.reuniao.updateMany({
+      where: { leadId: lead.id },
+      data: { clienteId },
+    });
+
     // Notificação celebrativa pro responsável do lead
     void prisma.notificacao
       .create({

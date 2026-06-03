@@ -46,7 +46,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
           data: {
             titulo,
             data: new Date(),
-            notasLivres: conteudo,
+            // Fase 2: o corpo do template de reunião vai pro campo `conteudo`
+            // (pauta/notas estruturadas), não pra `notasLivres` (anotações
+            // soltas do Marcelo). Antes a instância ficava órfã em notasLivres.
+            conteudo,
             clienteId: cliente?.id ?? null,
             // ReuniaoStatus = GRAVANDO | PROCESSANDO | TRANSCRITA | GRAVADA.
             // Reunião criada de template ainda não tem áudio nem transcrição,
