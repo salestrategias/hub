@@ -82,9 +82,10 @@ export function BoardView({
   ];
 
   // Agrupa rows por valor do select (id da opção, ou SEM_VALOR).
+  // `linhas` já chega filtrada/ordenada do pai (aplicarView) — preserva ordem.
   const porColuna = new Map<string, DbRow[]>();
   for (const col of colunas) porColuna.set(col.key, []);
-  const rows = [...linhas].sort((a, b) => a.ordem - b.ordem);
+  const rows = linhas;
   for (const row of rows) {
     const raw = row.valores[groupProp.id];
     const valido = typeof raw === "string" && opcoes.some((o) => o.id === raw);

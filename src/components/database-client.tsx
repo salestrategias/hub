@@ -41,15 +41,20 @@ import {
   type NumeroFormato,
   lerConfig, metaDe, iconeDoTipo, TIPOS_DISPONIVEIS,
   SELECT_CORES, SELECT_COR_SWATCH,
-  novaOpcao,
+  novaOpcao, cryptoId,
 } from "@/lib/database";
 import type { PropertyTipo, ViewTipo } from "@prisma/client";
 import {
   type DbProperty, type DbView, type DbRow, type DatabaseFull, type ViewConfig,
   LucideIcon, api, CelulaEditavel, lerViewConfig,
 } from "@/components/database-cells";
+import {
+  type Filtro, type Ordenacao, type FiltroOperador, type Direcao,
+  aplicarView, operadoresDoTipo, operadorPadraoDe, metaDoOperador,
+} from "@/lib/database-query";
 import { RowPanel } from "@/components/database-row-panel";
 import { BoardView } from "@/components/database-board";
+import { CalendarView } from "@/components/database-calendar";
 
 // Re-export dos tipos do payload (consumidos por quem importa este módulo).
 export type { DbProperty, DbView, DbRow, DatabaseFull };
@@ -238,7 +243,27 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
     if (id) setRowPanelId(id);
   }
 
-  const viewCfg = viewAtiva ? lerViewConfig(viewAtiva.config) : {};
+  // Calendário: clicar num dia cria a row já com aquela data e abre o painel.
+  async function criarNoDia(datePropId: string, iso: string) {
+    const id = await addLinhaCom({ [datePropId]: iso });
+    if (id) setRowPanelId(id);
+  }
+
+  const viewCfg: ViewConfig = viewAtiva ? lerViewConfig(viewAtiva.config) : {};
+
+  // Filtros/ordenação da view ativa aplicados às rows (todas as views).
+  // Baseline por `ordem` (estado otimista pode estar fora de ordem após
+  // inserts); quando há `ordenacoes`, o engine reordena por cima disso.
+  const linhasView = useMemo(() => {
+    const base = [...db.linhas].sort((a, b) => a.ordem - b.ordem);
+    return aplicarView(base, viewCfg, db.propriedades);
+  }, [db.linhas, db.propriedades, viewCfg]);
+
+  // Persiste só filtros/ordenacoes da view ativa (merge no config existente).
+  function patchQueryView(campos: Pick<ViewConfig, "filtros" | "ordenacoes">) {
+    if (!viewAtiva) return;
+    void patchViewConfig(viewAtiva.id, { ...viewCfg, ...campos });
+  }
 
   return (
     <div className="space-y-4">
@@ -257,23 +282,36 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
         onDeleteView={deleteView}
         configViewId={configViewId}
         onConfigViewIdChange={setConfigViewId}
+        viewAtivaCfg={viewCfg}
+        onPatchQuery={patchQueryView}
       />
 
       {/* View ativa */}
       {viewAtiva?.tipo === "BOARD" ? (
         <BoardView
           propriedades={db.propriedades}
-          linhas={db.linhas}
+          linhas={linhasView}
           config={viewCfg}
           onSetCelula={(rowId, propId, valor) => setCelula(rowId, propId, valor)}
           onAddCard={addCardBoard}
           onAbrirRow={setRowPanelId}
           onConfigurar={() => setConfigViewId(viewAtiva.id)}
         />
+      ) : viewAtiva?.tipo === "CALENDARIO" ? (
+        <CalendarView
+          propriedades={db.propriedades}
+          linhas={linhasView}
+          config={viewCfg}
+          onCriarNoDia={(iso) => {
+            if (viewCfg.datePropertyId) void criarNoDia(viewCfg.datePropertyId, iso);
+          }}
+          onAbrirRow={setRowPanelId}
+          onConfigurar={() => setConfigViewId(viewAtiva.id)}
+        />
       ) : viewAtiva?.tipo === "TABELA" ? (
         <TabelaView
           propriedades={db.propriedades}
-          linhas={db.linhas}
+          linhas={linhasView}
           onAddColuna={addColuna}
           onPatchColuna={patchColuna}
           onDeleteColuna={deleteColuna}
@@ -285,7 +323,6 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
       ) : (
         <div className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           A view <strong>{viewAtiva?.nome}</strong> ({viewAtiva?.tipo}) chega num próximo bloco.
-          Use as abas <strong>Tabela</strong> ou <strong>Board</strong> por enquanto.
         </div>
       )}
 
@@ -363,6 +400,8 @@ function BarraViews({
   onDeleteView,
   configViewId,
   onConfigViewIdChange,
+  viewAtivaCfg,
+  onPatchQuery,
 }: {
   views: DbView[];
   propriedades: DbProperty[];
@@ -375,6 +414,8 @@ function BarraViews({
   onDeleteView: (viewId: string) => void;
   configViewId: string | null;
   onConfigViewIdChange: (id: string | null) => void;
+  viewAtivaCfg: ViewConfig;
+  onPatchQuery: (campos: Pick<ViewConfig, "filtros" | "ordenacoes">) => void;
 }) {
   const ordenadas = [...views].sort((a, b) => a.ordem - b.ordem);
   const podeExcluir = views.length > 1;
@@ -391,51 +432,69 @@ function BarraViews({
     }
   }
 
+  const propsOrd = [...propriedades].sort((a, b) => a.ordem - b.ordem);
+  const filtros = viewAtivaCfg.filtros ?? [];
+  const ordenacoes = viewAtivaCfg.ordenacoes ?? [];
+
   return (
-    <div className="flex items-center gap-1 border-b border-border overflow-x-auto">
-      {ordenadas.map((v) => {
-        const ativo = v.id === ativaId;
-        const desabilitada = v.tipo === "CALENDARIO"; // Calendário: próximo bloco.
-        return (
-          <div key={v.id} className="flex items-center -mb-px shrink-0">
-            <button
-              type="button"
-              onClick={() => !desabilitada && onTrocar(v.id)}
-              onDoubleClick={() => !desabilitada && renomear(v)}
-              disabled={desabilitada}
-              title={desabilitada ? "Calendário chega num próximo bloco" : "Duplo-clique pra renomear"}
-              className={cn(
-                "inline-flex items-center gap-1.5 pl-3 pr-1.5 py-2 text-[13px] border-b-2 transition-colors",
-                ativo
-                  ? "border-primary text-foreground font-medium"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-                desabilitada && "opacity-40 cursor-not-allowed"
+    <div className="flex items-center gap-2 border-b border-border">
+      <div className="flex items-center gap-1 overflow-x-auto flex-1 min-w-0">
+        {ordenadas.map((v) => {
+          const ativo = v.id === ativaId;
+          return (
+            <div key={v.id} className="flex items-center -mb-px shrink-0">
+              <button
+                type="button"
+                onClick={() => onTrocar(v.id)}
+                onDoubleClick={() => renomear(v)}
+                title="Duplo-clique pra renomear"
+                className={cn(
+                  "inline-flex items-center gap-1.5 pl-3 pr-1.5 py-2 text-[13px] border-b-2 transition-colors",
+                  ativo
+                    ? "border-primary text-foreground font-medium"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <LucideIcon name={VIEW_ICONE[v.tipo]} className="h-3.5 w-3.5" />
+                {v.nome}
+              </button>
+
+              {/* Config + menu da view (só na aba ativa) */}
+              {ativo && (
+                <ViewMenu
+                  view={v}
+                  propriedades={propriedades}
+                  podeExcluir={podeExcluir}
+                  onRenomear={() => renomear(v)}
+                  onPatchConfig={(cfg) => onPatchConfig(v.id, cfg)}
+                  onExcluir={() => onDeleteView(v.id)}
+                  configAberto={configViewId === v.id}
+                  onConfigAbertoChange={(o) => onConfigViewIdChange(o ? v.id : null)}
+                />
               )}
-            >
-              <LucideIcon name={VIEW_ICONE[v.tipo]} className="h-3.5 w-3.5" />
-              {v.nome}
-              {desabilitada && <span className="text-[10px] text-muted-foreground/60">(em breve)</span>}
-            </button>
+            </div>
+          );
+        })}
 
-            {/* Config + menu da view (só na aba ativa e habilitada) */}
-            {ativo && !desabilitada && (
-              <ViewMenu
-                view={v}
-                propriedades={propriedades}
-                podeExcluir={podeExcluir}
-                onRenomear={() => renomear(v)}
-                onPatchConfig={(cfg) => onPatchConfig(v.id, cfg)}
-                onExcluir={() => onDeleteView(v.id)}
-                configAberto={configViewId === v.id}
-                onConfigAbertoChange={(o) => onConfigViewIdChange(o ? v.id : null)}
-              />
-            )}
-          </div>
-        );
-      })}
+        {/* "+ view" — escolhe Tabela / Board / Calendário. */}
+        <AddViewBtn onAdd={onAddView} />
+      </div>
 
-      {/* "+ view" — escolhe Tabela / Board (Calendário em breve). */}
-      <AddViewBtn onAdd={onAddView} />
+      {/* Filtros + Ordenar (aplicados em TODAS as views da view ativa). */}
+      {ativaId && propsOrd.length > 0 && (
+        <div className="flex items-center gap-1 shrink-0 pb-1.5">
+          <FiltrosBtn
+            propriedades={propsOrd}
+            filtros={filtros}
+            onChange={(f) => onPatchQuery({ filtros: f, ordenacoes })}
+          />
+          <OrdenarBtn
+            propriedades={propsOrd}
+            ordenacoes={ordenacoes}
+            onChange={(o) => onPatchQuery({ filtros, ordenacoes: o })}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -642,10 +701,10 @@ function PropsVisiveis({
 
 function AddViewBtn({ onAdd }: { onAdd: (tipo: ViewTipo) => void }) {
   const [aberto, setAberto] = useState(false);
-  const tipos: { tipo: ViewTipo; label: string; desabilitada?: boolean }[] = [
+  const tipos: { tipo: ViewTipo; label: string }[] = [
     { tipo: "TABELA", label: "Tabela" },
     { tipo: "BOARD", label: "Board" },
-    { tipo: "CALENDARIO", label: "Calendário", desabilitada: true },
+    { tipo: "CALENDARIO", label: "Calendário" },
   ];
   return (
     <DropdownMenu open={aberto} onOpenChange={setAberto}>
@@ -665,17 +724,442 @@ function AddViewBtn({ onAdd }: { onAdd: (tipo: ViewTipo) => void }) {
         {tipos.map((t) => (
           <DropdownMenuItem
             key={t.tipo}
-            disabled={t.desabilitada}
             onSelect={() => {
-              if (t.desabilitada) return;
               onAdd(t.tipo);
               setAberto(false);
             }}
-            className={cn(t.desabilitada && "opacity-40 cursor-not-allowed")}
           >
             <LucideIcon name={VIEW_ICONE[t.tipo]} className="h-3.5 w-3.5 mr-2" />
             <span className="flex-1">{t.label}</span>
-            {t.desabilitada && <span className="text-[10px] text-muted-foreground/60">em breve</span>}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════
+// FILTROS (popover) — lista/adiciona/edita/remove; aplica em todas as views
+// ════════════════════════════════════════════════════════════════════
+function FiltrosBtn({
+  propriedades,
+  filtros,
+  onChange,
+}: {
+  propriedades: DbProperty[];
+  filtros: Filtro[];
+  onChange: (filtros: Filtro[]) => void;
+}) {
+  const [aberto, setAberto] = useState(false);
+  // Só propriedades com operadores disponíveis (RELACAO fica de fora).
+  const filtraveis = propriedades.filter((p) => operadoresDoTipo(p.tipo).length > 0);
+  const byId = new Map(propriedades.map((p) => [p.id, p]));
+
+  function adicionar(prop: DbProperty) {
+    const novo: Filtro = {
+      id: cryptoId(),
+      propertyId: prop.id,
+      operador: operadorPadraoDe(prop.tipo),
+      valor: undefined,
+    };
+    onChange([...filtros, novo]);
+  }
+  function atualizar(id: string, campos: Partial<Filtro>) {
+    onChange(filtros.map((f) => (f.id === id ? { ...f, ...campos } : f)));
+  }
+  function remover(id: string) {
+    onChange(filtros.filter((f) => f.id !== id));
+  }
+
+  const ativos = filtros.filter((f) => byId.has(f.propertyId)).length;
+
+  return (
+    <Popover open={aberto} onOpenChange={setAberto}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-1.5 h-7 px-2 rounded-md text-[12px] border transition-colors",
+            ativos > 0
+              ? "border-primary/40 bg-primary/10 text-foreground"
+              : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+          )}
+          title="Filtrar"
+        >
+          <Icons.Filter className="h-3.5 w-3.5" />
+          Filtros
+          {ativos > 0 && (
+            <span className="ml-0.5 inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold">
+              {ativos}
+            </span>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-[340px] p-2 space-y-2">
+        {filtros.length === 0 ? (
+          <p className="px-1 py-2 text-[12px] text-muted-foreground">
+            Nenhum filtro. Adicione um abaixo pra estreitar as linhas.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {filtros.map((f) => {
+              const prop = byId.get(f.propertyId);
+              if (!prop) return null;
+              return (
+                <FiltroLinha
+                  key={f.id}
+                  filtro={f}
+                  prop={prop}
+                  onChange={(campos) => atualizar(f.id, campos)}
+                  onRemover={() => remover(f.id)}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {/* Adicionar filtro (escolhe a propriedade). */}
+        <div className="border-t border-border pt-2">
+          <AddFiltroProp filtraveis={filtraveis} onAdd={adicionar} />
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function FiltroLinha({
+  filtro,
+  prop,
+  onChange,
+  onRemover,
+}: {
+  filtro: Filtro;
+  prop: DbProperty;
+  onChange: (campos: Partial<Filtro>) => void;
+  onRemover: () => void;
+}) {
+  const ops = operadoresDoTipo(prop.tipo);
+  const meta = metaDoOperador(prop.tipo, filtro.operador);
+  const precisaValor = meta?.precisaValor ?? false;
+
+  return (
+    <div className="rounded-md border border-border p-2 space-y-1.5 bg-card/40">
+      <div className="flex items-center gap-1.5">
+        <LucideIcon name={iconeDoTipo(prop.tipo)} className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+        <span className="text-[12px] font-medium truncate flex-1 min-w-0" title={prop.nome}>
+          {prop.nome}
+        </span>
+        <button
+          type="button"
+          onClick={onRemover}
+          className="h-5 w-5 shrink-0 flex items-center justify-center rounded text-muted-foreground/60 hover:text-destructive"
+          title="Remover filtro"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <select
+          value={filtro.operador}
+          onChange={(e) => {
+            const novoOp = e.target.value as FiltroOperador;
+            const m = metaDoOperador(prop.tipo, novoOp);
+            // Se o novo operador não usa valor, limpa o valor guardado.
+            onChange({ operador: novoOp, ...(m?.precisaValor ? {} : { valor: undefined }) });
+          }}
+          className="h-7 rounded-md border border-input bg-background px-1.5 text-[12px] outline-none focus:ring-1 focus:ring-ring shrink-0"
+        >
+          {ops.map((o) => (
+            <option key={o.op} value={o.op}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        {precisaValor && (
+          <div className="flex-1 min-w-0">
+            <ValorFiltroInput
+              prop={prop}
+              valor={filtro.valor}
+              onChange={(v) => onChange({ valor: v })}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Input do valor de comparação, adequado ao tipo da propriedade. */
+function ValorFiltroInput({
+  prop,
+  valor,
+  onChange,
+}: {
+  prop: DbProperty;
+  valor: unknown;
+  onChange: (v: unknown) => void;
+}) {
+  const cfg = lerConfig(prop.config);
+
+  if (prop.tipo === "SELECT" || prop.tipo === "MULTISELECT") {
+    const opcoes = cfg.opcoes ?? [];
+    const atual = typeof valor === "string" ? valor : "";
+    return (
+      <select
+        value={atual}
+        onChange={(e) => onChange(e.target.value || undefined)}
+        className="h-7 w-full rounded-md border border-input bg-background px-1.5 text-[12px] outline-none focus:ring-1 focus:ring-ring"
+      >
+        <option value="">— escolher —</option>
+        {opcoes.map((o) => (
+          <option key={o.id} value={o.id}>
+            {o.nome}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  if (prop.tipo === "NUMERO") {
+    return (
+      <Input
+        type="number"
+        value={valor == null ? "" : String(valor)}
+        onChange={(e) => onChange(e.target.value === "" ? undefined : e.target.value)}
+        placeholder="valor"
+        className="h-7 text-[12px] px-2"
+      />
+    );
+  }
+
+  if (prop.tipo === "DATA") {
+    return (
+      <Input
+        type="date"
+        value={typeof valor === "string" ? valor : ""}
+        onChange={(e) => onChange(e.target.value || undefined)}
+        className="h-7 text-[12px] px-2 font-mono"
+      />
+    );
+  }
+
+  // TEXTO / URL
+  return (
+    <Input
+      value={typeof valor === "string" ? valor : ""}
+      onChange={(e) => onChange(e.target.value || undefined)}
+      placeholder="valor"
+      className="h-7 text-[12px] px-2"
+    />
+  );
+}
+
+function AddFiltroProp({
+  filtraveis,
+  onAdd,
+}: {
+  filtraveis: DbProperty[];
+  onAdd: (prop: DbProperty) => void;
+}) {
+  const [aberto, setAberto] = useState(false);
+  if (filtraveis.length === 0) {
+    return (
+      <p className="px-1 text-[11px] text-muted-foreground italic">
+        Nenhuma propriedade filtrável.
+      </p>
+    );
+  }
+  return (
+    <DropdownMenu open={aberto} onOpenChange={setAberto}>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 w-full px-2 py-1.5 rounded-md text-[12px] text-muted-foreground hover:text-foreground hover:bg-muted"
+        >
+          <Plus className="h-3.5 w-3.5" /> Adicionar filtro
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56 max-h-64 overflow-y-auto">
+        <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          Filtrar por
+        </DropdownMenuLabel>
+        {filtraveis.map((p) => (
+          <DropdownMenuItem
+            key={p.id}
+            onSelect={() => {
+              onAdd(p);
+              setAberto(false);
+            }}
+          >
+            <LucideIcon name={iconeDoTipo(p.tipo)} className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+            <span className="flex-1 truncate">{p.nome}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ORDENAR (popover) — regras multi-nível propriedade + asc/desc
+// ════════════════════════════════════════════════════════════════════
+function OrdenarBtn({
+  propriedades,
+  ordenacoes,
+  onChange,
+}: {
+  propriedades: DbProperty[];
+  ordenacoes: Ordenacao[];
+  onChange: (ordenacoes: Ordenacao[]) => void;
+}) {
+  const [aberto, setAberto] = useState(false);
+  const byId = new Map(propriedades.map((p) => [p.id, p]));
+  // Propriedades ainda não usadas numa regra (evita ordenar 2x pela mesma).
+  const usadas = new Set(ordenacoes.map((o) => o.propertyId));
+  const disponiveis = propriedades.filter((p) => !usadas.has(p.id));
+
+  function adicionar(prop: DbProperty) {
+    onChange([...ordenacoes, { propertyId: prop.id, direcao: "asc" }]);
+  }
+  function atualizar(propertyId: string, direcao: Direcao) {
+    onChange(ordenacoes.map((o) => (o.propertyId === propertyId ? { ...o, direcao } : o)));
+  }
+  function remover(propertyId: string) {
+    onChange(ordenacoes.filter((o) => o.propertyId !== propertyId));
+  }
+
+  const ativos = ordenacoes.filter((o) => byId.has(o.propertyId)).length;
+
+  return (
+    <Popover open={aberto} onOpenChange={setAberto}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-1.5 h-7 px-2 rounded-md text-[12px] border transition-colors",
+            ativos > 0
+              ? "border-primary/40 bg-primary/10 text-foreground"
+              : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+          )}
+          title="Ordenar"
+        >
+          <Icons.ArrowUpDown className="h-3.5 w-3.5" />
+          Ordenar
+          {ativos > 0 && (
+            <span className="ml-0.5 inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold">
+              {ativos}
+            </span>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-[300px] p-2 space-y-2">
+        {ordenacoes.length === 0 ? (
+          <p className="px-1 py-2 text-[12px] text-muted-foreground">
+            Sem ordenação. As linhas seguem a ordem manual.
+          </p>
+        ) : (
+          <div className="space-y-1.5">
+            {ordenacoes.map((o) => {
+              const prop = byId.get(o.propertyId);
+              if (!prop) return null;
+              return (
+                <div
+                  key={o.propertyId}
+                  className="flex items-center gap-1.5 rounded-md border border-border p-1.5 bg-card/40"
+                >
+                  <LucideIcon name={iconeDoTipo(prop.tipo)} className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <span className="text-[12px] truncate flex-1 min-w-0" title={prop.nome}>
+                    {prop.nome}
+                  </span>
+                  <div className="flex items-center rounded-md border border-border overflow-hidden shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => atualizar(o.propertyId, "asc")}
+                      className={cn(
+                        "h-6 px-1.5 flex items-center gap-1 text-[11px]",
+                        o.direcao === "asc"
+                          ? "bg-primary/15 text-foreground"
+                          : "text-muted-foreground hover:bg-muted"
+                      )}
+                      title="Crescente"
+                    >
+                      <Icons.ArrowUp className="h-3 w-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => atualizar(o.propertyId, "desc")}
+                      className={cn(
+                        "h-6 px-1.5 flex items-center gap-1 text-[11px] border-l border-border",
+                        o.direcao === "desc"
+                          ? "bg-primary/15 text-foreground"
+                          : "text-muted-foreground hover:bg-muted"
+                      )}
+                      title="Decrescente"
+                    >
+                      <Icons.ArrowDown className="h-3 w-3" />
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => remover(o.propertyId)}
+                    className="h-5 w-5 shrink-0 flex items-center justify-center rounded text-muted-foreground/60 hover:text-destructive"
+                    title="Remover"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="border-t border-border pt-2">
+          <AddOrdenarProp disponiveis={disponiveis} onAdd={adicionar} />
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function AddOrdenarProp({
+  disponiveis,
+  onAdd,
+}: {
+  disponiveis: DbProperty[];
+  onAdd: (prop: DbProperty) => void;
+}) {
+  const [aberto, setAberto] = useState(false);
+  if (disponiveis.length === 0) {
+    return (
+      <p className="px-1 text-[11px] text-muted-foreground italic">
+        Todas as propriedades já estão na ordenação.
+      </p>
+    );
+  }
+  return (
+    <DropdownMenu open={aberto} onOpenChange={setAberto}>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 w-full px-2 py-1.5 rounded-md text-[12px] text-muted-foreground hover:text-foreground hover:bg-muted"
+        >
+          <Plus className="h-3.5 w-3.5" /> Adicionar ordenação
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56 max-h-64 overflow-y-auto">
+        <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          Ordenar por
+        </DropdownMenuLabel>
+        {disponiveis.map((p) => (
+          <DropdownMenuItem
+            key={p.id}
+            onSelect={() => {
+              onAdd(p);
+              setAberto(false);
+            }}
+          >
+            <LucideIcon name={iconeDoTipo(p.tipo)} className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+            <span className="flex-1 truncate">{p.nome}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -711,7 +1195,8 @@ function TabelaView({
     () => [...propriedades].sort((a, b) => a.ordem - b.ordem),
     [propriedades]
   );
-  const rows = useMemo(() => [...linhas].sort((a, b) => a.ordem - b.ordem), [linhas]);
+  // `linhas` já chega filtrada/ordenada do pai (aplicarView) — não re-ordena.
+  const rows = linhas;
   const podeExcluirColuna = props.length > 1;
 
   return (

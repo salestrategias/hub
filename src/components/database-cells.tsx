@@ -29,6 +29,9 @@ import {
   formatarData,
   SELECT_COR_CLASSES,
 } from "@/lib/database";
+import {
+  type Filtro, type Ordenacao, lerFiltros, lerOrdenacoes,
+} from "@/lib/database-query";
 import type { PropertyTipo, ViewTipo } from "@prisma/client";
 
 // ─── Tipos do payload (serializado do server) ──────────────────────
@@ -67,6 +70,9 @@ export type ViewConfig = {
   groupByPropertyId?: string;
   datePropertyId?: string;
   propsVisiveis?: string[];
+  /** Filtros/ordenação aplicados em TODAS as views (engine: database-query). */
+  filtros?: Filtro[];
+  ordenacoes?: Ordenacao[];
 };
 export function lerViewConfig(config: unknown): ViewConfig {
   if (!config || typeof config !== "object") return {};
@@ -77,6 +83,10 @@ export function lerViewConfig(config: unknown): ViewConfig {
   if (Array.isArray(c.propsVisiveis)) {
     out.propsVisiveis = c.propsVisiveis.filter((x): x is string => typeof x === "string");
   }
+  const filtros = lerFiltros(c.filtros);
+  if (filtros.length) out.filtros = filtros;
+  const ordenacoes = lerOrdenacoes(c.ordenacoes);
+  if (ordenacoes.length) out.ordenacoes = ordenacoes;
   return out;
 }
 
