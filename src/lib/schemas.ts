@@ -138,6 +138,20 @@ export const portalCriativoSubmissaoSchema = z.object({
 });
 export type PortalCriativoSubmissaoInput = z.infer<typeof portalCriativoSubmissaoSchema>;
 
+// ─── Revisão (Marcelo revisa conteúdo submetido pelo cliente) ─────
+// Usado por /api/posts/[id]/revisar e /api/criativos/[id]/revisar.
+// nota é obrigatória quando a decisão é AJUSTE (vira revisaoNota).
+export const revisaoSchema = z
+  .object({
+    decisao: z.enum(["APROVADO", "AJUSTE"]),
+    nota: z.string().trim().max(5000).optional().nullable(),
+  })
+  .refine((d) => d.decisao !== "AJUSTE" || !!d.nota, {
+    message: "Nota é obrigatória ao pedir ajuste",
+    path: ["nota"],
+  });
+export type RevisaoInput = z.infer<typeof revisaoSchema>;
+
 // ─── Contrato ─────────────────────────────────────────────────────
 export const contratoSchema = z.object({
   clienteId: z.string().min(1),

@@ -14,6 +14,7 @@ import { BlockEditor } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { PostArquivosEditor } from "@/components/post-arquivos-editor";
 import { PostCopyIaButton } from "@/components/post-copy-ia-button";
+import { RevisaoConteudo, SeloEnviadoCliente, type RevisaoEstado } from "@/components/revisao-conteudo";
 import { useDebouncedSave } from "@/lib/use-debounced-save";
 import type { EditorBlock as PartialBlock } from "@/components/editor/types";
 
@@ -29,6 +30,9 @@ type PostFull = {
   hashtags: string[];
   cta: string | null;
   observacoesProducao: string | null;
+  origem: "SAL" | "CLIENTE";
+  revisao: RevisaoEstado;
+  revisaoNota: string | null;
   cliente: { id: string; nome: string } | null;
   comentarios?: Array<{
     id: string;
@@ -178,6 +182,7 @@ export function PostSheet({
               {post.status.replace("_", " ")}
             </Badge>
             <Badge variant="outline" className="text-[10px]">{post.formato}</Badge>
+            {post.origem === "CLIENTE" && <SeloEnviadoCliente />}
             {post.cliente && <span className="text-muted-foreground">· {post.cliente.nome}</span>}
             {post.googleEventId && <span className="text-emerald-400 text-[10px]">📅 agendado</span>}
           </span>
@@ -194,6 +199,17 @@ export function PostSheet({
     >
       {post && postId && (
         <div className="space-y-4">
+          {/* Revisão do conteúdo submetido pelo cliente (só origem=CLIENTE) */}
+          {post.origem === "CLIENTE" && (
+            <RevisaoConteudo
+              tipo="posts"
+              id={postId}
+              revisao={post.revisao}
+              revisaoNota={post.revisaoNota}
+              onRevisado={() => fetchPost(false)}
+            />
+          )}
+
           {/* Campos meta (sempre visíveis) */}
           <div className="grid grid-cols-2 gap-3">
             <InlineField

@@ -26,6 +26,8 @@ import { cn, formatDate } from "@/lib/utils";
 import { Plus, Image as ImageIcon, MessageSquare } from "lucide-react";
 import { CriativoSheet } from "@/components/sheets/criativo-sheet";
 import { useEntitySheet } from "@/components/entity-sheet";
+import { SeloEnviadoCliente, BadgeRevisao, type RevisaoEstado } from "@/components/revisao-conteudo";
+import { Inbox } from "lucide-react";
 
 type CriativoStatus =
   | "RASCUNHO"
@@ -50,6 +52,8 @@ type CriativoCard = {
   fim: string | null;
   totalArquivos: number;
   totalComentarios: number;
+  origem: "SAL" | "CLIENTE";
+  revisao: RevisaoEstado;
 };
 
 const COLUNAS: { key: CriativoStatus; label: string; cor: string }[] = [
@@ -78,8 +82,13 @@ export function CriativosKanban({
   clientes: { id: string; nome: string }[];
 }) {
   const [cards, setCards] = useState(initial);
+  const [soPendentes, setSoPendentes] = useState(false);
   const router = useRouter();
   const sheet = useEntitySheet("criativo");
+
+  // Fila de revisão = submetido pelo cliente + ainda pendente.
+  const pendentesRevisao = cards.filter((c) => c.origem === "CLIENTE" && c.revisao === "PENDENTE");
+  const visiveis = soPendentes ? pendentesRevisao : cards;
 
   async function onDragEnd(r: DropResult) {
     if (!r.destination) return;
@@ -101,14 +110,28 @@ export function CriativosKanban({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <Button
+          variant={soPendentes ? "default" : "outline"}
+          size="sm"
+          onClick={() => setSoPendentes((v) => !v)}
+          disabled={pendentesRevisao.length === 0 && !soPendentes}
+        >
+          <Inbox className="h-3.5 w-3.5" />
+          Pendentes de revisão
+          {pendentesRevisao.length > 0 && (
+            <Badge variant="outline" className="ml-1 text-[10px] border-amber-500/40 text-amber-500">
+              {pendentesRevisao.length}
+            </Badge>
+          )}
+        </Button>
         <NovoCriativo clientes={clientes} />
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="overflow-x-auto pb-4 -mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
           <div className="grid grid-cols-7 gap-3 min-w-[1400px]">
             {COLUNAS.map((col) => {
-              const lista = cards.filter((c) => c.status === col.key);
+              const lista = visiveis.filter((c) => c.status === col.key);
               return (
                 <Droppable droppableId={col.key} key={col.key}>
                   {(prov, snap) => (
@@ -144,6 +167,12 @@ export function CriativosKanban({
                                 >
                                   <CardContent className="p-3 space-y-2">
                                     <div className="font-medium text-sm leading-snug">{c.titulo}</div>
+                                    {c.origem === "CLIENTE" && (
+                                      <div className="flex items-center gap-1 flex-wrap">
+                                        <SeloEnviadoCliente />
+                                        <BadgeRevisao revisao={c.revisao} />
+                                      </div>
+                                    )}
                                     <div className="flex items-center gap-1 flex-wrap">
                                       <Badge variant="outline" className="text-[10px]">
                                         {PLATAFORMA_BADGE[c.plataforma]}

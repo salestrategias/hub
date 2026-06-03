@@ -30,6 +30,8 @@ export default async function CriativosPage() {
           plataforma: c.plataforma,
           formato: c.formato,
           clienteNome: c.cliente?.nome ?? "—",
+          origem: c.origem,
+          revisao: c.revisao,
           orcamento: c.orcamento ? Number(c.orcamento) : null,
           inicio: c.inicio?.toISOString() ?? null,
           fim: c.fim?.toISOString() ?? null,

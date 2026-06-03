@@ -93,12 +93,12 @@ export async function POST(req: Request, { params }: { params: { token: string }
       select: { id: true, titulo: true },
     });
 
-    // Notifica o criador do acesso (Marcelo). Reusa tipo PORTAL_PEDIU_AJUSTE
-    // (evento inbound do portal; sem nova enum). Título disambígua.
+    // Notifica o criador do acesso (Marcelo). Tipo dedicado de evento
+    // inbound (não dispara email — não está em TIPOS_QUE_DISPARAM_EMAIL).
     await prisma.notificacao.create({
       data: {
         userId: r.acesso.criadoPor,
-        tipo: "PORTAL_PEDIU_AJUSTE",
+        tipo: "CLIENTE_SUBMETEU_CONTEUDO",
         titulo: `📥 ${r.cliente.nome} enviou um post pra revisão`,
         descricao: `"${post.titulo}" — aguardando sua revisão`,
         href: `/editorial?post=${post.id}`,

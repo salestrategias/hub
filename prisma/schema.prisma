@@ -1044,6 +1044,7 @@ enum TipoNotificacao {
   PROPOSTA_EXPIRANDO
   PORTAL_APROVOU_POST
   PORTAL_PEDIU_AJUSTE
+  CLIENTE_SUBMETEU_CONTEUDO   // evento inbound: cliente enviou post/criativo pra revisão (sem email)
   SISTEMA
 }
 

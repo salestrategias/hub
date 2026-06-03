@@ -17,7 +17,9 @@ import {
 } from "@/components/ui/dialog";
 import { postSchema, type PostInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
-import { Plus } from "lucide-react";
+import { Plus, Inbox } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import type { RevisaoEstado } from "@/components/revisao-conteudo";
 import { RichTextField } from "@/components/editor";
 import { PostSheet } from "@/components/sheets/post-sheet";
 import { useEntitySheet } from "@/components/entity-sheet";
@@ -37,6 +39,8 @@ type Post = {
   clienteId: string;
   clienteNome: string;
   googleEventId: string | null;
+  origem: "SAL" | "CLIENTE";
+  revisao: RevisaoEstado;
 };
 
 const STATUS_COR: Record<Post["status"], string> = {
@@ -53,20 +57,25 @@ export function EditorialCalendarClient({
   const router = useRouter();
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
+  const [soPendentes, setSoPendentes] = useState(false);
   const [creating, setCreating] = useState(false);
   const [defaultDate, setDefaultDate] = useState<Date | null>(null);
   // Edição via Sheet (peek mode) — URL state via ?post=<id>
   const sheet = useEntitySheet("post");
 
+  // Fila de revisão = submetido pelo cliente + ainda pendente.
+  const pendentesRevisao = posts.filter((p) => p.origem === "CLIENTE" && p.revisao === "PENDENTE");
+
   const filtrados = posts.filter((p) =>
     (!filtroCliente || p.clienteId === filtroCliente) &&
-    (!filtroStatus || p.status === filtroStatus)
+    (!filtroStatus || p.status === filtroStatus) &&
+    (!soPendentes || (p.origem === "CLIENTE" && p.revisao === "PENDENTE"))
   );
 
   const eventos: Event[] = useMemo(
     () =>
       filtrados.map((p) => ({
-        title: `${p.clienteNome} · ${p.titulo}`,
+        title: `${p.origem === "CLIENTE" ? "📥 " : ""}${p.clienteNome} · ${p.titulo}`,
         start: new Date(p.dataPublicacao),
         end: new Date(p.dataPublicacao),
         resource: p,
@@ -96,6 +105,19 @@ export function EditorialCalendarClient({
               <SelectItem value="PUBLICADO">Publicado</SelectItem>
             </SelectContent>
           </Select>
+          <Button
+            variant={soPendentes ? "default" : "outline"}
+            onClick={() => setSoPendentes((v) => !v)}
+            disabled={pendentesRevisao.length === 0 && !soPendentes}
+          >
+            <Inbox className="h-4 w-4" />
+            Pendentes de revisão
+            {pendentesRevisao.length > 0 && (
+              <Badge variant="outline" className="ml-1 text-[10px] border-amber-500/40 text-amber-500">
+                {pendentesRevisao.length}
+              </Badge>
+            )}
+          </Button>
         </div>
         <Button onClick={() => { setDefaultDate(new Date()); setCreating(true); }}>
           <Plus className="h-4 w-4" /> Novo post
@@ -118,7 +140,16 @@ export function EditorialCalendarClient({
           selectable
           eventPropGetter={(e) => {
             const p = e.resource as Post;
-            return { style: { backgroundColor: STATUS_COR[p.status], borderRadius: 6, border: 0, fontSize: 11 } };
+            // Pendente de revisão do cliente ganha contorno âmbar pra saltar à vista.
+            const pendente = p.origem === "CLIENTE" && p.revisao === "PENDENTE";
+            return {
+              style: {
+                backgroundColor: STATUS_COR[p.status],
+                borderRadius: 6,
+                border: pendente ? "2px solid #F59E0B" : 0,
+                fontSize: 11,
+              },
+            };
           }}
         />
       </div>

@@ -91,10 +91,11 @@ export async function POST(req: Request, { params }: { params: { token: string }
       select: { id: true, titulo: true },
     });
 
+    // Tipo dedicado de evento inbound (não dispara email).
     await prisma.notificacao.create({
       data: {
         userId: r.acesso.criadoPor,
-        tipo: "PORTAL_PEDIU_AJUSTE",
+        tipo: "CLIENTE_SUBMETEU_CONTEUDO",
         titulo: `📥 ${r.cliente.nome} enviou um criativo pra revisão`,
         descricao: `"${criativo.titulo}" — aguardando sua revisão`,
         href: `/criativos?criativo=${criativo.id}`,

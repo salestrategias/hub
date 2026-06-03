@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { CriativoArquivosEditor } from "@/components/criativo-arquivos-editor";
 import { VincularCampanhaDialog } from "@/components/vincular-campanha-dialog";
+import { RevisaoConteudo, SeloEnviadoCliente, type RevisaoEstado } from "@/components/revisao-conteudo";
 
 type CriativoStatus =
   | "RASCUNHO"
@@ -59,6 +60,9 @@ type CriativoFull = {
   inicio: string | null;
   fim: string | null;
   observacoesProducao: string | null;
+  origem: "SAL" | "CLIENTE";
+  revisao: RevisaoEstado;
+  revisaoNota: string | null;
   cliente: { id: string; nome: string };
   campanhaPaga: { id: string; nome: string; ano: number; mes: number; plataforma: string } | null;
   comentarios?: Array<{
@@ -199,6 +203,7 @@ export function CriativoSheet({
             </Badge>
             <Badge variant="outline" className="text-[10px]">{criativo.plataforma.replace("_", " ")}</Badge>
             <Badge variant="outline" className="text-[10px]">{criativo.formato.replace(/_/g, " ")}</Badge>
+            {criativo.origem === "CLIENTE" && <SeloEnviadoCliente />}
             <span className="text-muted-foreground">· {criativo.cliente.nome}</span>
           </span>
         )
@@ -214,6 +219,17 @@ export function CriativoSheet({
     >
       {criativo && criativoId && (
         <div className="space-y-4">
+          {/* Revisão do conteúdo submetido pelo cliente (só origem=CLIENTE) */}
+          {criativo.origem === "CLIENTE" && (
+            <RevisaoConteudo
+              tipo="criativos"
+              id={criativoId}
+              revisao={criativo.revisao}
+              revisaoNota={criativo.revisaoNota}
+              onRevisado={carregar}
+            />
+          )}
+
           {/* Campos meta */}
           <div className="grid grid-cols-2 gap-3">
             <InlineField

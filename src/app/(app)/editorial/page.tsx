@@ -24,6 +24,8 @@ export default async function EditorialPage() {
           clienteId: p.clienteId,
           clienteNome: p.cliente.nome,
           googleEventId: p.googleEventId,
+          origem: p.origem,
+          revisao: p.revisao,
         }))}
         clientes={clientes}
       />
