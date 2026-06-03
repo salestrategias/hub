@@ -1486,6 +1486,113 @@ enum DocTipo {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// Fase 3 — Camada Workspace (Notion/Trello): páginas livres + databases
+// configuráveis. ADITIVO, desacoplado do núcleo tipado.
+// ─────────────────────────────────────────────────────────────────────
+model Page {
+  id        String   @id @default(cuid())
+  titulo    String   @default("Sem título")
+  icone     String?  // emoji ou nome lucide
+  capaUrl   String?  @db.Text
+  conteudo  String   @default("") @db.Text // BlockNote JSON
+  ordem     Int      @default(0)
+
+  parentId  String?
+  parent    Page?    @relation("PageHierarquia", fields: [parentId], references: [id], onDelete: Cascade)
+  filhas    Page[]   @relation("PageHierarquia")
+
+  // Databases aninhados sob esta página (árvore do workspace)
+  databases Database[]
+
+  criadoPor String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([parentId, ordem])
+}
+
+model Database {
+  id           String   @id @default(cuid())
+  nome         String   @default("Novo database")
+  icone        String?
+  descricao    String?  @db.Text
+  ordem        Int      @default(0)
+
+  // Pode ficar aninhado sob uma página (ou top-level se null)
+  parentPageId String?
+  parentPage   Page?    @relation(fields: [parentPageId], references: [id], onDelete: Cascade)
+
+  propriedades DatabaseProperty[]
+  linhas       DatabaseRow[]
+  views        DatabaseView[]
+
+  criadoPor    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([parentPageId, ordem])
+}
+
+model DatabaseProperty {
+  id         String       @id @default(cuid())
+  databaseId String
+  database   Database     @relation(fields: [databaseId], references: [id], onDelete: Cascade)
+  nome       String
+  tipo       PropertyTipo @default(TEXTO)
+  // config (Json): opções de SELECT [{id,nome,cor}], formato de número,
+  // databaseId alvo (RELACAO), etc.
+  config     Json?
+  ordem      Int          @default(0)
+
+  @@index([databaseId, ordem])
+}
+
+model DatabaseRow {
+  id         String   @id @default(cuid())
+  databaseId String
+  database   Database @relation(fields: [databaseId], references: [id], onDelete: Cascade)
+  // valores (Json): { [propertyId]: valor } — valor varia por tipo
+  // (string / number / boolean / string[] / ISO date / ids de linhas)
+  valores    Json     @default("{}")
+  ordem      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([databaseId, ordem])
+}
+
+model DatabaseView {
+  id         String   @id @default(cuid())
+  databaseId String
+  database   Database @relation(fields: [databaseId], references: [id], onDelete: Cascade)
+  nome       String   @default("Tabela")
+  tipo       ViewTipo @default(TABELA)
+  // config (Json): { filtros[], ordenacoes[], groupByPropertyId,
+  // datePropertyId, propsVisiveis[] }
+  config     Json?
+  ordem      Int      @default(0)
+
+  @@index([databaseId, ordem])
+}
+
+enum PropertyTipo {
+  TEXTO
+  NUMERO
+  SELECT
+  MULTISELECT
+  DATA
+  CHECKBOX
+  URL
+  RELACAO
+}
+
+enum ViewTipo {
+  TABELA
+  BOARD
+  CALENDARIO
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // OAuth 2.1 Authorization Code — usado no fluxo de connector do Claude
 // Desktop. Claude faz GET /authorize → user aprova → gera code
 // efêmero → Claude troca code por access_token (McpToken) em POST /token.
