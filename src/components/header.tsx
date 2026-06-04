@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, LogOut } from "lucide-react";
 import { AjudaTrigger } from "@/components/ajuda-trigger";
 import { QuickCreateButton } from "@/components/quick-create-button";
+import { TopbarSearchTrigger } from "@/components/topbar-search-trigger";
 
 export async function Header({ title, subtitle, parent }: { title?: string; subtitle?: React.ReactNode; parent?: { label: string; href: string } }) {
   const session = await auth();
@@ -52,6 +53,10 @@ export async function Header({ title, subtitle, parent }: { title?: string; subt
               {subtitle}
             </p>
           )}
+        </div>
+        {/* Pílula de busca global — só desktop (≥lg). Abre o command palette ⌘K. */}
+        <div className="hidden lg:block lg:ml-4">
+          <TopbarSearchTrigger />
         </div>
       </div>
 

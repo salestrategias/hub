@@ -24,7 +24,7 @@ export function SidebarSearchTrigger() {
     <button
       type="button"
       onClick={open}
-      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-border bg-background/40 text-muted-foreground hover:text-foreground hover:border-border/80 transition-colors text-[12px]"
+      className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg bg-secondary/70 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-[12px]"
       aria-label="Abrir busca global"
     >
       <Search className="h-3.5 w-3.5 shrink-0" />
