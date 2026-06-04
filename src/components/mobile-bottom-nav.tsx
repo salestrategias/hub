@@ -15,7 +15,7 @@
  */
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Home, TrendingUp, CalendarDays, MoreHorizontal, Plus, ListTodo, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MobileSidebar } from "@/components/sidebar";
@@ -39,6 +39,8 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { abrir } = useQuickCreate();
+  // Abre o modal só depois do dropdown fechar (evita o body travado do Radix).
+  const pendente = useRef<"lead" | "tarefa" | "lancamento" | null>(null);
 
   function isActive(href: string) {
     return href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -72,16 +74,28 @@ export function MobileBottomNav() {
                   <Plus className="h-6 w-6" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="top" sideOffset={12} className="w-48">
-                <DropdownMenuItem onClick={() => abrir("lead")}>
+              <DropdownMenuContent
+                align="center"
+                side="top"
+                sideOffset={12}
+                className="w-48"
+                onCloseAutoFocus={(e) => {
+                  if (!pendente.current) return;
+                  e.preventDefault();
+                  const alvo = pendente.current;
+                  pendente.current = null;
+                  abrir(alvo);
+                }}
+              >
+                <DropdownMenuItem onSelect={() => (pendente.current = "lead")}>
                   <TrendingUp className="h-4 w-4 mr-2 text-primary" />
                   Lead
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => abrir("tarefa")}>
+                <DropdownMenuItem onSelect={() => (pendente.current = "tarefa")}>
                   <ListTodo className="h-4 w-4 mr-2 text-primary" />
                   Tarefa
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => abrir("lancamento")}>
+                <DropdownMenuItem onSelect={() => (pendente.current = "lancamento")}>
                   <DollarSign className="h-4 w-4 mr-2 text-primary" />
                   Lançamento
                 </DropdownMenuItem>
