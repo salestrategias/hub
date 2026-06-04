@@ -14,7 +14,8 @@
  *  - Export SVG e PNG
  *  - Touch básico (drag/pan/pinch zoom) pra mobile
  */
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -41,8 +42,10 @@ type Edge = { id: string; from: string; to: string; estilo: "solid" | "dashed" |
 
 type Tool = "select" | "pan" | "rect" | "circle" | "text" | "arrow" | "sticky";
 
-const CORES = ["#7E30E1", "#10B981", "#F59E0B", "#EF4444", "#3B82F6", "#EC4899", "#14B8A6", "#9696A8"];
+const CORES = ["#7E30E1", "#3B82F6", "#14B8A6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#64748B"];
 const GRID = 20; // snap step em unidades de canvas
+const STICKY_COR = "#FCD34D"; // amarelo "papel" pra sticky notes
+const STICKY_INK = "#3A2E05"; // texto escuro quente pro sticky (contraste no amarelo)
 
 export function MindMapCanvas({
   id,
@@ -71,11 +74,41 @@ export function MindMapCanvas({
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const selected = nodes.find((n) => n.id === selectedId);
 
+  // ─── Theme-aware: resolve cores do canvas SVG (claro/escuro) ───────
+  // Como o SVG não herda tokens CSS automaticamente em todos os contextos
+  // (e o export/thumbnail serializa cores explícitas), resolvemos cores
+  // concretas via next-themes. Default = claro (app é claro por padrão).
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const dark = mounted ? resolvedTheme === "dark" : false;
+  const T = useMemo(
+    () =>
+      dark
+        ? {
+            canvasBg: "#15151E", // fundo do quadro (escuro calmo)
+            dot: "rgba(255,255,255,0.07)", // grid pontilhado
+            edge: "#5B5B6E", // aresta default
+            edgeArrow: "#6E6E82",
+            nodeText: "#E7E7F0", // texto de nó rect/circle/text
+            nodeSub: "#A0A0B4", // subtexto
+          }
+        : {
+            canvasBg: "#FAFAFC",
+            dot: "rgba(40,30,90,0.10)",
+            edge: "#C7C7D4",
+            edgeArrow: "#A8A8BC",
+            nodeText: "#2B2540",
+            nodeSub: "#6B6B82",
+          },
+    [dark]
+  );
+
   // ─── Auto-save com debounce + thumbnail ────────────────────────────
   useEffect(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
-      const thumbnail = await gerarThumbnail(svgRef.current);
+      const thumbnail = await gerarThumbnail(svgRef.current, T.canvasBg);
       const res = await fetch(`/api/mapas/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -151,7 +184,7 @@ export function MindMapCanvas({
         h: tool === "sticky" ? 120 : tool === "circle" ? 100 : 60,
         tipo: tool === "arrow" ? "rect" : (tool as "rect" | "circle" | "sticky" | "text"),
         texto: tool === "sticky" ? "Sticky" : tool === "text" ? "Texto" : "Novo",
-        cor: tool === "sticky" ? "#FBBF24" : "#7E30E1",
+        cor: tool === "sticky" ? STICKY_COR : "#7E30E1",
       };
       setNodes((p) => [...p, novo]);
       setSelectedId(nid);
@@ -181,7 +214,7 @@ export function MindMapCanvas({
     if (tool !== "select") return;
     e.stopPropagation();
     if (linkingFrom && linkingFrom !== n.id) {
-      const novaEdge: Edge = { id: `e${Date.now()}`, from: linkingFrom, to: n.id, estilo: "solid", cor: "#9696A8" };
+      const novaEdge: Edge = { id: `e${Date.now()}`, from: linkingFrom, to: n.id, estilo: "solid", cor: T.edge };
       setEdges((p) => [...p, novaEdge]);
       setLinkingFrom(null);
       return;
@@ -346,7 +379,7 @@ export function MindMapCanvas({
   async function exportarPng() {
     const svg = svgRef.current;
     if (!svg) return;
-    const png = await svgParaPng(svg, 1920, 1080);
+    const png = await svgParaPng(svg, 1920, 1080, T.canvasBg);
     if (!png) {
       toast.error("Falha ao gerar PNG");
       return;
@@ -361,15 +394,23 @@ export function MindMapCanvas({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0">
           <input
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
-            className="bg-transparent font-display font-semibold text-lg outline-none min-w-0"
+            className="bg-transparent font-display font-semibold text-lg outline-none min-w-0 rounded-md px-1 -mx-1 transition-colors hover:bg-muted/50 focus:bg-muted/60"
             style={{ width: `${Math.max(titulo.length, 12)}ch`, maxWidth: "100%" }}
           />
-          <span className="text-xs text-muted-foreground/60 font-mono shrink-0">
-            {savedAt ? `salvo · ${savedAt.toLocaleTimeString("pt-BR")}` : "salvando..."}
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+            <span
+              className={cn(
+                "h-1.5 w-1.5 rounded-full transition-colors",
+                savedAt ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
+              )}
+            />
+            {savedAt
+              ? `Salvo às ${savedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+              : "Salvando…"}
           </span>
         </div>
         <div className="flex gap-2">
@@ -382,46 +423,57 @@ export function MindMapCanvas({
         </div>
       </div>
 
-      <Card className="overflow-hidden relative p-0" style={{ height: "calc(100vh - 240px)" }}>
-        {/* Toolbar esquerda */}
-        <div className="absolute left-3 top-3 z-10 bg-card border border-border rounded-lg p-1.5 flex flex-col gap-0.5 shadow-lg">
+      <Card className="overflow-hidden relative p-0 shadow-sm" style={{ height: "calc(100vh - 240px)" }}>
+        {/* Toolbar esquerda flutuante */}
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-card/95 backdrop-blur-sm border border-border rounded-2xl p-1.5 flex flex-col gap-1 shadow-xl shadow-black/5">
           {([
             ["select", MousePointer2, "Selecionar (V)"],
             ["pan", Hand, "Mover canvas (H)"],
+            ["__sep__", null, ""],
             ["rect", Square, "Retângulo (R)"],
             ["circle", Circle, "Círculo (C)"],
             ["text", Type, "Texto (T)"],
-            ["arrow", MoveRight, "Conectar (A)"],
             ["sticky", StickyNote, "Sticky (S)"],
-          ] as const).map(([t, Icon, title]) => (
-            <button
-              key={t}
-              title={title}
-              onClick={() => setTool(t as Tool)}
-              className={cn(
-                "p-2 rounded-md transition",
-                tool === t ? "bg-sal-600/20 text-sal-400" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              )}
-            >
-              <Icon className="h-4 w-4" />
-            </button>
-          ))}
+            ["__sep__", null, ""],
+            ["arrow", MoveRight, "Conectar (A)"],
+          ] as const).map(([t, Icon, title], i) =>
+            t === "__sep__" ? (
+              <div key={`sep-${i}`} className="h-px w-6 mx-auto my-0.5 bg-border" />
+            ) : (
+              <button
+                key={t}
+                title={title}
+                onClick={() => setTool(t as Tool)}
+                className={cn(
+                  "p-2 rounded-xl transition-all duration-150 active:scale-95",
+                  tool === t
+                    ? "bg-sal-600 text-white shadow-md shadow-sal-600/30"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                )}
+              >
+                {Icon && <Icon className="h-[18px] w-[18px]" />}
+              </button>
+            )
+          )}
         </div>
 
         {/* Painel direito de propriedades */}
         {selected && (
-          <div className="absolute right-3 top-3 z-10 bg-card border border-border rounded-lg p-3 w-56 shadow-lg space-y-3">
+          <div className="absolute right-3 top-3 z-10 bg-card/95 backdrop-blur-sm border border-border rounded-2xl p-3.5 w-60 shadow-xl shadow-black/5 space-y-3.5">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Estilo do nó</div>
             <div>
-              <div className="text-[11px] text-muted-foreground mb-1">Cor</div>
-              <div className="flex gap-1 flex-wrap">
+              <div className="text-[11px] text-muted-foreground mb-1.5">Cor</div>
+              <div className="flex gap-1.5 flex-wrap">
                 {CORES.map((c) => (
                   <button
                     key={c}
                     onClick={() => atualizarNode({ cor: c })}
+                    title={c}
                     className={cn(
-                      "w-5 h-5 rounded-full border-2 transition",
-                      selected.cor === c ? "border-foreground scale-110" : "border-transparent"
+                      "h-6 w-6 rounded-full transition-all duration-150 ring-offset-2 ring-offset-card hover:scale-110",
+                      selected.cor === c
+                        ? "ring-2 ring-foreground scale-110"
+                        : "ring-1 ring-black/5"
                     )}
                     style={{ background: c }}
                   />
@@ -456,7 +508,7 @@ export function MindMapCanvas({
               </Button>
             </div>
             {linkingFrom === selected.id && (
-              <div className="text-[10.5px] text-sal-400 text-center bg-sal-600/10 rounded p-2">
+              <div className="text-[10.5px] text-sal-700 dark:text-sal-400 text-center bg-sal-600/10 rounded-lg p-2 font-medium">
                 Clique em outro nó para conectar
               </div>
             )}
@@ -464,19 +516,33 @@ export function MindMapCanvas({
         )}
 
         {/* Zoom controls */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 bg-card border border-border rounded-lg px-2 py-1 flex items-center gap-1 shadow-lg">
-          <button className="p-1.5 rounded hover:bg-secondary" onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))}>
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 bg-card/95 backdrop-blur-sm border border-border rounded-full px-1.5 py-1 flex items-center gap-0.5 shadow-xl shadow-black/5">
+          <button
+            className="p-1.5 rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors active:scale-95"
+            onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))}
+            title="Diminuir zoom"
+          >
             <MinusIcon className="h-3.5 w-3.5" />
           </button>
-          <span className="text-[11px] font-mono px-2">{Math.round(zoom * 100)}%</span>
-          <button className="p-1.5 rounded hover:bg-secondary" onClick={() => setZoom((z) => Math.min(3, z + 0.1))}>
+          <button
+            className="text-[11px] font-medium tabular-nums px-1.5 min-w-[3rem] text-center rounded-full hover:bg-secondary transition-colors py-1"
+            onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+            title="Resetar para 100%"
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          <button
+            className="p-1.5 rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors active:scale-95"
+            onClick={() => setZoom((z) => Math.min(3, z + 0.1))}
+            title="Aumentar zoom"
+          >
             <Plus className="h-3.5 w-3.5" />
           </button>
-          <div className="w-px h-4 bg-border mx-1" />
+          <div className="w-px h-4 bg-border mx-0.5" />
           <button
-            className="p-1.5 rounded hover:bg-secondary"
+            className="p-1.5 rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors active:scale-95"
             onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
-            title="Resetar zoom"
+            title="Ajustar à tela"
           >
             <Maximize className="h-3.5 w-3.5" />
           </button>
@@ -494,20 +560,52 @@ export function MindMapCanvas({
           onTouchEnd={onTouchEnd}
           style={{
             cursor: tool === "pan" ? "grab" : tool === "select" ? "default" : "crosshair",
-            background: "hsl(var(--card))",
+            background: T.canvasBg,
+            transition: "background 0.2s ease",
           }}
         >
           <defs>
-            <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="1" fill="hsl(var(--border))" />
+            {/* Grid pontilhado — fica DENTRO do <g> transformado, então
+                escala/move junto com zoom+pan (sensação de quadro infinito). */}
+            <pattern id="dots" width={GRID} height={GRID} patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill={T.dot} />
             </pattern>
             <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#9696A8" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill={T.edgeArrow} />
             </marker>
+            {/* Sombra suave dos nós (Miro-like). std/opacity adaptam ao tema. */}
+            <filter id="node-shadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow
+                dx="0"
+                dy="2"
+                stdDeviation={dark ? 3 : 4}
+                floodColor="#000000"
+                floodOpacity={dark ? 0.45 : 0.14}
+              />
+            </filter>
+            {/* Sombra mais marcada pro sticky (papel levantando). */}
+            <filter id="sticky-shadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow
+                dx="1"
+                dy="3"
+                stdDeviation={dark ? 3.5 : 4.5}
+                floodColor="#000000"
+                floodOpacity={dark ? 0.5 : 0.2}
+              />
+            </filter>
           </defs>
-          <rect id="bg-grid" x="-2000" y="-2000" width="6000" height="6000" fill="url(#dots)" />
 
           <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
+            {/* Fundo pontilhado infinito (dentro do transform → escala c/ zoom).
+                Mantém id "bg-grid" pra o handler de click do canvas funcionar. */}
+            <rect
+              id="bg-grid"
+              x={-20000}
+              y={-20000}
+              width={40000}
+              height={40000}
+              fill="url(#dots)"
+            />
             {/* Edges */}
             {edges.map((e) => {
               const f = nodes.find((n) => n.id === e.from);
@@ -521,10 +619,11 @@ export function MindMapCanvas({
                   key={e.id}
                   d={`M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`}
                   stroke={e.cor}
-                  strokeWidth="1.5"
+                  strokeWidth="2"
+                  strokeLinecap="round"
                   fill="none"
                   markerEnd="url(#arrow)"
-                  strokeDasharray={e.estilo === "dashed" ? "6 3" : e.estilo === "dotted" ? "2 3" : "0"}
+                  strokeDasharray={e.estilo === "dashed" ? "7 4" : e.estilo === "dotted" ? "2 4" : "0"}
                 />
               );
             })}
@@ -545,30 +644,83 @@ export function MindMapCanvas({
                     cy={n.h / 2}
                     rx={n.w / 2}
                     ry={n.h / 2}
-                    fill={`${n.cor}22`}
+                    fill={dark ? `${n.cor}2E` : `${n.cor}1A`}
                     stroke={n.cor}
-                    strokeWidth={selectedId === n.id ? 3 : 1.5}
+                    strokeWidth={1.5}
+                    filter="url(#node-shadow)"
                   />
                 ) : n.tipo === "sticky" ? (
-                  <rect
-                    width={n.w}
-                    height={n.h}
-                    rx="3"
-                    fill={n.cor}
-                    transform="rotate(-2)"
-                    stroke={selectedId === n.id ? "#7E30E1" : "transparent"}
-                    strokeWidth={2}
-                  />
+                  <g transform="rotate(-2)" filter="url(#sticky-shadow)">
+                    <rect width={n.w} height={n.h} rx="4" fill={n.cor} />
+                    {/* "curl" sutil de papel: faixa clara no topo */}
+                    <rect width={n.w} height={Math.min(10, n.h / 4)} rx="4" fill="#ffffff" opacity={0.18} />
+                  </g>
+                ) : n.tipo === "text" ? (
+                  // Texto puro: sem caixa nem sombra (apenas o label).
+                  <rect width={n.w} height={n.h} rx="10" fill="transparent" />
                 ) : (
                   <rect
                     width={n.w}
                     height={n.h}
-                    rx="10"
-                    fill={n.tipo === "text" ? "transparent" : `${n.cor}22`}
+                    rx="12"
+                    fill={dark ? `${n.cor}24` : `${n.cor}14`}
                     stroke={n.cor}
-                    strokeWidth={selectedId === n.id ? 2.5 : 1.5}
+                    strokeWidth={1.5}
+                    filter="url(#node-shadow)"
                   />
                 )}
+
+                {/* Estado selecionado — ring elegante + handles nos cantos
+                    (substitui o "engrossar borda" cru). Visual apenas. */}
+                {selectedId === n.id && editingNodeId !== n.id && (() => {
+                  const pad = 5;
+                  const isCircle = n.tipo === "circle";
+                  const handles = [
+                    [-pad, -pad],
+                    [n.w + pad, -pad],
+                    [-pad, n.h + pad],
+                    [n.w + pad, n.h + pad],
+                  ] as const;
+                  return (
+                    <g style={{ pointerEvents: "none" }}>
+                      {isCircle ? (
+                        <ellipse
+                          cx={n.w / 2}
+                          cy={n.h / 2}
+                          rx={n.w / 2 + pad}
+                          ry={n.h / 2 + pad}
+                          fill="none"
+                          stroke="#7E30E1"
+                          strokeWidth={1.5}
+                        />
+                      ) : (
+                        <rect
+                          x={-pad}
+                          y={-pad}
+                          width={n.w + pad * 2}
+                          height={n.h + pad * 2}
+                          rx={n.tipo === "sticky" ? 6 : 14}
+                          fill="none"
+                          stroke="#7E30E1"
+                          strokeWidth={1.5}
+                        />
+                      )}
+                      {handles.map(([hx, hy], i) => (
+                        <rect
+                          key={i}
+                          x={hx - 3}
+                          y={hy - 3}
+                          width={6}
+                          height={6}
+                          rx={1.5}
+                          fill={T.canvasBg}
+                          stroke="#7E30E1"
+                          strokeWidth={1.5}
+                        />
+                      ))}
+                    </g>
+                  );
+                })()}
 
                 {/* Edição inline com foreignObject + textarea */}
                 {editingNodeId === n.id ? (
@@ -597,7 +749,7 @@ export function MindMapCanvas({
                         border: "none",
                         outline: "none",
                         background: "transparent",
-                        color: n.tipo === "sticky" ? "#0E0E14" : n.cor,
+                        color: n.tipo === "sticky" ? STICKY_INK : T.nodeText,
                         fontFamily: "Inter Tight, Inter",
                         fontSize: "13px",
                         fontWeight: 600,
@@ -612,7 +764,7 @@ export function MindMapCanvas({
                       x={n.w / 2}
                       y={n.subtexto ? n.h / 2 - 4 : n.h / 2 + 5}
                       textAnchor="middle"
-                      fill={n.tipo === "sticky" ? "#0E0E14" : n.cor}
+                      fill={n.tipo === "sticky" ? STICKY_INK : T.nodeText}
                       fontFamily="Inter Tight, Inter"
                       fontSize="13"
                       fontWeight="600"
@@ -625,7 +777,7 @@ export function MindMapCanvas({
                         x={n.w / 2}
                         y={n.h / 2 + 14}
                         textAnchor="middle"
-                        fill={n.tipo === "sticky" ? "#0E0E14" : "#9696A8"}
+                        fill={n.tipo === "sticky" ? STICKY_INK : T.nodeSub}
                         fontFamily="Inter"
                         fontSize="11"
                         style={{ pointerEvents: "none" }}
@@ -665,7 +817,8 @@ export function MindMapCanvas({
 async function svgParaPng(
   svg: SVGSVGElement,
   width: number,
-  height: number
+  height: number,
+  bgColor: string
 ): Promise<string | null> {
   try {
     const xml = new XMLSerializer().serializeToString(svg);
@@ -683,8 +836,8 @@ async function svgParaPng(
     canvas.height = height;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
-    // Fundo card (dark) pra contraste
-    ctx.fillStyle = "#0E0E14";
+    // Fundo do canvas (theme-aware) pra a thumbnail/PNG combinar com o app
+    ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, width, height);
     // Desenha SVG centralizado preservando aspect
     const svgW = svg.clientWidth;
@@ -707,7 +860,7 @@ async function svgParaPng(
  * Thumbnail leve (320x180) gerada do canvas atual pra mostrar na lista
  * de mapas. Pode falhar em alguns browsers — tudo bem, fica null.
  */
-async function gerarThumbnail(svg: SVGSVGElement | null): Promise<string | null> {
+async function gerarThumbnail(svg: SVGSVGElement | null, bgColor: string): Promise<string | null> {
   if (!svg) return null;
-  return svgParaPng(svg, 320, 180);
+  return svgParaPng(svg, 320, 180, bgColor);
 }
