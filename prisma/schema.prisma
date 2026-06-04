@@ -349,8 +349,15 @@ model MindMap {
   data        Json     // { nodes: [...], edges: [...] }
   thumbnail   String?  @db.Text  // dataURL opcional para preview
 
+  // Compartilhamento público read-only (mesmo padrão de Proposta/Diagnostico)
+  shareToken    String?   @unique
+  shareExpiraEm DateTime?
+  shareViews    Int       @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([shareToken])
 }
 
 // ─────────────────────────────────────────────────────────────────────

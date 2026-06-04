@@ -33,8 +33,15 @@ import { toast } from "@/components/ui/toast";
 import {
   MousePointer2, Hand, Square, Circle, Type, MoveRight, StickyNote,
   Plus, Minus as MinusIcon, Maximize, Maximize2, Minimize2, Copy, Trash2, Download, Image as ImageIcon,
-  GitFork, Undo2, Redo2,
+  GitFork, Undo2, Redo2, Share2, Link2, Check, Loader2,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 type FontScale = "sm" | "md" | "lg";
@@ -110,11 +117,20 @@ export function MindMapCanvas({
   id,
   titulo: tituloInicial,
   data: dataInicial,
+  readOnly = false,
 }: {
   id: string;
   titulo: string;
   descricao: string | null;
   data: { nodes: unknown[]; edges: unknown[] };
+  /**
+   * Modo somente-leitura (usado pela página pública /p/mapa/[token]). Quando true:
+   * esconde toolbar de ferramentas, painel de propriedades, edição de título e
+   * undo/redo; desliga TODA edição (criar/editar/excluir/arrastar/conectar/
+   * atalhos) e o auto-save (nenhum PATCH). MANTÉM pan/zoom, recolher/expandir,
+   * tela cheia e export PNG/SVG.
+   */
+  readOnly?: boolean;
 }) {
   const [titulo, setTitulo] = useState(tituloInicial);
   const [nodes, setNodes] = useState<Node[]>((dataInicial.nodes as Node[]) ?? []);
@@ -147,6 +163,16 @@ export function MindMapCanvas({
   const marqueeState = useRef<{ x1: number; y1: number } | null>(null);
   const saveTimer = useRef<NodeJS.Timeout | null>(null);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
+
+  // ─── Compartilhamento público (read-only) ──────────────────────────
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
+  const [shareBusy, setShareBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const shareUrl =
+    shareToken && typeof window !== "undefined"
+      ? `${window.location.origin}/p/mapa/${shareToken}`
+      : "";
 
   // ─── Fase 2: histórico undo/redo ───────────────────────────────────
   // Pilhas de snapshots { nodes, edges }. Empilhamos ANTES de cada mutação
@@ -237,7 +263,9 @@ export function MindMapCanvas({
   );
 
   // ─── Auto-save com debounce + thumbnail ────────────────────────────
+  // Em modo read-only NUNCA persiste (nenhum PATCH) — só visualização.
   useEffect(() => {
+    if (readOnly) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       const thumbnail = await gerarThumbnail(svgRef.current, T.canvasBg);
@@ -249,7 +277,7 @@ export function MindMapCanvas({
       if (res.ok) setSavedAt(new Date());
     }, 800);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [titulo, nodes, edges, id]);
+  }, [titulo, nodes, edges, id, readOnly]);
 
   // ─── Modo mapa-mental: criar filho / irmão por teclado ─────────────
   // Ref do nó recém-criado: o setNodes é assíncrono, então no próximo render
@@ -441,6 +469,7 @@ export function MindMapCanvas({
 
   // ─── Atalhos de teclado ────────────────────────────────────────────
   useEffect(() => {
+    if (readOnly) return; // sem atalhos de edição/ferramenta na visualização pública
     function onKey(e: KeyboardEvent) {
       // Ignora se estiver editando texto (input, textarea, contenteditable).
       // ESSE guard impede Ctrl+Z/Ctrl+A/Tab/Enter/Shift de vazarem do textarea.
@@ -518,7 +547,7 @@ export function MindMapCanvas({
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedIds, hiddenIds, criarFilho, criarIrmao, excluirSelecionados, duplicarSelecionados, undo, redo]);
+  }, [readOnly, selectedIds, hiddenIds, criarFilho, criarIrmao, excluirSelecionados, duplicarSelecionados, undo, redo]);
 
   // ─── Click no canvas — cria nó se ferramenta de criação ────────────
   // Com select/pan, o clique no vazio é tratado pelo fluxo de marquee
@@ -526,6 +555,7 @@ export function MindMapCanvas({
   // tratamos as ferramentas de criação.
   const handleCanvasClick = useCallback(
     (e: React.MouseEvent<SVGSVGElement>) => {
+      if (readOnly) return; // não cria nós no modo público
       if (e.target !== svgRef.current && !(e.target as Element).id?.startsWith("bg-")) return;
       if (tool === "select" || tool === "pan") return;
       const pt = svgPoint(e);
@@ -549,7 +579,7 @@ export function MindMapCanvas({
       setEditingNodeId(nid); // já abre edição inline
       setTool("select");
     },
-    [tool, commitHist]
+    [tool, commitHist, readOnly]
   );
 
   function svgPoint(e: React.MouseEvent | MouseEvent | { clientX: number; clientY: number }) {
@@ -569,6 +599,7 @@ export function MindMapCanvas({
   }
 
   function startDrag(e: React.MouseEvent, n: Node) {
+    if (readOnly) return; // nós não arrastam/selecionam/conectam no modo público
     if (tool !== "select") return;
     e.stopPropagation();
     // Linking (conectar): clicar no destino cria a aresta. Inalterado (F1), só
@@ -617,6 +648,13 @@ export function MindMapCanvas({
   function startPan(e: React.MouseEvent) {
     const noVazio =
       e.target === svgRef.current || (e.target as Element).id?.startsWith("bg-");
+    // Read-only: qualquer arrasto no vazio = pan (nunca marquee/seleção).
+    if (readOnly) {
+      if (noVazio) {
+        panState.current = { startX: e.clientX, startY: e.clientY, pX: pan.x, pY: pan.y };
+      }
+      return;
+    }
     // Pan tem prioridade (ferramenta pan, ou Shift mesmo na select).
     if (tool === "pan" || (e.shiftKey && tool !== "select")) {
       e.stopPropagation();
@@ -765,8 +803,9 @@ export function MindMapCanvas({
       const t = e.touches[0];
       const target = e.target as Element;
       // Se tocou num nó, drag (no touch movemos só o nó tocado).
+      // Read-only: ignora o drag de nó — só pan/pinch.
       const nodeId = target.closest("[data-node-id]")?.getAttribute("data-node-id");
-      if (nodeId && tool === "select") {
+      if (nodeId && tool === "select" && !readOnly) {
         const n = nodes.find((nn) => nn.id === nodeId);
         if (!n) return;
         const pt = svgPoint({ clientX: t.clientX, clientY: t.clientY });
@@ -913,52 +952,134 @@ export function MindMapCanvas({
     return () => document.removeEventListener("fullscreenchange", onFs);
   }, []);
 
+  // ─── Compartilhar (gerar/revogar link público) ─────────────────────
+  // Abre o dialog e, se ainda não existe link, JÁ gera (POST) — assim o
+  // estado do toggle reflete a realidade do servidor sem um passo extra.
+  const abrirCompartilhar = useCallback(async () => {
+    setShareOpen(true);
+    setCopied(false);
+    if (shareToken || shareBusy) return;
+    setShareBusy(true);
+    try {
+      const res = await fetch(`/api/mapas/${id}/compartilhar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error ?? "Falha ao gerar link");
+      setShareToken(data.shareToken ?? null);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao compartilhar");
+    } finally {
+      setShareBusy(false);
+    }
+  }, [id, shareToken, shareBusy]);
+
+  // Liga/desliga o compartilhamento: ON = POST (gera/reusa token); OFF = DELETE (revoga).
+  const toggleCompartilhar = useCallback(
+    async (ativo: boolean) => {
+      setShareBusy(true);
+      setCopied(false);
+      try {
+        const res = await fetch(`/api/mapas/${id}/compartilhar`, {
+          method: ativo ? "POST" : "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: ativo ? JSON.stringify({}) : undefined,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.error ?? "Falha");
+        setShareToken(ativo ? data.shareToken ?? null : null);
+        toast.success(ativo ? "Link público ativado" : "Link público revogado");
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Erro");
+      } finally {
+        setShareBusy(false);
+      }
+    },
+    [id]
+  );
+
+  const copiarLink = useCallback(async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      toast.error("Não foi possível copiar");
+    }
+  }, [shareUrl]);
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5 min-w-0">
-          <input
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-            className="bg-transparent font-display font-semibold text-lg outline-none min-w-0 rounded-md px-1 -mx-1 transition-colors hover:bg-muted/50 focus:bg-muted/60"
-            style={{ width: `${Math.max(titulo.length, 12)}ch`, maxWidth: "100%" }}
-          />
-          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
-            <span
-              className={cn(
-                "h-1.5 w-1.5 rounded-full transition-colors",
-                savedAt ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
-              )}
+          {readOnly ? (
+            <h1
+              className="font-display font-semibold text-lg min-w-0 truncate px-1 -mx-1"
+              style={{ maxWidth: "100%" }}
+            >
+              {titulo}
+            </h1>
+          ) : (
+            <input
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              className="bg-transparent font-display font-semibold text-lg outline-none min-w-0 rounded-md px-1 -mx-1 transition-colors hover:bg-muted/50 focus:bg-muted/60"
+              style={{ width: `${Math.max(titulo.length, 12)}ch`, maxWidth: "100%" }}
             />
-            {savedAt
-              ? `Salvo às ${savedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
-              : "Salvando…"}
-          </span>
+          )}
+          {readOnly ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+              <span className="h-1.5 w-1.5 rounded-full bg-sal-500" />
+              compartilhado via SAL
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full transition-colors",
+                  savedAt ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
+                )}
+              />
+              {savedAt
+                ? `Salvo às ${savedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                : "Salvando…"}
+            </span>
+          )}
         </div>
         <div className="flex gap-2">
-          {/* Undo / Redo (Fase 2). histTick força re-render do disabled. */}
-          <div className="flex items-center gap-0.5 mr-1" data-hist={histTick}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={undo}
-              disabled={undoStack.current.length === 0}
-              title="Desfazer (Ctrl+Z)"
-            >
-              <Undo2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={redo}
-              disabled={redoStack.current.length === 0}
-              title="Refazer (Ctrl+Shift+Z / Ctrl+Y)"
-            >
-              <Redo2 className="h-4 w-4" />
-            </Button>
-          </div>
+          {/* Undo / Redo + Compartilhar — só no editor. histTick força re-render do disabled. */}
+          {!readOnly && (
+            <>
+              <div className="flex items-center gap-0.5 mr-1" data-hist={histTick}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={undo}
+                  disabled={undoStack.current.length === 0}
+                  title="Desfazer (Ctrl+Z)"
+                >
+                  <Undo2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={redo}
+                  disabled={redoStack.current.length === 0}
+                  title="Refazer (Ctrl+Shift+Z / Ctrl+Y)"
+                >
+                  <Redo2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button variant="outline" size="sm" onClick={abrirCompartilhar}>
+                <Share2 className="h-3.5 w-3.5" /> Compartilhar
+              </Button>
+            </>
+          )}
           <Button variant="outline" size="sm" onClick={exportarPng}>
             <ImageIcon className="h-3.5 w-3.5" /> PNG
           </Button>
@@ -969,7 +1090,8 @@ export function MindMapCanvas({
       </div>
 
       <Card ref={canvasWrapRef} className={cn("overflow-hidden relative p-0 shadow-sm", isFull && "rounded-none border-0")} style={{ height: isFull ? "100vh" : "calc(100vh - 240px)" }}>
-        {/* Toolbar esquerda flutuante */}
+        {/* Toolbar esquerda flutuante — escondida no modo read-only (público) */}
+        {!readOnly && (
         <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-card/95 backdrop-blur-sm border border-border rounded-2xl p-1.5 flex flex-col gap-1 shadow-xl shadow-black/5">
           {([
             ["select", MousePointer2, "Selecionar (V)"],
@@ -1010,9 +1132,10 @@ export function MindMapCanvas({
             <GitFork className="h-[18px] w-[18px]" />
           </button>
         </div>
+        )}
 
         {/* Painel direito — ARESTA selecionada (prioridade sobre nós) */}
-        {selectedEdge && (
+        {!readOnly && selectedEdge && (
           <div className="absolute right-3 top-3 z-10 bg-card/95 backdrop-blur-sm border border-border rounded-2xl p-3.5 w-60 shadow-xl shadow-black/5 space-y-3.5">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Estilo da conexão</div>
             <div>
@@ -1097,7 +1220,7 @@ export function MindMapCanvas({
         )}
 
         {/* Painel direito — NÓ(S) selecionado(s) */}
-        {!selectedEdge && (selected || selectedIds.length > 1) && (
+        {!readOnly && !selectedEdge && (selected || selectedIds.length > 1) && (
           <div className="absolute right-3 top-3 z-10 bg-card/95 backdrop-blur-sm border border-border rounded-2xl p-3.5 w-60 shadow-xl shadow-black/5 space-y-3.5">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
               {selectedIds.length > 1 ? `${selectedIds.length} nós selecionados` : "Estilo do nó"}
@@ -1239,7 +1362,7 @@ export function MindMapCanvas({
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
           style={{
-            cursor: tool === "pan" ? "grab" : tool === "select" ? "default" : "crosshair",
+            cursor: readOnly ? "grab" : tool === "pan" ? "grab" : tool === "select" ? "default" : "crosshair",
             background: T.canvasBg,
             transition: "background 0.2s ease",
           }}
@@ -1315,9 +1438,9 @@ export function MindMapCanvas({
                     stroke="transparent"
                     strokeWidth={14}
                     fill="none"
-                    style={{ cursor: tool === "select" ? "pointer" : "default" }}
+                    style={{ cursor: !readOnly && tool === "select" ? "pointer" : "default" }}
                     onMouseDown={(ev) => {
-                      if (tool !== "select") return;
+                      if (readOnly || tool !== "select") return;
                       ev.stopPropagation();
                       setSelectedEdgeId(e.id);
                       setSelectedIds([]);
@@ -1377,8 +1500,8 @@ export function MindMapCanvas({
                 data-node-id={n.id}
                 transform={`translate(${n.x}, ${n.y})`}
                 onMouseDown={(e) => startDrag(e, n)}
-                onDoubleClick={() => setEditingNodeId(n.id)}
-                style={{ cursor: tool === "select" ? "grab" : "pointer" }}
+                onDoubleClick={() => !readOnly && setEditingNodeId(n.id)}
+                style={{ cursor: readOnly ? "default" : tool === "select" ? "grab" : "pointer" }}
               >
                 {n.tipo === "circle" ? (
                   <ellipse
@@ -1636,6 +1759,7 @@ export function MindMapCanvas({
         </svg>
       </Card>
 
+      {!readOnly && (
       <div className="text-[11px] text-muted-foreground/60 text-center flex flex-wrap justify-center gap-x-3 gap-y-1">
         <span>Duplo-click edita texto</span>
         <span>
@@ -1652,6 +1776,85 @@ export function MindMapCanvas({
         <span><span className="kbd-key">Alt</span> ao arrastar desliga snap</span>
         <span>Scroll = zoom</span>
       </div>
+      )}
+
+      {/* Dialog de compartilhamento público (read-only) — só no editor */}
+      {!readOnly && (
+        <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Share2 className="h-5 w-5 text-sal-500" />
+                Compartilhar mapa
+              </DialogTitle>
+              <DialogDescription>
+                Gere um link público somente-leitura. Quem tiver o link vê o mapa
+                sem precisar de login e não consegue editá-lo.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-1">
+              {/* Toggle "Compartilhar publicamente" */}
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3.5 py-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium">Compartilhar publicamente</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {shareToken ? "Link ativo" : "Desativado"}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={!!shareToken}
+                  disabled={shareBusy}
+                  onClick={() => toggleCompartilhar(!shareToken)}
+                  className={cn(
+                    "relative h-6 w-11 rounded-full transition-colors shrink-0 disabled:opacity-60",
+                    shareToken ? "bg-sal-600" : "bg-secondary"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all",
+                      shareToken ? "left-[22px]" : "left-0.5"
+                    )}
+                  />
+                </button>
+              </div>
+
+              {/* Link público + copiar */}
+              {shareToken && (
+                <div className="space-y-1.5">
+                  <div className="text-[11px] text-muted-foreground">Link público</div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 min-w-0 flex items-center gap-2 rounded-md border border-border bg-background px-3 h-9">
+                      <Link2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-xs truncate font-mono">{shareUrl}</span>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={copiarLink} className="shrink-0">
+                      {copied ? (
+                        <>
+                          <Check className="h-3.5 w-3.5" /> Copiado
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5" /> Copiar
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {shareBusy && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Atualizando…
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

@@ -398,6 +398,15 @@ export type MindMapInput = z.infer<typeof mindMapSchema>;
 export type MindMapNode = z.infer<typeof mindMapNodeSchema>;
 export type MindMapEdge = z.infer<typeof mindMapEdgeSchema>;
 
+// Compartilhamento público read-only do mapa (espelha proposta/diagnóstico).
+// `ativo:false` no body do POST funciona como atalho pra revogar (= DELETE).
+export const mapaCompartilharSchema = z.object({
+  ativo: z.boolean().optional(),
+  /** Dias até o link público expirar. Default: sem expiração (link permanente). */
+  validadeDias: z.coerce.number().int().positive().max(365).optional(),
+});
+export type MapaCompartilharInput = z.infer<typeof mapaCompartilharSchema>;
+
 // ─── Template ──────────────────────────────────────────────────────
 export const templateSchema = z.object({
   nome: z.string().min(1, "Nome obrigatório").max(120),
