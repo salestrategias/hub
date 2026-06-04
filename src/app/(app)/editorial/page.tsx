@@ -6,7 +6,19 @@ export const dynamic = "force-dynamic";
 
 export default async function EditorialPage() {
   const [posts, clientes] = await Promise.all([
-    prisma.post.findMany({ include: { cliente: true }, orderBy: { dataPublicacao: "asc" } }),
+    prisma.post.findMany({
+      include: {
+        cliente: true,
+        // 1ª imagem do post (se houver) → mini-thumb no card do calendário.
+        arquivos: {
+          where: { tipo: "IMAGEM" },
+          orderBy: { ordem: "asc" },
+          take: 1,
+          select: { url: true },
+        },
+      },
+      orderBy: { dataPublicacao: "asc" },
+    }),
     prisma.cliente.findMany({ select: { id: true, nome: true }, orderBy: { nome: "asc" } }),
   ]);
 
@@ -26,6 +38,7 @@ export default async function EditorialPage() {
           googleEventId: p.googleEventId,
           origem: p.origem,
           revisao: p.revisao,
+          thumbUrl: p.arquivos[0]?.url ?? null,
         }))}
         clientes={clientes}
       />
