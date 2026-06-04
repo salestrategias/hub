@@ -115,10 +115,10 @@ export function RedesSociaisClient({ clientes }: { clientes: { id: string; nome:
               <CardContent>
                 <ResponsiveContainer width="100%" height={240}>
                   <LineChart data={filtradas.map((m) => ({ mes: `${MES_NOMES[m.mes - 1]}/${String(m.ano).slice(-2)}`, seguidores: m.seguidores }))}>
-                    <CartesianGrid stroke="rgba(255,255,255,.05)" />
+                    <CartesianGrid stroke="rgba(120,120,135,0.15)" />
                     <XAxis dataKey="mes" stroke="#94A3B8" fontSize={11} />
                     <YAxis stroke="#94A3B8" fontSize={11} />
-                    <Tooltip contentStyle={{ background: "#13131C", border: "1px solid #1F1F2D" }} />
+                    <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--popover-foreground))" }} />
                     <Line type="monotone" dataKey="seguidores" stroke="#7E30E1" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -129,10 +129,10 @@ export function RedesSociaisClient({ clientes }: { clientes: { id: string; nome:
               <CardContent>
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={filtradas.map((m) => ({ mes: `${MES_NOMES[m.mes - 1]}/${String(m.ano).slice(-2)}`, eng: m.engajamento }))}>
-                    <CartesianGrid stroke="rgba(255,255,255,.05)" />
+                    <CartesianGrid stroke="rgba(120,120,135,0.15)" />
                     <XAxis dataKey="mes" stroke="#94A3B8" fontSize={11} />
                     <YAxis stroke="#94A3B8" fontSize={11} />
-                    <Tooltip contentStyle={{ background: "#13131C", border: "1px solid #1F1F2D" }} />
+                    <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--popover-foreground))" }} />
                     <Bar dataKey="eng" fill="#7E30E1" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>

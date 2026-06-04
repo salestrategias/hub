@@ -258,10 +258,10 @@ export function FinanceiroClient({
             <CardContent>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={series}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(120,120,135,0.15)" />
                   <XAxis dataKey="mes" stroke="#94A3B8" fontSize={11} />
                   <YAxis stroke="#94A3B8" fontSize={11} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip contentStyle={{ background: "#13131C", border: "1px solid #1F1F2D" }} formatter={(v: number) => formatBRL(v)} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--popover-foreground))" }} formatter={(v: number) => formatBRL(v)} />
                   <Legend />
                   <Bar dataKey="receita" fill="#10B981" radius={[6, 6, 0, 0]} />
                   <Bar dataKey="despesa" fill="#EF4444" radius={[6, 6, 0, 0]} />

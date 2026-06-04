@@ -21,7 +21,7 @@ export function MrrSparkline({ data }: Props) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const dark = mounted ? resolvedTheme === "dark" : true;
+  const dark = mounted ? resolvedTheme === "dark" : false;
   const tooltipBg = dark ? "#13131C" : "#ffffff";
   const tooltipBorder = dark ? "#1F1F2D" : "#E2E2EA";
   const tooltipText = dark ? "#E5E5EE" : "#1F1F2D";
