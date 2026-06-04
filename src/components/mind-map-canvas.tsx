@@ -33,9 +33,11 @@ import { toast } from "@/components/ui/toast";
 import {
   MousePointer2, Hand, Square, Circle, Type, MoveRight, StickyNote,
   Plus, Minus as MinusIcon, Maximize, Copy, Trash2, Download, Image as ImageIcon,
-  GitFork,
+  GitFork, Undo2, Redo2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type FontScale = "sm" | "md" | "lg";
 
 type Node = {
   id: string;
@@ -51,14 +53,31 @@ type Node = {
   parentId?: string | null;
   /** Modo mapa-mental: se true, esconde toda a subárvore (filhos + edges). */
   collapsed?: boolean;
+  /** Fase 2: escala de fonte (peq/méd/grande). Default = médio. Vai no JSON. */
+  fontScale?: FontScale;
 };
 
-type Edge = { id: string; from: string; to: string; estilo: "solid" | "dashed" | "dotted"; cor: string };
+type Edge = {
+  id: string;
+  from: string;
+  to: string;
+  estilo: "solid" | "dashed" | "dotted";
+  cor: string;
+  /** Fase 2: desenha seta (marker) na ponta. Default tratado como true. */
+  arrow?: boolean;
+  /** Fase 2: rótulo curto desenhado no midpoint do bezier. */
+  label?: string;
+};
 
 type Tool = "select" | "pan" | "rect" | "circle" | "text" | "arrow" | "sticky";
 
 const CORES = ["#7E30E1", "#3B82F6", "#14B8A6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#64748B"];
 const GRID = 20; // snap step em unidades de canvas
+// Fase 2: tamanho de fonte por escala (px no espaço de canvas). md = padrão antigo (13).
+const FONT_PX: Record<FontScale, number> = { sm: 11, md: 13, lg: 17 };
+const fontePx = (n: Node) => FONT_PX[n.fontScale ?? "md"];
+// Fase 2: tolerância de snap dos guias de alinhamento (unidades de canvas).
+const ALIGN_SNAP = 6;
 const STICKY_COR = "#FCD34D"; // amarelo "papel" pra sticky notes
 const STICKY_INK = "#3A2E05"; // texto escuro quente pro sticky (contraste no amarelo)
 
@@ -82,18 +101,83 @@ export function MindMapCanvas({
   const [nodes, setNodes] = useState<Node[]>((dataInicial.nodes as Node[]) ?? []);
   const [edges, setEdges] = useState<Edge[]>((dataInicial.edges as Edge[]) ?? []);
   const [tool, setTool] = useState<Tool>("select");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Fase 2: multi-seleção (substitui o antigo selectedId único). Aresta selecionada à parte.
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const [linkingFrom, setLinkingFrom] = useState<string | null>(null);
+  // Fase 2: retângulo de marquee (em coordenadas de canvas) enquanto arrasta no vazio.
+  const [marquee, setMarquee] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
+  // Fase 2 (bônus): guias de alinhamento ativos durante o drag.
+  const [guides, setGuides] = useState<{ v: number[]; h: number[] }>({ v: [], h: [] });
   const svgRef = useRef<SVGSVGElement>(null);
-  const dragState = useRef<{ nodeId: string; offsetX: number; offsetY: number; altPressed: boolean } | null>(null);
+  // Drag de nó(s): guarda o offset de CADA nó selecionado pro centro do cursor,
+  // pra mover o grupo inteiro mantendo posições relativas.
+  const dragState = useRef<{
+    primaryId: string;
+    offsets: { id: string; dx: number; dy: number }[];
+    moved: boolean;
+  } | null>(null);
   const panState = useRef<{ startX: number; startY: number; pX: number; pY: number } | null>(null);
   const pinchState = useRef<{ initialDist: number; initialZoom: number } | null>(null);
+  // Marquee em andamento (mousedown no vazio com a ferramenta select).
+  const marqueeState = useRef<{ x1: number; y1: number } | null>(null);
   const saveTimer = useRef<NodeJS.Timeout | null>(null);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
-  const selected = nodes.find((n) => n.id === selectedId);
+
+  // ─── Fase 2: histórico undo/redo ───────────────────────────────────
+  // Pilhas de snapshots { nodes, edges }. Empilhamos ANTES de cada mutação
+  // significativa (commitHist). Drags/edições contínuas são coalescidas: o
+  // snapshot é tirado no INÍCIO da interação (commitHist) e a mutação contínua
+  // (setNodes direto) não empilha de novo. Limite ~50.
+  const undoStack = useRef<{ nodes: Node[]; edges: Edge[] }[]>([]);
+  const redoStack = useRef<{ nodes: Node[]; edges: Edge[] }[]>([]);
+  const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
+  nodesRef.current = nodes;
+  edgesRef.current = edges;
+  // Contadores só pra forçar re-render dos botões (habilitar/desabilitar).
+  const [histTick, setHistTick] = useState(0);
+
+  /** Empilha o estado ATUAL no undo (e limpa o redo). Chamar ANTES de mutar. */
+  const commitHist = useCallback(() => {
+    undoStack.current.push({ nodes: nodesRef.current, edges: edgesRef.current });
+    if (undoStack.current.length > 50) undoStack.current.shift();
+    redoStack.current = [];
+    setHistTick((t) => t + 1);
+  }, []);
+
+  const undo = useCallback(() => {
+    const prev = undoStack.current.pop();
+    if (!prev) return;
+    redoStack.current.push({ nodes: nodesRef.current, edges: edgesRef.current });
+    setNodes(prev.nodes);
+    setEdges(prev.edges);
+    setEditingNodeId(null);
+    setSelectedEdgeId(null);
+    setSelectedIds((ids) => ids.filter((id) => prev.nodes.some((n) => n.id === id)));
+    setHistTick((t) => t + 1);
+  }, []);
+
+  const redo = useCallback(() => {
+    const next = redoStack.current.pop();
+    if (!next) return;
+    undoStack.current.push({ nodes: nodesRef.current, edges: edgesRef.current });
+    setNodes(next.nodes);
+    setEdges(next.edges);
+    setEditingNodeId(null);
+    setSelectedEdgeId(null);
+    setSelectedIds((ids) => ids.filter((id) => next.nodes.some((n) => n.id === id)));
+    setHistTick((t) => t + 1);
+  }, []);
+
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  // Nó "ativo" pro painel: quando há exatamente 1 selecionado, mostra detalhes
+  // (texto/subtexto). Com vários, o painel vira modo "lote" (cor/fonte/estilo).
+  const selected = selectedIds.length === 1 ? nodes.find((n) => n.id === selectedIds[0]) : undefined;
+  const selectedEdge = selectedEdgeId ? edges.find((e) => e.id === selectedEdgeId) : undefined;
 
   // ─── Derivados do modo mapa-mental ─────────────────────────────────
   // filhosMap (pai→filhos) e o conjunto de nós escondidos por um ancestral
@@ -155,6 +239,7 @@ export function MindMapCanvas({
   // abre edição inline. Se o pai estava recolhido, expande pra mostrar o novo.
   const criarFilho = useCallback(
     (paiId: string) => {
+      commitHist();
       setNodes((ns) => {
         const pai = ns.find((n) => n.id === paiId);
         if (!pai) return ns;
@@ -179,7 +264,7 @@ export function MindMapCanvas({
         return [...ns.map((n) => (n.id === paiId && n.collapsed ? { ...n, collapsed: false } : n)), novo];
       });
     },
-    []
+    [commitHist]
   );
 
   // Cria um irmão (Enter): mesmo parentId do selecionado, posicionado abaixo,
@@ -187,6 +272,7 @@ export function MindMapCanvas({
   // o irmão também é livre (parentId null) e nasce logo abaixo.
   const criarIrmao = useCallback(
     (refId: string) => {
+      commitHist();
       setNodes((ns) => {
         const ref = ns.find((n) => n.id === refId);
         if (!ref) return ns;
@@ -205,7 +291,7 @@ export function MindMapCanvas({
         return [...ns, novo];
       });
     },
-    []
+    [commitHist]
   );
 
   // Após criar filho/irmão, comita o novo nó: seleciona, abre edição inline e
@@ -224,28 +310,28 @@ export function MindMapCanvas({
           : [...es, { id: `e${Date.now()}`, from: novo.parentId!, to: novo.id, estilo: "solid", cor: T.edge }]
       );
     }
-    setSelectedId(novoId);
+    setSelectedIds([novoId]);
+    setSelectedEdgeId(null);
     setEditingNodeId(novoId);
   }, [nodes, T.edge]);
 
   // ─── Modo mapa-mental: organizar (auto-layout) + recolher ──────────
   const organizarArvore = useCallback(() => {
-    setNodes((ns) => {
-      const arrumado = autoLayoutArvores(ns);
-      // só notifica/atualiza se algo de fato mudou de posição
-      const mudou = arrumado.some((n, i) => n.x !== ns[i].x || n.y !== ns[i].y);
-      if (!mudou) {
-        toast.info("Nada para organizar (sem árvores com filhos)");
-        return ns;
-      }
-      toast.success("Árvore organizada");
-      return arrumado;
-    });
-  }, []);
+    const arrumado = autoLayoutArvores(nodesRef.current);
+    const mudou = arrumado.some((n, i) => n.x !== nodesRef.current[i].x || n.y !== nodesRef.current[i].y);
+    if (!mudou) {
+      toast.info("Nada para organizar (sem árvores com filhos)");
+      return;
+    }
+    commitHist(); // snapshot ANTES do auto-layout (undo restaura posições)
+    setNodes(arrumado);
+    toast.success("Árvore organizada");
+  }, [commitHist]);
 
   const toggleCollapse = useCallback((nodeId: string) => {
+    commitHist();
     setNodes((ns) => ns.map((n) => (n.id === nodeId ? { ...n, collapsed: !n.collapsed } : n)));
-  }, []);
+  }, [commitHist]);
 
   // Exclui um nó tratando os filhos por RE-PARENTING: os filhos diretos do nó
   // excluído sobem para o avô (parentId do excluído). Se o nó era raiz/livre,
@@ -253,6 +339,7 @@ export function MindMapCanvas({
   // Escolhemos re-parent (em vez de apagar a subárvore) pra nunca destruir
   // trabalho do usuário sem querer — nada de exclusão em cascata silenciosa.
   const excluirNo = useCallback((nodeId: string) => {
+    commitHist();
     setNodes((ns) => {
       const alvo = ns.find((n) => n.id === nodeId);
       if (!alvo) return ns;
@@ -272,73 +359,154 @@ export function MindMapCanvas({
         .map((fid, i) => ({ id: `e${Date.now() + i}`, from: avoId, to: fid, estilo: "solid", cor: T.edge }));
       return [...semNo, ...novas];
     });
-    setSelectedId((cur) => (cur === nodeId ? null : cur));
-  }, [nodes, T.edge]);
+    setSelectedIds((ids) => ids.filter((id) => id !== nodeId));
+  }, [nodes, T.edge, commitHist]);
+
+  // Fase 2: exclui TODOS os nós selecionados (com re-parenting de cada um) num
+  // único snapshot de histórico. Edges órfãs são removidas; avô religa aos netos.
+  const excluirSelecionados = useCallback(() => {
+    if (selectedIds.length === 0) return;
+    const alvos = new Set(selectedIds);
+    commitHist();
+    setNodes((ns) => {
+      const parentDe = (id: string) => ns.find((n) => n.id === id)?.parentId ?? null;
+      // sobe pro 1º ancestral vivo (fora da seleção) — re-parent em cadeia.
+      const avoVivo = (id: string): string | null => {
+        let p = parentDe(id);
+        while (p && alvos.has(p)) p = parentDe(p);
+        return p ?? null;
+      };
+      return ns
+        .filter((n) => !alvos.has(n.id))
+        .map((n) => (n.parentId && alvos.has(n.parentId) ? { ...n, parentId: avoVivo(n.parentId) } : n));
+    });
+    setEdges((es) => es.filter((e) => !alvos.has(e.from) && !alvos.has(e.to)));
+    setSelectedIds([]);
+    setSelectedEdgeId(null);
+  }, [selectedIds, commitHist]);
+
+  // Fase 2: duplica todos os selecionados juntos (offset +24/+24), preservando
+  // os vínculos pai→filho INTERNOS ao grupo (remapeia ids); vínculos pra fora
+  // viram livres. Seleciona as cópias.
+  const duplicarSelecionados = useCallback(() => {
+    if (selectedIds.length === 0) return;
+    commitHist();
+    const sel = nodesRef.current.filter((n) => selectedIds.includes(n.id));
+    const idMap = new Map<string, string>();
+    sel.forEach((n, i) => idMap.set(n.id, `n${Date.now()}_${i}`));
+    const copias: Node[] = sel.map((n) => ({
+      ...n,
+      id: idMap.get(n.id)!,
+      x: n.x + 24,
+      y: n.y + 24,
+      // mantém parentId só se o pai também foi copiado; senão vira livre.
+      parentId: n.parentId && idMap.has(n.parentId) ? idMap.get(n.parentId)! : null,
+    }));
+    // edges internas ao grupo são duplicadas com ids remapeados.
+    const edgesInternas = edgesRef.current.filter(
+      (e) => idMap.has(e.from) && idMap.has(e.to)
+    );
+    const copiasEdges: Edge[] = edgesInternas.map((e, i) => ({
+      ...e,
+      id: `e${Date.now()}_${i}`,
+      from: idMap.get(e.from)!,
+      to: idMap.get(e.to)!,
+    }));
+    setNodes((ns) => [...ns, ...copias]);
+    if (copiasEdges.length) setEdges((es) => [...es, ...copiasEdges]);
+    setSelectedIds(copias.map((c) => c.id));
+    setSelectedEdgeId(null);
+  }, [selectedIds, commitHist]);
 
   // ─── Atalhos de teclado ────────────────────────────────────────────
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      // Ignora se estiver editando texto (input, textarea, contenteditable)
+      // Ignora se estiver editando texto (input, textarea, contenteditable).
+      // ESSE guard impede Ctrl+Z/Ctrl+A/Tab/Enter/Shift de vazarem do textarea.
       const target = e.target as HTMLElement;
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
 
+      const ctrl = e.ctrlKey || e.metaKey;
+      // ── Undo / Redo ──
+      if (ctrl && e.key.toLowerCase() === "z" && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+        return;
+      }
+      if (ctrl && (e.key.toLowerCase() === "y" || (e.key.toLowerCase() === "z" && e.shiftKey))) {
+        e.preventDefault();
+        redo();
+        return;
+      }
+      // ── Selecionar tudo (visível) ──
+      if (ctrl && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        setSelectedIds(nodesRef.current.filter((n) => !hiddenIds.has(n.id)).map((n) => n.id));
+        setSelectedEdgeId(null);
+        return;
+      }
+
       if (e.key === "Escape") {
-        setSelectedId(null);
+        setSelectedIds([]);
+        setSelectedEdgeId(null);
         setEditingNodeId(null);
         setLinkingFrom(null);
+        setMarquee(null);
+        marqueeState.current = null;
         return;
       }
-      // ── Modo mapa-mental (só com nó selecionado e NÃO editando) ──
+
+      // ── Modo mapa-mental (só com 1 nó selecionado e NÃO editando) ──
       // O guard de INPUT/TEXTAREA/contentEditable acima garante que Tab/Enter
-      // dentro do textarea de edição NÃO chegam aqui.
-      if (e.key === "Tab" && selectedId) {
+      // dentro do textarea de edição NÃO chegam aqui. Com múltiplos selecionados,
+      // Tab/Enter ficam ambíguos → no-op (não cria filho/irmão).
+      const soloId = selectedIds.length === 1 ? selectedIds[0] : null;
+      if (e.key === "Tab" && soloId) {
         e.preventDefault();
-        criarFilho(selectedId);
+        criarFilho(soloId);
         return;
       }
-      if (e.key === "Enter" && selectedId && !e.shiftKey) {
+      if (e.key === "Enter" && soloId && !e.shiftKey) {
         e.preventDefault();
-        criarIrmao(selectedId);
+        criarIrmao(soloId);
         return;
       }
-      if ((e.key === "Delete" || e.key === "Backspace") && selectedId) {
+
+      // ── Excluir / duplicar (operam sobre TODOS os selecionados) ──
+      if ((e.key === "Delete" || e.key === "Backspace") && selectedIds.length) {
         e.preventDefault();
-        excluirNo(selectedId);
+        excluirSelecionados();
         return;
       }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d" && selectedId) {
+      if (ctrl && e.key.toLowerCase() === "d" && selectedIds.length) {
         e.preventDefault();
-        const sel = nodes.find((n) => n.id === selectedId);
-        if (!sel) return;
-        const novo: Node = { ...sel, id: `n${Date.now()}`, x: sel.x + 24, y: sel.y + 24 };
-        setNodes((ns) => [...ns, novo]);
-        setSelectedId(novo.id);
+        duplicarSelecionados();
         return;
       }
+
       // Ferramentas: V H R C T A S
       const toolMap: Record<string, Tool> = {
         v: "select", h: "pan", r: "rect", c: "circle",
         t: "text", a: "arrow", s: "sticky",
       };
       const next = toolMap[e.key.toLowerCase()];
-      if (next && !e.ctrlKey && !e.metaKey) {
+      if (next && !ctrl) {
         e.preventDefault();
         setTool(next);
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedId, nodes, criarFilho, criarIrmao, excluirNo]);
+  }, [selectedIds, hiddenIds, criarFilho, criarIrmao, excluirSelecionados, duplicarSelecionados, undo, redo]);
 
   // ─── Click no canvas — cria nó se ferramenta de criação ────────────
+  // Com select/pan, o clique no vazio é tratado pelo fluxo de marquee
+  // (mousedown→mouseup) que desseleciona quando não houve arrasto. Aqui só
+  // tratamos as ferramentas de criação.
   const handleCanvasClick = useCallback(
     (e: React.MouseEvent<SVGSVGElement>) => {
       if (e.target !== svgRef.current && !(e.target as Element).id?.startsWith("bg-")) return;
-      if (tool === "select" || tool === "pan") {
-        setSelectedId(null);
-        setEditingNodeId(null);
-        return;
-      }
+      if (tool === "select" || tool === "pan") return;
       const pt = svgPoint(e);
       if (!pt) return;
       const nid = `n${Date.now()}`;
@@ -353,12 +521,14 @@ export function MindMapCanvas({
         texto: tool === "sticky" ? "Sticky" : tool === "text" ? "Texto" : "Novo",
         cor: tool === "sticky" ? STICKY_COR : "#7E30E1",
       };
+      commitHist();
       setNodes((p) => [...p, novo]);
-      setSelectedId(nid);
+      setSelectedIds([nid]);
+      setSelectedEdgeId(null);
       setEditingNodeId(nid); // já abre edição inline
       setTool("select");
     },
-    [tool]
+    [tool, commitHist]
   );
 
   function svgPoint(e: React.MouseEvent | MouseEvent | { clientX: number; clientY: number }) {
@@ -380,60 +550,177 @@ export function MindMapCanvas({
   function startDrag(e: React.MouseEvent, n: Node) {
     if (tool !== "select") return;
     e.stopPropagation();
+    // Linking (conectar): clicar no destino cria a aresta. Inalterado (F1), só
+    // com snapshot de histórico antes.
     if (linkingFrom && linkingFrom !== n.id) {
+      commitHist();
       const novaEdge: Edge = { id: `e${Date.now()}`, from: linkingFrom, to: n.id, estilo: "solid", cor: T.edge };
       setEdges((p) => [...p, novaEdge]);
       setLinkingFrom(null);
       return;
     }
+
+    // Shift+clique: adiciona/remove ESTE nó da seleção (sem iniciar drag).
+    if (e.shiftKey) {
+      setSelectedEdgeId(null);
+      setSelectedIds((ids) =>
+        ids.includes(n.id) ? ids.filter((id) => id !== n.id) : [...ids, n.id]
+      );
+      return;
+    }
+
     const pt = svgPoint(e);
     if (!pt) return;
-    dragState.current = { nodeId: n.id, offsetX: pt.x - n.x, offsetY: pt.y - n.y, altPressed: e.altKey };
-    setSelectedId(n.id);
+
+    // Se o nó clicado já faz parte da seleção, mantém o grupo (pra arrastar
+    // todos juntos). Senão, seleciona só ele.
+    const grupo = selectedSet.has(n.id) && selectedIds.length > 0 ? selectedIds : [n.id];
+    if (!(selectedSet.has(n.id) && selectedIds.length > 0)) {
+      setSelectedIds([n.id]);
+    }
+    setSelectedEdgeId(null);
+
+    const ns = nodesRef.current;
+    const offsets = grupo
+      .map((id) => ns.find((nn) => nn.id === id))
+      .filter((nn): nn is Node => !!nn)
+      .map((nn) => ({ id: nn.id, dx: pt.x - nn.x, dy: pt.y - nn.y }));
+    // Snapshot único pro drag inteiro (coalescido). 'moved' vira true só se
+    // houver movimento de fato — sem isso, um clique simples não polui o undo.
+    commitHist();
+    dragState.current = { primaryId: n.id, offsets, moved: false };
   }
 
+  // Início de pan OU de marquee. Pan: ferramenta pan ou Shift+arrasto. Marquee:
+  // ferramenta select arrastando no vazio (fundo do canvas).
   function startPan(e: React.MouseEvent) {
-    if (tool !== "pan" && !e.shiftKey) return;
-    e.stopPropagation();
-    panState.current = { startX: e.clientX, startY: e.clientY, pX: pan.x, pY: pan.y };
+    const noVazio =
+      e.target === svgRef.current || (e.target as Element).id?.startsWith("bg-");
+    // Pan tem prioridade (ferramenta pan, ou Shift mesmo na select).
+    if (tool === "pan" || (e.shiftKey && tool !== "select")) {
+      e.stopPropagation();
+      panState.current = { startX: e.clientX, startY: e.clientY, pX: pan.x, pY: pan.y };
+      return;
+    }
+    if (e.shiftKey && tool === "select" && noVazio) {
+      // Shift+arrasto no vazio com select também faz pan (atalho histórico).
+      e.stopPropagation();
+      panState.current = { startX: e.clientX, startY: e.clientY, pX: pan.x, pY: pan.y };
+      return;
+    }
+    // Marquee: select, no vazio (Shift no vazio já virou pan acima).
+    if (tool === "select" && noVazio) {
+      const pt = svgPoint(e);
+      if (!pt) return;
+      marqueeState.current = { x1: pt.x, y1: pt.y };
+      setMarquee({ x1: pt.x, y1: pt.y, x2: pt.x, y2: pt.y });
+    }
   }
 
-  // ─── Mouse move/up (drag + pan globais) ────────────────────────────
+  // Última posição absoluta do mouse (pra cálculos no mouseup do marquee).
+  const lastMouse = useRef({ x: 0, y: 0 });
+
+  // ─── Mouse move/up (drag + pan + marquee globais) ──────────────────
   useEffect(() => {
     function onMove(e: MouseEvent) {
       if (dragState.current) {
         const pt = svgPoint(e);
         if (!pt) return;
+        const ds = dragState.current;
+        ds.moved = true;
         const disableSnap = e.altKey;
+        const primary = ds.offsets.find((o) => o.id === ds.primaryId)!;
+        // Posição "crua" do nó primário (segue o cursor).
+        let px = pt.x - primary.dx;
+        let py = pt.y - primary.dy;
+        // Guias de alinhamento (bônus): só quando arrastando 1 nó e snap ligado.
+        // Alinha bordas/centros do nó primário com QUALQUER nó fora da seleção.
+        let gV: number[] = [];
+        let gH: number[] = [];
+        if (!disableSnap && ds.offsets.length === 1) {
+          const ns = nodesRef.current;
+          const moving = ns.find((n) => n.id === ds.primaryId);
+          if (moving) {
+            const alvos = ns.filter((n) => !selectedSet.has(n.id) && !hiddenIds.has(n.id));
+            const res = alinhar(px, py, moving.w, moving.h, alvos);
+            px = res.x;
+            py = res.y;
+            gV = res.v;
+            gH = res.h;
+          }
+        }
+        // Snap pro grid (a menos que Alt) sobre o nó primário; o grupo segue
+        // pelo MESMO delta — cada nó = posição do primário + offset relativo
+        // original (preserva as distâncias entre os nós do grupo).
+        const baseX = snap(px, disableSnap);
+        const baseY = snap(py, disableSnap);
+        const ids = new Set(ds.offsets.map((o) => o.id));
         setNodes((prev) =>
-          prev.map((n) =>
-            n.id === dragState.current!.nodeId
-              ? {
-                  ...n,
-                  x: snap(pt.x - dragState.current!.offsetX, disableSnap),
-                  y: snap(pt.y - dragState.current!.offsetY, disableSnap),
-                }
-              : n
-          )
+          prev.map((n) => {
+            if (!ids.has(n.id)) return n;
+            const off = ds.offsets.find((o) => o.id === n.id)!;
+            // relX = node.x - primaryNode.x = primary.dx - off.dx
+            return { ...n, x: baseX + (primary.dx - off.dx), y: baseY + (primary.dy - off.dy) };
+          })
         );
+        setGuides({ v: gV, h: gH });
       } else if (panState.current) {
         setPan({
           x: panState.current.pX + (e.clientX - panState.current.startX),
           y: panState.current.pY + (e.clientY - panState.current.startY),
         });
+      } else if (marqueeState.current) {
+        const pt = svgPoint(e);
+        if (!pt) return;
+        setMarquee({ x1: marqueeState.current.x1, y1: marqueeState.current.y1, x2: pt.x, y2: pt.y });
       }
     }
     function onUp() {
+      // Fim de drag: se não houve movimento, descarta o snapshot que tiramos
+      // no mousedown (clique simples não deve gerar entrada de undo).
+      if (dragState.current && !dragState.current.moved) {
+        undoStack.current.pop();
+        setHistTick((t) => t + 1);
+      }
+      // Fim de marquee: seleciona nós cujo CENTRO cai no retângulo. Sem arrasto
+      // (clique simples no vazio) → desseleciona tudo.
+      if (marqueeState.current) {
+        const m = marqueeState.current;
+        const last = svgPoint({ clientX: lastMouse.current.x, clientY: lastMouse.current.y });
+        if (last) {
+          const x1 = Math.min(m.x1, last.x), x2 = Math.max(m.x1, last.x);
+          const y1 = Math.min(m.y1, last.y), y2 = Math.max(m.y1, last.y);
+          const dentro = nodesRef.current
+            .filter((n) => !hiddenIds.has(n.id))
+            .filter((n) => {
+              const cx = n.x + n.w / 2, cy = n.y + n.h / 2;
+              return cx >= x1 && cx <= x2 && cy >= y1 && cy <= y2;
+            })
+            .map((n) => n.id);
+          setSelectedIds(dentro);
+          setSelectedEdgeId(null);
+        }
+      }
       dragState.current = null;
       panState.current = null;
+      marqueeState.current = null;
+      setMarquee(null);
+      setGuides({ v: [], h: [] });
+    }
+    // Rastreia a última posição do mouse pra resolver o ponto de canvas no
+    // mouseup do marquee (mouseup não traz coordenadas confiáveis sempre).
+    function track(e: MouseEvent) {
+      lastMouse.current = { x: e.clientX, y: e.clientY };
     }
     window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousemove", track);
     window.addEventListener("mouseup", onUp);
     return () => {
       window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousemove", track);
       window.removeEventListener("mouseup", onUp);
     };
-  }, []);
+  }, [selectedSet, hiddenIds]);
 
   // ─── Zoom com scroll do mouse ──────────────────────────────────────
   function onWheel(e: React.WheelEvent) {
@@ -456,15 +743,17 @@ export function MindMapCanvas({
     if (e.touches.length === 1) {
       const t = e.touches[0];
       const target = e.target as Element;
-      // Se tocou num nó, drag
+      // Se tocou num nó, drag (no touch movemos só o nó tocado).
       const nodeId = target.closest("[data-node-id]")?.getAttribute("data-node-id");
       if (nodeId && tool === "select") {
         const n = nodes.find((nn) => nn.id === nodeId);
         if (!n) return;
         const pt = svgPoint({ clientX: t.clientX, clientY: t.clientY });
         if (!pt) return;
-        dragState.current = { nodeId, offsetX: pt.x - n.x, offsetY: pt.y - n.y, altPressed: false };
-        setSelectedId(nodeId);
+        commitHist();
+        dragState.current = { primaryId: nodeId, offsets: [{ id: nodeId, dx: pt.x - n.x, dy: pt.y - n.y }], moved: false };
+        setSelectedIds([nodeId]);
+        setSelectedEdgeId(null);
         return;
       }
       // Senão pan
@@ -488,10 +777,13 @@ export function MindMapCanvas({
       if (dragState.current) {
         const pt = svgPoint({ clientX: t.clientX, clientY: t.clientY });
         if (!pt) return;
+        const ds = dragState.current;
+        ds.moved = true;
+        const off = ds.offsets[0];
         setNodes((prev) =>
           prev.map((n) =>
-            n.id === dragState.current!.nodeId
-              ? { ...n, x: snap(pt.x - dragState.current!.offsetX, false), y: snap(pt.y - dragState.current!.offsetY, false) }
+            n.id === off.id
+              ? { ...n, x: snap(pt.x - off.dx, false), y: snap(pt.y - off.dy, false) }
               : n
           )
         );
@@ -505,26 +797,58 @@ export function MindMapCanvas({
   }
 
   function onTouchEnd() {
+    // Coalesce: toque sem arrasto não vira entrada de undo.
+    if (dragState.current && !dragState.current.moved) {
+      undoStack.current.pop();
+      setHistTick((t) => t + 1);
+    }
     dragState.current = null;
     panState.current = null;
     pinchState.current = null;
   }
 
+  // Edita o nó ATIVO (painel de 1 nó) SEM snapshot — usado por onChange contínuo
+  // de inputs de texto. A coalescência vem de commitHist() no onFocus do input
+  // (1 snapshot por sessão de digitação). Também usado pela edição inline (que
+  // commita 1x ao entrar em edição).
+  function patchNode(patch: Partial<Node>) {
+    if (!selected) return;
+    setNodes((ns) => ns.map((n) => (n.id === selected.id ? { ...n, ...patch } : n)));
+  }
+
+  // Variante que SEMPRE snapshota — usada por ações discretas (ex.: edição
+  // inline no canvas commita 1x ao confirmar).
   function atualizarNode(patch: Partial<Node>) {
     if (!selected) return;
-    setNodes(nodes.map((n) => (n.id === selected.id ? { ...n, ...patch } : n)));
+    commitHist();
+    patchNode(patch);
   }
 
-  function deletarSelecionado() {
-    if (!selected) return;
-    excluirNo(selected.id); // re-parent filhos pro avô (não cascateia exclusão)
+  // Aplica um patch de ESTILO (cor/fontScale) a TODOS os nós selecionados.
+  function atualizarSelecionados(patch: Partial<Node>) {
+    if (selectedIds.length === 0) return;
+    commitHist();
+    setNodes((ns) => ns.map((n) => (selectedSet.has(n.id) ? { ...n, ...patch } : n)));
   }
 
-  function duplicar() {
-    if (!selected) return;
-    const novo: Node = { ...selected, id: `n${Date.now()}`, x: selected.x + 24, y: selected.y + 24 };
-    setNodes([...nodes, novo]);
-    setSelectedId(novo.id);
+  // Edita a aresta selecionada (estilo/seta/label/cor) SEM snapshot (onChange
+  // contínuo). Snapshot vem do onFocus pros campos de texto / direto pros toggles.
+  function patchEdge(patch: Partial<Edge>) {
+    if (!selectedEdge) return;
+    setEdges((es) => es.map((ed) => (ed.id === selectedEdge.id ? { ...ed, ...patch } : ed)));
+  }
+
+  function atualizarEdge(patch: Partial<Edge>) {
+    if (!selectedEdge) return;
+    commitHist();
+    patchEdge(patch);
+  }
+
+  function excluirEdge() {
+    if (!selectedEdge) return;
+    commitHist();
+    setEdges((es) => es.filter((ed) => ed.id !== selectedEdge.id));
+    setSelectedEdgeId(null);
   }
 
   function exportarSvg() {
@@ -579,6 +903,29 @@ export function MindMapCanvas({
           </span>
         </div>
         <div className="flex gap-2">
+          {/* Undo / Redo (Fase 2). histTick força re-render do disabled. */}
+          <div className="flex items-center gap-0.5 mr-1" data-hist={histTick}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={undo}
+              disabled={undoStack.current.length === 0}
+              title="Desfazer (Ctrl+Z)"
+            >
+              <Undo2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={redo}
+              disabled={redoStack.current.length === 0}
+              title="Refazer (Ctrl+Shift+Z / Ctrl+Y)"
+            >
+              <Redo2 className="h-4 w-4" />
+            </Button>
+          </div>
           <Button variant="outline" size="sm" onClick={exportarPng}>
             <ImageIcon className="h-3.5 w-3.5" /> PNG
           </Button>
@@ -631,21 +978,108 @@ export function MindMapCanvas({
           </button>
         </div>
 
-        {/* Painel direito de propriedades */}
-        {selected && (
+        {/* Painel direito — ARESTA selecionada (prioridade sobre nós) */}
+        {selectedEdge && (
           <div className="absolute right-3 top-3 z-10 bg-card/95 backdrop-blur-sm border border-border rounded-2xl p-3.5 w-60 shadow-xl shadow-black/5 space-y-3.5">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Estilo do nó</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Estilo da conexão</div>
+            <div>
+              <div className="text-[11px] text-muted-foreground mb-1.5">Traço</div>
+              <div className="flex gap-1.5">
+                {(["solid", "dashed", "dotted"] as const).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => atualizarEdge({ estilo: s })}
+                    title={s === "solid" ? "Sólido" : s === "dashed" ? "Tracejado" : "Pontilhado"}
+                    className={cn(
+                      "flex-1 h-8 rounded-lg border flex items-center justify-center transition-colors",
+                      selectedEdge.estilo === s
+                        ? "border-sal-600 bg-sal-600/10 text-foreground"
+                        : "border-border text-muted-foreground hover:bg-secondary"
+                    )}
+                  >
+                    <svg width="34" height="2" viewBox="0 0 34 2">
+                      <line
+                        x1="0" y1="1" x2="34" y2="1"
+                        stroke="currentColor" strokeWidth="2"
+                        strokeDasharray={s === "dashed" ? "6 3" : s === "dotted" ? "2 3" : "0"}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] text-muted-foreground">Seta na ponta</div>
+              <button
+                onClick={() => atualizarEdge({ arrow: !(selectedEdge.arrow ?? true) })}
+                role="switch"
+                aria-checked={selectedEdge.arrow ?? true}
+                className={cn(
+                  "relative h-5 w-9 rounded-full transition-colors",
+                  (selectedEdge.arrow ?? true) ? "bg-sal-600" : "bg-secondary"
+                )}
+              >
+                <span
+                  className={cn(
+                    "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all",
+                    (selectedEdge.arrow ?? true) ? "left-[18px]" : "left-0.5"
+                  )}
+                />
+              </button>
+            </div>
+            <div>
+              <div className="text-[11px] text-muted-foreground mb-1">Rótulo</div>
+              <Input
+                value={selectedEdge.label ?? ""}
+                onFocus={commitHist}
+                onChange={(e) => patchEdge({ label: e.target.value })}
+                placeholder="texto curto"
+                className="h-8 text-xs"
+              />
+            </div>
             <div>
               <div className="text-[11px] text-muted-foreground mb-1.5">Cor</div>
               <div className="flex gap-1.5 flex-wrap">
                 {CORES.map((c) => (
                   <button
                     key={c}
-                    onClick={() => atualizarNode({ cor: c })}
+                    onClick={() => atualizarEdge({ cor: c })}
                     title={c}
                     className={cn(
                       "h-6 w-6 rounded-full transition-all duration-150 ring-offset-2 ring-offset-card hover:scale-110",
-                      selected.cor === c
+                      selectedEdge.cor === c ? "ring-2 ring-foreground scale-110" : "ring-1 ring-black/5"
+                    )}
+                    style={{ background: c }}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-border pt-3 flex justify-end">
+              <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-600" onClick={excluirEdge}>
+                <Trash2 className="h-3.5 w-3.5" /> Excluir conexão
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Painel direito — NÓ(S) selecionado(s) */}
+        {!selectedEdge && (selected || selectedIds.length > 1) && (
+          <div className="absolute right-3 top-3 z-10 bg-card/95 backdrop-blur-sm border border-border rounded-2xl p-3.5 w-60 shadow-xl shadow-black/5 space-y-3.5">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              {selectedIds.length > 1 ? `${selectedIds.length} nós selecionados` : "Estilo do nó"}
+            </div>
+            <div>
+              <div className="text-[11px] text-muted-foreground mb-1.5">Cor</div>
+              <div className="flex gap-1.5 flex-wrap">
+                {CORES.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => (selected ? atualizarNode({ cor: c }) : atualizarSelecionados({ cor: c }))}
+                    title={c}
+                    className={cn(
+                      "h-6 w-6 rounded-full transition-all duration-150 ring-offset-2 ring-offset-card hover:scale-110",
+                      selected?.cor === c
                         ? "ring-2 ring-foreground scale-110"
                         : "ring-1 ring-black/5"
                     )}
@@ -654,34 +1088,65 @@ export function MindMapCanvas({
                 ))}
               </div>
             </div>
+            {/* Fase 2: tamanho de fonte (peq/méd/grande) — nó único ou lote */}
             <div>
-              <div className="text-[11px] text-muted-foreground mb-1">Texto</div>
-              <Input
-                value={selected.texto}
-                onChange={(e) => atualizarNode({ texto: e.target.value })}
-                className="h-8 text-xs"
-              />
+              <div className="text-[11px] text-muted-foreground mb-1.5">Fonte</div>
+              <div className="flex gap-1.5">
+                {(["sm", "md", "lg"] as const).map((fs) => (
+                  <button
+                    key={fs}
+                    onClick={() => (selected ? atualizarNode({ fontScale: fs }) : atualizarSelecionados({ fontScale: fs }))}
+                    title={fs === "sm" ? "Pequena" : fs === "md" ? "Média" : "Grande"}
+                    className={cn(
+                      "flex-1 h-8 rounded-lg border transition-colors flex items-center justify-center",
+                      (selected?.fontScale ?? "md") === fs && selected
+                        ? "border-sal-600 bg-sal-600/10 text-foreground"
+                        : "border-border text-muted-foreground hover:bg-secondary"
+                    )}
+                    style={{ fontSize: fs === "sm" ? 11 : fs === "md" ? 13 : 16, fontWeight: 600 }}
+                  >
+                    A
+                  </button>
+                ))}
+              </div>
             </div>
-            <div>
-              <div className="text-[11px] text-muted-foreground mb-1">Subtexto</div>
-              <Input
-                value={selected.subtexto ?? ""}
-                onChange={(e) => atualizarNode({ subtexto: e.target.value })}
-                className="h-8 text-xs"
-              />
-            </div>
+            {/* Texto/subtexto só fazem sentido pra 1 nó */}
+            {selected && (
+              <>
+                <div>
+                  <div className="text-[11px] text-muted-foreground mb-1">Texto</div>
+                  <Input
+                    value={selected.texto}
+                    onFocus={commitHist}
+                    onChange={(e) => patchNode({ texto: e.target.value })}
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <div>
+                  <div className="text-[11px] text-muted-foreground mb-1">Subtexto</div>
+                  <Input
+                    value={selected.subtexto ?? ""}
+                    onFocus={commitHist}
+                    onChange={(e) => patchNode({ subtexto: e.target.value })}
+                    className="h-8 text-xs"
+                  />
+                </div>
+              </>
+            )}
             <div className="border-t border-border pt-3 flex justify-between gap-1">
-              <Button size="sm" variant="outline" className="flex-1" onClick={() => setLinkingFrom(selected.id)}>
-                <MoveRight className="h-3 w-3" /> Conectar
-              </Button>
-              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={duplicar} title="Duplicar (Ctrl+D)">
+              {selected && (
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => setLinkingFrom(selected.id)}>
+                  <MoveRight className="h-3 w-3" /> Conectar
+                </Button>
+              )}
+              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={duplicarSelecionados} title="Duplicar (Ctrl+D)">
                 <Copy className="h-3.5 w-3.5" />
               </Button>
-              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={deletarSelecionado} title="Excluir (Del)">
+              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={excluirSelecionados} title="Excluir (Del)">
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
-            {linkingFrom === selected.id && (
+            {selected && linkingFrom === selected.id && (
               <div className="text-[10.5px] text-sal-700 dark:text-sal-400 text-center bg-sal-600/10 rounded-lg p-2 font-medium">
                 Clique em outro nó para conectar
               </div>
@@ -789,17 +1254,69 @@ export function MindMapCanvas({
               const x1 = f.x + f.w / 2, y1 = f.y + f.h / 2;
               const x2 = t.x + t.w / 2, y2 = t.y + t.h / 2;
               const cx = (x1 + x2) / 2;
+              const d = `M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`;
+              const isSel = selectedEdgeId === e.id;
+              const showArrow = e.arrow ?? true; // edges antigas mantêm a seta
+              // Midpoint do bezier cúbico (t=0.5) com controles (cx,y1) e (cx,y2):
+              // x → cx; y → média de y1/y2.
+              const mx = cx;
+              const my = (y1 + y2) / 2;
               return (
-                <path
-                  key={e.id}
-                  d={`M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`}
-                  stroke={e.cor}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  fill="none"
-                  markerEnd="url(#arrow)"
-                  strokeDasharray={e.estilo === "dashed" ? "7 4" : e.estilo === "dotted" ? "2 4" : "0"}
-                />
+                <g key={e.id}>
+                  {/* Hit-area invisível e gorda pra facilitar clicar na aresta */}
+                  <path
+                    d={d}
+                    stroke="transparent"
+                    strokeWidth={14}
+                    fill="none"
+                    style={{ cursor: tool === "select" ? "pointer" : "default" }}
+                    onMouseDown={(ev) => {
+                      if (tool !== "select") return;
+                      ev.stopPropagation();
+                      setSelectedEdgeId(e.id);
+                      setSelectedIds([]);
+                      setEditingNodeId(null);
+                    }}
+                  />
+                  {isSel && (
+                    <path d={d} stroke="#7E30E1" strokeWidth={5} strokeLinecap="round" fill="none" opacity={0.25} style={{ pointerEvents: "none" }} />
+                  )}
+                  <path
+                    d={d}
+                    stroke={e.cor}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    fill="none"
+                    markerEnd={showArrow ? "url(#arrow)" : undefined}
+                    strokeDasharray={e.estilo === "dashed" ? "7 4" : e.estilo === "dotted" ? "2 4" : "0"}
+                    style={{ pointerEvents: "none" }}
+                  />
+                  {e.label && (
+                    <g style={{ pointerEvents: "none" }}>
+                      {/* "pílula" de fundo pro label não sumir sobre a linha */}
+                      <rect
+                        x={mx - (e.label.length * 3.4 + 6)}
+                        y={my - 9}
+                        width={e.label.length * 6.8 + 12}
+                        height={18}
+                        rx={5}
+                        fill={T.canvasBg}
+                        opacity={0.9}
+                      />
+                      <text
+                        x={mx}
+                        y={my + 4}
+                        textAnchor="middle"
+                        fill={T.nodeSub}
+                        fontFamily="Inter"
+                        fontSize="11"
+                        fontWeight="600"
+                      >
+                        {e.label}
+                      </text>
+                    </g>
+                  )}
+                </g>
               );
             })}
 
@@ -850,8 +1367,9 @@ export function MindMapCanvas({
                 )}
 
                 {/* Estado selecionado — ring elegante + handles nos cantos
-                    (substitui o "engrossar borda" cru). Visual apenas. */}
-                {selectedId === n.id && editingNodeId !== n.id && (() => {
+                    (substitui o "engrossar borda" cru). Visual apenas.
+                    Aplica a CADA nó da multi-seleção. */}
+                {selectedSet.has(n.id) && editingNodeId !== n.id && (() => {
                   const pad = 5;
                   const isCircle = n.tipo === "circle";
                   const handles = [
@@ -901,24 +1419,32 @@ export function MindMapCanvas({
                   );
                 })()}
 
-                {/* Edição inline com foreignObject + textarea */}
+                {/* Edição inline com foreignObject + textarea. Confirma SEMPRE
+                    pelo onBlur (Enter/Esc só fazem blur), evitando commit duplo
+                    no histórico. Só snapshota se o texto mudou de fato. */}
                 {editingNodeId === n.id ? (
                   <foreignObject x={6} y={6} width={n.w - 12} height={n.h - 12}>
                     <textarea
                       autoFocus
                       defaultValue={n.texto}
                       onBlur={(e) => {
-                        atualizarNode({ texto: e.target.value });
+                        const val = e.target.value;
+                        if (val !== n.texto) {
+                          commitHist();
+                          setNodes((ns) => ns.map((nn) => (nn.id === n.id ? { ...nn, texto: val } : nn)));
+                        }
                         setEditingNodeId(null);
                       }}
                       onKeyDown={(e) => {
+                        // Enter confirma (via blur); Shift+Enter quebra linha.
                         if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
-                          atualizarNode({ texto: (e.target as HTMLTextAreaElement).value });
-                          setEditingNodeId(null);
+                          (e.target as HTMLTextAreaElement).blur();
                         }
+                        // Esc cancela: restaura valor original antes do blur → no-op.
                         if (e.key === "Escape") {
-                          setEditingNodeId(null);
+                          (e.target as HTMLTextAreaElement).value = n.texto;
+                          (e.target as HTMLTextAreaElement).blur();
                         }
                       }}
                       style={{
@@ -930,7 +1456,7 @@ export function MindMapCanvas({
                         background: "transparent",
                         color: n.tipo === "sticky" ? STICKY_INK : T.nodeText,
                         fontFamily: "Inter Tight, Inter",
-                        fontSize: "13px",
+                        fontSize: `${fontePx(n)}px`,
                         fontWeight: 600,
                         textAlign: "center",
                         padding: 0,
@@ -941,11 +1467,11 @@ export function MindMapCanvas({
                   <>
                     <text
                       x={n.w / 2}
-                      y={n.subtexto ? n.h / 2 - 4 : n.h / 2 + 5}
+                      y={n.subtexto ? n.h / 2 - 4 : n.h / 2 + fontePx(n) / 3}
                       textAnchor="middle"
                       fill={n.tipo === "sticky" ? STICKY_INK : T.nodeText}
                       fontFamily="Inter Tight, Inter"
-                      fontSize="13"
+                      fontSize={fontePx(n)}
                       fontWeight="600"
                       style={{ pointerEvents: "none" }}
                     >
@@ -1025,6 +1551,41 @@ export function MindMapCanvas({
               </g>
               );
             })}
+
+            {/* Guias de alinhamento (bônus) — linhas finas roxas durante o drag.
+                strokeWidth dividido pelo zoom pra ficar ~1px na tela. */}
+            {guides.v.map((gx, i) => (
+              <line
+                key={`gv-${i}`}
+                x1={gx} y1={-20000} x2={gx} y2={20000}
+                stroke="#7E30E1" strokeWidth={1 / zoom} strokeDasharray={`${4 / zoom} ${3 / zoom}`}
+                style={{ pointerEvents: "none" }}
+              />
+            ))}
+            {guides.h.map((gy, i) => (
+              <line
+                key={`gh-${i}`}
+                x1={-20000} y1={gy} x2={20000} y2={gy}
+                stroke="#7E30E1" strokeWidth={1 / zoom} strokeDasharray={`${4 / zoom} ${3 / zoom}`}
+                style={{ pointerEvents: "none" }}
+              />
+            ))}
+
+            {/* Retângulo de marquee (seleção por área) */}
+            {marquee && (
+              <rect
+                x={Math.min(marquee.x1, marquee.x2)}
+                y={Math.min(marquee.y1, marquee.y2)}
+                width={Math.abs(marquee.x2 - marquee.x1)}
+                height={Math.abs(marquee.y2 - marquee.y1)}
+                fill="#7E30E1"
+                fillOpacity={0.08}
+                stroke="#7E30E1"
+                strokeWidth={1 / zoom}
+                strokeDasharray={`${4 / zoom} ${3 / zoom}`}
+                style={{ pointerEvents: "none" }}
+              />
+            )}
           </g>
         </svg>
       </Card>
@@ -1038,12 +1599,76 @@ export function MindMapCanvas({
         <span><span className="kbd-key">Enter</span> cria irmão</span>
         <span><span className="kbd-key">Del</span> exclui</span>
         <span><span className="kbd-key">Ctrl+D</span> duplica</span>
-        <span><span className="kbd-key">Shift</span>+arrastar move canvas</span>
+        <span><span className="kbd-key">Ctrl+Z</span>/<span className="kbd-key">Ctrl+Y</span> desfaz/refaz</span>
+        <span><span className="kbd-key">Ctrl+A</span> seleciona tudo</span>
+        <span>Arrastar no vazio = seleção; <span className="kbd-key">Shift</span>+clique soma</span>
+        <span>Clique numa linha edita a conexão</span>
         <span><span className="kbd-key">Alt</span> ao arrastar desliga snap</span>
         <span>Scroll = zoom</span>
       </div>
     </div>
   );
+}
+
+// ─── Fase 2 (bônus): guias de alinhamento ─────────────────────────────
+
+/**
+ * Dado o nó em movimento (posição proposta x/y + w/h) e os nós-alvo (fora da
+ * seleção), procura alinhamentos de borda esquerda/centro/direita (eixo X) e
+ * topo/centro/base (eixo Y) dentro de ALIGN_SNAP. Quando acha, "gruda" a
+ * posição e devolve as coordenadas das linhas-guia a desenhar.
+ */
+function alinhar(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  alvos: Node[]
+): { x: number; y: number; v: number[]; h: number[] } {
+  // Candidatos do nó em movimento por eixo: [valorAtual, ajusteParaAlinhar].
+  // ajuste = quanto somar em x/y pra a "feature" bater no valor do alvo.
+  const meusX = [
+    { val: x, off: 0 },            // borda esquerda
+    { val: x + w / 2, off: w / 2 }, // centro
+    { val: x + w, off: w },        // borda direita
+  ];
+  const meusY = [
+    { val: y, off: 0 },
+    { val: y + h / 2, off: h / 2 },
+    { val: y + h, off: h },
+  ];
+  const alvosX: number[] = [];
+  const alvosY: number[] = [];
+  for (const a of alvos) {
+    alvosX.push(a.x, a.x + a.w / 2, a.x + a.w);
+    alvosY.push(a.y, a.y + a.h / 2, a.y + a.h);
+  }
+
+  let bestX: { snapTo: number; newX: number; dist: number } | null = null;
+  for (const m of meusX) {
+    for (const t of alvosX) {
+      const dist = Math.abs(m.val - t);
+      if (dist <= ALIGN_SNAP && (!bestX || dist < bestX.dist)) {
+        bestX = { snapTo: t, newX: t - m.off, dist };
+      }
+    }
+  }
+  let bestY: { snapTo: number; newY: number; dist: number } | null = null;
+  for (const m of meusY) {
+    for (const t of alvosY) {
+      const dist = Math.abs(m.val - t);
+      if (dist <= ALIGN_SNAP && (!bestY || dist < bestY.dist)) {
+        bestY = { snapTo: t, newY: t - m.off, dist };
+      }
+    }
+  }
+
+  return {
+    x: bestX ? bestX.newX : x,
+    y: bestY ? bestY.newY : y,
+    v: bestX ? [bestX.snapTo] : [],
+    h: bestY ? [bestY.snapTo] : [],
+  };
 }
 
 // ─── Helpers de export/thumbnail ──────────────────────────────────────

@@ -365,6 +365,11 @@ export const mindMapNodeSchema = z.object({
   texto: z.string().default(""),
   subtexto: z.string().optional(),
   cor: z.string().default("#7E30E1"),
+  // Modo mapa-mental (hierarquia) — retrocompatível, sem migração.
+  parentId: z.string().nullable().optional(),
+  collapsed: z.boolean().optional(),
+  // Fase 2: escala de fonte do nó (peq/méd/grande).
+  fontScale: z.enum(["sm", "md", "lg"]).optional(),
 });
 
 export const mindMapEdgeSchema = z.object({
@@ -373,6 +378,9 @@ export const mindMapEdgeSchema = z.object({
   to: z.string(),
   estilo: z.enum(["solid", "dashed", "dotted"]).default("solid"),
   cor: z.string().default("#9696A8"),
+  // Fase 2: seta (marker) e label curto no meio da aresta.
+  arrow: z.boolean().optional(),
+  label: z.string().optional(),
 });
 
 export const mindMapDataSchema = z.object({
