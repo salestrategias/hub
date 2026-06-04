@@ -111,10 +111,10 @@ export function TrafegoClient({ clientes }: { clientes: { id: string; nome: stri
             <Card><CardHeader><CardTitle className="text-sm">ROAS por plataforma / mês</CardTitle></CardHeader><CardContent>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={roasPorPlatMes}>
-                  <CartesianGrid stroke="rgba(255,255,255,.05)" />
+                  <CartesianGrid stroke="rgba(120,120,135,0.15)" />
                   <XAxis dataKey="mes" stroke="#94A3B8" fontSize={11} />
                   <YAxis stroke="#94A3B8" fontSize={11} />
-                  <Tooltip contentStyle={{ background: "#13131C", border: "1px solid #1F1F2D" }} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--popover-foreground))" }} />
                   <Legend />
                   {PLATS.map((p, i) => <Bar key={p} dataKey={p} fill={COLORS[i]} radius={[4, 4, 0, 0]} />)}
                 </BarChart>
@@ -126,7 +126,7 @@ export function TrafegoClient({ clientes }: { clientes: { id: string; nome: stri
                   <Pie data={investPorPlat} dataKey="value" nameKey="name" innerRadius={50} outerRadius={95}>
                     {investPorPlat.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "#13131C", border: "1px solid #1F1F2D" }} formatter={(v: number) => formatBRL(v)} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--popover-foreground))" }} formatter={(v: number) => formatBRL(v)} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>

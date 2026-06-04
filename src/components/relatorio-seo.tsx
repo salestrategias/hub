@@ -103,10 +103,10 @@ export function SeoClient({ clientes }: { clientes: { id: string; nome: string }
               <Card><CardHeader><CardTitle className="text-sm">Cliques orgânicos</CardTitle></CardHeader><CardContent>
                 <ResponsiveContainer width="100%" height={220}>
                   <AreaChart data={ordenadas.map((m) => ({ mes: `${MES_NOMES[m.mes - 1]}/${String(m.ano).slice(-2)}`, c: m.cliquesOrganicos }))}>
-                    <CartesianGrid stroke="rgba(255,255,255,.05)" />
+                    <CartesianGrid stroke="rgba(120,120,135,0.15)" />
                     <XAxis dataKey="mes" stroke="#94A3B8" fontSize={11} />
                     <YAxis stroke="#94A3B8" fontSize={11} />
-                    <Tooltip contentStyle={{ background: "#13131C", border: "1px solid #1F1F2D" }} />
+                    <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--popover-foreground))" }} />
                     <Area type="monotone" dataKey="c" stroke="#7E30E1" fill="#7E30E133" />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -114,10 +114,10 @@ export function SeoClient({ clientes }: { clientes: { id: string; nome: string }
               <Card><CardHeader><CardTitle className="text-sm">Posição média (menor é melhor)</CardTitle></CardHeader><CardContent>
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={ordenadas.map((m) => ({ mes: `${MES_NOMES[m.mes - 1]}/${String(m.ano).slice(-2)}`, p: m.posicaoMedia }))}>
-                    <CartesianGrid stroke="rgba(255,255,255,.05)" />
+                    <CartesianGrid stroke="rgba(120,120,135,0.15)" />
                     <XAxis dataKey="mes" stroke="#94A3B8" fontSize={11} />
                     <YAxis stroke="#94A3B8" fontSize={11} reversed />
-                    <Tooltip contentStyle={{ background: "#13131C", border: "1px solid #1F1F2D" }} />
+                    <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--popover-foreground))" }} />
                     <Line type="monotone" dataKey="p" stroke="#10B981" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>

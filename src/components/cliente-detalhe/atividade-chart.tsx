@@ -45,7 +45,7 @@ export function AtividadeChart({ data }: { data: Semana[] }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const dark = mounted ? resolvedTheme === "dark" : true;
+  const dark = mounted ? resolvedTheme === "dark" : false;
   const axisStroke = dark ? "rgba(150, 150, 168, 0.7)" : "rgba(80, 80, 100, 0.6)";
   const gridStroke = dark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.06)";
   const tooltipBg = dark ? "#13131C" : "#ffffff";

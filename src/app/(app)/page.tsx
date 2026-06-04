@@ -46,6 +46,13 @@ export default async function DashboardPage() {
   const fim60Dias = new Date(inicioHoje);
   fim60Dias.setDate(fim60Dias.getDate() + 60);
 
+  // Janela "esta semana" (segunda → domingo) pra contexto do editorial
+  const inicioSemana = new Date(inicioHoje);
+  const diaSemana = (inicioSemana.getDay() + 6) % 7; // 0 = segunda
+  inicioSemana.setDate(inicioSemana.getDate() - diaSemana);
+  const fimSemana = new Date(inicioSemana);
+  fimSemana.setDate(fimSemana.getDate() + 7);
+
   const inicio12m = new Date(inicioMes);
   inicio12m.setMonth(inicio12m.getMonth() - 11);
 
@@ -84,6 +91,8 @@ export default async function DashboardPage() {
     propostasAtivasCount,
     propostasAceitas30dCount,
     propostasRecusadas30dCount,
+    revisoesPendentesCount,
+    postsSemanaCount,
   ] = await Promise.all([
     // KPIs
     prisma.contrato.findMany({
@@ -235,6 +244,14 @@ export default async function DashboardPage() {
     }),
     prisma.proposta.count({
       where: { status: "RECUSADA", recusadaEm: { gte: inicio30d } },
+    }),
+    // Revisões pendentes do cliente (Portal v2: origem=CLIENTE + revisao=PENDENTE)
+    prisma.post.count({
+      where: { origem: "CLIENTE", revisao: "PENDENTE" },
+    }),
+    // Posts da semana atual (contexto do editorial)
+    prisma.post.count({
+      where: { dataPublicacao: { gte: inicioSemana, lt: fimSemana } },
     }),
   ]);
 
@@ -448,7 +465,17 @@ export default async function DashboardPage() {
   // Mapeamento ID → React node renderizado no server.
   // Adicionar widget novo aqui é 1 linha (key + JSX).
   const widgetsRender: Partial<Record<WidgetId, React.ReactNode>> = {
-    saudacao: <DashboardGreeting />,
+    saudacao: (
+      <DashboardGreeting
+        contexto={{
+          tarefasHoje: tarefasUrgentesHojeData.length,
+          revisoesPendentes: revisoesPendentesCount,
+          propostasAtivas: propostasAtivasCount,
+          pipelineCount,
+          postsSemana: postsSemanaCount,
+        }}
+      />
+    ),
     kpis: (
       <DashboardKpis
         data={{

@@ -163,18 +163,18 @@ function SidebarConteudo({
 
       <nav
         className={cn(
-          "flex-1 min-h-0 overflow-y-auto py-3 space-y-4",
-          collapsed ? "px-1.5" : "px-3"
+          "flex-1 min-h-0 overflow-y-auto py-3 space-y-5",
+          collapsed ? "px-1.5" : "px-2.5"
         )}
       >
         {groups.map((g) => (
           <div key={g.label}>
             {!collapsed && (
-              <div className="px-2.5 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground/70">
+              <div className="px-2 mb-1 text-[10px] font-semibold uppercase tracking-[0.07em] text-muted-foreground/60">
                 {g.label}
               </div>
             )}
-            <ul className="space-y-0.5">
+            <ul className="space-y-px">
               {g.items.map((item) => {
                 const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 const Icon = item.icon;
@@ -187,17 +187,23 @@ function SidebarConteudo({
                       onClick={onNavigate}
                       title={collapsed ? item.label : undefined}
                       className={cn(
-                        "flex items-center rounded-md text-[13px] transition-colors font-medium",
+                        "relative flex items-center rounded-lg text-[13px] transition-colors",
                         collapsed
                           ? "justify-center px-2 py-2"
-                          : "gap-2.5 px-2.5 py-2 md:py-1.5",
+                          : "gap-2.5 px-2.5 py-2 md:py-[7px]",
                         active
-                          ? "bg-primary/15 text-sal-400"
-                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "text-muted-foreground font-medium hover:text-foreground hover:bg-secondary/60"
                       )}
-                      style={active ? { boxShadow: "inset 2px 0 0 #7E30E1" } : undefined}
                     >
-                      <Icon className="h-4 w-4 shrink-0" />
+                      {/* Indicador sutil do item ativo — barra arredondada na cor primária */}
+                      {active && !collapsed && (
+                        <span
+                          aria-hidden
+                          className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-full bg-primary"
+                        />
+                      )}
+                      <Icon className={cn("h-4 w-4 shrink-0", active && "text-primary")} />
                       {!collapsed && <span>{item.label}</span>}
                     </Link>
                   </li>
@@ -259,7 +265,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "hidden md:flex shrink-0 flex-col border-r border-border bg-card/40 sticky top-0 h-screen transition-[width] duration-200 ease-out",
+        "hidden md:flex shrink-0 flex-col border-r border-border bg-card sticky top-0 h-screen transition-[width] duration-200 ease-out",
         collapsed ? "w-[56px]" : "w-[232px]"
       )}
     >

@@ -81,13 +81,6 @@ const COLUNAS: { key: LeadStatus; label: string; descricao: string; cor: string 
   { key: "PERDIDO", label: "Perdido", descricao: "Não rolou", cor: "#EF4444" },
 ];
 
-const PRIO_BORDER: Record<Prioridade, string> = {
-  URGENTE: "border-l-rose-500",
-  ALTA: "border-l-amber-500",
-  NORMAL: "border-l-transparent",
-  BAIXA: "border-l-transparent",
-};
-
 const PRIO_LABEL: Record<Prioridade, string> = {
   URGENTE: "urgente",
   ALTA: "alta",
@@ -226,9 +219,10 @@ export function LeadsKanban({
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        {/* Wrapper externo permite scroll horizontal sem vazar pra body inteiro */}
-        <div className="overflow-x-auto pb-4 -mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-          <div className="grid grid-cols-7 gap-3 min-w-[1400px]">
+        {/* Wrapper externo permite scroll horizontal sem vazar pra body inteiro.
+            Carrossel com snap no mobile; livre no desktop. */}
+        <div className="overflow-x-auto pb-4 -mx-3 px-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 snap-x snap-mandatory sm:snap-none">
+          <div className="flex gap-3 sm:gap-3.5">
           {COLUNAS.map((col) => {
             const lista = filtrados.filter((c) => c.status === col.key);
             const valorTotal = lista.reduce((s, c) => s + (c.valorEstimadoMensal ?? 0), 0);
@@ -240,22 +234,28 @@ export function LeadsKanban({
                     ref={prov.innerRef}
                     {...prov.droppableProps}
                     className={cn(
-                      "rounded-lg border border-border bg-card/40 p-2 min-h-[460px] transition-colors",
-                      snap.isDraggingOver && "bg-primary/5 border-primary/30"
+                      "group/col w-[84vw] sm:w-[280px] shrink-0 snap-start rounded-xl bg-secondary/60 p-2.5 min-h-[460px] transition-colors",
+                      snap.isDraggingOver && "bg-primary/5 ring-1 ring-primary/30"
                     )}
                   >
-                    <div className="px-2 py-1.5 mb-2 sticky top-0 bg-card/40 backdrop-blur-sm rounded">
-                      <div className="flex items-center justify-between gap-1">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span
-                            className="h-2 w-2 rounded-full shrink-0"
-                            style={{ background: col.cor }}
-                          />
-                          <span className="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground truncate">
-                            {col.label}
-                          </span>
-                        </div>
-                        <span className="text-[10px] font-mono text-muted-foreground/70">{lista.length}</span>
+                    <div className="px-1.5 py-1 mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-2 w-2 rounded-full shrink-0"
+                          style={{ background: col.cor }}
+                        />
+                        <span className="text-[12.5px] font-semibold text-foreground truncate">
+                          {col.label}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">{lista.length}</span>
+                        <button
+                          type="button"
+                          onClick={() => setCriando(true)}
+                          className="ml-auto text-muted-foreground opacity-0 group-hover/col:opacity-100 hover:text-foreground transition leading-none text-[15px]"
+                          aria-label={`Adicionar lead em ${col.label}`}
+                        >
+                          +
+                        </button>
                       </div>
                       {valorTotal > 0 && (
                         <div className="text-[10px] text-muted-foreground/70 font-mono mt-0.5">
@@ -265,7 +265,7 @@ export function LeadsKanban({
                       )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       {lista.map((c, i) => (
                         <Draggable draggableId={c.id} index={i} key={c.id}>
                           {(p, s) => (
@@ -287,6 +287,14 @@ export function LeadsKanban({
                         </div>
                       )}
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setCriando(true)}
+                      className="w-full text-left text-[12.5px] text-muted-foreground hover:text-foreground px-1.5 py-2 mt-1.5 rounded-lg hover:bg-secondary transition"
+                    >
+                      + Adicionar lead
+                    </button>
                   </div>
                 )}
               </Droppable>
@@ -360,17 +368,21 @@ function LeadCardItem({
   const valor = lead.valorEstimadoMensal;
   const proxAcaoAtrasada =
     lead.proximaAcaoEm && new Date(lead.proximaAcaoEm) < new Date();
+  const corStatus = COLUNAS.find((c) => c.key === lead.status)?.cor;
+  // Barra de cor no topo: prioridade alta/urgente puxa atenção; senão usa a cor do status.
+  const corBarra =
+    lead.prioridade === "URGENTE" ? "#F43F5E" : lead.prioridade === "ALTA" ? "#F59E0B" : corStatus;
 
   return (
     <Card
       onClick={onClick}
       className={cn(
-        "transition cursor-pointer border-l-2 hover:border-primary/40",
-        PRIO_BORDER[lead.prioridade],
+        "overflow-hidden cursor-grab shadow-sm transition hover:shadow-md hover:-translate-y-px hover:border-primary/40 active:cursor-grabbing",
         dragging && "shadow-2xl ring-2 ring-primary rotate-1",
         ativo && "border-primary bg-sal-600/[0.04]"
       )}
     >
+      {corBarra && <div className="h-1 w-full" style={{ background: corBarra }} />}
       <CardContent className="p-3 space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div className="font-medium text-[13px] leading-tight min-w-0 truncate">

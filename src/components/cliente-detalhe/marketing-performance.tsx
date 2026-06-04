@@ -102,7 +102,7 @@ function TrafegoPagoTab({ data, clienteId }: { data: TrafegoPagoResumo; clienteI
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const dark = mounted ? resolvedTheme === "dark" : true;
+  const dark = mounted ? resolvedTheme === "dark" : false;
   const axisStroke = dark ? "rgba(150, 150, 168, 0.7)" : "rgba(80, 80, 100, 0.6)";
 
   if (data.investimentoTotal6m === 0) {

@@ -109,8 +109,8 @@ export function BoardView({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="overflow-x-auto pb-4">
-        <div className="flex gap-3 min-w-min">
+      <div className="overflow-x-auto pb-4 snap-x snap-mandatory sm:snap-none">
+        <div className="flex gap-3 sm:gap-3.5 min-w-min">
           {colunas.map((col) => {
             const lista = porColuna.get(col.key) ?? [];
             return (
@@ -120,22 +120,22 @@ export function BoardView({
                     ref={prov.innerRef}
                     {...prov.droppableProps}
                     className={cn(
-                      "w-[280px] shrink-0 rounded-lg border border-border bg-card/40 p-2 min-h-[400px]",
-                      snap.isDraggingOver && "bg-primary/5"
+                      "w-[84vw] sm:w-[280px] shrink-0 snap-start rounded-xl bg-secondary/60 p-2.5 min-h-[400px] transition-colors",
+                      snap.isDraggingOver && "bg-primary/5 ring-1 ring-primary/30"
                     )}
                   >
-                    <div className="flex items-center justify-between px-1.5 py-1.5 mb-2">
+                    <div className="flex items-center gap-2 px-1.5 py-1 mb-1.5">
                       <div className="flex items-center gap-1.5 min-w-0">
                         {col.opcao ? (
                           <ChipOpcao opcao={col.opcao} />
                         ) : (
-                          <span className="text-[12px] font-medium text-muted-foreground">Sem valor</span>
+                          <span className="text-[12.5px] font-semibold text-muted-foreground">Sem valor</span>
                         )}
                       </div>
-                      <span className="text-xs font-mono text-muted-foreground shrink-0">{lista.length}</span>
+                      <span className="text-[11px] text-muted-foreground shrink-0">{lista.length}</span>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       {lista.map((row, i) => (
                         <Draggable draggableId={row.id} index={i} key={row.id}>
                           {(p, s) => (
@@ -144,7 +144,7 @@ export function BoardView({
                                 type="button"
                                 onClick={() => onAbrirRow(row.id)}
                                 className={cn(
-                                  "w-full text-left rounded-lg border border-border bg-card p-3 space-y-2 transition cursor-pointer hover:border-primary/40",
+                                  "w-full text-left rounded-xl border border-border bg-card p-3 space-y-2 shadow-sm transition cursor-grab hover:shadow-md hover:-translate-y-px hover:border-primary/40 active:cursor-grabbing",
                                   s.isDragging && "shadow-2xl ring-2 ring-primary"
                                 )}
                               >
@@ -169,9 +169,9 @@ export function BoardView({
                     <button
                       type="button"
                       onClick={() => onAddCard(groupProp.id, col.opcao ? col.opcao.id : null)}
-                      className="mt-2 flex items-center gap-1.5 w-full px-2 py-1.5 rounded text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted/40 transition"
+                      className="mt-1.5 flex items-center gap-1.5 w-full px-1.5 py-2 rounded-lg text-[12.5px] text-muted-foreground hover:text-foreground hover:bg-secondary transition"
                     >
-                      <Plus className="h-3.5 w-3.5" /> card
+                      <Plus className="h-3.5 w-3.5" /> Adicionar card
                     </button>
                   </div>
                 )}
