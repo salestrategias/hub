@@ -8,74 +8,52 @@ import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
   Mic, FileText, GitBranch, Cpu, Database, Send, TrendingUp, Settings, Calendar, BookOpen,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, ChevronDown,
   Palette, Target, LayoutTemplate, Stethoscope, NotebookPen,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarSearchTrigger } from "@/components/sidebar-search-trigger";
 import { useSidebarCollapsed } from "@/components/sidebar-collapsed-provider";
 
-type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
-type NavGroup = { label: string; items: NavItem[] };
+type NavItem = { label: string; href: string; icon: LucideIcon };
+type NavGroup = { label: string; items: NavItem[]; defaultOpen?: boolean };
 
+// Atalhos fixos no topo (sem grupo) — acesso instantâneo.
+const pinned: NavItem[] = [
+  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Calendário", href: "/calendario", icon: Calendar },
+];
+
+// Grupos recolhíveis, em ordem de prioridade do dia a dia.
+// defaultOpen=false → começa recolhido (menos scroll).
 const groups: NavGroup[] = [
   {
-    label: "Visão Geral",
+    label: "Comercial",
+    defaultOpen: true,
     items: [
-      { label: "Dashboard", href: "/", icon: LayoutDashboard },
-      { label: "Calendário", href: "/calendario", icon: Calendar },
+      { label: "Leads", href: "/leads", icon: TrendingUp },
+      { label: "Diagnósticos", href: "/diagnosticos", icon: Stethoscope },
+      { label: "Propostas", href: "/propostas", icon: Send },
+      { label: "Contratos", href: "/contratos", icon: FileSignature },
+      { label: "Clientes", href: "/clientes", icon: Users },
+      { label: "Financeiro", href: "/financeiro", icon: Wallet },
     ],
   },
-  { label: "Clientes", items: [{ label: "Clientes", href: "/clientes", icon: Users }] },
   {
     label: "Produção",
+    defaultOpen: true,
     items: [
       { label: "Editorial", href: "/editorial", icon: CalendarDays },
-      // Palette: assets visuais (imagens/videos) pra ads — destaca o aspecto criativo
+      // Palette: assets visuais (imagens/videos) pra ads
       { label: "Criativos Ads", href: "/criativos", icon: Palette },
       { label: "Projetos", href: "/projetos", icon: KanbanSquare },
       { label: "Tarefas", href: "/tarefas", icon: ListChecks },
     ],
   },
   {
-    label: "Workspace",
-    items: [
-      // NotebookPen: páginas livres estilo Notion (árvore + editor de blocos)
-      { label: "Páginas", href: "/workspace", icon: NotebookPen },
-      { label: "Reuniões", href: "/reunioes", icon: Mic },
-      { label: "Notas", href: "/notas", icon: FileText },
-      { label: "Mapas mentais", href: "/mapas", icon: GitBranch },
-      // LayoutTemplate evita conflito com Sparkles (usado em botoes "Gerar com IA")
-      { label: "Templates", href: "/templates", icon: LayoutTemplate },
-    ],
-  },
-  {
-    label: "Marketing SAL",
-    items: [
-      // Megaphone mantido aqui — agencia "anunciando" conteudo proprio
-      { label: "Conteúdo SAL", href: "/conteudo-sal", icon: Megaphone },
-      { label: "Manual SAL", href: "/manual", icon: BookOpen },
-    ],
-  },
-  {
-    label: "Comercial",
-    items: [
-      { label: "Leads", href: "/leads", icon: TrendingUp },
-      { label: "Diagnósticos", href: "/diagnosticos", icon: Stethoscope },
-      { label: "Propostas", href: "/propostas", icon: Send },
-      { label: "Contratos", href: "/contratos", icon: FileSignature },
-      { label: "Financeiro", href: "/financeiro", icon: Wallet },
-    ],
-  },
-  {
-    label: "Google",
-    items: [
-      { label: "Drive", href: "/drive", icon: FolderOpen },
-      { label: "Agenda", href: "/agenda", icon: CalendarRange },
-    ],
-  },
-  {
     label: "Relatórios",
+    defaultOpen: true,
     items: [
       { label: "Redes Sociais", href: "/relatorios/redes-sociais", icon: BarChart3 },
       { label: "SEO", href: "/relatorios/seo", icon: Search },
@@ -84,7 +62,37 @@ const groups: NavGroup[] = [
     ],
   },
   {
-    label: "Administração",
+    label: "Workspace",
+    defaultOpen: true,
+    items: [
+      // NotebookPen: páginas livres estilo Notion (árvore + editor de blocos)
+      { label: "Páginas", href: "/workspace", icon: NotebookPen },
+      { label: "Reuniões", href: "/reunioes", icon: Mic },
+      { label: "Notas", href: "/notas", icon: FileText },
+      { label: "Mapas mentais", href: "/mapas", icon: GitBranch },
+      { label: "Templates", href: "/templates", icon: LayoutTemplate },
+    ],
+  },
+  {
+    label: "Marketing SAL",
+    defaultOpen: false,
+    items: [
+      // Megaphone — agencia "anunciando" conteudo proprio
+      { label: "Conteúdo SAL", href: "/conteudo-sal", icon: Megaphone },
+      { label: "Manual SAL", href: "/manual", icon: BookOpen },
+    ],
+  },
+  {
+    label: "Integrações",
+    defaultOpen: false,
+    items: [
+      { label: "Drive", href: "/drive", icon: FolderOpen },
+      { label: "Agenda", href: "/agenda", icon: CalendarRange },
+    ],
+  },
+  {
+    label: "Admin",
+    defaultOpen: false,
     items: [
       { label: "Configurações", href: "/admin/configuracoes", icon: Settings },
       { label: "Claude / MCP", href: "/admin/mcp", icon: Cpu },
@@ -93,21 +101,67 @@ const groups: NavGroup[] = [
   },
 ];
 
+const GRUPOS_STORAGE_KEY = "salhub.sidebar.grupos";
+
+function rotaAtiva(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}
+
+/** Item de navegação (ícone + label). Reusado no topo fixo e nos grupos. */
+function NavLink({
+  item,
+  collapsed,
+  pathname,
+  onNavigate,
+}: {
+  item: NavItem;
+  collapsed: boolean;
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  const active = rotaAtiva(pathname, item.href);
+  const Icon = item.icon;
+  const isPrivilegedRoute = item.href.startsWith("/admin");
+  return (
+    <Link
+      href={item.href}
+      prefetch={isPrivilegedRoute ? false : undefined}
+      onClick={onNavigate}
+      title={collapsed ? item.label : undefined}
+      className={cn(
+        "group relative flex items-center rounded-lg text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
+        collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-2.5 py-2 md:py-[7px]",
+        active
+          ? "bg-primary/10 text-primary font-semibold"
+          : "text-muted-foreground font-medium hover:text-foreground hover:bg-secondary/60"
+      )}
+    >
+      {active && !collapsed && (
+        <span
+          aria-hidden
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-full bg-primary"
+        />
+      )}
+      <Icon
+        className={cn(
+          "h-[18px] w-[18px] shrink-0 transition-colors",
+          active ? "text-primary" : "text-muted-foreground/80 group-hover:text-foreground"
+        )}
+        strokeWidth={1.75}
+      />
+      {!collapsed && <span className="truncate">{item.label}</span>}
+    </Link>
+  );
+}
+
 /**
  * Conteúdo interno da sidebar — usado tanto na versão desktop (aside
  * fixa à esquerda) quanto no drawer mobile. `onNavigate` é chamado
  * quando user clica num item — drawer mobile usa pra fechar.
  *
- * Retorna os 3 blocos (header / nav / footer) como Fragment. O pai
- * (aside desktop ou drawer mobile) já é `flex flex-col`, então esses
- * 3 elementos viram filhos diretos do flex container — sem wrapper
- * intermediário, que causava colapso do nav em alguns browsers mobile.
- *
- * Header e footer têm `shrink-0`. Nav tem `flex-1 min-h-0` pra esticar
- * e habilitar scroll interno.
- *
- * `collapsed=true` (só no desktop): mostra apenas ícones (sem labels nem
- * grupos), tooltip nativo via `title` ao hover. Botão de toggle ao final.
+ * `collapsed=true` (só no desktop): mostra apenas ícones (sem labels;
+ * grupos sempre "abertos" e separados por um divisor sutil), tooltip
+ * nativo via `title` ao hover.
  */
 function SidebarConteudo({
   onNavigate,
@@ -119,6 +173,31 @@ function SidebarConteudo({
   onToggleCollapse?: () => void;
 }) {
   const pathname = usePathname();
+
+  // Recolher/expandir por grupo. Inicia vazio (= usa defaultOpen). O que
+  // o user alterna fica salvo no localStorage. Server e 1º render do
+  // client usam {} → sem mismatch de hidratação.
+  const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(GRUPOS_STORAGE_KEY);
+      if (raw) setOpenMap(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  function toggleGrupo(label: string, atual: boolean) {
+    setOpenMap((prev) => {
+      const next = { ...prev, [label]: !atual };
+      try {
+        localStorage.setItem(GRUPOS_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }
+
   return (
     <>
       <div
@@ -130,10 +209,7 @@ function SidebarConteudo({
         <Link
           href="/"
           onClick={onNavigate}
-          className={cn(
-            "flex items-center gap-2.5",
-            collapsed && "justify-center"
-          )}
+          className={cn("flex items-center gap-2.5", collapsed && "justify-center")}
           title={collapsed ? "SAL Hub" : undefined}
         >
           <div
@@ -163,55 +239,62 @@ function SidebarConteudo({
 
       <nav
         className={cn(
-          "flex-1 min-h-0 overflow-y-auto py-3 space-y-5",
-          collapsed ? "px-1.5" : "px-2.5"
+          "flex-1 min-h-0 overflow-y-auto py-3",
+          collapsed ? "px-1.5 space-y-1" : "px-2.5"
         )}
       >
-        {groups.map((g) => (
-          <div key={g.label}>
-            {!collapsed && (
-              <div className="px-2 mb-1 text-[10px] font-semibold uppercase tracking-[0.07em] text-muted-foreground/60">
-                {g.label}
-              </div>
-            )}
-            <ul className="space-y-px">
-              {g.items.map((item) => {
-                const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-                const Icon = item.icon;
-                const isPrivilegedRoute = item.href.startsWith("/admin");
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      prefetch={isPrivilegedRoute ? false : undefined}
-                      onClick={onNavigate}
-                      title={collapsed ? item.label : undefined}
-                      className={cn(
-                        "relative flex items-center rounded-lg text-[13px] transition-colors",
-                        collapsed
-                          ? "justify-center px-2 py-2"
-                          : "gap-2.5 px-2.5 py-2 md:py-[7px]",
-                        active
-                          ? "bg-primary/10 text-primary font-semibold"
-                          : "text-muted-foreground font-medium hover:text-foreground hover:bg-secondary/60"
-                      )}
-                    >
-                      {/* Indicador sutil do item ativo — barra arredondada na cor primária */}
-                      {active && !collapsed && (
-                        <span
-                          aria-hidden
-                          className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-full bg-primary"
-                        />
-                      )}
-                      <Icon className={cn("h-4 w-4 shrink-0", active && "text-primary")} />
-                      {!collapsed && <span>{item.label}</span>}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+        {/* Atalhos fixos (Dashboard / Calendário) */}
+        <ul className={cn("space-y-px", !collapsed && "mb-1")}>
+          {pinned.map((item) => (
+            <li key={item.href}>
+              <NavLink item={item} collapsed={collapsed} pathname={pathname} onNavigate={onNavigate} />
+            </li>
+          ))}
+        </ul>
+
+        {/* Grupos recolhíveis */}
+        {groups.map((g) => {
+          const temAtiva = g.items.some((it) => rotaAtiva(pathname, it.href));
+          const explicito = openMap[g.label];
+          const aberto = collapsed
+            ? true
+            : explicito !== undefined
+              ? explicito
+              : (g.defaultOpen ?? true) || temAtiva;
+          return (
+            <div key={g.label} className={collapsed ? "" : "mt-2"}>
+              {collapsed ? (
+                <div className="mx-2 my-1 border-t border-border/60" />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => toggleGrupo(g.label, aberto)}
+                  className="w-full flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-semibold uppercase tracking-[0.07em] text-muted-foreground/60 outline-none transition-colors hover:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
+                >
+                  <span>{g.label}</span>
+                  {!aberto && temAtiva && (
+                    <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  )}
+                  <ChevronDown
+                    className={cn(
+                      "ml-auto h-3.5 w-3.5 opacity-50 transition-transform duration-200",
+                      !aberto && "-rotate-90"
+                    )}
+                  />
+                </button>
+              )}
+              {aberto && (
+                <ul className={cn("space-y-px", !collapsed && "mt-0.5")}>
+                  {g.items.map((item) => (
+                    <li key={item.href}>
+                      <NavLink item={item} collapsed={collapsed} pathname={pathname} onNavigate={onNavigate} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
       <div
