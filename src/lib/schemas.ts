@@ -10,6 +10,15 @@ export const clienteSchema = z.object({
   status: z.enum(["ATIVO", "INATIVO", "PROSPECT", "CHURNED"]).default("ATIVO"),
   valorContratoMensal: z.coerce.number().min(0).default(0),
   notas: z.string().optional().nullable(),
+  // Marca do cliente (white-label leve do portal): logo (dataURL comprimido
+  // ou URL externa) + cor de acento. Mesmo padrão de proposta/diagnóstico.
+  logoUrl: z.string().max(500_000).optional().nullable().or(z.literal("")),
+  corPrimaria: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, "Cor inválida (use formato #RRGGBB)")
+    .optional()
+    .nullable()
+    .or(z.literal("")),
   tagIds: z.array(z.string()).optional().default([]),
 });
 export type ClienteInput = z.infer<typeof clienteSchema>;

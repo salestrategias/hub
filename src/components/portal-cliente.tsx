@@ -34,13 +34,25 @@ type Permissoes = {
   podeEnviarConteudo: boolean;
 };
 
+/** Marca leve do cliente (white-label): logo + cor de acento. */
+type Marca = { logoUrl: string | null; corPrimaria: string | null };
+
 type EstadoInicial =
   | { tipo: "carregando" }
-  | { tipo: "precisa-senha"; clienteNome: string }
+  | { tipo: "precisa-senha"; clienteNome: string; marca: Marca }
   | { tipo: "erro"; mensagem: string }
-  | { tipo: "ok"; clienteId: string; clienteNome: string; permissoes: Permissoes };
+  | { tipo: "ok"; clienteId: string; clienteNome: string; permissoes: Permissoes; marca: Marca };
 
 type Tab = "calendario" | "criativos" | "tarefas" | "reunioes" | "relatorios";
+
+/** Roxo SAL (default). Acento da marca só substitui quando difere disso. */
+const COR_SAL = "#7E30E1";
+
+/** Valida hex #RRGGBB; retorna null se inválido (não confia em dado do banco). */
+function sanitizarHex(cor: string | null | undefined): string | null {
+  if (!cor) return null;
+  return /^#[0-9a-fA-F]{6}$/.test(cor) ? cor : null;
+}
 
 export function PortalCliente({ token }: { token: string }) {
   const [estado, setEstado] = useState<EstadoInicial>({ tipo: "carregando" });
@@ -64,7 +76,11 @@ export function PortalCliente({ token }: { token: string }) {
         return;
       }
       if (data.precisaSenha) {
-        setEstado({ tipo: "precisa-senha", clienteNome: data.clienteNome });
+        setEstado({
+          tipo: "precisa-senha",
+          clienteNome: data.clienteNome,
+          marca: { logoUrl: data.logoUrl ?? null, corPrimaria: data.corPrimaria ?? null },
+        });
         return;
       }
       setEstado({
@@ -72,6 +88,7 @@ export function PortalCliente({ token }: { token: string }) {
         clienteId: data.cliente.id,
         clienteNome: data.cliente.nome,
         permissoes: data.permissoes,
+        marca: { logoUrl: data.cliente.logoUrl ?? null, corPrimaria: data.cliente.corPrimaria ?? null },
       });
       // Escolhe a primeira tab visível
       const p: Permissoes = data.permissoes;
@@ -131,11 +148,22 @@ export function PortalCliente({ token }: { token: string }) {
         <Card className="max-w-sm w-full">
           <CardContent className="p-5 sm:p-7 space-y-4">
             <div className="text-center space-y-2">
-              <div className="h-12 w-12 rounded-xl mx-auto flex items-center justify-center bg-primary shadow-sm">
-                <Lock className="h-5 w-5 text-primary-foreground" />
-              </div>
+              {estado.marca.logoUrl ? (
+                <div className="h-14 w-14 rounded-2xl mx-auto flex items-center justify-center overflow-hidden bg-white border border-border shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={estado.marca.logoUrl}
+                    alt={estado.clienteNome}
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="h-12 w-12 rounded-xl mx-auto flex items-center justify-center bg-primary shadow-sm">
+                  <Lock className="h-5 w-5 text-primary-foreground" />
+                </div>
+              )}
               <h1 className="font-display text-lg font-semibold">Portal {estado.clienteNome}</h1>
-              <p className="text-xs text-muted-foreground">SAL Estratégias de Marketing</p>
+              <p className="text-xs text-muted-foreground">entregue por SAL Estratégias de Marketing</p>
             </div>
             <div className="space-y-2.5">
               <Input
@@ -164,7 +192,12 @@ export function PortalCliente({ token }: { token: string }) {
   }
 
   // Estado OK — renderiza portal completo
-  const { permissoes, clienteNome, clienteId } = estado;
+  const { permissoes, clienteNome, clienteId, marca } = estado;
+  // Acento da marca: só aplica se for um hex válido E diferente do roxo SAL
+  // (quando é o default, os tokens `primary` já dão conta — sem inline).
+  const acento = sanitizarHex(marca.corPrimaria);
+  const temAcento = !!acento && acento.toUpperCase() !== COR_SAL;
+  const corAtiva = temAcento ? acento! : undefined;
   const tabsVisiveis: { id: Tab; label: string; labelCurto: string; icon: typeof Calendar; visivel: boolean }[] = [
     { id: "calendario", label: "Calendário", labelCurto: "Agenda", icon: Calendar, visivel: permissoes.verCalendario },
     { id: "criativos", label: "Criativos", labelCurto: "Criativos", icon: Megaphone, visivel: permissoes.verCriativos },
@@ -179,13 +212,27 @@ export function PortalCliente({ token }: { token: string }) {
     <div className="min-h-screen bg-background pb-[env(safe-area-inset-bottom)]">
       {/* Header — sticky com safe area pra notch iOS */}
       <header className="sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur-md safe-area-inset-top">
+        {/* Acento sutil da marca do cliente — fininho, não quebra o clean */}
+        {temAcento && <div className="h-[3px] w-full" style={{ background: corAtiva }} />}
         <div className="max-w-5xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center gap-2.5 sm:gap-3">
-          <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shrink-0 bg-primary shadow-sm">
-            <span className="text-primary-foreground font-display text-sm sm:text-base font-bold">S</span>
-          </div>
+          {marca.logoUrl ? (
+            <div
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-white border border-border shadow-sm"
+              style={temAcento ? { boxShadow: `0 0 0 1px ${corAtiva}33` } : undefined}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={marca.logoUrl} alt={clienteNome} className="max-h-full max-w-full object-contain" />
+            </div>
+          ) : (
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shrink-0 bg-primary shadow-sm">
+              <span className="text-primary-foreground font-display text-sm sm:text-base font-bold">S</span>
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-[13px] sm:text-base font-semibold truncate leading-tight">{clienteNome}</h1>
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight">SAL Estratégias de Marketing</p>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight">
+              entregue por SAL Estratégias de Marketing
+            </p>
           </div>
         </div>
 
@@ -201,9 +248,16 @@ export function PortalCliente({ token }: { token: string }) {
                   onClick={() => setTab(t.id)}
                   className={`touch-feedback flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium whitespace-nowrap transition-colors relative ${
                     ativo
-                      ? "text-primary shadow-[inset_0_-2px_0_0_hsl(var(--primary))]"
+                      ? temAcento
+                        ? ""
+                        : "text-primary shadow-[inset_0_-2px_0_0_hsl(var(--primary))]"
                       : "text-muted-foreground active:text-foreground hover:text-foreground"
                   }`}
+                  style={
+                    ativo && temAcento
+                      ? { color: corAtiva, boxShadow: `inset 0 -2px 0 0 ${corAtiva}` }
+                      : undefined
+                  }
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {t.label}
@@ -278,15 +332,21 @@ export function PortalCliente({ token }: { token: string }) {
                 >
                   <span
                     className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
-                      ativo ? "bg-primary" : ""
+                      ativo && !temAcento ? "bg-primary" : ""
                     }`}
+                    style={ativo && temAcento ? { background: corAtiva } : undefined}
                   >
                     <Icon className={`h-[18px] w-[18px] ${ativo ? "text-primary-foreground" : "text-muted-foreground"}`} />
                   </span>
                   <span
                     className={`text-[10px] leading-none ${
-                      ativo ? "text-primary font-semibold" : "text-muted-foreground font-medium"
+                      ativo
+                        ? temAcento
+                          ? "font-semibold"
+                          : "text-primary font-semibold"
+                        : "text-muted-foreground font-medium"
                     }`}
+                    style={ativo && temAcento ? { color: corAtiva } : undefined}
                   >
                     {t.labelCurto}
                   </span>

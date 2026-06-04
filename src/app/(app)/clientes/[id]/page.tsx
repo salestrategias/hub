@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ClienteFormButton } from "@/components/cliente-form";
+import { ClienteMarcaCard } from "@/components/cliente-marca-card";
 import { ClienteDriveButton } from "@/components/cliente-drive-button";
 import { ClienteDeleteButton } from "@/components/cliente-delete-button";
 import { TagsBadges } from "@/components/tag-picker";
@@ -154,13 +155,21 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
 
         <TabsContent value="overview">
           <div className="space-y-3">
-            <Card><CardContent className="p-6 grid md:grid-cols-2 gap-6 text-sm">
-              <Info label="CNPJ" value={cliente.cnpj} />
-              <Info label="Email" value={cliente.email} />
-              <Info label="Telefone" value={cliente.telefone} />
-              <Info label="Endereço" value={cliente.endereco} />
-              <Info label="Pasta Drive" value={cliente.googleDriveFolderUrl ? "Vinculada" : "Não vinculada"} />
-            </CardContent></Card>
+            <div className="grid lg:grid-cols-[1fr_360px] gap-3 items-start">
+              <Card><CardContent className="p-6 grid md:grid-cols-2 gap-6 text-sm">
+                <Info label="CNPJ" value={cliente.cnpj} />
+                <Info label="Email" value={cliente.email} />
+                <Info label="Telefone" value={cliente.telefone} />
+                <Info label="Endereço" value={cliente.endereco} />
+                <Info label="Pasta Drive" value={cliente.googleDriveFolderUrl ? "Vinculada" : "Não vinculada"} />
+              </CardContent></Card>
+              <ClienteMarcaCard
+                clienteId={cliente.id}
+                clienteNome={cliente.nome}
+                logoUrl={cliente.logoUrl}
+                corPrimaria={cliente.corPrimaria}
+              />
+            </div>
             {cliente.notas && (
               <Card>
                 <CardContent className="p-6">

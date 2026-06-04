@@ -13,6 +13,7 @@ import { toast } from "@/components/ui/toast";
 import { BlockEditor, BlockRenderer } from "@/components/editor";
 import { BacklinksPanel } from "@/components/backlinks-panel";
 import { ClienteAcessoCard } from "@/components/cliente-acesso-card";
+import { ClienteMarcaCard } from "@/components/cliente-marca-card";
 import { MoneyValue } from "@/components/money-value";
 import { TagsBadges } from "@/components/tag-picker";
 import { formatDate } from "@/lib/utils";
@@ -28,6 +29,8 @@ type ClienteFull = {
   status: "ATIVO" | "INATIVO" | "PROSPECT" | "CHURNED";
   valorContratoMensal: string | number;
   notas: string | null;
+  logoUrl: string | null;
+  corPrimaria: string | null;
   googleDriveFolderUrl: string | null;
   onboardingFeitoEm: string | null;
   tags: { id: string; nome: string; cor: string | null }[];
@@ -291,6 +294,16 @@ export function ClienteSheet({
             </div>
 
             <ContratosBox contratos={cliente.contratos} />
+
+            {clienteId && (
+              <ClienteMarcaCard
+                clienteId={clienteId}
+                clienteNome={cliente.nome}
+                logoUrl={cliente.logoUrl}
+                corPrimaria={cliente.corPrimaria}
+                onChange={(patch) => setCliente((c) => (c ? { ...c, ...patch } : c))}
+              />
+            )}
 
             {clienteId && <ClienteAcessoCard clienteId={clienteId} />}
           </TabsContent>

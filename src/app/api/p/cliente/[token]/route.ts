@@ -27,7 +27,12 @@ async function montarInfo(token: string) {
   if (!r) throw new Error("Acesso não encontrado ou desativado");
   registrarAcesso(r.acesso.id);
   return {
-    cliente: { nome: r.cliente.nome, id: r.cliente.id },
+    cliente: {
+      nome: r.cliente.nome,
+      id: r.cliente.id,
+      logoUrl: r.cliente.logoUrl,
+      corPrimaria: r.cliente.corPrimaria,
+    },
     permissoes: {
       verCalendario: r.acesso.verCalendario,
       verCriativos: r.acesso.verCriativos,
@@ -56,9 +61,14 @@ export async function GET(_req: Request, { params }: { params: { token: string }
       return montarInfo(params.token);
     }
 
-    // Sem sessão e tem senha? Pede senha.
+    // Sem sessão e tem senha? Pede senha (com a marca do cliente na tela de login).
     if (r.acesso.senhaHash) {
-      return { precisaSenha: true, clienteNome: r.cliente.nome };
+      return {
+        precisaSenha: true,
+        clienteNome: r.cliente.nome,
+        logoUrl: r.cliente.logoUrl,
+        corPrimaria: r.cliente.corPrimaria,
+      };
     }
 
     // Sem senha — cria sessão automática + retorna info
