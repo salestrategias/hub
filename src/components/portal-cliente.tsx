@@ -11,11 +11,12 @@
  * Layout próprio (não usa Sidebar/Header do app). Mobile-first.
  */
 import { useEffect, useState } from "react";
-import { Calendar, Megaphone, ListChecks, Mic, BarChart3, Lock, Loader2, XCircle } from "lucide-react";
+import { Sparkles, Calendar, Megaphone, ListChecks, Mic, BarChart3, Lock, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/toast";
+import { PortalInicio } from "@/components/portal-inicio";
 import { PortalCalendario } from "@/components/portal-calendario";
 import { PortalCriativos } from "@/components/portal-criativos";
 import { PortalTarefas } from "@/components/portal-tarefas";
@@ -43,7 +44,7 @@ type EstadoInicial =
   | { tipo: "erro"; mensagem: string }
   | { tipo: "ok"; clienteId: string; clienteNome: string; permissoes: Permissoes; marca: Marca };
 
-type Tab = "calendario" | "criativos" | "tarefas" | "reunioes" | "relatorios";
+type Tab = "inicio" | "calendario" | "criativos" | "tarefas" | "reunioes" | "relatorios";
 
 /** Roxo SAL (default). Acento da marca só substitui quando difere disso. */
 const COR_SAL = "#7E30E1";
@@ -56,7 +57,7 @@ function sanitizarHex(cor: string | null | undefined): string | null {
 
 export function PortalCliente({ token }: { token: string }) {
   const [estado, setEstado] = useState<EstadoInicial>({ tipo: "carregando" });
-  const [tab, setTab] = useState<Tab>("calendario");
+  const [tab, setTab] = useState<Tab>("inicio");
   const [senha, setSenha] = useState("");
   const [autenticando, setAutenticando] = useState(false);
 
@@ -90,13 +91,8 @@ export function PortalCliente({ token }: { token: string }) {
         permissoes: data.permissoes,
         marca: { logoUrl: data.cliente.logoUrl ?? null, corPrimaria: data.cliente.corPrimaria ?? null },
       });
-      // Escolhe a primeira tab visível
-      const p: Permissoes = data.permissoes;
-      if (p.verCalendario) setTab("calendario");
-      else if (p.verCriativos) setTab("criativos");
-      else if (p.verTarefas) setTab("tarefas");
-      else if (p.verReunioes) setTab("reunioes");
-      else if (p.verRelatorios) setTab("relatorios");
+      // Início é a primeira tab e existe sempre — cliente cai nela ao abrir.
+      setTab("inicio");
     } catch (e) {
       setEstado({ tipo: "erro", mensagem: e instanceof Error ? e.message : "Erro" });
     }
@@ -199,6 +195,7 @@ export function PortalCliente({ token }: { token: string }) {
   const temAcento = !!acento && acento.toUpperCase() !== COR_SAL;
   const corAtiva = temAcento ? acento! : undefined;
   const tabsVisiveis: { id: Tab; label: string; labelCurto: string; icon: typeof Calendar; visivel: boolean }[] = [
+    { id: "inicio", label: "Início", labelCurto: "Início", icon: Sparkles, visivel: true },
     { id: "calendario", label: "Calendário", labelCurto: "Agenda", icon: Calendar, visivel: permissoes.verCalendario },
     { id: "criativos", label: "Criativos", labelCurto: "Criativos", icon: Megaphone, visivel: permissoes.verCriativos },
     { id: "tarefas", label: "Tarefas", labelCurto: "Tarefas", icon: ListChecks, visivel: permissoes.verTarefas },
@@ -274,6 +271,9 @@ export function PortalCliente({ token }: { token: string }) {
           temBottomNav ? "pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-5" : ""
         }`}
       >
+        {tab === "inicio" && (
+          <PortalInicio token={token} clienteNome={clienteNome} acento={corAtiva} />
+        )}
         {tab === "calendario" && permissoes.verCalendario && (
           <PortalCalendario
             token={token}
