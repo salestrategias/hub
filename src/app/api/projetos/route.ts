@@ -52,7 +52,17 @@ export async function POST(req: Request) {
       googleEventId = ev?.id ?? null;
     }
 
-    const projeto = await prisma.projeto.create({ data: { ...data, ...driveData, googleEventId } });
+    // Ordem manual no kanban (drag-drop estilo Trello): joga o novo projeto no
+    // fim da coluna do seu status. Computado no servidor — NÃO passa pelo schema
+    // zod compartilhado (que não conhece `ordem`).
+    const ultimo = await prisma.projeto.findFirst({
+      where: { status: data.status },
+      orderBy: { ordem: "desc" },
+      select: { ordem: true },
+    });
+    const ordem = (ultimo?.ordem ?? -1) + 1;
+
+    const projeto = await prisma.projeto.create({ data: { ...data, ...driveData, googleEventId, ordem } });
     void syncMentionsFromValue({ sourceType: "PROJETO", sourceId: projeto.id }, projeto.descricao);
     return projeto;
   });

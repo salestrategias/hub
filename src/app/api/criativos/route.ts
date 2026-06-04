@@ -28,6 +28,14 @@ export async function POST(req: Request) {
   return apiHandler(async () => {
     await requireAuth();
     const data = criativoSchema.parse(await req.json());
-    return prisma.criativo.create({ data });
+    // `ordem` é computada no servidor (estilo Trello): joga o novo criativo no
+    // fim da coluna de destino. Nunca confia no body pra isso.
+    const ultimo = await prisma.criativo.findFirst({
+      where: { status: data.status },
+      orderBy: { ordem: "desc" },
+      select: { ordem: true },
+    });
+    const ordem = (ultimo?.ordem ?? -1) + 1;
+    return prisma.criativo.create({ data: { ...data, ordem } });
   });
 }

@@ -11,7 +11,8 @@ export default async function CriativosPage() {
         cliente: { select: { id: true, nome: true } },
         _count: { select: { arquivos: true, comentarios: true } },
       },
-      orderBy: { updatedAt: "desc" },
+      // Ordem manual do kanban (drag-drop). Empate desempata por updatedAt.
+      orderBy: [{ ordem: "asc" }, { updatedAt: "desc" }],
     }),
     prisma.cliente.findMany({
       select: { id: true, nome: true },
@@ -37,6 +38,7 @@ export default async function CriativosPage() {
           fim: c.fim?.toISOString() ?? null,
           totalArquivos: c._count.arquivos,
           totalComentarios: c._count.comentarios,
+          ordem: c.ordem,
         }))}
         clientes={clientes}
       />

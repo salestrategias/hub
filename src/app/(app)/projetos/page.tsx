@@ -8,7 +8,9 @@ export default async function ProjetosPage() {
   const [projetos, clientes] = await Promise.all([
     prisma.projeto.findMany({
       include: { cliente: true, tarefas: true },
-      orderBy: { updatedAt: "desc" },
+      // Ordem manual (drag-drop estilo Trello) dentro de cada coluna; updatedAt
+      // como desempate. Agrupa por status pra render do kanban.
+      orderBy: [{ status: "asc" }, { ordem: "asc" }, { updatedAt: "desc" }],
     }),
     prisma.cliente.findMany({ select: { id: true, nome: true }, orderBy: { nome: "asc" } }),
   ]);
@@ -24,6 +26,7 @@ export default async function ProjetosPage() {
           dataEntrega: p.dataEntrega?.toISOString() ?? null,
           clienteNome: p.cliente?.nome ?? null,
           totalTarefas: p.tarefas.length,
+          ordem: p.ordem,
         }))}
         clientes={clientes}
       />

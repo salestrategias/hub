@@ -251,6 +251,56 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
     if (id) setRowPanelId(id);
   }
 
+  /**
+   * Composer inline do board (estilo Trello): cria a row já com o valor do
+   * select (coluna) E o título, sem abrir o painel — pra adicionar vários em
+   * sequência mantendo o foco. `addLinhaCom` já faz o optimistic no estado.
+   */
+  async function criarInlineBoard(
+    groupByPropId: string,
+    valorOpcaoId: string | null,
+    tituloPropId: string,
+    titulo: string
+  ): Promise<string | null> {
+    return addLinhaCom({ [groupByPropId]: valorOpcaoId, [tituloPropId]: titulo });
+  }
+
+  /**
+   * Reordena/move cards do board (drag-drop). `ids` = rows da coluna de DESTINO
+   * já na nova ordem; `valorOpcaoId` = opção do select daquela coluna (null =
+   * "Sem valor"). Otimista: aplica ordem (index) + valor do select localmente e
+   * persiste no endpoint /rows/reordenar. Em falha, ressincroniza.
+   */
+  async function reordenarBoard(
+    groupByPropId: string,
+    valorOpcaoId: string | null,
+    ids: string[]
+  ) {
+    const posicao = new Map(ids.map((id, i) => [id, i]));
+    setDb((d) => ({
+      ...d,
+      linhas: d.linhas.map((r) =>
+        posicao.has(r.id)
+          ? {
+              ...r,
+              ordem: posicao.get(r.id) as number,
+              valores: { ...r.valores, [groupByPropId]: valorOpcaoId },
+            }
+          : r
+      ),
+    }));
+    try {
+      await api(`/api/databases/${db.id}/rows/reordenar`, "POST", {
+        groupByPropertyId: groupByPropId,
+        optionId: valorOpcaoId,
+        ids,
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao reordenar");
+      router.refresh();
+    }
+  }
+
   // Calendário: clicar num dia cria a row já com aquela data e abre o painel.
   async function criarNoDia(datePropId: string, iso: string) {
     const id = await addLinhaCom({ [datePropId]: iso });
@@ -303,6 +353,10 @@ export function DatabaseClient({ db: dbInicial }: { db: DatabaseFull }) {
           config={viewCfg}
           onSetCelula={(rowId, propId, valor) => setCelula(rowId, propId, valor)}
           onAddCard={addCardBoard}
+          onCriarInline={criarInlineBoard}
+          onReordenar={reordenarBoard}
+          onRenomearTitulo={(rowId, tituloPropId, texto) => setCelula(rowId, tituloPropId, texto)}
+          onExcluirRow={deleteLinha}
           onAbrirRow={setRowPanelId}
           onConfigurar={() => setConfigViewId(viewAtiva.id)}
         />
