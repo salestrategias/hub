@@ -252,10 +252,10 @@ function QuickTarefaModal({ onClose }: { onClose: () => void }) {
               <Input type="datetime-local" value={dataEntrega} onChange={(e) => setDataEntrega(e.target.value)} />
             </Field>
             <Field label="Cliente (opcional)" cls="col-span-2">
-              <Select value={clienteId} onValueChange={setClienteId}>
+              <Select value={clienteId || "none"} onValueChange={(v) => setClienteId(v === "none" ? "" : v)}>
                 <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">—</SelectItem>
+                  <SelectItem value="none">—</SelectItem>
                   {clientes.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                   ))}
@@ -379,10 +379,10 @@ function QuickLancamentoModal({ onClose }: { onClose: () => void }) {
               <Input type="date" value={data} onChange={(e) => setData(e.target.value)} />
             </Field>
             <Field label="Cliente (opcional)" cls="col-span-2">
-              <Select value={clienteId} onValueChange={setClienteId}>
+              <Select value={clienteId || "none"} onValueChange={(v) => setClienteId(v === "none" ? "" : v)}>
                 <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">—</SelectItem>
+                  <SelectItem value="none">—</SelectItem>
                   {clientes.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                   ))}

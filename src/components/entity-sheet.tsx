@@ -1,10 +1,10 @@
 "use client";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetBody, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Loader2 } from "lucide-react";
+import { ExternalLink, Loader2, Maximize2, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -92,6 +92,28 @@ export function EntitySheet({
   footer,
   className,
 }: EntitySheetProps) {
+  // Modo "tela cheia centralizada" (vs. drawer lateral). Persiste a
+  // preferência global do usuário no localStorage.
+  const [full, setFull] = useState(false);
+  useEffect(() => {
+    try {
+      setFull(localStorage.getItem("salhub.sheet.full") === "1");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  function toggleFull() {
+    setFull((f) => {
+      const nv = !f;
+      try {
+        localStorage.setItem("salhub.sheet.full", nv ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+      return nv;
+    });
+  }
+
   // ESC fecha. Por default já vem do Radix; aqui ficamos só observando edge cases.
   useEffect(() => {
     if (!open) return;
@@ -106,7 +128,7 @@ export function EntitySheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className={cn(className)}>
+      <SheetContent side={full ? "center" : "right"} className={full ? undefined : cn(className)}>
         <SheetHeader>
           <div className="flex items-start gap-3 pr-8">
             {Icon && (
@@ -121,6 +143,16 @@ export function EntitySheet({
               <SheetTitle className="truncate">{titulo}</SheetTitle>
               {subtitulo && <SheetDescription>{subtitulo}</SheetDescription>}
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0"
+              onClick={toggleFull}
+              title={full ? "Restaurar (lateral)" : "Maximizar (tela cheia)"}
+              aria-label={full ? "Restaurar para lateral" : "Maximizar (tela cheia)"}
+            >
+              {full ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+            </Button>
             {linkPaginaCompleta && (
               <Button asChild variant="ghost" size="icon" className="shrink-0" title="Abrir página completa">
                 <Link href={linkPaginaCompleta} aria-label="Abrir página completa">

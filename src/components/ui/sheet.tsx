@@ -37,13 +37,16 @@ const SheetOverlay = React.forwardRef<
 ));
 SheetOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
-type SheetSide = "top" | "bottom" | "left" | "right";
+type SheetSide = "top" | "bottom" | "left" | "right" | "center";
 
 const SIDE_CLASSES: Record<SheetSide, string> = {
   top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
   bottom: "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
   left: "inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-md data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
   right: "inset-y-0 right-0 h-full w-full sm:max-w-[640px] border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+  // "center" = modal grande centralizado (quase tela cheia), pro card maximizado.
+  center:
+    "left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-6xl h-[92vh] rounded-xl border data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
 };
 
 interface SheetContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
