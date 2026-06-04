@@ -32,7 +32,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "@/components/ui/toast";
 import {
   MousePointer2, Hand, Square, Circle, Type, MoveRight, StickyNote,
-  Plus, Minus as MinusIcon, Maximize, Copy, Trash2, Download, Image as ImageIcon,
+  Plus, Minus as MinusIcon, Maximize, Maximize2, Minimize2, Copy, Trash2, Download, Image as ImageIcon,
   GitFork, Undo2, Redo2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -76,6 +76,8 @@ const GRID = 20; // snap step em unidades de canvas
 // Fase 2: tamanho de fonte por escala (px no espaço de canvas). md = padrão antigo (13).
 const FONT_PX: Record<FontScale, number> = { sm: 11, md: 13, lg: 17 };
 const fontePx = (n: Node) => FONT_PX[n.fontScale ?? "md"];
+// Fonte dos nós (balões) — Plus Jakarta (display da marca) via CSS var, com fallbacks.
+const NODE_FONT = "var(--font-jakarta), 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
 // Fase 2: tolerância de snap dos guias de alinhamento (unidades de canvas).
 const ALIGN_SNAP = 6;
 const STICKY_COR = "#FCD34D"; // amarelo "papel" pra sticky notes
@@ -113,6 +115,8 @@ export function MindMapCanvas({
   // Fase 2 (bônus): guias de alinhamento ativos durante o drag.
   const [guides, setGuides] = useState<{ v: number[]; h: number[] }>({ v: [], h: [] });
   const svgRef = useRef<SVGSVGElement>(null);
+  const canvasWrapRef = useRef<HTMLDivElement>(null);
+  const [isFull, setIsFull] = useState(false);
   // Drag de nó(s): guarda o offset de CADA nó selecionado pro centro do cursor,
   // pra mover o grupo inteiro mantendo posições relativas.
   const dragState = useRef<{
@@ -880,6 +884,18 @@ export function MindMapCanvas({
     toast.success("PNG exportado");
   }
 
+  // Tela cheia do canvas (Fullscreen API no container do canvas).
+  function toggleFull() {
+    if (typeof document === "undefined") return;
+    if (!document.fullscreenElement) canvasWrapRef.current?.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  }
+  useEffect(() => {
+    const onFs = () => setIsFull(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFs);
+    return () => document.removeEventListener("fullscreenchange", onFs);
+  }, []);
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -935,7 +951,7 @@ export function MindMapCanvas({
         </div>
       </div>
 
-      <Card className="overflow-hidden relative p-0 shadow-sm" style={{ height: "calc(100vh - 240px)" }}>
+      <Card ref={canvasWrapRef} className={cn("overflow-hidden relative p-0 shadow-sm", isFull && "rounded-none border-0")} style={{ height: isFull ? "100vh" : "calc(100vh - 240px)" }}>
         {/* Toolbar esquerda flutuante */}
         <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-card/95 backdrop-blur-sm border border-border rounded-2xl p-1.5 flex flex-col gap-1 shadow-xl shadow-black/5">
           {([
@@ -1184,6 +1200,14 @@ export function MindMapCanvas({
             title="Ajustar à tela"
           >
             <Maximize className="h-3.5 w-3.5" />
+          </button>
+          <div className="w-px h-4 bg-border mx-0.5" />
+          <button
+            className="p-1.5 rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors active:scale-95"
+            onClick={toggleFull}
+            title={isFull ? "Sair da tela cheia (Esc)" : "Tela cheia"}
+          >
+            {isFull ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
           </button>
         </div>
 
@@ -1455,9 +1479,10 @@ export function MindMapCanvas({
                         outline: "none",
                         background: "transparent",
                         color: n.tipo === "sticky" ? STICKY_INK : T.nodeText,
-                        fontFamily: "Inter Tight, Inter",
+                        fontFamily: NODE_FONT,
                         fontSize: `${fontePx(n)}px`,
-                        fontWeight: 600,
+                        fontWeight: 650,
+                        letterSpacing: "-0.01em",
                         textAlign: "center",
                         padding: 0,
                       }}
@@ -1470,10 +1495,9 @@ export function MindMapCanvas({
                       y={n.subtexto ? n.h / 2 - 4 : n.h / 2 + fontePx(n) / 3}
                       textAnchor="middle"
                       fill={n.tipo === "sticky" ? STICKY_INK : T.nodeText}
-                      fontFamily="Inter Tight, Inter"
                       fontSize={fontePx(n)}
-                      fontWeight="600"
-                      style={{ pointerEvents: "none" }}
+                      fontWeight={650}
+                      style={{ pointerEvents: "none", fontFamily: NODE_FONT, letterSpacing: "-0.01em" }}
                     >
                       {n.texto}
                     </text>
