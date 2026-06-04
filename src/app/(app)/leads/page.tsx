@@ -7,7 +7,9 @@ export const dynamic = "force-dynamic";
 export default async function LeadsPage() {
   const [leads, clientes] = await Promise.all([
     prisma.lead.findMany({
-      orderBy: [{ status: "asc" }, { prioridade: "asc" }, { updatedAt: "desc" }],
+      // Ordem manual do kanban (drag pra priorizar) primeiro; updatedAt como
+      // desempate pra leads que ainda não foram arrastados (ordem=0).
+      orderBy: [{ status: "asc" }, { ordem: "asc" }, { updatedAt: "desc" }],
       include: {
         cliente: { select: { id: true, nome: true } },
         _count: { select: { propostas: true } },
@@ -53,6 +55,7 @@ export default async function LeadsPage() {
           totalPropostas: l._count.propostas,
           updatedAt: l.updatedAt.toISOString(),
           qualidadeIA: l.qualidadeIA,
+          ordem: l.ordem,
         }))}
         clientes={clientes}
       />

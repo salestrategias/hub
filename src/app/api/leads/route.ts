@@ -63,6 +63,19 @@ export async function POST(req: Request) {
     const user = await requireAuth();
     const data = leadSchema.parse(await req.json());
 
+    // Ordem no kanban: se o cliente não mandou, joga no FIM da coluna do
+    // status (maior ordem + 1). Permite o composer inline criar vários cards
+    // em sequência sem colidir posição.
+    let ordem = data.ordem;
+    if (ordem === undefined) {
+      const ultimo = await prisma.lead.findFirst({
+        where: { status: data.status },
+        orderBy: { ordem: "desc" },
+        select: { ordem: true },
+      });
+      ordem = (ultimo?.ordem ?? -1) + 1;
+    }
+
     // Calcula score inicial (sem updatedAt real ainda, usa now)
     const score = calcularLeadScore({
       contatoEmail: data.contatoEmail ?? null,
@@ -76,7 +89,7 @@ export async function POST(req: Request) {
     }).total;
 
     return prisma.lead.create({
-      data: { ...data, responsavel: user.id, score },
+      data: { ...data, ordem, responsavel: user.id, score },
     });
   });
 }

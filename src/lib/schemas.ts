@@ -519,8 +519,28 @@ export const leadSchema = z.object({
   // Aceita null pra "voltar pro automático".
   score: z.coerce.number().int().min(0).max(100).optional(),
   scoreManual: z.coerce.number().int().min(0).max(100).optional().nullable(),
+  // Ordem manual dentro da coluna do kanban (drag pra priorizar).
+  // No POST, se omitido, o handler calcula o fim da coluna.
+  ordem: z.coerce.number().int().optional(),
 });
 export type LeadInput = z.infer<typeof leadSchema>;
+
+// Reordenar/mover leads no kanban (drag-drop). Manda os ids da coluna de
+// DESTINO na nova ordem; o handler seta ordem=index + status=status pra cada.
+// Cobre tanto reordenar dentro da coluna quanto mover entre colunas.
+export const leadReordenarSchema = z.object({
+  status: z.enum([
+    "NOVO",
+    "QUALIFICACAO",
+    "DIAGNOSTICO",
+    "PROPOSTA_ENVIADA",
+    "NEGOCIACAO",
+    "GANHO",
+    "PERDIDO",
+  ]),
+  ids: z.array(z.string()).max(500),
+});
+export type LeadReordenarInput = z.infer<typeof leadReordenarSchema>;
 
 // Importação de leads em batch via CSV (Meta Lead Ads, etc).
 // Mesmo shape do importarRelatorioSchema mas destino é Lead.

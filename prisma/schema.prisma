@@ -521,8 +521,13 @@ model Projeto {
 
   tarefas Tarefa[]
 
+  // Ordem manual dentro da coluna do kanban (drag pra priorizar)
+  ordem     Int      @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([status, ordem])
 }
 
 enum ProjetoStatus {
@@ -830,11 +835,15 @@ model Criativo {
   arquivos     CriativoArquivo[]
   comentarios  CriativoComentario[]
 
+  // Ordem manual dentro da coluna do kanban (drag pra priorizar)
+  ordem     Int              @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([clienteId, status])
   @@index([status, updatedAt])
+  @@index([status, ordem])
   @@index([campanhaPagaId])
 }
 
@@ -1367,10 +1376,14 @@ model Lead {
   responsavel           String
   user                  User       @relation(fields: [responsavel], references: [id], onDelete: Cascade)
 
+  // Ordem manual dentro da coluna do kanban (drag pra priorizar)
+  ordem                 Int        @default(0)
+
   createdAt             DateTime   @default(now())
   updatedAt             DateTime   @updatedAt
 
   @@index([status, responsavel])
+  @@index([status, ordem])
   @@index([clienteId])
   @@index([status, updatedAt])
 }
