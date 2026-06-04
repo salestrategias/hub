@@ -67,12 +67,49 @@ const STATUS_LABEL: Record<string, string> = {
   PUBLICADO: "Publicado",
 };
 
-const STATUS_COR: Record<string, string> = {
-  COPY_PRONTA: "#F59E0B",
-  DESIGN_PRONTO: "#8B5CF6",
-  AGENDADO: "#3B82F6",
-  PUBLICADO: "#10B981",
+/**
+ * Tokens visuais por status (soft, legível claro+escuro). `dot` = bg de
+ * bolinha; `chip` = chip soft (bg translúcido + texto + borda); `badge` = a
+ * Badge outline (texto + borda); `tile` = mini-card de data (bg + texto +
+ * borda). Tudo via utilitárias Tailwind com /alpha — sem hex hardcoded que
+ * destoe no tema claro.
+ */
+type StatusUI = { dot: string; chip: string; badge: string; tile: string };
+const STATUS_UI: Record<string, StatusUI> = {
+  COPY_PRONTA: {
+    dot: "bg-amber-500",
+    chip: "bg-amber-500/12 text-amber-600 dark:text-amber-400 border border-amber-500/25",
+    badge: "text-amber-600 dark:text-amber-400 border-amber-500/40",
+    tile: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
+  },
+  DESIGN_PRONTO: {
+    dot: "bg-violet-500",
+    chip: "bg-violet-500/12 text-violet-600 dark:text-violet-400 border border-violet-500/25",
+    badge: "text-violet-600 dark:text-violet-400 border-violet-500/40",
+    tile: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30",
+  },
+  AGENDADO: {
+    dot: "bg-sky-500",
+    chip: "bg-sky-500/12 text-sky-600 dark:text-sky-400 border border-sky-500/25",
+    badge: "text-sky-600 dark:text-sky-400 border-sky-500/40",
+    tile: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30",
+  },
+  PUBLICADO: {
+    dot: "bg-emerald-500",
+    chip: "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25",
+    badge: "text-emerald-600 dark:text-emerald-400 border-emerald-500/40",
+    tile: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+  },
 };
+const STATUS_UI_FALLBACK: StatusUI = {
+  dot: "bg-muted-foreground/40",
+  chip: "bg-muted text-muted-foreground border border-border",
+  badge: "text-muted-foreground border-border",
+  tile: "bg-muted text-muted-foreground border-border",
+};
+function statusUI(status: string): StatusUI {
+  return STATUS_UI[status] ?? STATUS_UI_FALLBACK;
+}
 
 const FORMATO_LABEL: Record<string, string> = {
   FEED: "Post estático",
@@ -464,7 +501,7 @@ function CalendarioGrade({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-0.5">
         {Object.entries(STATUS_LABEL).map(([st, label]) => (
           <span key={st} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-            <span className="h-2 w-2 rounded-full" style={{ background: STATUS_COR[st] }} />
+            <span className={`h-2 w-2 rounded-full ${statusUI(st).dot}`} />
             {label}
           </span>
         ))}
@@ -558,11 +595,7 @@ function DiaCelula({
       {temPosts && (
         <div className="mt-1 flex flex-wrap justify-center gap-0.5 sm:hidden">
           {posts.slice(0, 4).map((p) => (
-            <span
-              key={p.id}
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ background: STATUS_COR[p.status] ?? "#9CA3AF" }}
-            />
+            <span key={p.id} className={`h-1.5 w-1.5 rounded-full ${statusUI(p.status).dot}`} />
           ))}
           {posts.length > 4 && (
             <span className="text-[8px] leading-none text-muted-foreground">+{posts.length - 4}</span>
@@ -573,19 +606,15 @@ function DiaCelula({
       {/* Desktop (>= sm): chips com título, cor por status. */}
       {temPosts && (
         <div className="mt-1 hidden sm:block space-y-1">
-          {posts.slice(0, 3).map((p) => {
-            const cor = STATUS_COR[p.status] ?? "#9CA3AF";
-            return (
-              <span
-                key={p.id}
-                className="block w-full truncate rounded px-1.5 py-0.5 text-[11px] font-medium"
-                style={{ background: `${cor}1A`, color: cor, border: `1px solid ${cor}40` }}
-                title={p.titulo}
-              >
-                {p.titulo}
-              </span>
-            );
-          })}
+          {posts.slice(0, 3).map((p) => (
+            <span
+              key={p.id}
+              className={`block w-full truncate rounded px-1.5 py-0.5 text-[11px] font-medium ${statusUI(p.status).chip}`}
+              title={p.titulo}
+            >
+              {p.titulo}
+            </span>
+          ))}
           {posts.length > 3 && (
             <span className="block px-1.5 text-[10px] text-muted-foreground">
               +{posts.length - 3} mais
@@ -647,7 +676,7 @@ function PostCard({
 }) {
   const [anexando, setAnexando] = useState(false);
   const data = new Date(post.dataPublicacao);
-  const cor = STATUS_COR[post.status] ?? "#9CA3AF";
+  const ui = statusUI(post.status);
   const aprovavel = post.status === "COPY_PRONTA" && podeAprovar;
   const jaAprovouSAL = post.comentarios.some((c) => c.tipo === "APROVOU");
   const ultimoAjuste = post.comentarios.find((c) => c.tipo === "PEDIU_AJUSTE");
@@ -672,21 +701,18 @@ function PostCard({
       <CardContent className="p-0 overflow-hidden">
         {/* Cabeçalho */}
         <div className="p-4 flex items-start gap-3">
-          <div
-            className="shrink-0 w-12 h-12 rounded-md flex flex-col items-center justify-center"
-            style={{ background: `${cor}15`, border: `1px solid ${cor}40` }}
-          >
-            <span className="text-[9px] uppercase font-semibold" style={{ color: cor }}>
+          <div className={`shrink-0 w-12 h-12 rounded-lg border flex flex-col items-center justify-center ${ui.tile}`}>
+            <span className="text-[9px] uppercase font-semibold">
               {data.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")}
             </span>
-            <span className="text-lg font-mono font-semibold leading-none" style={{ color: cor }}>
+            <span className="text-lg font-mono font-semibold leading-none">
               {data.getDate()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm leading-tight">{post.titulo}</h3>
+            <h3 className="font-display font-semibold text-sm leading-tight">{post.titulo}</h3>
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              <Badge variant="outline" className="text-[10px]" style={{ color: cor, borderColor: `${cor}55` }}>
+              <Badge variant="outline" className={`text-[10px] ${ui.badge}`}>
                 {STATUS_LABEL[post.status] ?? post.status}
               </Badge>
               <Badge variant="outline" className="text-[10px]">
@@ -774,8 +800,7 @@ function PostCard({
               {aprovavel && (
                 <Button
                   onClick={onAprovar}
-                  className="flex-1 h-11 sm:h-9 text-sm sm:text-xs touch-feedback"
-                  style={{ background: "linear-gradient(135deg,#10B981 0%,#047857 100%)" }}
+                  className="flex-1 h-11 sm:h-9 text-sm sm:text-xs touch-feedback bg-emerald-600 text-white hover:bg-emerald-600/90"
                 >
                   <CheckCircle2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" /> Aprovar
                 </Button>
@@ -849,7 +874,7 @@ function ArtesCarrossel({
 
   return (
     <div className="bg-muted/20 border-y border-border" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      <div className="relative aspect-square sm:aspect-[4/5] max-h-[600px] flex items-center justify-center bg-black/20 select-none">
+      <div className="relative aspect-square sm:aspect-[4/5] max-h-[600px] flex items-center justify-center bg-muted select-none">
         {arquivoAtual.tipo === "IMAGEM" ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

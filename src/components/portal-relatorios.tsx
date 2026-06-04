@@ -53,7 +53,7 @@ export function PortalRelatorios({ clienteId }: { clienteId: string }) {
             rel="noreferrer"
             className="block touch-feedback"
           >
-            <Card className="hover:border-primary/40 active:border-primary/60 transition-colors">
+            <Card className="hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5 active:border-primary/60 transition-all">
               <CardContent className="p-3.5 flex items-center gap-3 min-h-[56px]">
                 <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                 <div className="flex-1 min-w-0">

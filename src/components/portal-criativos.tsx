@@ -84,14 +84,52 @@ const STATUS_LABEL: Record<string, string> = {
   ENCERRADO: "Encerrado",
 };
 
-const STATUS_COR: Record<string, string> = {
-  EM_APROVACAO: "#F59E0B",
-  APROVADO: "#10B981",
-  RECUSADO: "#EF4444",
-  NO_AR: "#7E30E1",
-  PAUSADO: "#3B82F6",
-  ENCERRADO: "#6B7280",
+/**
+ * Tokens visuais por status (soft, legível claro+escuro). `text` = cor do
+ * cabeçalho da seção; `badge` = Badge outline; `tile` = mini-card do ícone.
+ * Sem hex hardcoded — utilitárias Tailwind com /alpha que respeitam o tema.
+ */
+type StatusUI = { text: string; badge: string; tile: string };
+const STATUS_UI: Record<string, StatusUI> = {
+  EM_APROVACAO: {
+    text: "text-amber-600 dark:text-amber-400",
+    badge: "text-amber-600 dark:text-amber-400 border-amber-500/40",
+    tile: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
+  },
+  APROVADO: {
+    text: "text-emerald-600 dark:text-emerald-400",
+    badge: "text-emerald-600 dark:text-emerald-400 border-emerald-500/40",
+    tile: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+  },
+  RECUSADO: {
+    text: "text-rose-600 dark:text-rose-400",
+    badge: "text-rose-600 dark:text-rose-400 border-rose-500/40",
+    tile: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30",
+  },
+  NO_AR: {
+    text: "text-primary",
+    badge: "text-primary border-primary/40",
+    tile: "bg-primary/10 text-primary border-primary/30",
+  },
+  PAUSADO: {
+    text: "text-sky-600 dark:text-sky-400",
+    badge: "text-sky-600 dark:text-sky-400 border-sky-500/40",
+    tile: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30",
+  },
+  ENCERRADO: {
+    text: "text-muted-foreground",
+    badge: "text-muted-foreground border-border",
+    tile: "bg-muted text-muted-foreground border-border",
+  },
 };
+const STATUS_UI_FALLBACK: StatusUI = {
+  text: "text-muted-foreground",
+  badge: "text-muted-foreground border-border",
+  tile: "bg-muted text-muted-foreground border-border",
+};
+function statusUI(status: string): StatusUI {
+  return STATUS_UI[status] ?? STATUS_UI_FALLBACK;
+}
 
 const PLATAFORMA_LABEL: Record<string, string> = {
   META_ADS: "Meta Ads",
@@ -229,10 +267,7 @@ export function PortalCriativos({
       ) : (
         gruposOrdenados.map(([status, lista]) => (
           <section key={status} className="space-y-2">
-            <h2
-              className="text-[11px] font-semibold uppercase tracking-wider"
-              style={{ color: STATUS_COR[status] ?? "#9CA3AF" }}
-            >
+            <h2 className={`text-[11px] font-semibold uppercase tracking-wider ${statusUI(status).text}`}>
               {STATUS_LABEL[status] ?? status} ({lista.length})
             </h2>
             <div className="space-y-2">
@@ -294,7 +329,7 @@ function CriativoCard({
   onAprovar: () => void;
   onComentar: () => void;
 }) {
-  const cor = STATUS_COR[criativo.status] ?? "#9CA3AF";
+  const ui = statusUI(criativo.status);
   const aprovavel = criativo.status === "EM_APROVACAO" && podeAprovar;
   const jaAprovou = criativo.comentarios.some((c) => c.tipo === "APROVOU");
   const ultimoAjuste = criativo.comentarios.find((c) => c.tipo === "PEDIU_AJUSTE");
@@ -305,16 +340,13 @@ function CriativoCard({
       <CardContent className="p-0 overflow-hidden">
         {/* Cabeçalho */}
         <div className="p-4 flex items-start gap-3">
-          <div
-            className="shrink-0 w-12 h-12 rounded-md flex items-center justify-center"
-            style={{ background: `${cor}15`, border: `1px solid ${cor}40` }}
-          >
-            <Megaphone className="h-5 w-5" style={{ color: cor }} />
+          <div className={`shrink-0 w-12 h-12 rounded-lg border flex items-center justify-center ${ui.tile}`}>
+            <Megaphone className="h-5 w-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm leading-tight">{criativo.titulo}</h3>
+            <h3 className="font-display font-semibold text-sm leading-tight">{criativo.titulo}</h3>
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              <Badge variant="outline" className="text-[10px]" style={{ color: cor, borderColor: `${cor}55` }}>
+              <Badge variant="outline" className={`text-[10px] ${ui.badge}`}>
                 {STATUS_LABEL[criativo.status] ?? criativo.status}
               </Badge>
               <Badge variant="outline" className="text-[10px]">
@@ -426,8 +458,7 @@ function CriativoCard({
               {aprovavel && (
                 <Button
                   onClick={onAprovar}
-                  className="flex-1 h-11 sm:h-9 text-sm sm:text-xs touch-feedback"
-                  style={{ background: "linear-gradient(135deg,#10B981 0%,#047857 100%)" }}
+                  className="flex-1 h-11 sm:h-9 text-sm sm:text-xs touch-feedback bg-emerald-600 text-white hover:bg-emerald-600/90"
                 >
                   <CheckCircle2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" /> Aprovar
                 </Button>
@@ -472,7 +503,7 @@ function ArtesCarrossel({ arquivos }: { arquivos: Arquivo[] }) {
 
   return (
     <div className="bg-muted/20 border-y border-border" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      <div className="relative aspect-square sm:aspect-[4/5] max-h-[600px] flex items-center justify-center bg-black/20 select-none">
+      <div className="relative aspect-square sm:aspect-[4/5] max-h-[600px] flex items-center justify-center bg-muted select-none">
         {arquivoAtual.tipo === "IMAGEM" ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

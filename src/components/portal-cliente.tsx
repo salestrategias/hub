@@ -131,11 +131,8 @@ export function PortalCliente({ token }: { token: string }) {
         <Card className="max-w-sm w-full">
           <CardContent className="p-5 sm:p-7 space-y-4">
             <div className="text-center space-y-2">
-              <div
-                className="h-12 w-12 rounded-lg mx-auto flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" }}
-              >
-                <Lock className="h-5 w-5 text-white" />
+              <div className="h-12 w-12 rounded-xl mx-auto flex items-center justify-center bg-primary shadow-sm">
+                <Lock className="h-5 w-5 text-primary-foreground" />
               </div>
               <h1 className="font-display text-lg font-semibold">Portal {estado.clienteNome}</h1>
               <p className="text-xs text-muted-foreground">SAL Estratégias de Marketing</p>
@@ -156,7 +153,6 @@ export function PortalCliente({ token }: { token: string }) {
                 onClick={entrarComSenha}
                 disabled={!senha.trim() || autenticando}
                 className="w-full h-11 text-sm touch-feedback"
-                style={{ background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" }}
               >
                 {autenticando ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
               </Button>
@@ -184,11 +180,8 @@ export function PortalCliente({ token }: { token: string }) {
       {/* Header — sticky com safe area pra notch iOS */}
       <header className="sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur-md safe-area-inset-top">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center gap-2.5 sm:gap-3">
-          <div
-            className="h-9 w-9 sm:h-10 sm:w-10 rounded-md flex items-center justify-center shrink-0"
-            style={{ background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" }}
-          >
-            <span className="text-white font-display text-sm sm:text-base font-semibold">S</span>
+          <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shrink-0 bg-primary shadow-sm">
+            <span className="text-primary-foreground font-display text-sm sm:text-base font-bold">S</span>
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-[13px] sm:text-base font-semibold truncate leading-tight">{clienteNome}</h1>
@@ -208,10 +201,9 @@ export function PortalCliente({ token }: { token: string }) {
                   onClick={() => setTab(t.id)}
                   className={`touch-feedback flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium whitespace-nowrap transition-colors relative ${
                     ativo
-                      ? "text-foreground"
+                      ? "text-primary shadow-[inset_0_-2px_0_0_hsl(var(--primary))]"
                       : "text-muted-foreground active:text-foreground hover:text-foreground"
                   }`}
-                  style={ativo ? { boxShadow: "inset 0 -2px 0 0 #7E30E1" } : undefined}
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {t.label}
@@ -285,14 +277,15 @@ export function PortalCliente({ token }: { token: string }) {
                   className="touch-feedback relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 min-h-[56px]"
                 >
                   <span
-                    className="flex h-7 w-12 items-center justify-center rounded-full transition-colors"
-                    style={ativo ? { background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" } : undefined}
+                    className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
+                      ativo ? "bg-primary" : ""
+                    }`}
                   >
-                    <Icon className={`h-[18px] w-[18px] ${ativo ? "text-white" : "text-muted-foreground"}`} />
+                    <Icon className={`h-[18px] w-[18px] ${ativo ? "text-primary-foreground" : "text-muted-foreground"}`} />
                   </span>
                   <span
-                    className={`text-[10px] font-medium leading-none ${
-                      ativo ? "text-foreground" : "text-muted-foreground"
+                    className={`text-[10px] leading-none ${
+                      ativo ? "text-primary font-semibold" : "text-muted-foreground font-medium"
                     }`}
                   >
                     {t.labelCurto}

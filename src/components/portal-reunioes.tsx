@@ -76,7 +76,7 @@ export function PortalReunioes({ token }: { token: string }) {
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center gap-2 flex-wrap">
               <Mic className="h-3.5 w-3.5 text-primary" />
-              <h3 className="font-semibold text-sm flex-1 min-w-0 truncate">{r.titulo}</h3>
+              <h3 className="font-display font-semibold text-sm flex-1 min-w-0 truncate">{r.titulo}</h3>
               <span className="text-[11px] font-mono text-muted-foreground shrink-0">
                 {new Date(r.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
               </span>

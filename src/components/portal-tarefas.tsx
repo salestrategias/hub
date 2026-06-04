@@ -20,11 +20,12 @@ type Tarefa = {
   updatedAt: string;
 };
 
-const PRIO_COR: Record<string, string> = {
-  URGENTE: "#EF4444",
-  ALTA: "#F59E0B",
-  NORMAL: "#3B82F6",
-  BAIXA: "#9CA3AF",
+/** Chip de prioridade soft (Badge outline) — legível claro+escuro, sem hex. */
+const PRIO_BADGE: Record<string, string> = {
+  URGENTE: "text-rose-600 dark:text-rose-400 border-rose-500/40",
+  ALTA: "text-amber-600 dark:text-amber-400 border-amber-500/40",
+  NORMAL: "text-sky-600 dark:text-sky-400 border-sky-500/40",
+  BAIXA: "text-muted-foreground border-border",
 };
 
 const PRIO_LABEL: Record<string, string> = {
@@ -107,7 +108,6 @@ export function PortalTarefas({ token }: { token: string }) {
 }
 
 function TarefaItem({ tarefa }: { tarefa: Tarefa }) {
-  const cor = PRIO_COR[tarefa.prioridade];
   const dataEntrega = tarefa.dataEntrega ? new Date(tarefa.dataEntrega) : null;
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -133,7 +133,7 @@ function TarefaItem({ tarefa }: { tarefa: Tarefa }) {
             <p className="text-[11.5px] sm:text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{tarefa.descricao}</p>
           )}
           <div className="flex items-center gap-1.5 mt-2 sm:mt-1.5 flex-wrap">
-            <Badge variant="outline" className="text-[10px]" style={{ color: cor, borderColor: `${cor}55` }}>
+            <Badge variant="outline" className={`text-[10px] ${PRIO_BADGE[tarefa.prioridade]}`}>
               {PRIO_LABEL[tarefa.prioridade]}
             </Badge>
             {dataEntrega && (

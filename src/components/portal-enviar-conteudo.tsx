@@ -34,7 +34,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -89,11 +88,7 @@ const FORMATO_CRIATIVO = [
 // ─── Botão de abrir o form ──────────────────────────────────────────
 export function BotaoEnviar({ modo, onClick }: { modo: ModoEnvio; onClick: () => void }) {
   return (
-    <Button
-      onClick={onClick}
-      className="w-full h-12 sm:h-10 text-sm touch-feedback"
-      style={{ background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" }}
-    >
+    <Button onClick={onClick} className="w-full h-12 sm:h-10 text-sm touch-feedback">
       <Plus className="h-4 w-4" />
       {modo === "post" ? "Enviar post pra revisão" : "Enviar criativo pra revisão"}
     </Button>
@@ -124,7 +119,7 @@ function SubmissaoCard({ modo, submissao }: { modo: ModoEnvio; submissao: Submis
   const thumb = submissao.arquivos.find((a) => a.tipo === "IMAGEM");
 
   return (
-    <Card className="border-l-4" style={{ borderLeftColor: corStatus(status) }}>
+    <Card className={`border-l-4 ${corBordaStatus(status)}`}>
       <CardContent className="p-3 flex items-start gap-3">
         {thumb ? (
           <div className="w-12 h-12 rounded-md overflow-hidden shrink-0 bg-muted">
@@ -162,31 +157,35 @@ function SubmissaoCard({ modo, submissao }: { modo: ModoEnvio; submissao: Submis
   );
 }
 
-function corStatus(status: string): string {
-  if (status === "APROVADO") return "#10B981";
-  if (status === "AJUSTE") return "#F59E0B";
-  return "#3B82F6"; // PENDENTE
+/** Borda lateral soft do card por status (legível claro+escuro, via tokens). */
+function corBordaStatus(status: string): string {
+  if (status === "APROVADO") return "border-l-emerald-500/60";
+  if (status === "AJUSTE") return "border-l-amber-500/60";
+  return "border-l-sky-500/60"; // PENDENTE
 }
 
+/** Chip de status soft — fundo translúcido + texto colorido legível nos dois temas. */
 function BadgeStatus({ status }: { status: string }) {
+  const base =
+    "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold shrink-0 whitespace-nowrap";
   if (status === "APROVADO") {
     return (
-      <Badge variant="outline" className="text-[10px] shrink-0" style={{ color: "#10B981", borderColor: "#10B98155" }}>
-        <CheckCircle2 className="h-3 w-3 mr-0.5" /> Aprovado
-      </Badge>
+      <span className={`${base} bg-emerald-500/12 text-emerald-600 dark:text-emerald-400`}>
+        <CheckCircle2 className="h-3 w-3" /> Aprovado
+      </span>
     );
   }
   if (status === "AJUSTE") {
     return (
-      <Badge variant="outline" className="text-[10px] shrink-0" style={{ color: "#F59E0B", borderColor: "#F59E0B55" }}>
-        <AlertTriangle className="h-3 w-3 mr-0.5" /> Ajuste pedido
-      </Badge>
+      <span className={`${base} bg-amber-500/12 text-amber-600 dark:text-amber-400`}>
+        <AlertTriangle className="h-3 w-3" /> Ajuste pedido
+      </span>
     );
   }
   return (
-    <Badge variant="outline" className="text-[10px] shrink-0" style={{ color: "#3B82F6", borderColor: "#3B82F655" }}>
-      <Clock className="h-3 w-3 mr-0.5" /> Em revisão
-    </Badge>
+    <span className={`${base} bg-sky-500/12 text-sky-600 dark:text-sky-400`}>
+      <Clock className="h-3 w-3" /> Em revisão
+    </span>
   );
 }
 
@@ -373,7 +372,6 @@ export function EnviarConteudoDialog({
             onClick={enviar}
             disabled={enviando || processando || !titulo.trim()}
             className="h-11 sm:h-9 touch-feedback"
-            style={{ background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" }}
           >
             {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             Enviar pra SAL

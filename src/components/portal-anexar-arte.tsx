@@ -102,7 +102,6 @@ export function AnexarArteDialog({
             onClick={enviar}
             disabled={enviando || processando || arquivos.length === 0}
             className="h-11 sm:h-9 touch-feedback"
-            style={{ background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" }}
           >
             {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
             Anexar
