@@ -12,7 +12,7 @@
  * Rascunhos não chegam aqui (filtrado no backend).
  */
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, CalendarDays, List, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, FileText, Link2, Video, Hash, Inbox, Trash2 } from "lucide-react";
+import { Calendar, CalendarDays, List, CheckCircle2, MessageSquare, ChevronLeft, ChevronRight, Loader2, FileText, Link2, Video, Hash, Inbox, Trash2, Clock } from "lucide-react";
 import { BlockRenderer } from "@/components/editor";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -143,21 +143,29 @@ function rotuloMes(ano: number, mes: number): string {
     year: "numeric",
   });
 }
+/** "DD/MM" curto a partir de uma data ISO. */
+function dataCurta(iso: string): string {
+  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+}
 
 export function PortalCalendario({
   token,
   podeAprovar,
   podeComentar,
   podeEnviar,
+  onPendenciasMudaram,
 }: {
   token: string;
   podeAprovar: boolean;
   podeComentar: boolean;
   podeEnviar: boolean;
+  /** Avisa o portal pra recarregar a contagem de pendências (badges). */
+  onPendenciasMudaram?: () => void;
 }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [comentando, setComentando] = useState<Post | null>(null);
+  const [aprovando, setAprovando] = useState<Post | null>(null);
   const [submissoes, setSubmissoes] = useState<Submissao[]>([]);
   const [enviando, setEnviando] = useState(false);
   const [view, setView] = useState<CalView>("lista");
@@ -209,16 +217,15 @@ export function PortalCalendario({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function aprovar(post: Post) {
-    if (!confirm(`Aprovar "${post.titulo}"?\n\nA SAL será notificada e pode prosseguir pra produção da arte.`)) return;
-    const res = await fetch(`/api/p/cliente/${token}/post/${post.id}/aprovar`, { method: "POST" });
-    if (!res.ok) {
-      const d = await res.json().catch(() => ({}));
-      toast.error(d?.error ?? "Falha ao aprovar");
-      return;
-    }
-    toast.success("Aprovado! SAL foi notificada.");
+  /** Abre o dialog de aprovação (confirma + comentário opcional). */
+  function aprovar(post: Post) {
+    setAprovando(post);
+  }
+
+  function aposAprovar() {
+    setAprovando(null);
     carregar();
+    onPendenciasMudaram?.();
   }
 
   if (loading) {
@@ -322,6 +329,16 @@ export function PortalCalendario({
       {/* Submissões do próprio cliente (separadas visualmente da SAL) */}
       {podeEnviar && <MinhasSubmissoes modo="post" submissoes={submissoes} />}
 
+      {aprovando && (
+        <AprovarDialog
+          token={token}
+          post={aprovando}
+          podeComentar={podeComentar}
+          onClose={() => setAprovando(null)}
+          onSuccess={aposAprovar}
+        />
+      )}
+
       {comentando && (
         <ComentarDialog
           token={token}
@@ -330,6 +347,7 @@ export function PortalCalendario({
           onSuccess={() => {
             setComentando(null);
             carregar();
+            onPendenciasMudaram?.();
           }}
         />
       )}
@@ -678,8 +696,12 @@ function PostCard({
   const data = new Date(post.dataPublicacao);
   const ui = statusUI(post.status);
   const aprovavel = post.status === "COPY_PRONTA" && podeAprovar;
-  const jaAprovouSAL = post.comentarios.some((c) => c.tipo === "APROVOU");
+  // `comentarios` vem ordenado desc (mais recente primeiro).
+  const aprovacao = post.comentarios.find((c) => c.tipo === "APROVOU");
   const ultimoAjuste = post.comentarios.find((c) => c.tipo === "PEDIU_AJUSTE");
+  // Estado de aprovação do cliente (claro): aprovado, ajuste pedido, ou
+  // aguardando. "Aguardando" só faz sentido enquanto está em COPY_PRONTA.
+  const aguardando = post.status === "COPY_PRONTA" && !aprovacao;
   const temArtes = post.arquivos.length > 0;
 
   async function removerArte(arquivoId: string) {
@@ -772,20 +794,33 @@ function PostCard({
             </div>
           )}
 
-          {/* Comentários anteriores */}
-          {(jaAprovouSAL || ultimoAjuste) && (
+          {/* Estado de aprovação do cliente — claro e datado */}
+          {(aprovacao || ultimoAjuste || aguardando) && (
             <div className="space-y-1.5 border-t border-border/40 pt-3">
-              {jaAprovouSAL && (
-                <div className="flex items-center gap-1.5 text-[11px] text-emerald-500">
-                  <CheckCircle2 className="h-3 w-3" /> Aprovado por você
+              {aprovacao && (
+                <div className="rounded-md bg-emerald-500/5 border border-emerald-500/20 p-2">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    Aprovado por você em {dataCurta(aprovacao.createdAt)}
+                  </div>
+                  {aprovacao.texto && (
+                    <p className="mt-1 text-[12px] leading-snug whitespace-pre-wrap text-foreground/90">
+                      {aprovacao.texto}
+                    </p>
+                  )}
+                </div>
+              )}
+              {!aprovacao && aguardando && (
+                <div className="flex items-center gap-1.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                  <Clock className="h-3.5 w-3.5 shrink-0" /> Aguardando sua aprovação
                 </div>
               )}
               {ultimoAjuste && (
                 <div className="rounded-md bg-amber-500/5 border border-amber-500/20 p-2">
-                  <div className="flex items-center gap-1.5 text-[10.5px] text-amber-500 font-medium mb-1">
-                    <MessageSquare className="h-3 w-3" /> Você pediu ajuste
+                  <div className="flex items-center gap-1.5 text-[10.5px] text-amber-600 dark:text-amber-400 font-medium mb-1">
+                    <MessageSquare className="h-3 w-3" /> Ajuste solicitado
                     <span className="text-muted-foreground/70 ml-auto">
-                      {new Date(ultimoAjuste.createdAt).toLocaleDateString("pt-BR")}
+                      {dataCurta(ultimoAjuste.createdAt)}
                     </span>
                   </div>
                   <p className="text-[12px] leading-snug whitespace-pre-wrap">{ultimoAjuste.texto}</p>
@@ -1057,6 +1092,93 @@ function ComentarDialog({
           >
             {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
             Enviar pedido
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * Dialog de aprovação de post. Confirma a aprovação e, se o cliente pode
+ * comentar, permite um comentário OPCIONAL que acompanha a aprovação
+ * ("pode subir", "ficou ótimo"). Posta em /aprovar com { texto? }.
+ */
+function AprovarDialog({
+  token,
+  post,
+  podeComentar,
+  onClose,
+  onSuccess,
+}: {
+  token: string;
+  post: Post;
+  podeComentar: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [texto, setTexto] = useState("");
+  const [enviando, setEnviando] = useState(false);
+
+  async function aprovar() {
+    setEnviando(true);
+    try {
+      const comentario = texto.trim();
+      const res = await fetch(`/api/p/cliente/${token}/post/${post.id}/aprovar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(comentario ? { texto: comentario } : {}),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        toast.error(d?.error ?? "Falha ao aprovar");
+        return;
+      }
+      toast.success("Aprovado! SAL foi notificada.");
+      onSuccess();
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="dialog-bottom-sheet">
+        <div className="sm:hidden flex justify-center -mt-1 mb-2">
+          <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
+        </div>
+        <DialogHeader>
+          <DialogTitle className="text-base">Aprovar post</DialogTitle>
+          <p className="text-xs text-muted-foreground mt-1 truncate">{post.titulo}</p>
+        </DialogHeader>
+        <p className="text-[13px] text-muted-foreground leading-relaxed">
+          A SAL será notificada e pode prosseguir pra produção da arte.
+        </p>
+        {podeComentar && (
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-medium text-muted-foreground">
+              Comentário (opcional)
+            </label>
+            <Textarea
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              placeholder="Quer deixar um recado? Ex: 'Ficou ótimo, pode publicar.'"
+              rows={3}
+              className="text-base sm:text-sm min-h-[80px]"
+            />
+          </div>
+        )}
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={onClose} className="h-11 sm:h-9 touch-feedback">
+            Cancelar
+          </Button>
+          <Button
+            onClick={aprovar}
+            disabled={enviando}
+            className="h-11 sm:h-9 touch-feedback bg-emerald-600 text-white hover:bg-emerald-600/90"
+          >
+            {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            Aprovar
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -38,13 +38,16 @@ type Permissoes = {
 /** Marca leve do cliente (white-label): logo + cor de acento. */
 type Marca = { logoUrl: string | null; corPrimaria: string | null };
 
+/** Itens aguardando a aprovação DESTE cliente (alimenta badges + home). */
+type Pendencias = { posts: number; criativos: number };
+
 type EstadoInicial =
   | { tipo: "carregando" }
   | { tipo: "precisa-senha"; clienteNome: string; marca: Marca }
   | { tipo: "erro"; mensagem: string }
   | { tipo: "ok"; clienteId: string; clienteNome: string; permissoes: Permissoes; marca: Marca };
 
-type Tab = "inicio" | "calendario" | "criativos" | "tarefas" | "reunioes" | "relatorios";
+export type Tab = "inicio" | "calendario" | "criativos" | "tarefas" | "reunioes" | "relatorios";
 
 /** Roxo SAL (default). Acento da marca só substitui quando difere disso. */
 const COR_SAL = "#7E30E1";
@@ -60,6 +63,26 @@ export function PortalCliente({ token }: { token: string }) {
   const [tab, setTab] = useState<Tab>("inicio");
   const [senha, setSenha] = useState("");
   const [autenticando, setAutenticando] = useState(false);
+  const [pendencias, setPendencias] = useState<Pendencias>({ posts: 0, criativos: 0 });
+
+  // Pendências de aprovação (badges + bloco "Esperando você"). Lê do /resumo
+  // (que já devolve `pendencias`). Recarregado após aprovar/pedir ajuste pra
+  // a contagem cair na hora. Silencioso — é complementar.
+  async function recarregarPendencias() {
+    try {
+      const res = await fetch(`/api/p/cliente/${token}/resumo`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.pendencias) {
+        setPendencias({
+          posts: Number(data.pendencias.posts) || 0,
+          criativos: Number(data.pendencias.criativos) || 0,
+        });
+      }
+    } catch {
+      /* ignora — badges são complementares */
+    }
+  }
 
   async function carregar(senhaProvida?: string) {
     try {
@@ -93,6 +116,8 @@ export function PortalCliente({ token }: { token: string }) {
       });
       // Início é a primeira tab e existe sempre — cliente cai nela ao abrir.
       setTab("inicio");
+      // Carrega contagem de pendências pros badges (não bloqueia render).
+      void recarregarPendencias();
     } catch (e) {
       setEstado({ tipo: "erro", mensagem: e instanceof Error ? e.message : "Erro" });
     }
@@ -194,13 +219,21 @@ export function PortalCliente({ token }: { token: string }) {
   const acento = sanitizarHex(marca.corPrimaria);
   const temAcento = !!acento && acento.toUpperCase() !== COR_SAL;
   const corAtiva = temAcento ? acento! : undefined;
-  const tabsVisiveis: { id: Tab; label: string; labelCurto: string; icon: typeof Calendar; visivel: boolean }[] = [
-    { id: "inicio", label: "Início", labelCurto: "Início", icon: Sparkles, visivel: true },
-    { id: "calendario", label: "Calendário", labelCurto: "Agenda", icon: Calendar, visivel: permissoes.verCalendario },
-    { id: "criativos", label: "Criativos", labelCurto: "Criativos", icon: Megaphone, visivel: permissoes.verCriativos },
-    { id: "tarefas", label: "Tarefas", labelCurto: "Tarefas", icon: ListChecks, visivel: permissoes.verTarefas },
-    { id: "reunioes", label: "Reuniões", labelCurto: "Reuniões", icon: Mic, visivel: permissoes.verReunioes },
-    { id: "relatorios", label: "Relatórios", labelCurto: "Relatórios", icon: BarChart3, visivel: permissoes.verRelatorios },
+  const tabsVisiveis: {
+    id: Tab;
+    label: string;
+    labelCurto: string;
+    icon: typeof Calendar;
+    visivel: boolean;
+    /** nº de itens aguardando aprovação nesta aba (0 = sem badge). */
+    badge: number;
+  }[] = [
+    { id: "inicio", label: "Início", labelCurto: "Início", icon: Sparkles, visivel: true, badge: 0 },
+    { id: "calendario", label: "Calendário", labelCurto: "Agenda", icon: Calendar, visivel: permissoes.verCalendario, badge: pendencias.posts },
+    { id: "criativos", label: "Criativos", labelCurto: "Criativos", icon: Megaphone, visivel: permissoes.verCriativos, badge: pendencias.criativos },
+    { id: "tarefas", label: "Tarefas", labelCurto: "Tarefas", icon: ListChecks, visivel: permissoes.verTarefas, badge: 0 },
+    { id: "reunioes", label: "Reuniões", labelCurto: "Reuniões", icon: Mic, visivel: permissoes.verReunioes, badge: 0 },
+    { id: "relatorios", label: "Relatórios", labelCurto: "Relatórios", icon: BarChart3, visivel: permissoes.verRelatorios, badge: 0 },
   ];
   const visiveis = tabsVisiveis.filter((t) => t.visivel);
   const temBottomNav = visiveis.length > 1;
@@ -258,6 +291,7 @@ export function PortalCliente({ token }: { token: string }) {
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {t.label}
+                  {t.badge > 0 && <ContadorBadge n={t.badge} acento={corAtiva} />}
                 </button>
               );
             })}
@@ -272,7 +306,15 @@ export function PortalCliente({ token }: { token: string }) {
         }`}
       >
         {tab === "inicio" && (
-          <PortalInicio token={token} clienteNome={clienteNome} acento={corAtiva} />
+          <PortalInicio
+            token={token}
+            clienteNome={clienteNome}
+            acento={corAtiva}
+            pendencias={pendencias}
+            podeVerCalendario={permissoes.verCalendario}
+            podeVerCriativos={permissoes.verCriativos}
+            onIrParaTab={(t) => setTab(t)}
+          />
         )}
         {tab === "calendario" && permissoes.verCalendario && (
           <PortalCalendario
@@ -280,6 +322,7 @@ export function PortalCliente({ token }: { token: string }) {
             podeAprovar={permissoes.podeAprovarPosts}
             podeComentar={permissoes.podeComentar}
             podeEnviar={permissoes.podeEnviarConteudo}
+            onPendenciasMudaram={recarregarPendencias}
           />
         )}
         {tab === "criativos" && permissoes.verCriativos && (
@@ -288,6 +331,7 @@ export function PortalCliente({ token }: { token: string }) {
             podeAprovar={permissoes.podeAprovarCriativos}
             podeComentar={permissoes.podeComentar}
             podeEnviar={permissoes.podeEnviarConteudo}
+            onPendenciasMudaram={recarregarPendencias}
           />
         )}
         {tab === "tarefas" && permissoes.verTarefas && <PortalTarefas token={token} />}
@@ -331,12 +375,21 @@ export function PortalCliente({ token }: { token: string }) {
                   className="touch-feedback relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 min-h-[56px]"
                 >
                   <span
-                    className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
+                    className={`relative flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
                       ativo && !temAcento ? "bg-primary" : ""
                     }`}
                     style={ativo && temAcento ? { background: corAtiva } : undefined}
                   >
                     <Icon className={`h-[18px] w-[18px] ${ativo ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                    {t.badge > 0 && (
+                      <span
+                        className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-primary-foreground ring-2 ring-card"
+                        style={temAcento ? { background: corAtiva } : undefined}
+                        aria-label={`${t.badge} aguardando aprovação`}
+                      >
+                        {t.badge > 9 ? "9+" : t.badge}
+                      </span>
+                    )}
                   </span>
                   <span
                     className={`text-[10px] leading-none ${
@@ -357,5 +410,21 @@ export function PortalCliente({ token }: { token: string }) {
         </nav>
       )}
     </div>
+  );
+}
+
+/**
+ * Badge de contagem das top-tabs (≥ sm) — pílula pequena com o nº de itens
+ * aguardando aprovação. Usa o acento da marca quando há; senão, primary.
+ */
+function ContadorBadge({ n, acento }: { n: number; acento?: string }) {
+  return (
+    <span
+      className="ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-primary-foreground"
+      style={acento ? { background: acento } : undefined}
+      aria-label={`${n} aguardando aprovação`}
+    >
+      {n > 9 ? "9+" : n}
+    </span>
   );
 }
