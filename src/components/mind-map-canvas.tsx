@@ -1793,7 +1793,7 @@ export function MindMapCanvas({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4 py-1">
+            <div className="space-y-4 py-1 min-w-0">
               {/* Toggle "Compartilhar publicamente" */}
               <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3.5 py-3">
                 <div className="min-w-0">
@@ -1827,9 +1827,14 @@ export function MindMapCanvas({
                 <div className="space-y-1.5">
                   <div className="text-[11px] text-muted-foreground">Link público</div>
                   <div className="flex gap-2">
-                    <div className="flex-1 min-w-0 flex items-center gap-2 rounded-md border border-border bg-background px-3 h-9">
+                    <div className="flex-1 min-w-0 flex items-center gap-2 rounded-md border border-border bg-background pl-3 pr-2 h-9">
                       <Link2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                      <span className="text-xs truncate font-mono">{shareUrl}</span>
+                      <input
+                        readOnly
+                        value={shareUrl}
+                        onClick={(e) => e.currentTarget.select()}
+                        className="flex-1 min-w-0 w-full bg-transparent text-xs font-mono outline-none"
+                      />
                     </div>
                     <Button size="sm" variant="outline" onClick={copiarLink} className="shrink-0">
                       {copied ? (
