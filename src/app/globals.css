@@ -8,63 +8,67 @@
    Dark é o default; .light troca via class.
    ───────────────────────────────────────────────────────────────────── */
 @layer base {
+  /* ── Redesign 2.0 "Clean" — CLARO é o padrão agora (pegada Notion/Trello:
+     claro, calmo, arejado). Dark vira modo noturno calmo. ── */
   :root,
-  .dark {
-    --background: 240 25% 5%;
-    --foreground: 240 14% 92%;
-    --card: 240 22% 9%;
-    --card-foreground: 240 14% 92%;
-    --popover: 240 22% 11%;
-    --popover-foreground: 240 14% 92%;
+  .light {
+    --background: 240 33% 98%;
+    --foreground: 250 14% 16%;
+    --card: 0 0% 100%;
+    --card-foreground: 250 14% 16%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 250 14% 16%;
     --primary: 268 76% 53%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 18% 14%;
-    --secondary-foreground: 240 14% 92%;
-    --muted: 240 18% 14%;
-    --muted-foreground: 240 8% 65%;
-    --accent: 240 18% 14%;
-    --accent-foreground: 240 14% 92%;
-    --destructive: 0 72% 51%;
+    --secondary: 250 24% 96%;
+    --secondary-foreground: 250 14% 22%;
+    --muted: 250 24% 96%;
+    --muted-foreground: 250 8% 44%;
+    --accent: 250 24% 96%;
+    --accent-foreground: 250 14% 22%;
+    --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 20% 15%;
-    --input: 240 20% 15%;
+    --border: 250 16% 91%;
+    --input: 250 16% 91%;
     --ring: 268 76% 53%;
-    --radius: 0.625rem;
+    --radius: 0.75rem;
 
     /* Tema-aware extras (não fazem parte do shadcn padrão) */
-    --glass-bg: rgba(14, 14, 20, 0.7);
-    --scrollbar-thumb: 240 20% 22%;
-    --scrollbar-thumb-hover: 240 18% 32%;
-    --bg-glow-1: rgba(126, 48, 225, 0.12);
-    --bg-glow-2: rgba(126, 48, 225, 0.06);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --scrollbar-thumb: 250 14% 82%;
+    --scrollbar-thumb-hover: 250 12% 68%;
+    /* "whisper" de identidade: roxo levíssimo + um toque de âmbar */
+    --bg-glow-1: rgba(126, 48, 225, 0.055);
+    --bg-glow-2: rgba(217, 135, 11, 0.03);
   }
 
-  .light {
-    --background: 240 30% 98%;
-    --foreground: 240 30% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 30% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 30% 10%;
-    --primary: 268 70% 48%;
+  .dark {
+    --background: 252 15% 9%;
+    --foreground: 250 25% 93%;
+    --card: 250 16% 13%;
+    --card-foreground: 250 25% 93%;
+    --popover: 250 16% 15%;
+    --popover-foreground: 250 25% 93%;
+    --primary: 268 78% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 30% 95%;
-    --secondary-foreground: 240 25% 14%;
-    --muted: 240 30% 95%;
-    --muted-foreground: 240 12% 38%;
-    --accent: 240 30% 95%;
-    --accent-foreground: 240 25% 14%;
-    --destructive: 0 72% 48%;
+    --secondary: 250 14% 17%;
+    --secondary-foreground: 250 25% 93%;
+    --muted: 250 14% 17%;
+    --muted-foreground: 250 9% 66%;
+    --accent: 250 14% 18%;
+    --accent-foreground: 250 25% 93%;
+    --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 16% 88%;
-    --input: 240 16% 88%;
-    --ring: 268 70% 48%;
+    --border: 250 11% 21%;
+    --input: 250 11% 21%;
+    --ring: 268 78% 60%;
+    --radius: 0.75rem;
 
-    --glass-bg: rgba(255, 255, 255, 0.78);
-    --scrollbar-thumb: 240 14% 78%;
-    --scrollbar-thumb-hover: 240 14% 65%;
-    --bg-glow-1: rgba(126, 48, 225, 0.06);
-    --bg-glow-2: rgba(126, 48, 225, 0.03);
+    --glass-bg: rgba(29, 27, 37, 0.72);
+    --scrollbar-thumb: 250 12% 26%;
+    --scrollbar-thumb-hover: 250 10% 38%;
+    --bg-glow-1: rgba(126, 48, 225, 0.1);
+    --bg-glow-2: rgba(217, 135, 11, 0.05);
   }
 }
 

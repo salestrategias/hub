@@ -8,7 +8,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        display: ["var(--font-inter-tight)", "var(--font-inter)", "sans-serif"],
+        display: ["var(--font-jakarta)", "var(--font-inter)", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
       },
       colors: {
