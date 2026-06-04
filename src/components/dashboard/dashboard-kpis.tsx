@@ -78,51 +78,42 @@ type KpiCardProps =
     };
 
 const ACCENTS = {
-  sal: { ring: "rgba(126,48,225,0.25)", glow: "rgba(126,48,225,0.10)", text: "text-sal-400" },
-  emerald: { ring: "rgba(16,185,129,0.25)", glow: "rgba(16,185,129,0.08)", text: "text-emerald-400" },
-  blue: { ring: "rgba(59,130,246,0.25)", glow: "rgba(59,130,246,0.08)", text: "text-blue-400" },
-  amber: { ring: "rgba(245,158,11,0.25)", glow: "rgba(245,158,11,0.08)", text: "text-amber-400" },
-};
+  sal: "bg-primary/10 text-primary",
+  emerald: "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400",
+  blue: "bg-blue-500/12 text-blue-600 dark:text-blue-400",
+  amber: "bg-amber-500/12 text-amber-600 dark:text-amber-400",
+} as const;
 
 function KpiCard(props: KpiCardProps) {
   const { label, icon: Icon, accent, hint, delta } = props;
-  const colors = ACCENTS[accent];
 
   return (
-    <Card
-      className="relative overflow-hidden group transition-all hover:-translate-y-0.5"
-      style={{
-        boxShadow: `0 0 0 1px ${colors.ring}, 0 8px 24px ${colors.glow}`,
-      }}
-    >
-      <CardContent className="p-4">
+    <Card className="group transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent className="p-4 sm:p-5">
         <div className="flex items-center justify-between mb-3">
           <span className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold">
             {label}
           </span>
           <div
             className={cn(
-              "h-7 w-7 rounded-md flex items-center justify-center",
-              colors.text
+              "h-8 w-8 rounded-lg flex items-center justify-center",
+              ACCENTS[accent]
             )}
-            style={{ background: colors.glow }}
           >
-            <Icon className="h-3.5 w-3.5" />
+            <Icon className="h-4 w-4" />
           </div>
         </div>
 
-        <div className="text-[22px] font-semibold tracking-tight font-display leading-none">
+        <div className="text-[24px] font-semibold tracking-tight font-display leading-none">
           {props.money ? (
-            <MoneyValue value={props.value} className="font-mono tracking-tight" />
+            <MoneyValue value={props.value} className="font-display tracking-tight" />
           ) : (
             <span>{props.value}</span>
           )}
         </div>
 
-        <div className="flex items-center gap-2 mt-2 min-h-[16px]">
-          {delta !== undefined && (
-            <DeltaBadge value={delta} />
-          )}
+        <div className="flex items-center gap-2 mt-2.5 min-h-[16px]">
+          {delta !== undefined && <DeltaBadge value={delta} />}
           {hint && (
             <span className="text-[10.5px] text-muted-foreground/80 truncate">{hint}</span>
           )}
@@ -146,7 +137,7 @@ function DeltaBadge({ value }: { value: number }) {
     <span
       className={cn(
         "inline-flex items-center gap-0.5 text-[10.5px] font-mono font-medium",
-        positivo ? "text-emerald-400" : "text-rose-400"
+        positivo ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
       )}
     >
       {positivo ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}

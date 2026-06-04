@@ -41,10 +41,10 @@ export function DashboardHoje({
       <CardContent className="p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-md bg-sal-600/15 text-sal-400 flex items-center justify-center">
-              <Calendar className="h-3.5 w-3.5" />
+            <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+              <Calendar className="h-4 w-4" />
             </div>
-            <h2 className="text-sm font-semibold">Hoje</h2>
+            <h2 className="text-[15px] font-semibold font-display">Hoje</h2>
           </div>
           <span className="text-[10.5px] text-muted-foreground/70 font-mono">{total} {total === 1 ? "item" : "itens"}</span>
         </div>
@@ -147,7 +147,7 @@ function Item({
     badgeVariant === "destructive"
       ? "bg-destructive/15 text-destructive border-destructive/30"
       : badgeVariant === "warning"
-      ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+      ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
       : "bg-secondary text-muted-foreground border-border";
 
   return (

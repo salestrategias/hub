@@ -53,11 +53,11 @@ function PostsBreakdown({ posts }: { posts: StatusBreakdown }) {
     <Card>
       <CardContent className="p-5 space-y-3">
         <div className="flex items-center gap-2">
-          <FileText className="h-3.5 w-3.5 text-sal-400" />
+          <FileText className="h-3.5 w-3.5 text-primary" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Posts no mês</h3>
         </div>
 
-        <div className="text-[28px] font-display font-semibold leading-none">{posts.total}</div>
+        <div className="text-[30px] font-display font-semibold leading-none">{posts.total}</div>
 
         {posts.total > 0 ? (
           <>
@@ -97,12 +97,12 @@ function TarefasBreakdown({ abertas, concluidasMes }: { abertas: number; conclui
     <Card>
       <CardContent className="p-5 space-y-3">
         <div className="flex items-center gap-2">
-          <ListChecks className="h-3.5 w-3.5 text-sal-400" />
+          <ListChecks className="h-3.5 w-3.5 text-primary" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tarefas</h3>
         </div>
 
         <div className="flex items-baseline gap-2">
-          <span className="text-[28px] font-display font-semibold leading-none">{abertas}</span>
+          <span className="text-[30px] font-display font-semibold leading-none">{abertas}</span>
           <span className="text-[10.5px] text-muted-foreground">aberta{abertas === 1 ? "" : "s"}</span>
         </div>
 
@@ -111,7 +111,7 @@ function TarefasBreakdown({ abertas, concluidasMes }: { abertas: number; conclui
         </div>
 
         <div className="text-[10.5px] text-muted-foreground">
-          <span className="font-mono text-emerald-400">{concluidasMes}</span> concluídas no mês
+          <span className="font-mono text-emerald-600 dark:text-emerald-400">{concluidasMes}</span> concluídas no mês
           {total > 0 && (
             <span className="ml-1 font-mono text-muted-foreground/60">
               ({Math.round(pctConcluidas)}% throughput)
@@ -128,7 +128,7 @@ function AtividadeRecente({ items }: { items: AtividadeItem[] }) {
     <Card>
       <CardContent className="p-5 space-y-3">
         <div className="flex items-center gap-2">
-          <Activity className="h-3.5 w-3.5 text-sal-400" />
+          <Activity className="h-3.5 w-3.5 text-primary" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Atividade recente</h3>
         </div>
 

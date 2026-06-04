@@ -52,16 +52,20 @@ export function DashboardAtencao({
           <div className="flex items-center gap-2">
             <div
               className={cn(
-                "h-7 w-7 rounded-md flex items-center justify-center",
-                total > 0 ? "bg-amber-500/15 text-amber-400" : "bg-secondary text-muted-foreground"
+                "h-8 w-8 rounded-lg flex items-center justify-center",
+                total > 0
+                  ? "bg-amber-500/12 text-amber-600 dark:text-amber-400"
+                  : "bg-secondary text-muted-foreground"
               )}
             >
-              <AlertTriangle className="h-3.5 w-3.5" />
+              <AlertTriangle className="h-4 w-4" />
             </div>
-            <h2 className="text-sm font-semibold">Atenção</h2>
+            <h2 className="text-[15px] font-semibold font-display">Atenção</h2>
           </div>
           {total > 0 && (
-            <span className="text-[10.5px] text-amber-400 font-mono">{total} pendente{total === 1 ? "" : "s"}</span>
+            <span className="text-[10.5px] text-amber-600 dark:text-amber-400 font-mono">
+              {total} pendente{total === 1 ? "" : "s"}
+            </span>
           )}
         </div>
 
@@ -163,7 +167,7 @@ function DiasBadge({ dias, kind }: { dias: number; kind: "restantes" | "atraso" 
         critico
           ? "bg-destructive/15 text-destructive border-destructive/30"
           : aviso
-          ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+          ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
           : "bg-secondary text-muted-foreground border-border"
       )}
     >
