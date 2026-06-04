@@ -13,6 +13,16 @@
  *  - Auto-save 800ms debounce + geração de thumbnail real
  *  - Export SVG e PNG
  *  - Touch básico (drag/pan/pinch zoom) pra mobile
+ *
+ * Modo mapa-mental (hierarquia, em cima do whiteboard livre):
+ *  - Node ganha parentId? (pai) e collapsed? (recolher) — retrocompatível,
+ *    sem migração (data fica como JSON em MindMap.data).
+ *  - Tab cria FILHO (à direita, conectado, edita); Enter cria IRMÃO (abaixo).
+ *    Só disparam com nó selecionado e fora da edição inline.
+ *  - "Organizar" (ícone GitFork) faz tree-layout horizontal de cada árvore;
+ *    nós livres (sem parentId e sem filhos) não são tocados.
+ *  - Nós com filhos têm toggle ±/chevron pra recolher/expandar a subárvore.
+ *  - Excluir um nó RE-PARENTA os filhos pro avô (não cascateia exclusão).
  */
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useTheme } from "next-themes";
@@ -23,6 +33,7 @@ import { toast } from "@/components/ui/toast";
 import {
   MousePointer2, Hand, Square, Circle, Type, MoveRight, StickyNote,
   Plus, Minus as MinusIcon, Maximize, Copy, Trash2, Download, Image as ImageIcon,
+  GitFork,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +47,10 @@ type Node = {
   texto: string;
   subtexto?: string;
   cor: string;
+  /** Modo mapa-mental: id do nó pai (null/undefined = nó livre do whiteboard). Retrocompatível. */
+  parentId?: string | null;
+  /** Modo mapa-mental: se true, esconde toda a subárvore (filhos + edges). */
+  collapsed?: boolean;
 };
 
 type Edge = { id: string; from: string; to: string; estilo: "solid" | "dashed" | "dotted"; cor: string };
@@ -46,6 +61,12 @@ const CORES = ["#7E30E1", "#3B82F6", "#14B8A6", "#10B981", "#F59E0B", "#EF4444",
 const GRID = 20; // snap step em unidades de canvas
 const STICKY_COR = "#FCD34D"; // amarelo "papel" pra sticky notes
 const STICKY_INK = "#3A2E05"; // texto escuro quente pro sticky (contraste no amarelo)
+
+// ─── Modo mapa-mental (hierarquia) ────────────────────────────────────
+const CHILD_NODE_W = 140; // largura padrão de um nó criado por Tab/Enter
+const CHILD_NODE_H = 56; // altura padrão idem
+const TREE_GAP_X = 80; // gap horizontal pai→filho (entre borda direita do pai e borda esquerda do filho)
+const TREE_GAP_Y = 28; // gap vertical mínimo entre subárvores irmãs
 
 export function MindMapCanvas({
   id,
@@ -73,6 +94,12 @@ export function MindMapCanvas({
   const saveTimer = useRef<NodeJS.Timeout | null>(null);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const selected = nodes.find((n) => n.id === selectedId);
+
+  // ─── Derivados do modo mapa-mental ─────────────────────────────────
+  // filhosMap (pai→filhos) e o conjunto de nós escondidos por um ancestral
+  // recolhido. Recalculados só quando os nós mudam. Edges/hit-test usam isso.
+  const filhosMap = useMemo(() => construirFilhosMap(nodes), [nodes]);
+  const hiddenIds = useMemo(() => calcularEscondidos(nodes, filhosMap), [nodes, filhosMap]);
 
   // ─── Theme-aware: resolve cores do canvas SVG (claro/escuro) ───────
   // Como o SVG não herda tokens CSS automaticamente em todos os contextos
@@ -119,6 +146,135 @@ export function MindMapCanvas({
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [titulo, nodes, edges, id]);
 
+  // ─── Modo mapa-mental: criar filho / irmão por teclado ─────────────
+  // Ref do nó recém-criado: o setNodes é assíncrono, então no próximo render
+  // (effect abaixo) selecionamos + abrimos edição + ligamos a Edge pai→filho.
+  const novoNoPendente = useRef<string | null>(null);
+
+  // Cria um nó filho (Tab) à direita do pai, conectado por uma Edge, e já
+  // abre edição inline. Se o pai estava recolhido, expande pra mostrar o novo.
+  const criarFilho = useCallback(
+    (paiId: string) => {
+      setNodes((ns) => {
+        const pai = ns.find((n) => n.id === paiId);
+        if (!pai) return ns;
+        // irmãos já existentes (mesmo pai) pra empilhar abaixo
+        const irmaos = ns.filter((n) => n.parentId === paiId);
+        const baseY = irmaos.length
+          ? Math.max(...irmaos.map((s) => s.y + s.h)) + TREE_GAP_Y
+          : pai.y;
+        const novo: Node = {
+          id: `n${Date.now()}`,
+          x: pai.x + pai.w + TREE_GAP_X,
+          y: baseY,
+          w: CHILD_NODE_W,
+          h: CHILD_NODE_H,
+          tipo: "rect",
+          texto: "",
+          cor: pai.cor,
+          parentId: paiId,
+        };
+        novoNoPendente.current = novo.id;
+        // expande o pai se estava recolhido (senão o filho nasceria invisível)
+        return [...ns.map((n) => (n.id === paiId && n.collapsed ? { ...n, collapsed: false } : n)), novo];
+      });
+    },
+    []
+  );
+
+  // Cria um irmão (Enter): mesmo parentId do selecionado, posicionado abaixo,
+  // conectado ao mesmo pai. Se o selecionado é raiz/livre (sem parentId),
+  // o irmão também é livre (parentId null) e nasce logo abaixo.
+  const criarIrmao = useCallback(
+    (refId: string) => {
+      setNodes((ns) => {
+        const ref = ns.find((n) => n.id === refId);
+        if (!ref) return ns;
+        const novo: Node = {
+          id: `n${Date.now()}`,
+          x: ref.x,
+          y: ref.y + ref.h + TREE_GAP_Y,
+          w: ref.w,
+          h: CHILD_NODE_H,
+          tipo: ref.tipo === "circle" || ref.tipo === "sticky" ? ref.tipo : "rect",
+          texto: "",
+          cor: ref.cor,
+          parentId: ref.parentId ?? null,
+        };
+        novoNoPendente.current = novo.id;
+        return [...ns, novo];
+      });
+    },
+    []
+  );
+
+  // Após criar filho/irmão, comita o novo nó: seleciona, abre edição inline e
+  // (no caso de filho) liga a Edge pai→filho. Roda no próximo render via ref.
+  useEffect(() => {
+    const novoId = novoNoPendente.current;
+    if (!novoId) return;
+    const novo = nodes.find((n) => n.id === novoId);
+    if (!novo) return; // ainda não comitou
+    novoNoPendente.current = null;
+    // Liga a edge pai→filho (só pra filhos; irmãos livres não têm pai)
+    if (novo.parentId) {
+      setEdges((es) =>
+        es.some((e) => e.from === novo.parentId && e.to === novo.id)
+          ? es
+          : [...es, { id: `e${Date.now()}`, from: novo.parentId!, to: novo.id, estilo: "solid", cor: T.edge }]
+      );
+    }
+    setSelectedId(novoId);
+    setEditingNodeId(novoId);
+  }, [nodes, T.edge]);
+
+  // ─── Modo mapa-mental: organizar (auto-layout) + recolher ──────────
+  const organizarArvore = useCallback(() => {
+    setNodes((ns) => {
+      const arrumado = autoLayoutArvores(ns);
+      // só notifica/atualiza se algo de fato mudou de posição
+      const mudou = arrumado.some((n, i) => n.x !== ns[i].x || n.y !== ns[i].y);
+      if (!mudou) {
+        toast.info("Nada para organizar (sem árvores com filhos)");
+        return ns;
+      }
+      toast.success("Árvore organizada");
+      return arrumado;
+    });
+  }, []);
+
+  const toggleCollapse = useCallback((nodeId: string) => {
+    setNodes((ns) => ns.map((n) => (n.id === nodeId ? { ...n, collapsed: !n.collapsed } : n)));
+  }, []);
+
+  // Exclui um nó tratando os filhos por RE-PARENTING: os filhos diretos do nó
+  // excluído sobem para o avô (parentId do excluído). Se o nó era raiz/livre,
+  // os filhos viram livres (parentId null). Edges são religadas avô→filhos.
+  // Escolhemos re-parent (em vez de apagar a subárvore) pra nunca destruir
+  // trabalho do usuário sem querer — nada de exclusão em cascata silenciosa.
+  const excluirNo = useCallback((nodeId: string) => {
+    setNodes((ns) => {
+      const alvo = ns.find((n) => n.id === nodeId);
+      if (!alvo) return ns;
+      const avoId = alvo.parentId ?? null;
+      return ns
+        .filter((n) => n.id !== nodeId)
+        .map((n) => (n.parentId === nodeId ? { ...n, parentId: avoId } : n));
+    });
+    setEdges((es) => {
+      // remove edges que tocavam o nó; religa o avô (se houver) aos órfãos.
+      const filhosOrfaos = nodes.filter((n) => n.parentId === nodeId).map((n) => n.id);
+      const avoId = nodes.find((n) => n.id === nodeId)?.parentId ?? null;
+      const semNo = es.filter((e) => e.from !== nodeId && e.to !== nodeId);
+      if (!avoId || filhosOrfaos.length === 0) return semNo;
+      const novas: Edge[] = filhosOrfaos
+        .filter((fid) => !semNo.some((e) => e.from === avoId && e.to === fid))
+        .map((fid, i) => ({ id: `e${Date.now() + i}`, from: avoId, to: fid, estilo: "solid", cor: T.edge }));
+      return [...semNo, ...novas];
+    });
+    setSelectedId((cur) => (cur === nodeId ? null : cur));
+  }, [nodes, T.edge]);
+
   // ─── Atalhos de teclado ────────────────────────────────────────────
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -132,11 +288,22 @@ export function MindMapCanvas({
         setLinkingFrom(null);
         return;
       }
+      // ── Modo mapa-mental (só com nó selecionado e NÃO editando) ──
+      // O guard de INPUT/TEXTAREA/contentEditable acima garante que Tab/Enter
+      // dentro do textarea de edição NÃO chegam aqui.
+      if (e.key === "Tab" && selectedId) {
+        e.preventDefault();
+        criarFilho(selectedId);
+        return;
+      }
+      if (e.key === "Enter" && selectedId && !e.shiftKey) {
+        e.preventDefault();
+        criarIrmao(selectedId);
+        return;
+      }
       if ((e.key === "Delete" || e.key === "Backspace") && selectedId) {
         e.preventDefault();
-        setNodes((ns) => ns.filter((n) => n.id !== selectedId));
-        setEdges((es) => es.filter((edge) => edge.from !== selectedId && edge.to !== selectedId));
-        setSelectedId(null);
+        excluirNo(selectedId);
         return;
       }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d" && selectedId) {
@@ -161,7 +328,7 @@ export function MindMapCanvas({
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedId, nodes]);
+  }, [selectedId, nodes, criarFilho, criarIrmao, excluirNo]);
 
   // ─── Click no canvas — cria nó se ferramenta de criação ────────────
   const handleCanvasClick = useCallback(
@@ -350,9 +517,7 @@ export function MindMapCanvas({
 
   function deletarSelecionado() {
     if (!selected) return;
-    setNodes(nodes.filter((n) => n.id !== selected.id));
-    setEdges(edges.filter((edge) => edge.from !== selected.id && edge.to !== selected.id));
-    setSelectedId(null);
+    excluirNo(selected.id); // re-parent filhos pro avô (não cascateia exclusão)
   }
 
   function duplicar() {
@@ -455,6 +620,15 @@ export function MindMapCanvas({
               </button>
             )
           )}
+          {/* Ação (não é ferramenta): organiza as árvores do mapa-mental */}
+          <div className="h-px w-6 mx-auto my-0.5 bg-border" />
+          <button
+            title="Organizar árvore (auto-layout)"
+            onClick={organizarArvore}
+            className="p-2 rounded-xl transition-all duration-150 active:scale-95 text-muted-foreground hover:bg-secondary hover:text-foreground"
+          >
+            <GitFork className="h-[18px] w-[18px]" />
+          </button>
         </div>
 
         {/* Painel direito de propriedades */}
@@ -606,8 +780,9 @@ export function MindMapCanvas({
               height={40000}
               fill="url(#dots)"
             />
-            {/* Edges */}
+            {/* Edges (pula as que tocam um nó escondido por ramo recolhido) */}
             {edges.map((e) => {
+              if (hiddenIds.has(e.from) || hiddenIds.has(e.to)) return null;
               const f = nodes.find((n) => n.id === e.from);
               const t = nodes.find((n) => n.id === e.to);
               if (!f || !t) return null;
@@ -628,8 +803,12 @@ export function MindMapCanvas({
               );
             })}
 
-            {/* Nodes */}
-            {nodes.map((n) => (
+            {/* Nodes (pula os escondidos por um ancestral recolhido —
+                não renderiza nem entra no hit-test) */}
+            {nodes.map((n) => {
+              if (hiddenIds.has(n.id)) return null;
+              const hasChildren = temFilhos(n, filhosMap);
+              return (
               <g
                 key={n.id}
                 data-node-id={n.id}
@@ -787,8 +966,65 @@ export function MindMapCanvas({
                     )}
                   </>
                 )}
+
+                {/* Toggle recolher/expandar — só em nós COM filhos. Fica na
+                    borda direita (de onde os ramos saem). Clicar não arrasta
+                    nem reabre edição (stopPropagation). */}
+                {hasChildren && editingNodeId !== n.id && (
+                  <g
+                    transform={`translate(${n.w + 9}, ${n.h / 2})`}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleCollapse(n.id);
+                    }}
+                    onDoubleClick={(e) => e.stopPropagation()}
+                    style={{ cursor: "pointer" }}
+                    aria-label={n.collapsed ? "Expandir ramo" : "Recolher ramo"}
+                  >
+                    <circle r={9} cx={0} cy={0} fill={T.canvasBg} stroke={n.cor} strokeWidth={1.5} />
+                    {n.collapsed ? (
+                      // recolhido → chevron pra direita (▸) + contador de filhos
+                      <>
+                        <path
+                          d="M -2 -4 L 3 0 L -2 4"
+                          fill="none"
+                          stroke={n.cor}
+                          strokeWidth={1.6}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          style={{ pointerEvents: "none" }}
+                        />
+                        <text
+                          x={0}
+                          y={-13}
+                          textAnchor="middle"
+                          fill={T.nodeSub}
+                          fontFamily="Inter"
+                          fontSize="9"
+                          fontWeight="600"
+                          style={{ pointerEvents: "none" }}
+                        >
+                          {filhosMap.get(n.id)?.length ?? 0}
+                        </text>
+                      </>
+                    ) : (
+                      // expandido → chevron pra baixo (▾)
+                      <path
+                        d="M -4 -2 L 0 3 L 4 -2"
+                        fill="none"
+                        stroke={n.cor}
+                        strokeWidth={1.6}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ pointerEvents: "none" }}
+                      />
+                    )}
+                  </g>
+                )}
               </g>
-            ))}
+              );
+            })}
           </g>
         </svg>
       </Card>
@@ -798,6 +1034,8 @@ export function MindMapCanvas({
         <span>
           <span className="kbd-key">V</span>/<span className="kbd-key">H</span>/<span className="kbd-key">R</span>/<span className="kbd-key">C</span>/<span className="kbd-key">T</span>/<span className="kbd-key">A</span>/<span className="kbd-key">S</span> trocam ferramenta
         </span>
+        <span><span className="kbd-key">Tab</span> cria sub-ramo</span>
+        <span><span className="kbd-key">Enter</span> cria irmão</span>
         <span><span className="kbd-key">Del</span> exclui</span>
         <span><span className="kbd-key">Ctrl+D</span> duplica</span>
         <span><span className="kbd-key">Shift</span>+arrastar move canvas</span>
@@ -863,4 +1101,113 @@ async function svgParaPng(
 async function gerarThumbnail(svg: SVGSVGElement | null, bgColor: string): Promise<string | null> {
   if (!svg) return null;
   return svgParaPng(svg, 320, 180, bgColor);
+}
+
+// ─── Helpers do modo mapa-mental (hierarquia / árvore) ────────────────
+
+/** Mapa pai→filhos, na ordem em que os nós aparecem no array. */
+function construirFilhosMap(nodes: Node[]): Map<string, Node[]> {
+  const map = new Map<string, Node[]>();
+  for (const n of nodes) {
+    const pid = n.parentId;
+    if (pid == null) continue;
+    const arr = map.get(pid);
+    if (arr) arr.push(n);
+    else map.set(pid, [n]);
+  }
+  return map;
+}
+
+/** True se o nó tem pelo menos um filho na árvore atual. */
+function temFilhos(node: Node, filhosMap: Map<string, Node[]>): boolean {
+  return (filhosMap.get(node.id)?.length ?? 0) > 0;
+}
+
+/**
+ * Conjunto de ids de nós escondidos por causa de algum ancestral `collapsed`.
+ * O próprio nó recolhido continua visível; só a subárvore dele some.
+ */
+function calcularEscondidos(nodes: Node[], filhosMap: Map<string, Node[]>): Set<string> {
+  const escondidos = new Set<string>();
+  const ocultarSubarvore = (id: string) => {
+    for (const filho of filhosMap.get(id) ?? []) {
+      if (escondidos.has(filho.id)) continue;
+      escondidos.add(filho.id);
+      ocultarSubarvore(filho.id);
+    }
+  };
+  for (const n of nodes) {
+    if (n.collapsed) ocultarSubarvore(n.id);
+  }
+  return escondidos;
+}
+
+/**
+ * Auto-layout de árvore horizontal (estilo MindMeister/tidy-tree simplificado).
+ *
+ * Para cada raiz (nó SEM parentId mas COM filhos), distribui a subárvore:
+ *  - profundidade → x crescente pra direita (coluna = x do pai + largura + gap)
+ *  - folhas empilhadas no eixo y sem sobreposição (usa a ALTURA de cada subárvore)
+ *  - pai centralizado verticalmente em relação ao bloco dos filhos
+ *
+ * Nós livres (sem parentId e sem filhos) NÃO são tocados. Ramos recolhidos
+ * (sob um ancestral `collapsed`) não entram no cálculo de espaço.
+ * Retorna um novo array de nodes com x/y atualizados.
+ */
+function autoLayoutArvores(nodes: Node[]): Node[] {
+  const filhosMap = construirFilhosMap(nodes);
+  const escondidos = calcularEscondidos(nodes, filhosMap);
+  const pos = new Map<string, { x: number; y: number }>();
+
+  // Filhos visíveis (não escondidos por ancestral recolhido). Um nó `collapsed`
+  // ainda aparece, mas seus filhos somem do layout. `ancestrais` é a cadeia
+  // atual (guard contra ciclos em dados hand-edited — a UI nunca cria ciclo).
+  const filhosVisiveis = (node: Node, ancestrais: Set<string>): Node[] => {
+    if (node.collapsed) return [];
+    return (filhosMap.get(node.id) ?? []).filter((c) => !escondidos.has(c.id) && !ancestrais.has(c.id));
+  };
+
+  // Altura ocupada por uma subárvore (folha = sua própria altura).
+  const alturaSubarvore = (node: Node, ancestrais: Set<string>): number => {
+    const filhos = filhosVisiveis(node, ancestrais);
+    if (filhos.length === 0) return node.h;
+    const proximos = new Set(ancestrais).add(node.id);
+    let total = 0;
+    for (const f of filhos) total += alturaSubarvore(f, proximos);
+    total += TREE_GAP_Y * (filhos.length - 1);
+    return Math.max(node.h, total);
+  };
+
+  // Posiciona `node` com sua borda esquerda em `x` e o CENTRO vertical da
+  // subárvore em `cy`. `ancestrais` evita recursão infinita em ciclos.
+  const posicionar = (node: Node, x: number, cy: number, ancestrais: Set<string>) => {
+    const filhos = filhosVisiveis(node, ancestrais);
+    pos.set(node.id, { x: Math.round(x), y: Math.round(cy - node.h / 2) });
+    if (filhos.length === 0) return;
+
+    const proximos = new Set(ancestrais).add(node.id);
+    const alturaTotal =
+      filhos.reduce((s, f) => s + alturaSubarvore(f, proximos), 0) + TREE_GAP_Y * (filhos.length - 1);
+    const childX = x + node.w + TREE_GAP_X;
+    let cursor = cy - alturaTotal / 2; // topo do bloco de filhos
+    for (const f of filhos) {
+      const hSub = alturaSubarvore(f, proximos);
+      posicionar(f, childX, cursor + hSub / 2, proximos);
+      cursor += hSub + TREE_GAP_Y;
+    }
+  };
+
+  // Raízes = nós sem parentId e com filhos visíveis. Mantém a âncora (x da raiz
+  // e o centro vertical atual) pra a árvore "crescer" a partir de onde está.
+  for (const n of nodes) {
+    if (n.parentId != null) continue;
+    if (filhosVisiveis(n, new Set()).length === 0) continue; // nó livre puro → não toca
+    posicionar(n, n.x, n.y + n.h / 2, new Set());
+  }
+
+  if (pos.size === 0) return nodes;
+  return nodes.map((n) => {
+    const p = pos.get(n.id);
+    return p ? { ...n, x: p.x, y: p.y } : n;
+  });
 }
