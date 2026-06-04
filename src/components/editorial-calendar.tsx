@@ -1,13 +1,15 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  addMonths, addWeeks, eachDayOfInterval, endOfMonth, endOfWeek, format,
-  isSameDay, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths, subWeeks,
+  addDays, addMonths, addWeeks, eachDayOfInterval, endOfMonth, endOfWeek, format,
+  isSameDay, isSameMonth, isToday, setHours, setMilliseconds, setMinutes, setSeconds,
+  startOfMonth, startOfWeek, subMonths, subWeeks,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +18,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { postSchema, type PostInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
 import {
   ChevronLeft, ChevronRight, Inbox, Plus,
   Instagram, Facebook, Linkedin, Youtube, ImageIcon,
+  MoreHorizontal, Copy, PanelRightOpen, Repeat,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { RevisaoEstado } from "@/components/revisao-conteudo";
@@ -156,6 +162,99 @@ function isPendente(p: Post) {
   return p.origem === "CLIENTE" && p.revisao === "PENDENTE";
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+ * Drag-and-drop (reagendar) — helpers compartilhados por Mês e Semana.
+ *
+ * - Cada DIA é um Droppable cujo droppableId é a data ISO `yyyy-MM-dd`.
+ * - Cada CARD é um Draggable (draggableId = post.id).
+ * - Soltar num outro dia move `dataPublicacao` pra aquele dia MANTENDO o
+ *   horário (hora/min/seg) original do post.
+ * - DnD só no desktop (md+): no mobile os cards continuam botões simples (F1),
+ *   pra não brigar com o scroll horizontal das grades. `isDragDisabled` no
+ *   Draggable cobre isso sem ramificar a árvore.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/** Chave de Droppable pra um dia (local, sem fuso) — `yyyy-MM-dd`. */
+function dayKey(d: Date): string {
+  return format(d, "yyyy-MM-dd");
+}
+
+/** Move um ISO pra outro dia (`yyyy-MM-dd`) preservando o horário original. */
+function moverParaDia(isoOriginal: string, diaKey: string): string {
+  const orig = new Date(isoOriginal);
+  const [y, m, d] = diaKey.split("-").map(Number);
+  let alvo = new Date(orig);
+  alvo.setFullYear(y, m - 1, d);
+  alvo = setHours(alvo, orig.getHours());
+  alvo = setMinutes(alvo, orig.getMinutes());
+  alvo = setSeconds(alvo, orig.getSeconds());
+  alvo = setMilliseconds(alvo, orig.getMilliseconds());
+  return alvo.toISOString();
+}
+
+/** matchMedia(min-width:768px) reativo — habilita DnD só no desktop. */
+function useIsDesktop(): boolean {
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const apply = () => setDesktop(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+  return desktop;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Recorrência / lote — materialização de datas (sem modelo de recorrência no
+ * schema; o MVP só cria os posts nas datas calculadas).
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/** Chips de dia da semana (índice = getDay(): 0=Dom … 6=Sáb). */
+const DIAS_SEMANA_CHIPS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+type RecorrenciaModo = "ocorrencias" | "ate";
+
+/**
+ * Calcula as datas de uma recorrência SEMANAL a partir de uma data-base
+ * (que define o horário e o ponto de partida). Varre dia a dia incluindo
+ * aqueles cujo dia-da-semana está em `diasSemana`, preservando o horário da
+ * base. Para quando atinge `nOcorrencias` (modo "ocorrencias") OU passa de
+ * `ateData` (modo "ate"). Guard-rails: teto de 366 datas e janela de 1 ano.
+ */
+function calcularDatasRecorrencia(opts: {
+  base: Date;
+  diasSemana: number[];
+  modo: RecorrenciaModo;
+  nOcorrencias: number;
+  ateData: Date | null;
+}): Date[] {
+  const { base, diasSemana, modo, nOcorrencias, ateData } = opts;
+  if (diasSemana.length === 0) return [];
+  const horas = base.getHours();
+  const minutos = base.getMinutes();
+  const limiteAbsoluto = addDays(base, 366); // failsafe contra loop infinito
+  const alvoN = Math.max(1, Math.min(nOcorrencias, 366));
+
+  const datas: Date[] = [];
+  let cursor = new Date(base);
+  cursor.setHours(0, 0, 0, 0); // varre por dia; horário é reaplicado no push
+
+  while (cursor <= limiteAbsoluto) {
+    if (diasSemana.includes(cursor.getDay())) {
+      const d = setMinutes(setHours(cursor, horas), minutos);
+      // No modo "ate", inclui datas até o fim do dia-alvo.
+      if (modo === "ate") {
+        if (ateData && d > ateData) break;
+      }
+      datas.push(new Date(d));
+      if (modo === "ocorrencias" && datas.length >= alvoN) break;
+    }
+    cursor = addDays(cursor, 1);
+  }
+  return datas;
+}
+
 export function EditorialCalendarClient({
   posts, clientes,
 }: { posts: Post[]; clientes: { id: string; nome: string }[] }) {
@@ -168,6 +267,14 @@ export function EditorialCalendarClient({
   const [defaultDate, setDefaultDate] = useState<Date | null>(null);
   const [view, setView] = useState<View>("mes");
   const [cursor, setCursor] = useState<Date>(() => new Date());
+
+  // Estado local dos posts — espelha a server prop, mas permite optimistic
+  // update no drag-pra-reagendar e na duplicação (mesmo padrão do leads-kanban).
+  // Sem isso o calendário "congela" os dados velhos entre refreshes.
+  const [postsState, setPostsState] = useState<Post[]>(posts);
+  useEffect(() => { setPostsState(posts); }, [posts]);
+
+  const isDesktop = useIsDesktop();
 
   // Edição via Sheet (peek mode) — URL state via ?post=<id>
   const sheet = useEntitySheet("post");
@@ -191,17 +298,17 @@ export function EditorialCalendarClient({
   }
 
   // Fila de revisão = submetido pelo cliente + ainda pendente.
-  const pendentesRevisao = posts.filter(isPendente);
+  const pendentesRevisao = postsState.filter(isPendente);
 
   const filtrados = useMemo(
     () =>
-      posts.filter((p) =>
+      postsState.filter((p) =>
         (!filtroCliente || p.clienteId === filtroCliente) &&
         (!filtroStatus || p.status === filtroStatus) &&
         (!filtroCanal || p.canais.includes(filtroCanal)) &&
         (!soPendentes || isPendente(p))
       ),
-    [posts, filtroCliente, filtroStatus, filtroCanal, soPendentes]
+    [postsState, filtroCliente, filtroStatus, filtroCanal, soPendentes]
   );
 
   function abrirPost(id: string) {
@@ -210,6 +317,108 @@ export function EditorialCalendarClient({
   function criarEm(date: Date) {
     setDefaultDate(date);
     setCreating(true);
+  }
+
+  /**
+   * Reagenda um post pra outro DIA mantendo o horário. Optimistic: move o card
+   * já no estado local, depois persiste via PATCH. Em falha, faz rollback do
+   * snapshot anterior + toast. Usado pelo drag-drop (Mês e Semana).
+   */
+  const reagendar = useCallback(
+    async (postId: string, diaKey: string) => {
+      const atual = postsState.find((p) => p.id === postId);
+      if (!atual) return;
+      const novaIso = moverParaDia(atual.dataPublicacao, diaKey);
+      if (novaIso === atual.dataPublicacao) return; // mesmo dia → no-op
+
+      const snapshot = postsState;
+      setPostsState((prev) =>
+        prev.map((p) => (p.id === postId ? { ...p, dataPublicacao: novaIso } : p))
+      );
+
+      try {
+        const res = await fetch(`/api/posts/${postId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dataPublicacao: novaIso }),
+        });
+        if (!res.ok) throw new Error();
+      } catch {
+        setPostsState(snapshot); // rollback
+        toast.error("Não consegui reagendar o post");
+      }
+    },
+    [postsState]
+  );
+
+  /**
+   * Duplica um post. Busca o post COMPLETO (a lista do calendário não carrega
+   * hashtags/cta/observações), cria a cópia via POST /api/posts (RASCUNHO,
+   * mesma data), insere otimisticamente e abre o sheet do novo. Em falha, toast.
+   */
+  const duplicar = useCallback(
+    async (postId: string) => {
+      const base = postsState.find((p) => p.id === postId);
+      if (!base) return;
+      const tid = toast.loading("Duplicando…");
+      try {
+        // Busca o full pra copiar hashtags/cta/observacoes (não vêm na lista).
+        const full = await fetch(`/api/posts/${postId}`).then((r) =>
+          r.ok ? r.json() : null
+        );
+        const payload = {
+          titulo: `${base.titulo} (cópia)`,
+          legenda: full?.legenda ?? base.legenda ?? "",
+          pilar: full?.pilar ?? base.pilar ?? "",
+          formato: base.formato,
+          status: "RASCUNHO" as const,
+          canais: full?.canais ?? base.canais ?? [],
+          dataPublicacao: base.dataPublicacao,
+          clienteId: base.clienteId,
+          hashtags: full?.hashtags ?? [],
+          cta: full?.cta ?? "",
+          observacoesProducao: full?.observacoesProducao ?? "",
+        };
+        const res = await fetch("/api/posts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error();
+        const novo = await res.json();
+        // Insere otimisticamente (mesma forma de Post da lista) e abre o sheet.
+        setPostsState((prev) => [
+          ...prev,
+          {
+            ...base,
+            id: novo.id,
+            titulo: payload.titulo,
+            legenda: payload.legenda,
+            pilar: payload.pilar || null,
+            status: "RASCUNHO",
+            canais: payload.canais,
+            origem: "SAL",
+            revisao: null,
+            googleEventId: null,
+            thumbUrl: null,
+          },
+        ]);
+        toast.success("Post duplicado", { id: tid });
+        sheet.open(novo.id);
+      } catch {
+        toast.error("Falha ao duplicar", { id: tid });
+      }
+    },
+    [postsState, sheet]
+  );
+
+  /** onDragEnd das grades Mês/Semana — soltar num dia reagenda. */
+  function onDragEnd(r: DropResult) {
+    if (!r.destination) return;
+    const diaKey = r.destination.droppableId;
+    const postId = r.draggableId;
+    if (r.source.droppableId === diaKey) return; // mesmo dia → nada a fazer
+    void reagendar(postId, diaKey);
   }
 
   return (
@@ -279,13 +488,29 @@ export function EditorialCalendarClient({
       {/* Corpo do calendário */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         {view === "mes" && (
-          <MonthView cursor={cursor} posts={filtrados} onOpen={abrirPost} onCreate={criarEm} />
+          <MonthView
+            cursor={cursor}
+            posts={filtrados}
+            onOpen={abrirPost}
+            onCreate={criarEm}
+            onDuplicar={duplicar}
+            onDragEnd={onDragEnd}
+            dndEnabled={isDesktop}
+          />
         )}
         {view === "semana" && (
-          <WeekView cursor={cursor} posts={filtrados} onOpen={abrirPost} onCreate={criarEm} />
+          <WeekView
+            cursor={cursor}
+            posts={filtrados}
+            onOpen={abrirPost}
+            onCreate={criarEm}
+            onDuplicar={duplicar}
+            onDragEnd={onDragEnd}
+            dndEnabled={isDesktop}
+          />
         )}
         {view === "lista" && (
-          <ListView posts={filtrados} onOpen={abrirPost} onCreate={criarEm} />
+          <ListView posts={filtrados} onOpen={abrirPost} onCreate={criarEm} onDuplicar={duplicar} />
         )}
         {view === "feed" && (
           <FeedView
@@ -406,18 +631,87 @@ function postsDoDia(posts: Post[], dia: Date): Post[] {
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 /* ──────────────────────────────────────────────────────────────────────────
+ * Menu ⋯ do card (Abrir / Duplicar) — aparece no hover.
+ *
+ * Cuidados (idênticos ao CardMenu do leads-kanban):
+ *  1. O card é botão (abre sheet) e, no desktop, é drag handle. O trigger e o
+ *     conteúdo precisam de stopPropagation em pointerDown/click pra NÃO abrir o
+ *     sheet do original nem iniciar drag.
+ *  2. Ações que mexem em estado/abrem sheet durante o fechamento do menu são
+ *     adiadas pra `onCloseAutoFocus` via ref — senão o Radix deixa
+ *     pointer-events:none preso no body e trava a página.
+ * ────────────────────────────────────────────────────────────────────────── */
+function PostCardMenu({
+  postId, onOpen, onDuplicar, compact = false,
+}: {
+  postId: string;
+  onOpen: (id: string) => void;
+  onDuplicar: (id: string) => void;
+  compact?: boolean;
+}) {
+  const pendente = useRef<(() => void) | null>(null);
+  const stop = (e: React.SyntheticEvent) => e.stopPropagation();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label="Ações do post"
+          onClick={stop}
+          onPointerDown={stop}
+          className={cn(
+            "flex items-center justify-center rounded text-muted-foreground opacity-0 group-hover/card:opacity-100 hover:bg-background hover:text-foreground transition data-[state=open]:opacity-100 data-[state=open]:bg-background shrink-0",
+            compact ? "h-4 w-4" : "h-5 w-5"
+          )}
+        >
+          <MoreHorizontal className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-40"
+        onClick={stop}
+        onPointerDown={stop}
+        onCloseAutoFocus={(e) => {
+          if (!pendente.current) return;
+          e.preventDefault();
+          const acao = pendente.current;
+          pendente.current = null;
+          acao();
+        }}
+      >
+        <DropdownMenuItem onSelect={() => (pendente.current = () => onOpen(postId))}>
+          <PanelRightOpen className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+          Abrir
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => (pendente.current = () => onDuplicar(postId))}>
+          <Copy className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+          Duplicar
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
  * Card de post (compacto — usado no Mês)
  * ────────────────────────────────────────────────────────────────────────── */
-function PostCardMini({ post, onOpen }: { post: Post; onOpen: (id: string) => void }) {
+function PostCardMini({
+  post, onOpen, onDuplicar,
+}: { post: Post; onOpen: (id: string) => void; onDuplicar: (id: string) => void }) {
   const cor = STATUS_COR[post.status];
   const pendente = isPendente(post);
   return (
-    <button
-      type="button"
+    <div
       onClick={(e) => { e.stopPropagation(); onOpen(post.id); }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(post.id); }
+      }}
       title={`${post.clienteNome} · ${post.titulo}`}
       className={cn(
-        "group/card w-full text-left flex items-center gap-1.5 rounded-md pl-1.5 pr-1 py-1 bg-secondary/60 hover:bg-secondary transition-colors border border-transparent",
+        "group/card w-full cursor-pointer text-left flex items-center gap-1.5 rounded-md pl-1.5 pr-1 py-1 bg-secondary/60 hover:bg-secondary transition-colors border border-transparent outline-none focus-visible:ring-1 focus-visible:ring-primary",
         pendente && "ring-1 ring-amber-500/60 bg-amber-500/10"
       )}
     >
@@ -437,10 +731,11 @@ function PostCardMini({ post, onOpen }: { post: Post; onOpen: (id: string) => vo
         <span className="font-medium">{post.titulo}</span>
       </span>
       <CanalIcons canais={post.canais} size="h-2.5 w-2.5" />
-      <span className="shrink-0 text-[9px] font-medium text-muted-foreground/80 tabular-nums">
+      <span className="shrink-0 text-[9px] font-medium text-muted-foreground/80 tabular-nums group-hover/card:hidden">
         {format(new Date(post.dataPublicacao), "HH:mm")}
       </span>
-    </button>
+      <PostCardMenu postId={post.id} onOpen={onOpen} onDuplicar={onDuplicar} compact />
+    </div>
   );
 }
 
@@ -448,16 +743,20 @@ function PostCardMini({ post, onOpen }: { post: Post; onOpen: (id: string) => vo
  * Card de post (rico — usado em Semana e Lista)
  * ────────────────────────────────────────────────────────────────────────── */
 function PostCardFull({
-  post, onOpen, showDate = false,
-}: { post: Post; onOpen: (id: string) => void; showDate?: boolean }) {
+  post, onOpen, onDuplicar, showDate = false,
+}: { post: Post; onOpen: (id: string) => void; onDuplicar: (id: string) => void; showDate?: boolean }) {
   const cor = STATUS_COR[post.status];
   const pendente = isPendente(post);
   return (
-    <button
-      type="button"
+    <div
       onClick={(e) => { e.stopPropagation(); onOpen(post.id); }}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(post.id); }
+      }}
       className={cn(
-        "w-full text-left flex items-stretch gap-2.5 rounded-lg p-2 bg-secondary/50 hover:bg-secondary hover:shadow-sm transition-all border border-border/60",
+        "group/card relative w-full cursor-pointer text-left flex items-stretch gap-2.5 rounded-lg p-2 bg-secondary/50 hover:bg-secondary hover:shadow-sm transition-all border border-border/60 outline-none focus-visible:ring-1 focus-visible:ring-primary",
         pendente && "ring-1 ring-amber-500/60 border-amber-500/40 bg-amber-500/[0.07]"
       )}
     >
@@ -493,7 +792,11 @@ function PostCardFull({
           <CanalIcons canais={post.canais} size="h-3 w-3" />
         </div>
       </div>
-    </button>
+      {/* Menu ⋯ posicionado no canto (absoluto pra não empurrar o layout). */}
+      <div className="absolute right-1.5 top-1.5">
+        <PostCardMenu postId={post.id} onOpen={onOpen} onDuplicar={onDuplicar} />
+      </div>
+    </div>
   );
 }
 
@@ -503,8 +806,16 @@ function PostCardFull({
 const MAX_CARDS_MES = 3;
 
 function MonthView({
-  cursor, posts, onOpen, onCreate,
-}: { cursor: Date; posts: Post[]; onOpen: (id: string) => void; onCreate: (d: Date) => void }) {
+  cursor, posts, onOpen, onCreate, onDuplicar, onDragEnd, dndEnabled,
+}: {
+  cursor: Date;
+  posts: Post[];
+  onOpen: (id: string) => void;
+  onCreate: (d: Date) => void;
+  onDuplicar: (id: string) => void;
+  onDragEnd: (r: DropResult) => void;
+  dndEnabled: boolean;
+}) {
   const dias = useMemo(() => {
     const start = startOfWeek(startOfMonth(cursor), { weekStartsOn: 0 });
     const end = endOfWeek(endOfMonth(cursor), { weekStartsOn: 0 });
@@ -522,7 +833,7 @@ function MonthView({
   }
 
   return (
-    <div>
+    <DragDropContext onDragEnd={onDragEnd}>
       {/* Cabeçalho dos dias da semana */}
       <div className="grid grid-cols-7 border-b border-border bg-muted/30">
         {WEEKDAYS.map((d) => (
@@ -535,7 +846,7 @@ function MonthView({
       <div className="overflow-x-auto">
         <div className="grid grid-cols-7 min-w-[760px] auto-rows-fr">
           {dias.map((dia) => {
-            const key = dia.toISOString();
+            const key = dayKey(dia);
             const doMes = isSameMonth(dia, cursor);
             const hoje = isToday(dia);
             const lista = postsDoDia(posts, dia);
@@ -543,57 +854,86 @@ function MonthView({
             const visiveis = aberto ? lista : lista.slice(0, MAX_CARDS_MES);
             const resto = lista.length - visiveis.length;
             return (
-              <div
-                key={key}
-                onClick={() => onCreate(dia)}
-                className={cn(
-                  "min-h-[118px] border-b border-r border-border p-1.5 flex flex-col gap-1 cursor-pointer transition-colors hover:bg-muted/40",
-                  !doMes && "bg-muted/20"
-                )}
-              >
-                <div className="flex items-center justify-between px-0.5">
-                  <span
+              <Droppable droppableId={key} key={key} isDropDisabled={!dndEnabled}>
+                {(prov, snap) => (
+                  <div
+                    ref={prov.innerRef}
+                    {...prov.droppableProps}
+                    onClick={() => onCreate(dia)}
                     className={cn(
-                      "inline-flex items-center justify-center text-[11.5px] font-semibold h-5 min-w-5 px-1 rounded-full",
-                      !doMes && "text-muted-foreground/40",
-                      hoje && "bg-primary text-primary-foreground"
+                      "min-h-[118px] border-b border-r border-border p-1.5 flex flex-col gap-1 cursor-pointer transition-colors hover:bg-muted/40",
+                      !doMes && "bg-muted/20",
+                      snap.isDraggingOver && "bg-primary/10 ring-1 ring-inset ring-primary/40"
                     )}
                   >
-                    {format(dia, "d")}
-                  </span>
-                  {lista.length > 0 && (
-                    <span className="text-[9px] text-muted-foreground/60 font-medium">{lista.length}</span>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1">
-                  {visiveis.map((p) => (
-                    <PostCardMini key={p.id} post={p} onOpen={onOpen} />
-                  ))}
-                  {resto > 0 && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); toggleDia(key); }}
-                      className="text-[10px] font-medium text-muted-foreground hover:text-foreground text-left px-1.5 py-0.5 rounded hover:bg-secondary transition-colors"
-                    >
-                      +{resto} {resto === 1 ? "post" : "posts"}
-                    </button>
-                  )}
-                  {aberto && lista.length > MAX_CARDS_MES && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); toggleDia(key); }}
-                      className="text-[10px] font-medium text-muted-foreground hover:text-foreground text-left px-1.5 py-0.5 rounded hover:bg-secondary transition-colors"
-                    >
-                      recolher
-                    </button>
-                  )}
-                </div>
-              </div>
+                    <div className="flex items-center justify-between px-0.5">
+                      <span
+                        className={cn(
+                          "inline-flex items-center justify-center text-[11.5px] font-semibold h-5 min-w-5 px-1 rounded-full",
+                          !doMes && "text-muted-foreground/40",
+                          hoje && "bg-primary text-primary-foreground"
+                        )}
+                      >
+                        {format(dia, "d")}
+                      </span>
+                      {lista.length > 0 && (
+                        <span className="text-[9px] text-muted-foreground/60 font-medium">{lista.length}</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      {visiveis.map((p, i) => (
+                        <Draggable draggableId={p.id} index={i} key={p.id} isDragDisabled={!dndEnabled}>
+                          {(dp, ds) => (
+                            <div
+                              ref={dp.innerRef}
+                              {...dp.draggableProps}
+                              {...dp.dragHandleProps}
+                              className={cn(dndEnabled && "cursor-grab active:cursor-grabbing", ds.isDragging && "opacity-90")}
+                            >
+                              <PostCardMini post={p} onOpen={onOpen} onDuplicar={onDuplicar} />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {prov.placeholder}
+                      {resto > 0 && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleDia(key); }}
+                          className="text-[10px] font-medium text-muted-foreground hover:text-foreground text-left px-1.5 py-0.5 rounded hover:bg-secondary transition-colors"
+                        >
+                          +{resto} {resto === 1 ? "post" : "posts"}
+                        </button>
+                      )}
+                      {aberto && lista.length > MAX_CARDS_MES && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleDia(key); }}
+                          className="text-[10px] font-medium text-muted-foreground hover:text-foreground text-left px-1.5 py-0.5 rounded hover:bg-secondary transition-colors"
+                        >
+                          recolher
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </Droppable>
             );
           })}
         </div>
       </div>
-    </div>
+      <DndHint enabled={dndEnabled} />
+    </DragDropContext>
+  );
+}
+
+/** Dica sutil de DnD — some no desktop (lá o arrastar é óbvio pelo cursor). */
+function DndHint({ enabled }: { enabled: boolean }) {
+  if (enabled) return null;
+  return (
+    <p className="px-3 py-2 text-[10.5px] text-muted-foreground/70 border-t border-border md:hidden">
+      Dica: arraste posts entre os dias pra reagendar (disponível no computador).
+    </p>
   );
 }
 
@@ -601,8 +941,16 @@ function MonthView({
  * VIEW: SEMANA — 7 colunas, posts ordenados por horário, mais espaço
  * ────────────────────────────────────────────────────────────────────────── */
 function WeekView({
-  cursor, posts, onOpen, onCreate,
-}: { cursor: Date; posts: Post[]; onOpen: (id: string) => void; onCreate: (d: Date) => void }) {
+  cursor, posts, onOpen, onCreate, onDuplicar, onDragEnd, dndEnabled,
+}: {
+  cursor: Date;
+  posts: Post[];
+  onOpen: (id: string) => void;
+  onCreate: (d: Date) => void;
+  onDuplicar: (id: string) => void;
+  onDragEnd: (r: DropResult) => void;
+  dndEnabled: boolean;
+}) {
   const dias = useMemo(() => {
     const start = startOfWeek(cursor, { weekStartsOn: 0 });
     const end = endOfWeek(cursor, { weekStartsOn: 0 });
@@ -610,51 +958,78 @@ function WeekView({
   }, [cursor]);
 
   return (
-    <div className="overflow-x-auto">
-      <div className="grid grid-cols-7 min-w-[860px] auto-rows-fr">
-        {dias.map((dia) => {
-          const hoje = isToday(dia);
-          const lista = postsDoDia(posts, dia);
-          return (
-            <div
-              key={dia.toISOString()}
-              className="border-r border-border last:border-r-0 flex flex-col min-h-[460px]"
-            >
+    <DragDropContext onDragEnd={onDragEnd}>
+      <div className="overflow-x-auto">
+        <div className="grid grid-cols-7 min-w-[860px] auto-rows-fr">
+          {dias.map((dia) => {
+            const key = dayKey(dia);
+            const hoje = isToday(dia);
+            const lista = postsDoDia(posts, dia);
+            return (
               <div
-                className={cn(
-                  "px-2 py-2 border-b border-border text-center sticky top-0 bg-card",
-                  hoje && "bg-primary/5"
-                )}
+                key={key}
+                className="border-r border-border last:border-r-0 flex flex-col min-h-[460px]"
               >
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                  {WEEKDAYS[dia.getDay()]}
-                </div>
                 <div
                   className={cn(
-                    "inline-flex items-center justify-center text-sm font-semibold h-7 min-w-7 px-1.5 rounded-full mt-0.5",
-                    hoje && "bg-primary text-primary-foreground"
+                    "px-2 py-2 border-b border-border text-center sticky top-0 bg-card z-10",
+                    hoje && "bg-primary/5"
                   )}
                 >
-                  {format(dia, "d")}
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    {WEEKDAYS[dia.getDay()]}
+                  </div>
+                  <div
+                    className={cn(
+                      "inline-flex items-center justify-center text-sm font-semibold h-7 min-w-7 px-1.5 rounded-full mt-0.5",
+                      hoje && "bg-primary text-primary-foreground"
+                    )}
+                  >
+                    {format(dia, "d")}
+                  </div>
                 </div>
+                <Droppable droppableId={key} isDropDisabled={!dndEnabled}>
+                  {(prov, snap) => (
+                    <div
+                      ref={prov.innerRef}
+                      {...prov.droppableProps}
+                      onClick={() => onCreate(dia)}
+                      className={cn(
+                        "flex-1 p-1.5 flex flex-col gap-1.5 cursor-pointer hover:bg-muted/30 transition-colors",
+                        snap.isDraggingOver && "bg-primary/10 ring-1 ring-inset ring-primary/40"
+                      )}
+                    >
+                      {lista.length === 0 && !snap.isDraggingOver ? (
+                        <span className="text-[10px] text-muted-foreground/40 text-center mt-3 select-none">
+                          +
+                        </span>
+                      ) : (
+                        lista.map((p, i) => (
+                          <Draggable draggableId={p.id} index={i} key={p.id} isDragDisabled={!dndEnabled}>
+                            {(dp, ds) => (
+                              <div
+                                ref={dp.innerRef}
+                                {...dp.draggableProps}
+                                {...dp.dragHandleProps}
+                                className={cn(dndEnabled && "cursor-grab active:cursor-grabbing", ds.isDragging && "opacity-90")}
+                              >
+                                <PostCardFull post={p} onOpen={onOpen} onDuplicar={onDuplicar} />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))
+                      )}
+                      {prov.placeholder}
+                    </div>
+                  )}
+                </Droppable>
               </div>
-              <div
-                onClick={() => onCreate(dia)}
-                className="flex-1 p-1.5 flex flex-col gap-1.5 cursor-pointer hover:bg-muted/30 transition-colors"
-              >
-                {lista.length === 0 ? (
-                  <span className="text-[10px] text-muted-foreground/40 text-center mt-3 select-none">
-                    +
-                  </span>
-                ) : (
-                  lista.map((p) => <PostCardFull key={p.id} post={p} onOpen={onOpen} />)
-                )}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+      <DndHint enabled={dndEnabled} />
+    </DragDropContext>
   );
 }
 
@@ -662,8 +1037,8 @@ function WeekView({
  * VIEW: LISTA — cronológica, agrupada por dia
  * ────────────────────────────────────────────────────────────────────────── */
 function ListView({
-  posts, onOpen, onCreate,
-}: { posts: Post[]; onOpen: (id: string) => void; onCreate: (d: Date) => void }) {
+  posts, onOpen, onCreate, onDuplicar,
+}: { posts: Post[]; onOpen: (id: string) => void; onCreate: (d: Date) => void; onDuplicar: (id: string) => void }) {
   // Agrupa por dia (ordem cronológica ascendente).
   const grupos = useMemo(() => {
     const ordenados = [...posts].sort(
@@ -722,7 +1097,7 @@ function ListView({
             </div>
             <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
               {itens.map((p) => (
-                <PostCardFull key={p.id} post={p} onOpen={onOpen} />
+                <PostCardFull key={p.id} post={p} onOpen={onOpen} onDuplicar={onDuplicar} />
               ))}
             </div>
           </div>
@@ -882,14 +1257,79 @@ function NovoPostDialog({
     },
   });
 
+  // ── Recorrência (bloco opcional "Repetir") — estado fora do form ──────────
+  const [repetir, setRepetir] = useState(false);
+  // Dias da semana pré-marcados com o dia da data-base (default sensato).
+  const [diasSemana, setDiasSemana] = useState<number[]>(
+    () => [(defaultDate ?? new Date()).getDay()]
+  );
+  const [recModo, setRecModo] = useState<RecorrenciaModo>("ocorrencias");
+  const [nOcorrencias, setNOcorrencias] = useState(4);
+  const [ateData, setAteData] = useState(""); // yyyy-MM-dd do <input type=date>
+
+  function toggleDia(dia: number) {
+    setDiasSemana((prev) =>
+      prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia].sort()
+    );
+  }
+
+  /** Lê a data-base do form (string do datetime-local ou Date) como Date. */
+  function baseDate(): Date {
+    const v = watch("dataPublicacao") as unknown;
+    if (v instanceof Date) return v;
+    if (typeof v === "string" && v) return new Date(v);
+    return defaultDate ?? new Date();
+  }
+
+  // Prévia da contagem de datas que a recorrência vai gerar (feedback ao vivo).
+  const datasPreview = useMemo(() => {
+    if (!repetir) return [];
+    return calcularDatasRecorrencia({
+      base: baseDate(),
+      diasSemana,
+      modo: recModo,
+      nOcorrencias,
+      ateData: recModo === "ate" && ateData ? new Date(`${ateData}T23:59:59`) : null,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repetir, diasSemana, recModo, nOcorrencias, ateData, watch("dataPublicacao")]);
+
   async function onSubmit(values: PostInput) {
-    const res = await fetch("/api/posts", {
+    // Caminho 1: post único (recorrência desligada) — comportamento original.
+    if (!repetir) {
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      if (!res.ok) { toast.error("Erro ao salvar"); return; }
+      toast.success("Post criado");
+      onOpenChange(false);
+      router.refresh();
+      return;
+    }
+
+    // Caminho 2: recorrência — materializa N posts e cria via /api/posts/lote.
+    const datas = calcularDatasRecorrencia({
+      base: baseDate(),
+      diasSemana,
+      modo: recModo,
+      nOcorrencias,
+      ateData: recModo === "ate" && ateData ? new Date(`${ateData}T23:59:59`) : null,
+    });
+    if (datas.length === 0) {
+      toast.error("Escolha ao menos um dia da semana (ou ajuste a data final).");
+      return;
+    }
+    const posts = datas.map((d) => ({ ...values, dataPublicacao: d.toISOString() }));
+    const res = await fetch("/api/posts/lote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify({ posts }),
     });
-    if (!res.ok) { toast.error("Erro ao salvar"); return; }
-    toast.success("Post criado");
+    if (!res.ok) { toast.error("Erro ao criar a recorrência"); return; }
+    const data = await res.json().catch(() => ({ count: posts.length }));
+    toast.success(`${data.count ?? posts.length} posts criados`);
     onOpenChange(false);
     router.refresh();
   }
@@ -958,9 +1398,120 @@ function NovoPostDialog({
           {watch("status") === "AGENDADO" && (
             <p className="text-xs text-muted-foreground">Ao salvar como Agendado, um evento será criado na sua Google Agenda.</p>
           )}
+
+          {/* ── Bloco "Repetir" (recorrência semanal → cria em lote) ──────── */}
+          <div className="rounded-lg border border-border bg-secondary/30 p-3 space-y-3">
+            <label className="flex items-center justify-between gap-3 cursor-pointer">
+              <span className="space-y-0.5">
+                <span className="text-[13px] font-semibold flex items-center gap-1.5">
+                  <Repeat className="h-3.5 w-3.5 text-muted-foreground" /> Repetir
+                </span>
+                <span className="block text-[11px] text-muted-foreground">
+                  Cria vários posts iguais em datas recorrentes (mesmo horário).
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                checked={repetir}
+                onChange={(e) => setRepetir(e.target.checked)}
+                className="h-4 w-4 shrink-0 accent-primary cursor-pointer"
+              />
+            </label>
+
+            {repetir && (
+              <div className="space-y-3 pt-1">
+                <div className="space-y-1.5">
+                  <Label className="text-[11px]">Frequência</Label>
+                  <div className="inline-flex items-center rounded-md border border-border bg-background px-2.5 py-1.5 text-[12px] text-muted-foreground">
+                    Semanal
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-[11px]">Dias da semana</Label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {DIAS_SEMANA_CHIPS.map((label, idx) => {
+                      const on = diasSemana.includes(idx);
+                      return (
+                        <button
+                          key={label}
+                          type="button"
+                          onClick={() => toggleDia(idx)}
+                          aria-pressed={on}
+                          className={cn(
+                            "h-7 w-9 rounded-md border text-[11px] font-medium transition-colors",
+                            on
+                              ? "border-transparent bg-primary text-primary-foreground"
+                              : "border-border bg-secondary/40 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                          )}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-[11px]">Repetir até</Label>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <label className="inline-flex items-center gap-1.5 text-[12px] cursor-pointer">
+                      <input
+                        type="radio"
+                        name="rec-modo"
+                        checked={recModo === "ocorrencias"}
+                        onChange={() => setRecModo("ocorrencias")}
+                        className="accent-primary"
+                      />
+                      por
+                      <Input
+                        type="number"
+                        min={1}
+                        max={366}
+                        value={nOcorrencias}
+                        onFocusCapture={() => setRecModo("ocorrencias")}
+                        onChange={(e) => setNOcorrencias(Math.max(1, Number(e.target.value) || 1))}
+                        className="h-8 w-20"
+                      />
+                      ocorrências
+                    </label>
+                    <span className="text-[11px] text-muted-foreground hidden sm:inline">ou</span>
+                    <label className="inline-flex items-center gap-1.5 text-[12px] cursor-pointer">
+                      <input
+                        type="radio"
+                        name="rec-modo"
+                        checked={recModo === "ate"}
+                        onChange={() => setRecModo("ate")}
+                        className="accent-primary"
+                      />
+                      até
+                      <Input
+                        type="date"
+                        value={ateData}
+                        onFocusCapture={() => setRecModo("ate")}
+                        onChange={(e) => { setAteData(e.target.value); setRecModo("ate"); }}
+                        className="h-8 w-[150px]"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-muted-foreground">
+                  {datasPreview.length > 0
+                    ? `Serão criados ${datasPreview.length} posts — começando ${format(datasPreview[0], "dd/MM")}, terminando ${format(datasPreview[datasPreview.length - 1], "dd/MM")}.`
+                    : "Selecione os dias da semana pra ver quantos posts serão criados."}
+                </p>
+              </div>
+            )}
+          </div>
+
           <DialogFooter className="justify-between">
             <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
-            <Button type="submit" disabled={isSubmitting}>Criar</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {repetir
+                ? `Criar ${datasPreview.length || ""} posts`.trim()
+                : "Criar"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
