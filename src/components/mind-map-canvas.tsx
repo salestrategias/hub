@@ -78,6 +78,23 @@ const FONT_PX: Record<FontScale, number> = { sm: 11, md: 13, lg: 17 };
 const fontePx = (n: Node) => FONT_PX[n.fontScale ?? "md"];
 // Fonte dos nós (balões) — Plus Jakarta (display da marca) via CSS var, com fallbacks.
 const NODE_FONT = "var(--font-jakarta), 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif";
+
+// Ponto na BORDA do nó na direção de (tx,ty) — pra conexão ancorar na borda
+// (retângulo ou elipse), estilo Miro/MindMeister, em vez de ir até o centro.
+function bordaNo(n: Node, tx: number, ty: number): { x: number; y: number } {
+  const cx = n.x + n.w / 2, cy = n.y + n.h / 2;
+  const dx = tx - cx, dy = ty - cy;
+  if (dx === 0 && dy === 0) return { x: cx, y: cy };
+  const rx = n.w / 2, ry = n.h / 2;
+  if (n.tipo === "circle") {
+    const k = 1 / Math.sqrt((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry));
+    return { x: cx + dx * k, y: cy + dy * k };
+  }
+  const sx = dx === 0 ? Infinity : rx / Math.abs(dx);
+  const sy = dy === 0 ? Infinity : ry / Math.abs(dy);
+  const k = Math.min(sx, sy);
+  return { x: cx + dx * k, y: cy + dy * k };
+}
 // Fase 2: tolerância de snap dos guias de alinhamento (unidades de canvas).
 const ALIGN_SNAP = 6;
 const STICKY_COR = "#FCD34D"; // amarelo "papel" pra sticky notes
@@ -1275,8 +1292,13 @@ export function MindMapCanvas({
               const f = nodes.find((n) => n.id === e.from);
               const t = nodes.find((n) => n.id === e.to);
               if (!f || !t) return null;
-              const x1 = f.x + f.w / 2, y1 = f.y + f.h / 2;
-              const x2 = t.x + t.w / 2, y2 = t.y + t.h / 2;
+              // Ancora nas BORDAS dos nós (não nos centros) — conexão limpa.
+              const fcx = f.x + f.w / 2, fcy = f.y + f.h / 2;
+              const tcx = t.x + t.w / 2, tcy = t.y + t.h / 2;
+              const p1 = bordaNo(f, tcx, tcy);
+              const p2 = bordaNo(t, fcx, fcy);
+              const x1 = p1.x, y1 = p1.y;
+              const x2 = p2.x, y2 = p2.y;
               const cx = (x1 + x2) / 2;
               const d = `M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`;
               const isSel = selectedEdgeId === e.id;
