@@ -32,6 +32,7 @@ export default async function EditorialPage() {
           pilar: p.pilar,
           formato: p.formato,
           status: p.status,
+          canais: p.canais,
           dataPublicacao: p.dataPublicacao.toISOString(),
           clienteId: p.clienteId,
           clienteNome: p.cliente.nome,

@@ -30,6 +30,8 @@ export const postSchema = z.object({
   pilar: z.string().optional().nullable(),
   formato: z.enum(["FEED", "STORIES", "REELS", "CARROSSEL"]),
   status: z.enum(["RASCUNHO", "COPY_PRONTA", "DESIGN_PRONTO", "AGENDADO", "PUBLICADO"]),
+  // Canais/redes onde o post sai (multi-canal estilo mLabs/Etus).
+  canais: z.array(z.string()).optional().default([]),
   dataPublicacao: z.coerce.date(),
   clienteId: z.string().min(1),
   hashtags: z.array(z.string()).default([]),

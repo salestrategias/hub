@@ -1,7 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Trash2, MessageSquare, CheckCircle2, Hash, Megaphone } from "lucide-react";
+import {
+  FileText, Trash2, MessageSquare, CheckCircle2, Hash,
+  Instagram, Facebook, Linkedin, Youtube, Share2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { EntitySheet } from "@/components/entity-sheet";
 import { InlineField } from "@/components/inline-field";
 import { Button } from "@/components/ui/button";
@@ -27,6 +31,7 @@ type PostFull = {
   status: "RASCUNHO" | "COPY_PRONTA" | "DESIGN_PRONTO" | "AGENDADO" | "PUBLICADO";
   dataPublicacao: string;
   googleEventId: string | null;
+  canais: string[];
   hashtags: string[];
   cta: string | null;
   observacoesProducao: string | null;
@@ -282,7 +287,7 @@ export function PostSheet({
             <TabsList className="w-full justify-start flex-wrap h-auto">
               <TabsTrigger value="copy">Copy / Legenda</TabsTrigger>
               <TabsTrigger value="artes">Artes / Anexos</TabsTrigger>
-              <TabsTrigger value="meta">Hashtags + CTA</TabsTrigger>
+              <TabsTrigger value="meta">Canais + Hashtags</TabsTrigger>
               <TabsTrigger value="producao">Notas de produção</TabsTrigger>
               {post.comentarios && post.comentarios.length > 0 && (
                 <TabsTrigger value="comentarios">
@@ -309,6 +314,10 @@ export function PostSheet({
             </TabsContent>
 
             <TabsContent value="meta" className="mt-4 space-y-4">
+              <CanaisField
+                value={post.canais}
+                onSave={(canais) => patchPost({ canais })}
+              />
               <HashtagsField
                 value={post.hashtags}
                 onSave={(tags) => patchPost({ hashtags: tags })}
@@ -481,6 +490,82 @@ function HashtagsField({
       </div>
       <p className="text-[10.5px] text-muted-foreground/70">
         Sem o # — sistema adiciona. Enter ou vírgula pra confirmar. Cliente vê no portal.
+      </p>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Canais (multi-canal) — chips toggleáveis. Mesma paleta/ícones dos cards do
+ * calendário. TikTok não existe no lucide → SVG inline (currentColor).
+ * ────────────────────────────────────────────────────────────────────────── */
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <path d="M16.5 3c.36 2.2 1.76 3.86 3.9 4.06v2.5c-1.34.08-2.55-.26-3.86-1.02v5.9c0 3.6-2.65 5.86-5.7 5.56-2.6-.26-4.5-2.42-4.34-5.06.16-2.62 2.4-4.6 5.06-4.34.2.02.4.06.6.12v2.66a3 3 0 0 0-.78-.16c-1.18-.1-2.16.78-2.2 1.94a2.02 2.02 0 0 0 2 2.1c1.12.04 2.06-.86 2.06-1.98V3h3.26Z" />
+    </svg>
+  );
+}
+
+const CANAIS_POST: { value: string; label: string; cor: string; Icon: (p: { className?: string }) => JSX.Element }[] = [
+  { value: "INSTAGRAM", label: "Instagram", cor: "#E1306C", Icon: ({ className }) => <Instagram className={className} /> },
+  { value: "FACEBOOK", label: "Facebook", cor: "#1877F2", Icon: ({ className }) => <Facebook className={className} /> },
+  { value: "LINKEDIN", label: "LinkedIn", cor: "#0A66C2", Icon: ({ className }) => <Linkedin className={className} /> },
+  { value: "TIKTOK", label: "TikTok", cor: "#111827", Icon: ({ className }) => <TikTokIcon className={className} /> },
+  { value: "YOUTUBE", label: "YouTube", cor: "#FF0000", Icon: ({ className }) => <Youtube className={className} /> },
+];
+
+function CanaisField({
+  value,
+  onSave,
+}: {
+  value: string[];
+  onSave: (canais: string[]) => void;
+}) {
+  const [canais, setCanais] = useState<string[]>(value);
+
+  useEffect(() => {
+    setCanais(value);
+  }, [value]);
+
+  function toggle(canal: string) {
+    const next = canais.includes(canal)
+      ? canais.filter((c) => c !== canal)
+      : [...canais, canal];
+    setCanais(next);
+    onSave(next);
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
+        <Share2 className="h-3 w-3" /> Canais
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {CANAIS_POST.map((c) => {
+          const on = canais.includes(c.value);
+          return (
+            <button
+              key={c.value}
+              type="button"
+              onClick={() => toggle(c.value)}
+              aria-pressed={on}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium transition-colors",
+                on
+                  ? "border-transparent text-white"
+                  : "border-border bg-secondary/40 text-muted-foreground hover:bg-secondary hover:text-foreground"
+              )}
+              style={on ? { backgroundColor: c.cor } : undefined}
+            >
+              <c.Icon className="h-3.5 w-3.5" />
+              {c.label}
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-[10.5px] text-muted-foreground/70">
+        Redes onde o post sai. Aparecem como ícones no calendário e na prévia do feed.
       </p>
     </div>
   );

@@ -389,6 +389,8 @@ model Post {
   legenda         String?     @db.Text   // JSON BlockNote — copy principal (rich text)
   pilar           String?
   formato         PostFormato @default(FEED)
+  // Canais/redes onde o post sai (multi-canal estilo mLabs/Etus).
+  canais          String[]    // ex.: ["INSTAGRAM","FACEBOOK","LINKEDIN","TIKTOK","YOUTUBE"]
   status          PostStatus  @default(RASCUNHO)
   dataPublicacao  DateTime
   googleEventId   String?

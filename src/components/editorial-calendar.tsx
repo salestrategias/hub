@@ -18,7 +18,10 @@ import {
 } from "@/components/ui/dialog";
 import { postSchema, type PostInput } from "@/lib/schemas";
 import { toast } from "@/components/ui/toast";
-import { ChevronLeft, ChevronRight, Inbox, Plus } from "lucide-react";
+import {
+  ChevronLeft, ChevronRight, Inbox, Plus,
+  Instagram, Facebook, Linkedin, Youtube, ImageIcon,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { RevisaoEstado } from "@/components/revisao-conteudo";
 import { RichTextField } from "@/components/editor";
@@ -40,9 +43,87 @@ type Post = {
   googleEventId: string | null;
   origem: "SAL" | "CLIENTE";
   revisao: RevisaoEstado;
+  /** Canais/redes onde o post sai (multi-canal estilo mLabs/Etus). */
+  canais: string[];
   /** 1ª arte (imagem) do post, se houver — usada como mini-thumb no card. */
   thumbUrl?: string | null;
 };
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Canais (multi-canal) — catálogo canal→ícone+cor+label.
+ * Instagram/Facebook/LinkedIn/YouTube usam ícones do lucide. TikTok NÃO
+ * existe no lucide → SVG inline (logo simplificada, currentColor).
+ * ────────────────────────────────────────────────────────────────────────── */
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <path d="M16.5 3c.36 2.2 1.76 3.86 3.9 4.06v2.5c-1.34.08-2.55-.26-3.86-1.02v5.9c0 3.6-2.65 5.86-5.7 5.56-2.6-.26-4.5-2.42-4.34-5.06.16-2.62 2.4-4.6 5.06-4.34.2.02.4.06.6.12v2.66a3 3 0 0 0-.78-.16c-1.18-.1-2.16.78-2.2 1.94a2.02 2.02 0 0 0 2 2.1c1.12.04 2.06-.86 2.06-1.98V3h3.26Z" />
+    </svg>
+  );
+}
+
+type CanalDef = { value: string; label: string; cor: string; Icon: (p: { className?: string }) => JSX.Element };
+
+const CANAIS: CanalDef[] = [
+  { value: "INSTAGRAM", label: "Instagram", cor: "#E1306C", Icon: ({ className }) => <Instagram className={className} /> },
+  { value: "FACEBOOK", label: "Facebook", cor: "#1877F2", Icon: ({ className }) => <Facebook className={className} /> },
+  { value: "LINKEDIN", label: "LinkedIn", cor: "#0A66C2", Icon: ({ className }) => <Linkedin className={className} /> },
+  { value: "TIKTOK", label: "TikTok", cor: "#111827", Icon: ({ className }) => <TikTokIcon className={className} /> },
+  { value: "YOUTUBE", label: "YouTube", cor: "#FF0000", Icon: ({ className }) => <Youtube className={className} /> },
+];
+const CANAL_MAP: Record<string, CanalDef> = Object.fromEntries(CANAIS.map((c) => [c.value, c]));
+
+/** Fileira de ícones de canal (pequenos) — usada nos cards. */
+function CanalIcons({ canais, size = "h-3 w-3" }: { canais: string[]; size?: string }) {
+  if (!canais?.length) return null;
+  return (
+    <span className="inline-flex items-center gap-1 shrink-0">
+      {canais.map((c) => {
+        const def = CANAL_MAP[c];
+        if (!def) return null;
+        return (
+          <span key={c} title={def.label} style={{ color: def.cor }} className="inline-flex">
+            <def.Icon className={size} />
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+/** Seletor de canais (chips toggleáveis) — usado no criar e no editar. */
+function CanaisSelector({
+  value, onChange,
+}: { value: string[]; onChange: (next: string[]) => void }) {
+  function toggle(canal: string) {
+    onChange(value.includes(canal) ? value.filter((c) => c !== canal) : [...value, canal]);
+  }
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {CANAIS.map((c) => {
+        const on = value.includes(c.value);
+        return (
+          <button
+            key={c.value}
+            type="button"
+            onClick={() => toggle(c.value)}
+            aria-pressed={on}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium transition-colors",
+              on
+                ? "border-transparent text-white"
+                : "border-border bg-secondary/40 text-muted-foreground hover:bg-secondary hover:text-foreground"
+            )}
+            style={on ? { backgroundColor: c.cor } : undefined}
+          >
+            <c.Icon className="h-3.5 w-3.5" />
+            {c.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 const STATUS_COR: Record<Post["status"], string> = {
   RASCUNHO: "#64748B",
@@ -67,8 +148,9 @@ const FORMATO_LABEL: Record<Post["formato"], string> = {
   CARROSSEL: "Carrossel",
 };
 
-type View = "mes" | "semana" | "lista";
+type View = "mes" | "semana" | "lista" | "feed";
 const VIEW_STORAGE_KEY = "salhub.editorial.view";
+const VIEWS: View[] = ["mes", "semana", "lista", "feed"];
 
 function isPendente(p: Post) {
   return p.origem === "CLIENTE" && p.revisao === "PENDENTE";
@@ -80,6 +162,7 @@ export function EditorialCalendarClient({
   const router = useRouter();
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroCanal, setFiltroCanal] = useState("");
   const [soPendentes, setSoPendentes] = useState(false);
   const [creating, setCreating] = useState(false);
   const [defaultDate, setDefaultDate] = useState<Date | null>(null);
@@ -93,7 +176,7 @@ export function EditorialCalendarClient({
   useEffect(() => {
     try {
       const v = localStorage.getItem(VIEW_STORAGE_KEY);
-      if (v === "mes" || v === "semana" || v === "lista") setView(v);
+      if (v && (VIEWS as string[]).includes(v)) setView(v as View);
     } catch {
       /* ignore */
     }
@@ -115,9 +198,10 @@ export function EditorialCalendarClient({
       posts.filter((p) =>
         (!filtroCliente || p.clienteId === filtroCliente) &&
         (!filtroStatus || p.status === filtroStatus) &&
+        (!filtroCanal || p.canais.includes(filtroCanal)) &&
         (!soPendentes || isPendente(p))
       ),
-    [posts, filtroCliente, filtroStatus, soPendentes]
+    [posts, filtroCliente, filtroStatus, filtroCanal, soPendentes]
   );
 
   function abrirPost(id: string) {
@@ -151,6 +235,20 @@ export function EditorialCalendarClient({
               <SelectItem value="PUBLICADO">Publicado</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={filtroCanal} onValueChange={(v) => setFiltroCanal(v === "all" ? "" : v)}>
+            <SelectTrigger className="w-[150px]"><SelectValue placeholder="Canal" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos canais</SelectItem>
+              {CANAIS.map((c) => (
+                <SelectItem key={c.value} value={c.value}>
+                  <span className="inline-flex items-center gap-2">
+                    <span style={{ color: c.cor }} className="inline-flex"><c.Icon className="h-3.5 w-3.5" /></span>
+                    {c.label}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             variant={soPendentes ? "default" : "outline"}
             onClick={() => setSoPendentes((v) => !v)}
@@ -173,8 +271,8 @@ export function EditorialCalendarClient({
         </div>
       </div>
 
-      {/* Navegação de período (oculta na Lista, que é cronológica global) */}
-      {view !== "lista" && (
+      {/* Navegação de período — só Mês/Semana (Lista e Feed são globais) */}
+      {(view === "mes" || view === "semana") && (
         <PeriodNav view={view} cursor={cursor} onCursor={setCursor} />
       )}
 
@@ -188,6 +286,15 @@ export function EditorialCalendarClient({
         )}
         {view === "lista" && (
           <ListView posts={filtrados} onOpen={abrirPost} onCreate={criarEm} />
+        )}
+        {view === "feed" && (
+          <FeedView
+            posts={filtrados}
+            clienteId={filtroCliente}
+            clientes={clientes}
+            onOpen={abrirPost}
+            onPickCliente={setFiltroCliente}
+          />
         )}
       </div>
 
@@ -223,6 +330,7 @@ function ViewToggle({ view, onChange }: { view: View; onChange: (v: View) => voi
     { value: "mes", label: "Mês" },
     { value: "semana", label: "Semana" },
     { value: "lista", label: "Lista" },
+    { value: "feed", label: "Feed" },
   ];
   return (
     <div className="inline-flex items-center rounded-lg bg-secondary p-1">
@@ -328,6 +436,7 @@ function PostCardMini({ post, onOpen }: { post: Post; onOpen: (id: string) => vo
         <span className="mx-1 text-muted-foreground/40">·</span>
         <span className="font-medium">{post.titulo}</span>
       </span>
+      <CanalIcons canais={post.canais} size="h-2.5 w-2.5" />
       <span className="shrink-0 text-[9px] font-medium text-muted-foreground/80 tabular-nums">
         {format(new Date(post.dataPublicacao), "HH:mm")}
       </span>
@@ -381,6 +490,7 @@ function PostCardFull({
           >
             {FORMATO_LABEL[post.formato]}
           </Badge>
+          <CanalIcons canais={post.canais} size="h-3 w-3" />
         </div>
       </div>
     </button>
@@ -623,6 +733,129 @@ function ListView({
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
+ * VIEW: FEED — preview do feed do Instagram (grid 3 colunas).
+ * Exige um cliente selecionado. Mostra as artes (1ª imagem) dos posts que
+ * ocupam o grid (FEED/CARROSSEL/REELS — Stories não entram no feed), na
+ * ordem do Instagram: mais recente primeiro.
+ * ────────────────────────────────────────────────────────────────────────── */
+const FORMATOS_FEED: Post["formato"][] = ["FEED", "CARROSSEL", "REELS"];
+
+function FeedView({
+  posts, clienteId, clientes, onOpen, onPickCliente,
+}: {
+  posts: Post[];
+  clienteId: string;
+  clientes: { id: string; nome: string }[];
+  onOpen: (id: string) => void;
+  onPickCliente: (id: string) => void;
+}) {
+  // Feed = posts do cliente que ocupam o grid, mais recente primeiro.
+  // (useMemo no topo — antes de qualquer return — pelas Rules of Hooks.)
+  const cliente = clientes.find((c) => c.id === clienteId);
+  const grid = useMemo(
+    () =>
+      clienteId
+        ? posts
+            .filter((p) => p.clienteId === clienteId && FORMATOS_FEED.includes(p.formato))
+            .sort((a, b) => +new Date(b.dataPublicacao) - +new Date(a.dataPublicacao))
+        : [],
+    [posts, clienteId]
+  );
+
+  // Sem cliente escolhido → pede pra escolher um (feed é por perfil).
+  if (!clienteId) {
+    return (
+      <div className="py-16 px-6 text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+          <Instagram className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <div className="text-sm font-semibold">Escolha um cliente pra ver o feed</div>
+        <p className="mx-auto mt-1 max-w-sm text-[12.5px] text-muted-foreground">
+          A pré-visualização do feed mostra como as artes vão ficar no perfil
+          do Instagram — por isso precisa de um cliente.
+        </p>
+        {clientes.length > 0 && (
+          <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+            {clientes.slice(0, 8).map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => onPickCliente(c.id)}
+                className="rounded-full border border-border bg-secondary/40 px-3 py-1 text-[12px] font-medium hover:bg-secondary hover:text-foreground transition-colors"
+              >
+                {c.nome}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (grid.length === 0) {
+    return (
+      <div className="py-16 text-center text-sm text-muted-foreground">
+        Nenhum post de feed para {cliente?.nome ?? "este cliente"} no filtro atual.
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-3 sm:p-4">
+      {/* Mini-cabeçalho estilo perfil */}
+      <div className="mb-3 flex items-center gap-2 px-1">
+        <Instagram className="h-4 w-4 text-muted-foreground" />
+        <span className="text-[13px] font-semibold">{cliente?.nome ?? "Feed"}</span>
+        <span className="text-[11px] text-muted-foreground">· prévia do feed ({grid.length})</span>
+      </div>
+      {/* Grid 3 colunas, células quadradas — igual ao Instagram. */}
+      <div className="mx-auto grid max-w-[640px] grid-cols-3 gap-0.5 sm:gap-1">
+        {grid.map((p) => (
+          <FeedCell key={p.id} post={p} onOpen={onOpen} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FeedCell({ post, onOpen }: { post: Post; onOpen: (id: string) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(post.id)}
+      title={`${post.titulo} · ${format(new Date(post.dataPublicacao), "dd/MM")}`}
+      className="group relative aspect-square overflow-hidden bg-secondary/60 hover:opacity-95 transition-opacity"
+    >
+      {post.thumbUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={post.thumbUrl} alt={post.titulo} className="h-full w-full object-cover" />
+      ) : (
+        // Sem arte → placeholder com ícone + título.
+        <span className="flex h-full w-full flex-col items-center justify-center gap-1.5 p-2 text-center">
+          <ImageIcon className="h-5 w-5 text-muted-foreground/60" />
+          <span className="line-clamp-2 text-[10px] font-medium text-muted-foreground">
+            {post.titulo}
+          </span>
+        </span>
+      )}
+      {/* Selo de formato (CARROSSEL/REELS) no canto, como o Instagram. */}
+      {post.formato !== "FEED" && (
+        <span className="absolute right-1 top-1 rounded bg-black/55 px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide text-white">
+          {FORMATO_LABEL[post.formato]}
+        </span>
+      )}
+      {/* Overlay no hover: ícones de canal + horário. */}
+      <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-gradient-to-t from-black/60 to-transparent p-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <CanalIcons canais={post.canais} size="h-2.5 w-2.5" />
+        <span className="text-[8.5px] font-medium text-white tabular-nums">
+          {format(new Date(post.dataPublicacao), "dd/MM")}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
  * Dialog de criação de post.
  * Edição vive no PostSheet (peek mode) — esse dialog é só pra criar.
  * ────────────────────────────────────────────────────────────────────────── */
@@ -643,6 +876,7 @@ function NovoPostDialog({
       pilar: "",
       formato: "FEED",
       status: "RASCUNHO",
+      canais: [],
       clienteId: clientes[0]?.id ?? "",
       dataPublicacao: defaultDate ?? new Date(),
     },
@@ -673,6 +907,13 @@ function NovoPostDialog({
               onChange={(blocks: PartialBlock[]) => setValue("legenda", JSON.stringify(blocks))}
               placeholder="Copy do post — / abre blocos, @ menciona entidades..."
               minHeight="100px"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Canais</Label>
+            <CanaisSelector
+              value={watch("canais") ?? []}
+              onChange={(next) => setValue("canais", next)}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
