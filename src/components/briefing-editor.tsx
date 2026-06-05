@@ -56,6 +56,8 @@ import {
   CheckCircle2,
   ExternalLink,
   Asterisk,
+  ListChecks,
+  PencilLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -67,6 +69,7 @@ import {
   tipoTemOpcoes,
   novaPerguntaId,
 } from "@/lib/briefing";
+import { CampoPergunta, type Valor, type Respostas } from "@/components/briefing-campos";
 
 type Cliente = { id: string; nome: string };
 
@@ -96,9 +99,12 @@ export function BriefingEditor({
   const router = useRouter();
   const [brief, setBrief] = useState(initial);
   const [perguntas, setPerguntas] = useState<BriefingPergunta[]>(initial.perguntas);
+  const [respostas, setRespostas] = useState<Respostas>(() => initial.respostas ?? {});
+  const [aba, setAba] = useState<"montar" | "respostas">("montar");
   const [shareOpen, setShareOpen] = useState(false);
 
   const saveTimer = useRef<NodeJS.Timeout | null>(null);
+  const respTimer = useRef<NodeJS.Timeout | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [salvoEm, setSalvoEm] = useState<string | null>(null);
 
@@ -154,6 +160,36 @@ export function BriefingEditor({
     };
     if (imediato) void fazer();
     else saveTimer.current = setTimeout(fazer, 700);
+  }
+
+  /**
+   * Pré-preenche (lado SAL) — grava SÓ `respostas` via o mesmo PATCH, com
+   * debounce. NÃO manda `status`: pré-preencher nunca muda pra RESPONDIDO
+   * (só o cliente enviando pelo link público faz isso). A página pública já
+   * lê `respostas`, então o que a SAL deixa aqui aparece pro cliente.
+   */
+  function persistirRespostas(novas: Respostas) {
+    setRespostas(novas);
+    if (respTimer.current) clearTimeout(respTimer.current);
+    respTimer.current = setTimeout(async () => {
+      setSalvando(true);
+      try {
+        await fetch(`/api/briefings/${brief.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ respostas: novas }),
+        });
+        setSalvoEm(new Date().toISOString());
+      } catch {
+        toast.error("Falha ao salvar respostas");
+      } finally {
+        setSalvando(false);
+      }
+    }, 700);
+  }
+
+  function setResposta(id: string, valor: Valor) {
+    persistirRespostas({ ...respostas, [id]: valor });
   }
 
   // ─── Operações de pergunta ───────────────────────────────────────────
@@ -352,11 +388,11 @@ export function BriefingEditor({
           </Card>
         </div>
 
-        {/* ── CENTRO: construtor OU respostas ── */}
+        {/* ── CENTRO: abas Montar perguntas | Respostas (lado SAL) ── */}
         <div className="space-y-4 min-w-0">
-          {respondido ? (
-            <RespostasView perguntas={perguntas} respostas={brief.respostas} />
-          ) : (
+          <AbasBriefing aba={aba} onAba={setAba} />
+
+          {aba === "montar" ? (
             <ConstrutorPerguntas
               perguntas={perguntas}
               onAtualizar={atualizarPergunta}
@@ -365,6 +401,13 @@ export function BriefingEditor({
               onReordenar={reordenarPorDrag}
               onRemover={removerPergunta}
               onAdicionar={adicionarPergunta}
+            />
+          ) : (
+            <RespostasEditor
+              perguntas={perguntas}
+              respostas={respostas}
+              respondido={respondido}
+              onSetResposta={setResposta}
             />
           )}
         </div>
@@ -640,116 +683,109 @@ function OpcoesEditor({
   );
 }
 
-// ─── Respostas do cliente (read-only) ────────────────────────────────────
+// ─── Abas: Montar perguntas | Respostas ──────────────────────────────────
 
-function RespostasView({
+function AbasBriefing({
+  aba,
+  onAba,
+}: {
+  aba: "montar" | "respostas";
+  onAba: (a: "montar" | "respostas") => void;
+}) {
+  const itens: { id: "montar" | "respostas"; label: string; Icone: typeof PencilLine }[] = [
+    { id: "montar", label: "Montar perguntas", Icone: PencilLine },
+    { id: "respostas", label: "Respostas", Icone: ListChecks },
+  ];
+  return (
+    <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted/40 p-1">
+      {itens.map(({ id, label, Icone }) => (
+        <button
+          key={id}
+          type="button"
+          onClick={() => onAba(id)}
+          aria-pressed={aba === id}
+          className={cn(
+            "inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-[12.5px] font-medium transition-colors",
+            aba === id
+              ? "bg-card text-foreground shadow-sm border border-border"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Icone className="h-3.5 w-3.5" />
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─── Respostas (LADO SAL) — pré-preencher / corrigir, sempre editável ─────
+/**
+ * Reusa o widget público `CampoPergunta` por tipo, pré-preenchido com as
+ * `respostas` atuais. Cada mudança grava SÓ `respostas` (debounce) — nunca
+ * muda o status: pré-preencher é a SAL deixando pronto pro cliente só ajustar.
+ */
+function RespostasEditor({
   perguntas,
   respostas,
+  respondido,
+  onSetResposta,
 }: {
   perguntas: BriefingPergunta[];
-  respostas: Record<string, string | string[]> | null;
+  respostas: Respostas;
+  respondido: boolean;
+  onSetResposta: (id: string, valor: Valor) => void;
 }) {
-  if (!respostas || Object.keys(respostas).length === 0) {
+  if (perguntas.length === 0) {
     return (
       <Card>
         <CardContent className="p-8 text-center text-sm text-muted-foreground">
-          O briefing está marcado como respondido, mas nenhuma resposta foi registrada.
+          Sem perguntas ainda. Vá em <strong>Montar perguntas</strong> e crie o formulário —
+          depois você pode pré-preencher as respostas aqui.
         </CardContent>
       </Card>
     );
   }
   return (
-    <Card>
-      <CardContent className="p-5 space-y-1">
-        <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold mb-3">
-          Respostas do cliente
+    <div className="space-y-4">
+      {/* Banner: deixa claro que é o lado SAL e que não muda status */}
+      <div className="rounded-lg border border-sal-500/30 bg-sal-600/5 px-3.5 py-3 text-[12px] text-muted-foreground flex items-start gap-2.5">
+        <PencilLine className="h-4 w-4 text-sal-500 mt-0.5 shrink-0" />
+        <div className="space-y-0.5">
+          <p className="font-medium text-foreground/90">Pré-preencher respostas (lado SAL)</p>
+          <p className="leading-relaxed">
+            {respondido
+              ? "Este briefing já foi respondido pelo cliente — você pode completar ou corrigir as respostas aqui. Salva automaticamente."
+              : "Já respondeu na reunião de diagnóstico? Deixe preenchido aqui. O cliente abre o link e vê tudo pronto — é só completar e enviar. Salvar aqui não marca como respondido."}
+          </p>
         </div>
-        <ul className="space-y-4">
+      </div>
+
+      <Card>
+        <CardContent className="p-5 space-y-6">
           {perguntas.map((p, idx) => {
             const secaoAnterior = idx > 0 ? perguntas[idx - 1].secao : undefined;
             const mostrarSecao = !!p.secao && p.secao !== secaoAnterior;
             return (
-              <li key={p.id} className="space-y-1">
+              <div key={p.id} className="space-y-2">
                 {mostrarSecao && (
-                  <div className="text-[10.5px] uppercase tracking-wider text-sal-400/70 font-semibold pt-2 pb-1 border-t border-border/40">
+                  <div className="text-[10.5px] uppercase tracking-wider text-sal-400/70 font-semibold pt-1 pb-0.5 border-t border-border/40">
                     {p.secao}
                   </div>
                 )}
-                <div className="text-[12.5px] font-medium">
-                  {p.pergunta || <span className="text-muted-foreground/60">(sem texto)</span>}
-                </div>
-                <RespostaValor tipo={p.tipo} valor={respostas[p.id]} />
-              </li>
+                <CampoPergunta
+                  pergunta={p}
+                  valor={respostas[p.id]}
+                  erro={false}
+                  onChange={(v) => onSetResposta(p.id, v)}
+                />
+              </div>
             );
           })}
-        </ul>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
-}
-
-function RespostaValor({
-  tipo,
-  valor,
-}: {
-  tipo: BriefingTipoPergunta;
-  valor: string | string[] | undefined;
-}) {
-  const vazio = valor == null || (Array.isArray(valor) ? valor.length === 0 : valor.trim() === "");
-  if (vazio) {
-    return <div className="text-[12.5px] text-muted-foreground/50 italic">— sem resposta —</div>;
-  }
-
-  // CAIXAS: lista de marcados.
-  if (Array.isArray(valor)) {
-    return (
-      <div className="flex flex-wrap gap-1.5">
-        {valor.map((v, i) => (
-          <Badge key={i} variant="outline" className="text-[11px] font-normal">
-            {v}
-          </Badge>
-        ))}
-      </div>
-    );
-  }
-
-  if (tipo === "LINK") {
-    return (
-      <a
-        href={valor}
-        target="_blank"
-        rel="noreferrer"
-        className="text-[12.5px] text-sal-400 hover:underline break-all inline-flex items-center gap-1"
-      >
-        <Link2 className="h-3 w-3 shrink-0" /> {valor}
-      </a>
-    );
-  }
-
-  if (tipo === "UPLOAD") {
-    const ehUrl = /^https?:\/\//i.test(valor) || valor.startsWith("data:");
-    return ehUrl ? (
-      <a
-        href={valor}
-        target="_blank"
-        rel="noreferrer"
-        className="text-[12.5px] text-sal-400 hover:underline break-all inline-flex items-center gap-1"
-      >
-        <ExternalLink className="h-3 w-3 shrink-0" /> Abrir arquivo
-      </a>
-    ) : (
-      <div className="text-[12.5px] whitespace-pre-wrap break-words">{valor}</div>
-    );
-  }
-
-  if (tipo === "DATA") {
-    const d = new Date(valor);
-    const txt = isNaN(d.getTime()) ? valor : d.toLocaleDateString("pt-BR");
-    return <div className="text-[12.5px]">{txt}</div>;
-  }
-
-  // TEXTO / PARAGRAFO / ESCOLHA / LISTA / NUMERO / SIM_NAO
-  return <div className="text-[12.5px] whitespace-pre-wrap break-words">{valor}</div>;
 }
 
 // ─── Dialog de envio / link público ──────────────────────────────────────
