@@ -9,7 +9,7 @@ import {
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
   Mic, FileText, GitBranch, Cpu, Database, Send, TrendingUp, Settings, Calendar, BookOpen,
   ChevronLeft, ChevronRight, ChevronDown,
-  Palette, Target, LayoutTemplate, Stethoscope, NotebookPen,
+  Palette, Target, LayoutTemplate, Stethoscope, NotebookPen, ClipboardList,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -47,6 +47,8 @@ const groups: NavGroup[] = [
       { label: "Editorial", href: "/editorial", icon: CalendarDays },
       // Palette: assets visuais (imagens/videos) pra ads
       { label: "Criativos Ads", href: "/criativos", icon: Palette },
+      // ClipboardList: formulários nativos que o cliente preenche (substitui Google Forms)
+      { label: "Briefings", href: "/briefings", icon: ClipboardList },
       { label: "Projetos", href: "/projetos", icon: KanbanSquare },
       { label: "Tarefas", href: "/tarefas", icon: ListChecks },
     ],

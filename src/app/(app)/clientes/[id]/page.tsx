@@ -27,6 +27,7 @@ import { ClienteTimeline } from "@/components/cliente-detalhe/cliente-timeline";
 import { MarketingPerformance } from "@/components/cliente-detalhe/marketing-performance";
 import { DocumentosCliente } from "@/components/cliente-detalhe/documentos-cliente";
 import { BriefingIaCard, type Briefing } from "@/components/cliente-detalhe/briefing-ia-card";
+import { normalizarPerguntas, BRIEFING_STATUS_META, type BriefingStatusUi } from "@/lib/briefing";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,7 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
         reunioes: { orderBy: { data: "desc" }, take: 50 },
         propostas: { where: { versaoAtual: true }, orderBy: { updatedAt: "desc" } },
         diagnosticos: { orderBy: { updatedAt: "desc" } },
+        briefings: { orderBy: { updatedAt: "desc" } },
       },
     }),
     buildClienteInsights(params.id),
@@ -146,6 +148,7 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
           <TabsTrigger value="reunioes">Reuniões ({cliente.reunioes.length})</TabsTrigger>
           <TabsTrigger value="propostas">Propostas ({cliente.propostas.length})</TabsTrigger>
           <TabsTrigger value="diagnosticos">Diagnósticos ({cliente.diagnosticos.length})</TabsTrigger>
+          <TabsTrigger value="briefings">Briefings ({cliente.briefings.length})</TabsTrigger>
           <TabsTrigger value="posts">Posts ({cliente.posts.length})</TabsTrigger>
           <TabsTrigger value="projetos">Projetos ({cliente.projetos.length})</TabsTrigger>
           <TabsTrigger value="tarefas">Tarefas ({cliente.tarefas.length})</TabsTrigger>
@@ -209,6 +212,21 @@ export default async function ClienteDetalhePage({ params }: { params: { id: str
               d.numero, d.titulo, <Badge key={d.id} variant="outline">{d.status}</Badge>,
             ])}
             hrefs={cliente.diagnosticos.map((d) => `/diagnosticos/${d.id}`)}
+          />
+        </TabsContent>
+
+        <TabsContent value="briefings">
+          <SimpleTable
+            cols={["Título", "Perguntas", "Status", "Respondido"]}
+            rows={cliente.briefings.map((b) => [
+              b.titulo,
+              `${normalizarPerguntas(b.perguntas).length}`,
+              <Badge key={b.id} variant="outline">
+                {BRIEFING_STATUS_META[b.status as BriefingStatusUi].label}
+              </Badge>,
+              b.respondidoEm ? formatDate(b.respondidoEm) : "—",
+            ])}
+            hrefs={cliente.briefings.map((b) => `/briefings/${b.id}`)}
           />
         </TabsContent>
 

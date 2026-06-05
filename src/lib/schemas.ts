@@ -778,3 +778,60 @@ export const anexoPatchSchema = z.object({
   tipo: z.enum(["IMAGEM", "VIDEO", "DOCUMENTO", "PLANILHA", "APRESENTACAO", "LINK", "OUTRO"]).optional(),
 });
 export type AnexoPatchInput = z.infer<typeof anexoPatchSchema>;
+
+// ─── Briefings (formulários nativos preenchidos pelo cliente) ─────
+// Catálogo de tipos + templates padrão vivem em src/lib/briefing.ts.
+// Aqui validamos leve: o array de perguntas é Json livre (shape garantido
+// em runtime por normalizarPerguntas), respostas é mapa { perguntaId: valor }.
+const briefingTipoEnum = z.enum([
+  "TEXTO",
+  "PARAGRAFO",
+  "ESCOLHA",
+  "CAIXAS",
+  "LISTA",
+  "NUMERO",
+  "DATA",
+  "LINK",
+  "SIM_NAO",
+  "UPLOAD",
+]);
+
+export const briefingPerguntaSchema = z.object({
+  id: z.string().min(1),
+  pergunta: z.string().max(500).default(""),
+  tipo: briefingTipoEnum.default("TEXTO"),
+  opcoes: z.array(z.string().max(200)).max(40).optional(),
+  obrigatoria: z.boolean().optional(),
+  ajuda: z.string().max(1000).optional(),
+  secao: z.string().max(120).optional(),
+});
+
+// Criação: copia perguntas de um template padrão (slug) ou custom (id), ou vazio.
+export const briefingCriarSchema = z.object({
+  titulo: z.string().max(200).optional(),
+  clienteId: z.string().optional().nullable(),
+  templateSlug: z.string().max(60).optional().nullable(),
+  templateId: z.string().optional().nullable(),
+});
+export type BriefingCriarInput = z.infer<typeof briefingCriarSchema>;
+
+// PATCH parcial do editor — manda só o que mudou (titulo/perguntas/status/etc.).
+// respostas é mapa livre (string | string[]) — validado leve.
+export const briefingSchema = z.object({
+  titulo: z.string().min(1).max(200).optional(),
+  perguntas: z.array(briefingPerguntaSchema).max(200).optional(),
+  respostas: z
+    .record(z.string(), z.union([z.string(), z.array(z.string())]))
+    .optional()
+    .nullable(),
+  status: z.enum(["RASCUNHO", "ENVIADO", "RESPONDIDO", "ARQUIVADO"]).optional(),
+  clienteId: z.string().optional().nullable(),
+  clienteNome: z.string().max(200).optional().nullable(),
+});
+export type BriefingInput = z.infer<typeof briefingSchema>;
+
+// Envio: gera shareToken (link público de preenchimento). validadeDias opcional.
+export const briefingEnviarSchema = z.object({
+  validadeDias: z.coerce.number().int().positive().max(365).optional(),
+});
+export type BriefingEnviarInput = z.infer<typeof briefingEnviarSchema>;

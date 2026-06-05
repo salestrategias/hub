@@ -160,6 +160,7 @@ model Cliente {
   acesso       ClienteAcesso?
   criativos    Criativo[]
   diagnosticos Diagnostico[]
+  briefings    Briefing[]
 
   // ── Briefing IA (gerado via Claude Max copy-paste) ────────────
   // JSON estruturado: { resumo, pontosAtencao[], proximasAcoes[], riscoChurn }
@@ -358,6 +359,62 @@ model MindMap {
   updatedAt DateTime @updatedAt
 
   @@index([shareToken])
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Briefings — formulários que o cliente preenche (substitui Google/Notion Forms).
+// Templates padrão vivem em código (src/lib/briefing.ts); BriefingTemplate guarda
+// os customizados/salvos. Briefing = a instância enviada a um cliente.
+// ─────────────────────────────────────────────────────────────────────
+model BriefingTemplate {
+  id          String   @id @default(cuid())
+  nome        String
+  tipoServico String?  // REDES | TRAFEGO | SEO | BRANDING | COMPLETO | custom
+  descricao   String?
+  // perguntas (Json): [{ id, pergunta, tipo, opcoes?[], obrigatoria?, ajuda?, secao? }]
+  perguntas   Json
+  ordem       Int      @default(0)
+  ativo       Boolean  @default(true)
+  criadoPor   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Briefing {
+  id        String         @id @default(cuid())
+  titulo    String
+  // Snapshot editável das perguntas (mesmo formato do template).
+  perguntas Json
+  // Respostas do cliente: { [perguntaId]: valor } (valor: string | string[]).
+  respostas Json?
+  status    BriefingStatus @default(RASCUNHO)
+
+  clienteId   String?
+  cliente     Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  clienteNome String?  // snapshot
+
+  templateOrigem String? // slug do template padrão ou id do BriefingTemplate de origem
+
+  // Link público de preenchimento (padrão proposta/diagnostico)
+  shareToken    String?   @unique
+  shareExpiraEm DateTime?
+
+  criadoPor    String?
+  enviadoEm    DateTime?
+  respondidoEm DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([clienteId])
+  @@index([shareToken])
+  @@index([status])
+}
+
+enum BriefingStatus {
+  RASCUNHO
+  ENVIADO
+  RESPONDIDO
+  ARQUIVADO
 }
 
 // ─────────────────────────────────────────────────────────────────────
