@@ -4,10 +4,13 @@
  * POST /api/p/briefing/[token]
  *   - Autenticação implícita pelo token (16 bytes hex) — o token é o acesso.
  *   - Valida: briefing existe + não expirado (shareExpiraEm).
- *   - Valida que TODAS as perguntas obrigatórias vieram preenchidas.
- *   - Grava `respostas` = { [perguntaId]: valor }, status=RESPONDIDO,
- *     respondidoEm=now (idempotente: reenvio sobrescreve as respostas).
- *   - Notifica o criador do briefing (sem email — evento inbound).
+ *   - Body: { respostas, rascunho? }.
+ *     · rascunho:true → AUTO-SAVE: grava só `respostas` (NÃO valida obrigatórias,
+ *       NÃO seta RESPONDIDO/respondidoEm, mantém o status, NÃO notifica). Deixa o
+ *       cliente parar no meio e continuar depois pelo mesmo link.
+ *     · ausente/false → ENVIO: valida que TODAS as obrigatórias vieram
+ *       preenchidas, grava `respostas`, status=RESPONDIDO, respondidoEm=now
+ *       (idempotente: reenvio sobrescreve), e notifica o criador.
  *
  * Sem auth (igual aos outros /api/p/*). Erros com status explícito.
  */
@@ -55,8 +58,12 @@ export async function POST(req: Request, { params }: { params: { token: string }
       return erro("Este link expirou.", 410);
     }
 
-    const body = (await req.json().catch(() => ({}))) as { respostas?: Record<string, unknown> };
+    const body = (await req.json().catch(() => ({}))) as {
+      respostas?: Record<string, unknown>;
+      rascunho?: boolean;
+    };
     const brutas = body.respostas && typeof body.respostas === "object" ? body.respostas : {};
+    const ehRascunho = body.rascunho === true;
 
     const perguntas = normalizarPerguntas(briefing.perguntas);
     const idsValidos = new Set(perguntas.map((p) => p.id));
@@ -70,6 +77,17 @@ export async function POST(req: Request, { params }: { params: { token: string }
       respostas[pid] = v;
     }
 
+    // ─── RASCUNHO (auto-save): grava só as respostas, sem mudar o status ──
+    // Não valida obrigatórias (o cliente pode estar no meio) e não notifica.
+    if (ehRascunho) {
+      await prisma.briefing.update({
+        where: { id: briefing.id },
+        data: { respostas: respostas as unknown as Prisma.InputJsonValue },
+      });
+      return NextResponse.json({ ok: true, rascunho: true });
+    }
+
+    // ─── ENVIO ──────────────────────────────────────────────────────────
     // Valida obrigatórias no servidor (defesa — o client já valida pra UX).
     const faltando = perguntas.filter((p) => p.obrigatoria && vazio(respostas[p.id]));
     if (faltando.length > 0) {

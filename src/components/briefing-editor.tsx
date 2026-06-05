@@ -58,6 +58,7 @@ import {
   Asterisk,
   ListChecks,
   PencilLine,
+  FileDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -109,6 +110,18 @@ export function BriefingEditor({
   const [salvoEm, setSalvoEm] = useState<string | null>(null);
 
   const respondido = brief.status === "RESPONDIDO";
+
+  // Exportar PDF só faz sentido quando há o que exportar: já respondido OU
+  // alguma resposta preenchida (a SAL pode ter pré-preenchido na aba Respostas).
+  const temRespostas = useMemo(
+    () =>
+      respondido ||
+      Object.values(respostas).some((v) =>
+        Array.isArray(v) ? v.length > 0 : typeof v === "string" && v.trim() !== ""
+      ),
+    [respondido, respostas]
+  );
+
   const shareUrl =
     brief.shareToken && typeof window !== "undefined"
       ? `${window.location.origin}/p/briefing/${brief.shareToken}`
@@ -315,6 +328,13 @@ export function BriefingEditor({
         ) : null}
 
         <div className="ml-auto flex items-center gap-2">
+          {temRespostas && (
+            <Button asChild variant="outline" size="sm" title="Exportar as respostas em PDF">
+              <a href={`/api/briefings/${brief.id}/pdf`} target="_blank" rel="noreferrer">
+                <FileDown className="h-3.5 w-3.5" /> Exportar PDF
+              </a>
+            </Button>
+          )}
           {brief.shareToken && (
             <Button asChild variant="outline" size="sm">
               <a href={`/p/briefing/${brief.shareToken}`} target="_blank" rel="noreferrer">

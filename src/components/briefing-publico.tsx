@@ -12,11 +12,19 @@
  * agrupa as perguntas por `secao` (preservando a ordem) e mostra UMA etapa por
  * vez, com barra de progresso, "Etapa X de N" + nome da seção, e navegação
  * Voltar / Próximo / Enviar. Perguntas sem `secao` viram a etapa "Geral"; se o
- * briefing inteiro não tiver seções, fatiamos em páginas de ~6 perguntas.
+ * briefing inteiro não tiver seções, fatiamos em páginas de ~6 perguntas. A
+ * ÚLTIMA etapa é sempre a "Revisão" (read-only, ver abaixo).
  *
  * - Valida só as obrigatórias DA ETAPA ao avançar/enviar (ring vermelho + rola
- *   até a 1ª pendente). Só envia no fim.
- * - Pré-preenche com `respostasIniciais` (revisar/reenviar).
+ *   até a 1ª pendente).
+ * - RASCUNHO (auto-save): a cada avanço de etapa e num debounce ~1.5s ao digitar,
+ *   salva `{ respostas, rascunho:true }` (não envia, não muda o status). Assim o
+ *   cliente para no meio, fecha, e ao voltar pelo mesmo link continua de onde
+ *   parou. Indicador sutil "Rascunho salvo ✓ HH:MM".
+ * - REVISÃO (última etapa): mostra tudo agrupado por seção, read-only e formatado
+ *   por tipo, com "Editar" por seção (pula de volta) e o CTA final "Enviar
+ *   respostas". Obrigatória em branco bloqueia o envio com aviso + link pra editar.
+ * - Pré-preenche com `respostasIniciais` (rascunho salvo / revisar / reenviar).
  * - Pós-envio: estado de agradecimento; permite reabrir pra editar.
  *
  * Mobile-first: inputs h-11 / text-base no mobile, barra de navegação sticky no
@@ -24,8 +32,8 @@
  * <style jsx>. Assume tema claro (resto do /p), mas usa só tokens (theme-aware).
  */
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, CheckCircle2, AlertCircle, Pencil, ArrowLeft, ArrowRight } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Loader2, CheckCircle2, AlertCircle, Pencil, ArrowLeft, ArrowRight, Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
@@ -82,18 +90,26 @@ export function BriefingPublico({
   const [quandoRespondeu, setQuandoRespondeu] = useState(respondidoEm);
   const [errIds, setErrIds] = useState<Set<string>>(new Set());
 
-  // Etapas do wizard (uma seção = uma etapa; fallback chunk sem-seção).
-  const etapas = useMemo(() => montarEtapas(perguntas), [perguntas]);
-  const total = etapas.length;
+  // Estado do auto-save de rascunho (indicador sutil "Rascunho salvo ✓ HH:MM").
+  const [rascunho, setRascunho] = useState<{ estado: "salvando" | "salvo"; em: string | null }>({
+    estado: "salvo",
+    em: null,
+  });
+
+  // Etapas de SEÇÃO do wizard (uma seção = uma etapa; fallback chunk sem-seção).
+  // A etapa de REVISÃO é virtual: vem depois das seções (índice = secoes.length).
+  const secoes = useMemo(() => montarEtapas(perguntas), [perguntas]);
+  const total = secoes.length + 1; // +1 = etapa de Revisão
 
   // Etapa atual + direção da transição (pra slide leve ao trocar de etapa).
   const [etapaIdx, setEtapaIdx] = useState(0);
   const [direcao, setDirecao] = useState<1 | -1>(1);
   // Clampa o índice se a lista de perguntas mudar (ex.: detalhe recarregado).
   const idx = Math.min(etapaIdx, Math.max(0, total - 1));
-  const etapa = etapas[idx];
+  const ehRevisao = idx >= secoes.length; // última etapa = Revisão
+  const etapa = ehRevisao ? undefined : secoes[idx];
   const primeira = idx === 0;
-  const ultima = idx >= total - 1;
+  const ultima = idx >= total - 1; // = ehRevisao (a Revisão é a última)
 
   // Âncora pro topo do conteúdo da etapa: ao trocar, rola pra cá e foca a 1ª
   // pergunta (acessibilidade). Não usamos window.scrollTo direto porque no modo
@@ -111,6 +127,55 @@ export function BriefingPublico({
     }
   }
 
+  // ─── Auto-save de rascunho ────────────────────────────────────────────
+  // Mantém as respostas mais recentes num ref pra função de salvar não precisar
+  // ser recriada (e não reagendar o debounce) a cada tecla.
+  const respostasRef = useRef(respostas);
+  respostasRef.current = respostas;
+  // Evita corridas: guarda o nº da última gravação iniciada e ignora respostas
+  // antigas que cheguem fora de ordem. Pula o salvamento durante o envio real.
+  const saveSeq = useRef(0);
+  const enviandoRef = useRef(false);
+  enviandoRef.current = enviando;
+
+  const salvarRascunho = useCallback(async () => {
+    if (enviandoRef.current) return; // o envio real cuida da persistência
+    const seq = ++saveSeq.current;
+    setRascunho((r) => ({ ...r, estado: "salvando" }));
+    try {
+      const res = await fetch(`/api/p/briefing/${token}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ respostas: respostasRef.current, rascunho: true }),
+      });
+      if (!res.ok) {
+        // Silencioso: rascunho é best-effort; o cliente ainda pode enviar no fim.
+        setRascunho((r) => ({ ...r, estado: "salvo" }));
+        return;
+      }
+      if (seq === saveSeq.current) {
+        setRascunho({ estado: "salvo", em: new Date().toISOString() });
+      }
+    } catch {
+      setRascunho((r) => ({ ...r, estado: "salvo" }));
+    }
+  }, [token]);
+
+  // Debounce ~1.5s ao digitar: salva o rascunho quando as respostas param de
+  // mudar. Pula o mount (nada novo a salvar) e o estado de agradecimento.
+  const respostasMudou = useRef(false);
+  useEffect(() => {
+    if (!respostasMudou.current) {
+      respostasMudou.current = true;
+      return;
+    }
+    if (concluido) return;
+    const t = setTimeout(() => {
+      void salvarRascunho();
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [respostas, concluido, salvarRascunho]);
+
   // Obrigatórias ainda vazias DENTRO da etapa informada.
   function faltandoNaEtapa(e: Etapa | undefined): string[] {
     if (!e) return [];
@@ -118,6 +183,13 @@ export function BriefingPublico({
       .filter((p) => p.obrigatoria && respostaVazia(respostas[p.id]))
       .map((p) => p.id);
   }
+
+  // TODAS as obrigatórias ainda vazias (qualquer seção) — usado na Revisão pra
+  // bloquear o envio e listar o que falta com link pra editar.
+  const faltandoGlobal = useMemo(
+    () => perguntas.filter((p) => p.obrigatoria && respostaVazia(respostas[p.id])),
+    [perguntas, respostas]
+  );
 
   // Valida a etapa atual. Se faltar, marca os erros, avisa e rola até a 1ª
   // pendência — retorna false (não avança/envia).
@@ -156,12 +228,20 @@ export function BriefingPublico({
     irPara(idx - 1, -1);
   }
 
+  // Pula pra etapa de uma seção (pelo índice) — usado pelos "Editar" da Revisão.
+  function editarSecao(secaoIdx: number) {
+    irPara(secaoIdx, secaoIdx < idx ? -1 : 1);
+  }
+
   function proximo() {
-    if (!validarEtapa()) return;
-    if (ultima) {
+    // Na Revisão, "Próximo" não existe (o CTA é "Enviar"); guarda defensiva.
+    if (ehRevisao) {
       void enviar();
       return;
     }
+    if (!validarEtapa()) return;
+    // Avançou de seção → salva o rascunho (não espera; UX otimista).
+    void salvarRascunho();
     irPara(idx + 1, 1);
   }
 
@@ -186,9 +266,16 @@ export function BriefingPublico({
   }, [idx]);
 
   async function enviar() {
-    // Defesa: revalida a etapa final antes de enviar (o caminho normal já
-    // passou por validarEtapa em proximo()).
-    if (!validarEtapa()) return;
+    // Bloqueia o envio se ainda houver obrigatória em branco (qualquer seção).
+    // A Revisão mostra o aviso com link pra editar; aqui é a defesa do clique.
+    if (faltandoGlobal.length > 0) {
+      toast.error(
+        faltandoGlobal.length === 1
+          ? "Falta 1 pergunta obrigatória. Veja o aviso e clique em editar."
+          : `Faltam ${faltandoGlobal.length} perguntas obrigatórias. Veja o aviso e clique em editar.`
+      );
+      return;
+    }
 
     setEnviando(true);
     try {
@@ -261,7 +348,9 @@ export function BriefingPublico({
   }
 
   // ─── Briefing sem perguntas ─────────────────────────────────────────
-  if (total === 0) {
+  // (secoes vazias = nenhuma pergunta; a etapa de Revisão só existe se houver
+  // o que revisar.)
+  if (secoes.length === 0) {
     return (
       <main className={cn(embutido ? "" : "min-h-screen safe-area-inset-top")}>
         <div
@@ -304,11 +393,14 @@ export function BriefingPublico({
 
           {/* Barra de progresso + indicador de etapa */}
           <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
-              <span>
+            <div className="flex items-center justify-between gap-3 text-[11px] font-medium text-muted-foreground">
+              <span className="shrink-0">
                 Etapa {idx + 1} de {total}
               </span>
-              <span aria-hidden="true">{pct}%</span>
+              <span className="flex items-center gap-2">
+                <IndicadorRascunho estado={rascunho.estado} em={rascunho.em} />
+                <span aria-hidden="true">{pct}%</span>
+              </span>
             </div>
             <div
               className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
@@ -335,28 +427,45 @@ export function BriefingPublico({
               direcao === 1 ? "slide-in-from-right-4" : "slide-in-from-left-4"
             )}
           >
-            <div className="mb-4 sm:mb-5">
-              <h2 className="font-display text-xl sm:text-2xl font-semibold leading-tight">
-                {etapa.titulo}
-              </h2>
-              {etapa.perguntas.some((p) => p.obrigatoria) && (
-                <p className="mt-1 text-[11px] text-muted-foreground/70">
-                  <span className="text-destructive">*</span> campos obrigatórios
-                </p>
-              )}
-            </div>
+            {ehRevisao ? (
+              <PainelRevisao
+                secoes={secoes}
+                respostas={respostas}
+                faltando={faltandoGlobal}
+                onEditarSecao={editarSecao}
+                onEditarPergunta={(pid) => {
+                  const i = secoes.findIndex((s) => s.perguntas.some((p) => p.id === pid));
+                  if (i >= 0) editarSecao(i);
+                }}
+              />
+            ) : (
+              etapa && (
+                <>
+                  <div className="mb-4 sm:mb-5">
+                    <h2 className="font-display text-xl sm:text-2xl font-semibold leading-tight">
+                      {etapa.titulo}
+                    </h2>
+                    {etapa.perguntas.some((p) => p.obrigatoria) && (
+                      <p className="mt-1 text-[11px] text-muted-foreground/70">
+                        <span className="text-destructive">*</span> campos obrigatórios
+                      </p>
+                    )}
+                  </div>
 
-            <div className="space-y-5">
-              {etapa.perguntas.map((p) => (
-                <CampoPergunta
-                  key={p.id}
-                  pergunta={p}
-                  valor={respostas[p.id]}
-                  erro={errIds.has(p.id)}
-                  onChange={(v) => setValor(p.id, v)}
-                />
-              ))}
-            </div>
+                  <div className="space-y-5">
+                    {etapa.perguntas.map((p) => (
+                      <CampoPergunta
+                        key={p.id}
+                        pergunta={p}
+                        valor={respostas[p.id]}
+                        erro={errIds.has(p.id)}
+                        onChange={(v) => setValor(p.id, v)}
+                      />
+                    ))}
+                  </div>
+                </>
+              )
+            )}
           </div>
         </div>
 
@@ -382,9 +491,10 @@ export function BriefingPublico({
               <ArrowLeft className="h-4 w-4" /> Voltar
             </Button>
 
-            {/* Pontos das etapas (≥ sm) — orientação rápida de onde está */}
+            {/* Pontos das etapas (≥ sm) — orientação rápida de onde está.
+                Inclui a etapa de Revisão (total = seções + 1). */}
             <div className="hidden sm:flex flex-1 items-center justify-center gap-1.5">
-              {etapas.map((_, i) => (
+              {Array.from({ length: total }).map((_, i) => (
                 <span
                   key={i}
                   className={cn(
@@ -398,7 +508,7 @@ export function BriefingPublico({
             <Button
               type="button"
               onClick={proximo}
-              disabled={enviando}
+              disabled={enviando || (ehRevisao && faltandoGlobal.length > 0)}
               className="h-11 flex-1 sm:flex-none touch-feedback"
             >
               {ultima ? (
@@ -417,6 +527,187 @@ export function BriefingPublico({
       </div>
     </main>
   );
+}
+
+/**
+ * Indicador sutil do auto-save de rascunho (no header, ao lado do %).
+ * "Salvando…" enquanto grava; "Rascunho salvo ✓ HH:MM" depois. Não aparece
+ * antes do 1º save (em === null && estado === "salvo").
+ */
+function IndicadorRascunho({ estado, em }: { estado: "salvando" | "salvo"; em: string | null }) {
+  if (estado === "salvo" && !em) return null;
+  return (
+    <span className="inline-flex items-center gap-1 text-muted-foreground/70" aria-live="polite">
+      {estado === "salvando" ? (
+        <>
+          <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+          <span>Salvando…</span>
+        </>
+      ) : (
+        <>
+          <Cloud className="h-3 w-3" aria-hidden="true" />
+          <span>
+            Rascunho salvo
+            {em ? ` · ${new Date(em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}` : ""}
+          </span>
+        </>
+      )}
+    </span>
+  );
+}
+
+/**
+ * Etapa final de REVISÃO: lista tudo agrupado por seção, read-only e formatado
+ * por tipo, com "Editar" por seção. Se houver obrigatórias em branco, mostra um
+ * aviso no topo (com link pra cada pendência) que bloqueia o envio.
+ */
+function PainelRevisao({
+  secoes,
+  respostas,
+  faltando,
+  onEditarSecao,
+  onEditarPergunta,
+}: {
+  secoes: Etapa[];
+  respostas: Respostas;
+  faltando: BriefingPergunta[];
+  onEditarSecao: (secaoIdx: number) => void;
+  onEditarPergunta: (perguntaId: string) => void;
+}) {
+  return (
+    <div>
+      <div className="mb-4 sm:mb-5">
+        <h2 className="font-display text-xl sm:text-2xl font-semibold leading-tight">Revisão</h2>
+        <p className="mt-1 text-[12px] text-muted-foreground">
+          Confira suas respostas antes de enviar. Toque em <span className="font-medium">Editar</span> pra
+          ajustar qualquer seção.
+        </p>
+      </div>
+
+      {/* Aviso de obrigatórias em branco — bloqueia o envio. */}
+      {faltando.length > 0 && (
+        <div className="mb-5 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-[12px] text-destructive">
+          <div className="flex items-start gap-2 font-medium">
+            <AlertCircle className="h-4 w-4 mt-px shrink-0" />
+            <span>
+              {faltando.length === 1
+                ? "Falta 1 pergunta obrigatória pra poder enviar:"
+                : `Faltam ${faltando.length} perguntas obrigatórias pra poder enviar:`}
+            </span>
+          </div>
+          <ul className="mt-2 space-y-1 pl-6">
+            {faltando.map((p) => (
+              <li key={p.id} className="flex items-center justify-between gap-2">
+                <span className="truncate text-destructive/90">{p.pergunta || "(sem texto)"}</span>
+                <button
+                  type="button"
+                  onClick={() => onEditarPergunta(p.id)}
+                  className="shrink-0 font-medium underline underline-offset-2 hover:no-underline touch-feedback"
+                >
+                  editar
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {secoes.map((s, i) => (
+          <section key={`${s.titulo}-${i}`} className="rounded-xl border border-border bg-card">
+            <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
+              <h3 className="text-[13px] font-semibold leading-snug">{s.titulo}</h3>
+              <button
+                type="button"
+                onClick={() => onEditarSecao(i)}
+                className="inline-flex items-center gap-1 text-[12px] font-medium text-primary hover:underline touch-feedback shrink-0"
+              >
+                <Pencil className="h-3.5 w-3.5" /> Editar
+              </button>
+            </header>
+            <dl className="divide-y divide-border">
+              {s.perguntas.map((p) => (
+                <div key={p.id} className="px-4 py-3">
+                  <dt className="text-[12px] font-medium text-muted-foreground leading-snug">
+                    {p.pergunta || "(sem texto)"}
+                    {p.obrigatoria && <span className="text-destructive ml-0.5">*</span>}
+                  </dt>
+                  <dd className="mt-1 text-[14px] leading-relaxed">
+                    <ValorRevisao pergunta={p} valor={respostas[p.id]} />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Render READ-ONLY do valor de uma resposta na Revisão, formatado por tipo:
+ *   vazio → "— não respondido —" · CAIXAS → lista · DATA → pt-BR ·
+ *   LINK/UPLOAD(url) → link clicável · UPLOAD(dataURL imagem) → thumb ·
+ *   UPLOAD(dataURL arquivo) → "Arquivo anexado" · resto → texto (preserva quebras).
+ */
+function ValorRevisao({ pergunta, valor }: { pergunta: BriefingPergunta; valor: Valor | undefined }) {
+  if (respostaVazia(valor)) {
+    return <span className="text-muted-foreground/50 italic">— não respondido —</span>;
+  }
+
+  // CAIXAS (e qualquer array) → lista de marcadores.
+  if (Array.isArray(valor)) {
+    return (
+      <ul className="flex flex-wrap gap-1.5">
+        {valor.map((v) => (
+          <li
+            key={v}
+            className="rounded-md bg-muted px-2 py-0.5 text-[12.5px] text-foreground/80"
+          >
+            {v}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  // Aqui valor é necessariamente string não-vazia (passou por respostaVazia +
+  // não-array), mas respostaVazia não é type-guard — narrow explícito.
+  const s = (typeof valor === "string" ? valor : "").trim();
+
+  if (pergunta.tipo === "DATA") {
+    // value de <input type=date> é YYYY-MM-DD; formata sem fuso (meio-dia local).
+    const d = new Date(`${s}T12:00:00`);
+    return <span>{isNaN(d.getTime()) ? s : d.toLocaleDateString("pt-BR", { dateStyle: "long" })}</span>;
+  }
+
+  if (pergunta.tipo === "UPLOAD") {
+    if (s.startsWith("data:image")) {
+      // eslint-disable-next-line @next/next/no-img-element
+      return <img src={s} alt="" className="mt-0.5 h-20 w-20 rounded-md border border-border object-cover" />;
+    }
+    if (s.startsWith("data:")) {
+      return <span className="text-foreground/80">Arquivo anexado</span>;
+    }
+    // senão é um link colado → cai no render de link abaixo.
+  }
+
+  if (pergunta.tipo === "LINK" || /^https?:\/\//i.test(s)) {
+    return (
+      <a
+        href={s}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary underline underline-offset-2 hover:no-underline break-all"
+      >
+        {s}
+      </a>
+    );
+  }
+
+  // TEXTO / PARAGRAFO / NUMERO / ESCOLHA / LISTA / SIM_NAO → texto, preservando quebras.
+  return <span className="whitespace-pre-wrap break-words text-foreground/90">{s}</span>;
 }
 
 /**
