@@ -1,7 +1,10 @@
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
+import { randomBytes } from "crypto";
 import { prisma } from "@/lib/db";
 import { zodToJsonSchema } from "./zod-to-json";
 import { hasScope } from "./scopes";
+import { TEMPLATES_PADRAO, getTemplatePadrao, normalizarPerguntas } from "@/lib/briefing";
 import type { ToolDefinition, ToolResult } from "./types";
 
 const ok = (text: string): ToolResult => ({ content: [{ type: "text", text }] });
@@ -769,6 +772,174 @@ const TOOLS: ToolDefinition<unknown>[] = [
         }),
       ]);
       return okJson({ clientes, notas, reunioes, trechosTranscricao: blocks, tarefas, posts });
+    },
+  }),
+
+  /* ─────────────────── BRIEFINGS ─────────────────── */
+  tool({
+    name: "briefing_modelos",
+    description:
+      "Lista os modelos padrão de briefing (slug + perguntas com ids). Use o slug em briefing_criar e os ids das perguntas em briefing_responder.",
+    requiredScopes: ["briefings:read"],
+    inputSchema: z.object({}),
+    handler: async () =>
+      okJson(
+        TEMPLATES_PADRAO.map((t) => ({
+          slug: t.slug,
+          nome: t.nome,
+          descricao: t.descricao,
+          perguntas: t.perguntas.map((p) => ({ id: p.id, pergunta: p.pergunta, tipo: p.tipo, opcoes: p.opcoes, secao: p.secao, obrigatoria: !!p.obrigatoria })),
+        }))
+      ),
+  }),
+  tool({
+    name: "briefing_listar",
+    description: "Lista briefings, com filtro opcional por cliente e/ou status.",
+    requiredScopes: ["briefings:read"],
+    inputSchema: z.object({
+      clienteId: z.string().optional(),
+      status: z.enum(["RASCUNHO", "ENVIADO", "RESPONDIDO", "ARQUIVADO"]).optional(),
+    }),
+    handler: async ({ clienteId, status }) => {
+      const where: Record<string, unknown> = {};
+      if (clienteId) where.clienteId = clienteId;
+      if (status) where.status = status;
+      const lista = await prisma.briefing.findMany({
+        where,
+        orderBy: { updatedAt: "desc" },
+        select: { id: true, titulo: true, status: true, clienteNome: true, respondidoEm: true, shareToken: true },
+      });
+      return okJson(lista.map((b) => ({ id: b.id, titulo: b.titulo, status: b.status, clienteNome: b.clienteNome, respondidoEm: b.respondidoEm, temLink: !!b.shareToken })));
+    },
+  }),
+  tool({
+    name: "briefing_buscar",
+    description: "Detalhes de um briefing: perguntas (ids/tipos) e respostas atuais.",
+    requiredScopes: ["briefings:read"],
+    inputSchema: IdInput,
+    handler: async ({ id }) => {
+      const b = await prisma.briefing.findUnique({ where: { id } });
+      if (!b) return fail(`Briefing ${id} não encontrado`);
+      return okJson({
+        id: b.id,
+        titulo: b.titulo,
+        status: b.status,
+        clienteId: b.clienteId,
+        clienteNome: b.clienteNome,
+        perguntas: normalizarPerguntas(b.perguntas),
+        respostas: b.respostas ?? {},
+        shareToken: b.shareToken,
+      });
+    },
+  }),
+  tool({
+    name: "briefing_criar",
+    description:
+      "Cria um briefing para um cliente a partir de um modelo padrão (veja os slugs em briefing_modelos) ou em branco. Retorna o id e as perguntas com ids — depois use briefing_responder pra preencher.",
+    requiredScopes: ["briefings:write"],
+    inputSchema: z.object({
+      clienteId: z.string().optional().describe("Id do cliente (use cliente_listar)."),
+      templateSlug: z.string().optional().describe("Slug do modelo: completo, redes, trafego, seo, branding. Vazio = em branco."),
+      titulo: z.string().optional(),
+    }),
+    handler: async ({ clienteId, templateSlug, titulo }) => {
+      const tpl = templateSlug ? getTemplatePadrao(templateSlug) : undefined;
+      if (templateSlug && !tpl) return fail(`Modelo "${templateSlug}" não existe. Use briefing_modelos.`);
+      let clienteNome: string | null = null;
+      if (clienteId) {
+        const c = await prisma.cliente.findUnique({ where: { id: clienteId }, select: { nome: true } });
+        if (!c) return fail(`Cliente ${clienteId} não encontrado`);
+        clienteNome = c.nome;
+      }
+      const b = await prisma.briefing.create({
+        data: {
+          titulo: titulo?.trim() || tpl?.nome || "Briefing",
+          perguntas: (tpl?.perguntas ?? []) as unknown as Prisma.InputJsonValue,
+          clienteId: clienteId ?? null,
+          clienteNome,
+          templateOrigem: templateSlug ?? null,
+          status: "RASCUNHO",
+        },
+      });
+      return okJson({
+        id: b.id,
+        titulo: b.titulo,
+        perguntas: normalizarPerguntas(b.perguntas).map((p) => ({ id: p.id, pergunta: p.pergunta, tipo: p.tipo, opcoes: p.opcoes })),
+        dica: 'Use briefing_responder com respostas = JSON [{"perguntaId","valor"}].',
+      });
+    },
+  }),
+  tool({
+    name: "briefing_responder",
+    description:
+      "Preenche/atualiza respostas de um briefing (ex.: a partir de uma reunião de diagnóstico). Mescla com as respostas existentes. Por padrão NÃO marca como respondido (é pré-preenchimento do lado SAL).",
+    requiredScopes: ["briefings:write"],
+    inputSchema: z.object({
+      id: z.string(),
+      respostas: z.string().describe('JSON array de respostas: [{"perguntaId":"empresa_nome","valor":"Padaria X"}]. Para tipo CAIXAS, separe as opções no valor por ";".'),
+      marcarRespondido: z.boolean().default(false).describe("Se true, marca o briefing como RESPONDIDO."),
+    }),
+    handler: async ({ id, respostas, marcarRespondido }) => {
+      const b = await prisma.briefing.findUnique({ where: { id } });
+      if (!b) return fail(`Briefing ${id} não encontrado`);
+      let itens: Array<{ perguntaId?: unknown; valor?: unknown }>;
+      try {
+        const j = JSON.parse(respostas);
+        if (!Array.isArray(j)) throw new Error();
+        itens = j;
+      } catch {
+        return fail('respostas inválido — envie um JSON array, ex.: [{"perguntaId":"...","valor":"..."}]');
+      }
+      const perguntas = normalizarPerguntas(b.perguntas);
+      const byId = new Map(perguntas.map((p) => [p.id, p]));
+      const atual: Record<string, unknown> =
+        b.respostas && typeof b.respostas === "object" && !Array.isArray(b.respostas)
+          ? { ...(b.respostas as Record<string, unknown>) }
+          : {};
+      let aplicadas = 0;
+      const ignoradas: string[] = [];
+      for (const it of itens) {
+        const pid = typeof it.perguntaId === "string" ? it.perguntaId : "";
+        const val = typeof it.valor === "string" ? it.valor : "";
+        const p = byId.get(pid);
+        if (!p) {
+          if (pid) ignoradas.push(pid);
+          continue;
+        }
+        atual[pid] = p.tipo === "CAIXAS" ? val.split(";").map((s) => s.trim()).filter(Boolean) : val;
+        aplicadas++;
+      }
+      await prisma.briefing.update({
+        where: { id },
+        data: {
+          respostas: atual as unknown as Prisma.InputJsonValue,
+          ...(marcarRespondido ? { status: "RESPONDIDO", respondidoEm: new Date() } : {}),
+        },
+      });
+      return ok(
+        `${aplicadas} resposta(s) gravada(s)${marcarRespondido ? " e marcado como RESPONDIDO" : ""}.${ignoradas.length ? ` Ignoradas (id inexistente): ${ignoradas.join(", ")}` : ""}`
+      );
+    },
+  }),
+  tool({
+    name: "briefing_enviar",
+    description: "Gera (ou retorna) o link público de preenchimento do briefing e marca como ENVIADO.",
+    requiredScopes: ["briefings:write"],
+    inputSchema: IdInput,
+    handler: async ({ id }) => {
+      const b = await prisma.briefing.findUnique({ where: { id } });
+      if (!b) return fail(`Briefing ${id} não encontrado`);
+      const token = b.shareToken ?? randomBytes(16).toString("hex");
+      await prisma.briefing.update({
+        where: { id },
+        data: {
+          shareToken: token,
+          status: b.status === "RASCUNHO" ? "ENVIADO" : b.status,
+          enviadoEm: b.enviadoEm ?? new Date(),
+        },
+      });
+      const base = process.env.NEXTAUTH_URL ?? "https://hub.salestrategias.com.br";
+      return okJson({ url: `${base}/p/briefing/${token}`, shareToken: token });
     },
   }),
 ];
