@@ -287,7 +287,7 @@ export function BriefingPublico({
       <div
         className={cn(
           "mx-auto w-full max-w-2xl",
-          embutido ? "px-0 pt-1 pb-40 sm:pb-36" : "px-4 sm:px-6 py-6 sm:py-10 pb-36"
+          embutido ? "px-0 pt-1 pb-44" : "px-4 sm:px-6 pt-6 sm:pt-10 pb-44"
         )}
       >
         {/* Cabeçalho FIXO (logo + identificação + progresso). Só o conteúdo da
