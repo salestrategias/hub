@@ -11,7 +11,7 @@
  * Layout próprio (não usa Sidebar/Header do app). Mobile-first.
  */
 import { useEffect, useState } from "react";
-import { Sparkles, Calendar, Megaphone, ListChecks, Mic, BarChart3, Lock, Loader2, XCircle } from "lucide-react";
+import { Sparkles, Calendar, Megaphone, ListChecks, Mic, BarChart3, ClipboardList, Lock, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +22,7 @@ import { PortalCriativos } from "@/components/portal-criativos";
 import { PortalTarefas } from "@/components/portal-tarefas";
 import { PortalReunioes } from "@/components/portal-reunioes";
 import { PortalRelatorios } from "@/components/portal-relatorios";
+import { PortalBriefing } from "@/components/portal-briefing";
 
 type Permissoes = {
   verCalendario: boolean;
@@ -47,7 +48,10 @@ type EstadoInicial =
   | { tipo: "erro"; mensagem: string }
   | { tipo: "ok"; clienteId: string; clienteNome: string; permissoes: Permissoes; marca: Marca };
 
-export type Tab = "inicio" | "calendario" | "criativos" | "tarefas" | "reunioes" | "relatorios";
+export type Tab = "inicio" | "calendario" | "criativos" | "tarefas" | "reunioes" | "relatorios" | "briefing";
+
+/** Estado dos briefings do cliente (controla se a aba aparece + badge). */
+type BriefingsResumo = { total: number; pendentes: number };
 
 /** Roxo SAL (default). Acento da marca só substitui quando difere disso. */
 const COR_SAL = "#7E30E1";
@@ -64,6 +68,7 @@ export function PortalCliente({ token }: { token: string }) {
   const [senha, setSenha] = useState("");
   const [autenticando, setAutenticando] = useState(false);
   const [pendencias, setPendencias] = useState<Pendencias>({ posts: 0, criativos: 0 });
+  const [briefingsResumo, setBriefingsResumo] = useState<BriefingsResumo>({ total: 0, pendentes: 0 });
 
   // Pendências de aprovação (badges + bloco "Esperando você"). Lê do /resumo
   // (que já devolve `pendencias`). Recarregado após aprovar/pedir ajuste pra
@@ -81,6 +86,26 @@ export function PortalCliente({ token }: { token: string }) {
       }
     } catch {
       /* ignora — badges são complementares */
+    }
+  }
+
+  // Briefings do cliente (ENVIADO/RESPONDIDO). Define se a aba "Briefing"
+  // aparece (total ≥ 1) e a contagem de pendentes (badge). Silencioso —
+  // aba e badge são complementares; recarregado após o cliente responder.
+  async function recarregarBriefings() {
+    try {
+      const res = await fetch(`/api/p/cliente/${token}/briefings`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data?.briefings)) {
+        const total = data.briefings.length;
+        const pendentes = data.briefings.filter(
+          (b: { status?: string }) => b?.status === "ENVIADO"
+        ).length;
+        setBriefingsResumo({ total, pendentes });
+      }
+    } catch {
+      /* ignora — aba/badge são complementares */
     }
   }
 
@@ -118,6 +143,8 @@ export function PortalCliente({ token }: { token: string }) {
       setTab("inicio");
       // Carrega contagem de pendências pros badges (não bloqueia render).
       void recarregarPendencias();
+      // Carrega briefings (define se a aba aparece + badge de pendentes).
+      void recarregarBriefings();
     } catch (e) {
       setEstado({ tipo: "erro", mensagem: e instanceof Error ? e.message : "Erro" });
     }
@@ -232,6 +259,7 @@ export function PortalCliente({ token }: { token: string }) {
     { id: "calendario", label: "Calendário", labelCurto: "Agenda", icon: Calendar, visivel: permissoes.verCalendario, badge: pendencias.posts },
     { id: "criativos", label: "Criativos", labelCurto: "Criativos", icon: Megaphone, visivel: permissoes.verCriativos, badge: pendencias.criativos },
     { id: "tarefas", label: "Tarefas", labelCurto: "Tarefas", icon: ListChecks, visivel: permissoes.verTarefas, badge: 0 },
+    { id: "briefing", label: "Briefing", labelCurto: "Briefing", icon: ClipboardList, visivel: briefingsResumo.total > 0, badge: briefingsResumo.pendentes },
     { id: "reunioes", label: "Reuniões", labelCurto: "Reuniões", icon: Mic, visivel: permissoes.verReunioes, badge: 0 },
     { id: "relatorios", label: "Relatórios", labelCurto: "Relatórios", icon: BarChart3, visivel: permissoes.verRelatorios, badge: 0 },
   ];
@@ -335,6 +363,13 @@ export function PortalCliente({ token }: { token: string }) {
           />
         )}
         {tab === "tarefas" && permissoes.verTarefas && <PortalTarefas token={token} />}
+        {tab === "briefing" && briefingsResumo.total > 0 && (
+          <PortalBriefing
+            token={token}
+            clienteNome={clienteNome}
+            onPendenciasMudaram={recarregarBriefings}
+          />
+        )}
         {tab === "reunioes" && permissoes.verReunioes && <PortalReunioes token={token} />}
         {tab === "relatorios" && permissoes.verRelatorios && (
           <PortalRelatorios clienteId={clienteId} />

@@ -40,6 +40,8 @@ export function BriefingPublico({
   respostasIniciais,
   jaRespondido,
   respondidoEm,
+  onRespondido,
+  embutido,
 }: {
   token: string;
   titulo: string;
@@ -48,6 +50,19 @@ export function BriefingPublico({
   respostasIniciais: Respostas | null;
   jaRespondido: boolean;
   respondidoEm: string | null;
+  /**
+   * Chamado após gravar com sucesso (com o ISO do respondidoEm). Opcional —
+   * a página pública não usa; o portal usa pra atualizar a contagem de
+   * pendências e a lista quando o cliente responde embutido.
+   */
+  onRespondido?: (respondidoEm: string) => void;
+  /**
+   * Quando true, o form é renderizado EMBUTIDO dentro do Portal do Cliente
+   * (não é a página pública full-screen): solta o `min-h-screen`/safe-area do
+   * topo (a casca do portal já cuida disso) e levanta a barra de CTA fixa
+   * acima da bottom-nav do portal no mobile. Default false (página pública).
+   */
+  embutido?: boolean;
 }) {
   const [respostas, setRespostas] = useState<Respostas>(() => respostasIniciais ?? {});
   const [enviando, setEnviando] = useState(false);
@@ -103,10 +118,12 @@ export function BriefingPublico({
         return;
       }
       const d = await res.json().catch(() => ({}));
-      setQuandoRespondeu(typeof d?.respondidoEm === "string" ? d.respondidoEm : new Date().toISOString());
+      const quando = typeof d?.respondidoEm === "string" ? d.respondidoEm : new Date().toISOString();
+      setQuandoRespondeu(quando);
       setConcluido(true);
       toast.success("Recebemos suas respostas. Obrigado!");
       window.scrollTo({ top: 0, behavior: "smooth" });
+      onRespondido?.(quando);
     } catch {
       toast.error("Sem conexão. Tente de novo.");
     } finally {
@@ -117,7 +134,12 @@ export function BriefingPublico({
   // ─── Estado de agradecimento (pós-envio / já respondido) ────────────
   if (concluido) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4 py-10 safe-area-inset-top">
+      <main
+        className={cn(
+          "flex items-center justify-center px-4 py-10",
+          embutido ? "min-h-[50vh]" : "min-h-screen safe-area-inset-top"
+        )}
+      >
         <div className="w-full max-w-md text-center space-y-4">
           <div className="h-16 w-16 rounded-full bg-emerald-500/12 text-emerald-600 flex items-center justify-center mx-auto">
             <CheckCircle2 className="h-8 w-8" />
@@ -149,8 +171,13 @@ export function BriefingPublico({
 
   // ─── Formulário ─────────────────────────────────────────────────────
   return (
-    <main className="min-h-screen safe-area-inset-top">
-      <div className="mx-auto w-full max-w-2xl px-4 sm:px-6 py-6 sm:py-10 pb-32">
+    <main className={cn(embutido ? "" : "min-h-screen safe-area-inset-top")}>
+      <div
+        className={cn(
+          "mx-auto w-full max-w-2xl",
+          embutido ? "px-0 pt-1 pb-40 sm:pb-36" : "px-4 sm:px-6 py-6 sm:py-10 pb-32"
+        )}
+      >
         {/* Cabeçalho discreto */}
         <header className="mb-6 sm:mb-8">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -201,9 +228,18 @@ export function BriefingPublico({
           </div>
         )}
 
-        {/* CTA de envio — sticky no rodapé (acima da safe-area) */}
+        {/* CTA de envio — fixo no rodapé (acima da safe-area). Embutido no
+            portal: sobe acima da bottom-nav (z + offset) no mobile; em ≥ sm não
+            há bottom-nav, então volta pro bottom-0. */}
         {perguntas.length > 0 && (
-          <div className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 safe-area-inset-bottom">
+          <div
+            className={cn(
+              "fixed inset-x-0 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 safe-area-inset-bottom",
+              embutido
+                ? "z-40 bottom-[calc(56px+env(safe-area-inset-bottom))] sm:bottom-0"
+                : "z-10 bottom-0"
+            )}
+          >
             <div className="mx-auto w-full max-w-2xl px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
               <span className="text-[11px] text-muted-foreground hidden sm:block">
                 Suas respostas vão direto pra equipe da SAL.
