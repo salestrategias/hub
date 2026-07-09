@@ -98,7 +98,15 @@ sudo -u "$USUARIO" bash -c "cat > $HOME_DIR/.claude/settings.json" <<'EOF'
       "Bash(node *)",
       "Bash(mkdir *)",
       "Bash(ls *)",
-      "Bash(base64 *)"
+      "Bash(base64 *)",
+      "Bash(jq *)",
+      "Bash(python3 *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(grep *)",
+      "Bash(sed *)",
+      "Bash(wc *)"
     ],
     "deny": [
       "Bash(git push*)",
