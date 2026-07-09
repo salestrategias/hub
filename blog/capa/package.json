@@ -1,0 +1,13 @@
+{
+  "name": "sal-capa-blog",
+  "private": true,
+  "type": "module",
+  "description": "Gerador de capas do blog SAL (Satori + resvg) — 1376x768, identidade v10",
+  "scripts": {
+    "gerar": "node gerar.js"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.12.2"
+  }
+}

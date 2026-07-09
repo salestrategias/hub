@@ -25,6 +25,9 @@ certbot
 .claude/sessions
 .claude/cache
 
+# Blog: capas geradas localmente não sobem
+blog/capa/*.png
+
 # OS / editor
 Thumbs.db
 .idea
