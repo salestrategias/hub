@@ -41,6 +41,10 @@ const categoria = (arg('categoria', 'Marketing')).toUpperCase()
 const out = arg('out', 'capa.png')
 const fotoArquivo = arg('foto')
 const busca = arg('busca')
+const fotoId = arg('fotoId') // reusar foto específica do Pexels
+// modo "limpo": SEM texto na arte (imagem destacada — sobrevive a qualquer corte dos layouts do blog)
+// modo padrão: arte tipográfica/split com título (usar como og:image/social, proporção fixa)
+const modo = arg('modo', 'padrao')
 if (!titulo) {
   console.error('Erro: --titulo é obrigatório')
   process.exit(1)
@@ -67,11 +71,25 @@ async function obterFoto() {
     const mime = fotoArquivo.match(/\.png$/i) ? 'image/png' : 'image/jpeg'
     return { dataUri: `data:${mime};base64,${buf.toString('base64')}`, credito: `arquivo local ${fotoArquivo}` }
   }
-  if (!busca) return null
+  if (!busca && !fotoId) return null
   const key = pexelsKey()
   if (!key) {
-    console.error('AVISO: --busca informado mas PEXELS_API_KEY ausente. Gerando capa tipográfica.')
+    console.error('AVISO: --busca/--fotoId informado mas PEXELS_API_KEY ausente. Gerando capa tipográfica.')
     return null
+  }
+  if (fotoId) {
+    try {
+      const res = await fetch(`https://api.pexels.com/v1/photos/${fotoId}`, { headers: { Authorization: key } })
+      if (!res.ok) throw new Error(`Pexels foto ${fotoId} HTTP ${res.status}`)
+      const foto = await res.json()
+      const img = await fetch(foto.src.large2x || foto.src.large)
+      const buf = Buffer.from(await img.arrayBuffer())
+      const mime = img.headers.get('content-type') || 'image/jpeg'
+      return { dataUri: `data:${mime};base64,${buf.toString('base64')}`, credito: `Pexels #${foto.id} por ${foto.photographer}` }
+    } catch (e) {
+      console.error(`AVISO: fotoId falhou (${e.message}).`)
+      if (!busca) return null
+    }
   }
   try {
     const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(busca)}&orientation=landscape&size=large&per_page=10`
@@ -244,10 +262,44 @@ function layoutFullbleed(fotoUri) {
   }
 }
 
+// Imagem destacada: foto pura + barra roxa na base. Zero texto = nenhum corte quebra.
+function layoutFotoLimpa(fotoUri) {
+  return {
+    type: 'div',
+    props: {
+      style: { width: '100%', height: '100%', display: 'flex', position: 'relative', backgroundColor: INK },
+      children: [
+        { type: 'img', props: { src: fotoUri, width: W, height: H, style: { position: 'absolute', top: 0, left: 0, objectFit: 'cover' } } },
+        { type: 'div', props: { style: { position: 'absolute', bottom: 0, left: 0, width: W, height: 14, backgroundColor: ROXO } } },
+      ],
+    },
+  }
+}
+
+// Fallback limpo sem foto: paper + logo central (sem texto de título)
+function layoutLimpoSemFoto() {
+  const lg = logo('roxo')
+  return {
+    type: 'div',
+    props: {
+      style: { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 40, backgroundColor: PAPER_WARM, position: 'relative' },
+      children: [
+        { type: 'img', props: { src: lg.src, width: Math.round(lg.w * 1.8), height: Math.round(LOGO_H * 1.8) } },
+        { type: 'div', props: { style: { display: 'flex', gap: 22 }, children: [saltGrain(ROXO, 12), saltGrain(INDIGO, 12), saltGrain(ROXO, 12)] } },
+        { type: 'div', props: { style: { position: 'absolute', bottom: 0, left: 0, width: W, height: 14, backgroundColor: ROXO } } },
+      ],
+    },
+  }
+}
+
 // ─── Render ──────────────────────────────────────────────────────
 const foto = await obterFoto()
 let el, descricaoVariante
-if (foto) {
+if (modo === 'limpo') {
+  el = foto ? layoutFotoLimpa(foto.dataUri) : layoutLimpoSemFoto()
+  descricaoVariante = foto ? 'foto-limpa' : 'limpa-sem-foto'
+  if (foto) console.log(`FOTO: ${foto.credito}`)
+} else if (foto) {
   const vi = arg('variante') !== undefined ? Number(arg('variante')) % 3 : hash % 3
   el = [() => layoutSplit(foto.dataUri, WHITE), () => layoutSplit(foto.dataUri, PAPER_WARM), () => layoutFullbleed(foto.dataUri)][vi]()
   descricaoVariante = ['split-white', 'split-warm', 'fullbleed-dark'][vi]

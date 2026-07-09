@@ -10,7 +10,7 @@
 // Escrita exige usuário autenticado com edit_posts (Application Password da automação).
 
 add_action( 'init', function () {
-	$campos = [ 'rank_math_title', 'rank_math_description', 'rank_math_focus_keyword' ];
+	$campos = [ 'rank_math_title', 'rank_math_description', 'rank_math_focus_keyword', 'rank_math_facebook_image' ];
 	foreach ( $campos as $campo ) {
 		register_post_meta( 'post', $campo, [
 			'show_in_rest'  => true,
