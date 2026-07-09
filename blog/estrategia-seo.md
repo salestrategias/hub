@@ -12,10 +12,10 @@ Público: donos de lojas virtuais, gestores de e-commerce, donos de negócios de
 
 A pesquisa competitiva mostrou dois espaços em branco no mercado brasileiro:
 
-1. **Marketing com visão de margem.** Nuvemshop/Tray/Shopify puxam tudo pra própria plataforma; RD/Rock ficam no genérico B2B; E-commerce Brasil fala com operação grande. NINGUÉM conecta de forma consistente ROAS → comissão de marketplace → frete → precificação → lucro real. Essa é a assinatura da SAL.
+1. **Conteúdo que fecha a conta em reais** (rótulo interno; a assinatura pública da SAL é sempre **"Marketing na Medida Certa"** — nunca usar "visão de margem" como slogan em material público). Nuvemshop/Tray/Shopify puxam tudo pra própria plataforma; RD/Rock ficam no genérico B2B; E-commerce Brasil fala com operação grande. NINGUÉM conecta de forma consistente ROAS → comissão de marketplace → frete → precificação → lucro real. Esse é o diferencial editorial do blog.
 2. **Varejo local hands-on.** Blogs enterprise (Dito, Harmo, Central do Varejo) falam com grandes redes; o lojista de bairro só encontra artigo raso de 600 palavras. Conteúdo profundo de Google Ads por raio, Performance Max para Metas da Loja, drive-to-store para loja única praticamente não existe em pt-BR.
 
-**Assinatura editorial obrigatória:** todo artigo tático fecha a conta em reais (exemplo numérico de margem, custo ou retorno). É o que diferencia agência de plataforma.
+**Princípio editorial obrigatório:** todo artigo tático fecha a conta em reais (exemplo numérico de margem, custo ou retorno). É o que diferencia agência de plataforma. (Assinatura pública da marca: "Marketing na Medida Certa".)
 
 ## 3. Clusters de conteúdo
 
