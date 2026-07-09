@@ -25,12 +25,19 @@ Escrevemos para **donos de lojas virtuais / gestores de e-commerce** e **donos d
 
 1. **H1** único com a keyword principal (é o título do post).
 2. **Resposta direta nos primeiros 50-70 palavras** (parágrafo de abertura responde a pergunta da busca de forma completa e citável — otimização GEO/AI Overviews).
-3. **H2s e H3s** hierárquicos, escaneáveis, com variações da keyword e perguntas relacionadas. O template do site gera TOC automático a partir dos headings.
-4. Pelo menos **1 lista** e **1 tabela** (facilita extração por LLMs e featured snippets).
-5. **Exemplos concretos** do universo do leitor (loja de roupa, pet shop, loja de suplementos, comércio de bairro). Cenários hipotéticos claramente apresentados como exemplos, nunca como case real.
-6. **Seção FAQ** ao final com 3-5 perguntas reais (estilo People Also Ask) e respostas de 40-60 palavras.
-7. **CTA final**: 1 parágrafo conectando o tema ao diagnóstico gratuito da SAL + link. Tom consultivo, não vendedor.
-8. Extensão: **1.500 a 2.500 palavras**. Profundidade real, zero enrolação.
+3. **Sumário (bloco TOC do Rank Math) logo após o primeiro parágrafo.** Todo H2/H3 recebe `id` slugificado (minúsculas, sem acento, não-alfanumérico vira hífen) e o bloco replica o padrão do site (o título "Veja neste artigo" o Rank Math injeta sozinho):
+   ```html
+   <!-- wp:rank-math/toc-block {"headings":[{"key":"<uuid>","content":"Texto do H2","level":2,"link":"#slug-do-h2","disable":false,"isUpdated":false,"isGeneratedLink":true}, ...]} -->
+   <div class="wp-block-rank-math-toc-block" id="rank-math-toc"><nav><ol><li class=""><a href="#slug-do-h2">Texto do H2</a><ol><li class=""><a href="#slug-do-h3">Texto do H3</a></li></ol></li>...</ol></nav></div>
+   <!-- /wp:rank-math/toc-block -->
+   ```
+   Incluir TODOS os H2 e H3 (inclusive as perguntas do FAQ), na ordem do texto; H3 vira `<ol>` aninhado dentro do `<li>` do H2 anterior. Links do TOC devem bater exatamente com os `id`s dos headings.
+4. **H2s e H3s** hierárquicos, escaneáveis, com variações da keyword e perguntas relacionadas.
+5. Pelo menos **1 lista** e **1 tabela** (facilita extração por LLMs e featured snippets).
+6. **Exemplos concretos** do universo do leitor (loja de roupa, pet shop, loja de suplementos, comércio de bairro). Cenários hipotéticos claramente apresentados como exemplos, nunca como case real.
+7. **Seção FAQ** ao final com 3-5 perguntas reais (estilo People Also Ask) e respostas de 40-60 palavras.
+8. **CTA final**: 1 parágrafo conectando o tema ao diagnóstico gratuito da SAL + link. Tom consultivo, não vendedor.
+9. Extensão: **1.500 a 2.500 palavras**. Profundidade real, zero enrolação.
 
 ## 4. SEO on-page
 
