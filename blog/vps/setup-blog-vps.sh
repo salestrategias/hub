@@ -129,7 +129,9 @@ chmod +x "$HUB_DIR/blog/vps/rodar-artigo.sh"
 TZ_ATUAL=$(timedatectl show -p Timezone --value 2>/dev/null || echo UTC)
 if [ "$TZ_ATUAL" = "America/Sao_Paulo" ]; then HORA=8; else HORA=11; fi
 CRON_LINHA="0 $HORA * * * $HUB_DIR/blog/vps/rodar-artigo.sh # SAL_BLOG_DIARIO"
-( sudo -u "$USUARIO" crontab -l 2>/dev/null | grep -v SAL_BLOG_DIARIO; echo "$CRON_LINHA" ) | sudo -u "$USUARIO" crontab -
+# crontab -l falha se o usuário ainda não tem crontab; com pipefail isso mataria o script
+CRON_ATUAL=$(sudo -u "$USUARIO" crontab -l 2>/dev/null | grep -v SAL_BLOG_DIARIO || true)
+printf '%s\n%s\n' "$CRON_ATUAL" "$CRON_LINHA" | sed '/^$/d' | sudo -u "$USUARIO" crontab -
 ok "Cron agendado: $CRON_LINHA (TZ do servidor: $TZ_ATUAL)"
 
 echo ""
