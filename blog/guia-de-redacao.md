@@ -17,6 +17,7 @@ Escrevemos para **donos de lojas virtuais / gestores de e-commerce** e **donos d
 - **PROIBIDO:** "PMEs", "pequenas e médias empresas", "empreendedores" (genérico). Usar: lojistas, e-commerces, negócios locais, marcas, donos de loja.
 - **PROIBIDO:** em-dash (—) no texto. Usar ponto, vírgula ou "·".
 - **PROIBIDO:** inventar números, estatísticas ou cases. Todo dado precisa de fonte real (linkada). Sem fonte, não usa.
+- **DADO SEMPRE DATADO:** ao citar pesquisa/estatística, declare o ano da coleta ou publicação no próprio texto ("segundo levantamento de 2024 da Yampi..."). NUNCA herde a janela temporal relativa da fonte ("nos últimos seis meses", "este ano", "recentemente") — ela era verdadeira quando a fonte foi escrita, não quando o artigo for lido. Antes de citar, confira a data de publicação da matéria original; se o dado tiver mais de ~2 anos, diga a idade dele explicitamente ou busque um mais recente.
 - Promessas moderadas: nada de "guia definitivo/completo que resolve tudo". Especificidade > superlativo.
 - IA no conteúdo: sempre como facilitador/produtividade. "IA acelera, humano decide." Nunca tom evangelista nem "automatize 100%".
 - SAL: fundada em 2024; Marcelo trabalha com marketing desde 2014. Sede em POA, atendimento Brasil todo (não liderar copy com "Porto Alegre").
@@ -79,6 +80,7 @@ O campo `content` do post é HTML limpo: `<h2>`, `<h3>`, `<p>`, `<ul>/<ol>`, `<t
 - [ ] Responde a keyword nos primeiros 50-70 palavras?
 - [ ] Título 50-60 chars com keyword? Excerpt 150-160 chars?
 - [ ] Nenhuma ocorrência de "PME", em-dash, número inventado?
+- [ ] Toda estatística citada tem o ANO declarado no texto e nenhuma expressão temporal relativa herdada da fonte ("últimos X meses", "recentemente")?
 - [ ] Tem tabela + lista + FAQ + CTA pro diagnóstico?
 - [ ] 3+ links internos verificados (URLs reais do blog, conferidas via REST)?
 - [ ] Slug não colide com post existente?
