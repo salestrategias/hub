@@ -28,9 +28,11 @@ cd "$HUB_DIR"
 # Sincroniza estado antes de trabalhar
 git pull --rebase origin main || { echo "ERRO: git pull falhou"; exit 1; }
 
-# Roda a rotina (prompt versionado no repo)
+# Roda a rotina (prompt versionado no repo).
+# Permissões: allowlist em ~/.claude/settings.json do salblog (criada pelo setup) —
+# web search/fetch, curl, node e edição de arquivos; sem skip de permissões.
 "$HOME/.local/bin/claude" -p "$(cat blog/prompt-rotina.md)" \
-  --dangerously-skip-permissions \
+  --permission-mode acceptEdits \
   --output-format text
 STATUS_CLAUDE=$?
 

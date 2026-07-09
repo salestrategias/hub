@@ -86,6 +86,30 @@ log "Instalando deps do gerador de capas..."
 sudo -u "$USUARIO" bash -c "cd $HUB_DIR/blog/capa && npm install --no-audit --no-fund --silent"
 ok "Gerador de capas pronto"
 
+# 6b. Allowlist de permissões do agente (sem --dangerously-skip-permissions)
+sudo -u "$USUARIO" mkdir -p "$HOME_DIR/.claude"
+sudo -u "$USUARIO" bash -c "cat > $HOME_DIR/.claude/settings.json" <<'EOF'
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(*)",
+      "Bash(curl *)",
+      "Bash(node *)",
+      "Bash(mkdir *)",
+      "Bash(ls *)",
+      "Bash(base64 *)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(sudo *)",
+      "Bash(rm -rf *)"
+    ]
+  }
+}
+EOF
+ok "Allowlist de permissões do agente criada"
+
 # 7. Templates de credenciais
 if [ ! -f "$HOME_DIR/blog-automacao.env" ]; then
   sudo -u "$USUARIO" bash -c "cat > $HOME_DIR/blog-automacao.env" <<'EOF'
