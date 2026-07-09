@@ -7,7 +7,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 
 | # | Pauta (título provisório) | Keyword-alvo | Cluster | Cat | Funil | Status |
 |---|---|---|---|---|---|---|
-| 1 | ROAS alto e lucro baixo: o erro de conta que quase todo lojista comete | roas alto mas sem lucro | DAD | 29 | MOFU | PENDENTE |
+| 1 | ROAS alto e lucro baixo: o erro de conta que quase todo lojista comete | roas alto mas sem lucro | DAD | 29 | MOFU | DRAFT 2026-07-09 https://www.salestrategias.com.br/?p=1870 |
 | 2 | Sua loja recebe visitas mas não vende: diagnóstico em 7 pontos | loja virtual não vende o que fazer | CRO | 14 | BOFU | PENDENTE |
 | 3 | Novas taxas do Mercado Livre e da Shopee: quanto sobra de cada venda em 2026 | taxas mercado livre shopee 2026 | MKT | 14 | MOFU | PENDENTE |
 | 4 | Imposto nos anúncios subiu ~12%: como recalcular ROAS-alvo e CPA máximo | imposto anúncios meta google 2026 | TP | 15 | MOFU | PENDENTE |
