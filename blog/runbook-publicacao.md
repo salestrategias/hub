@@ -64,7 +64,8 @@ Content-Type: application/json
     "rank_math_title": "title tag 50-60 chars",
     "rank_math_description": "meta description 150-160 chars",
     "rank_math_focus_keyword": "keyword-alvo do calendário",
-    "rank_math_facebook_image": "https://.../social-<slug>.png (source_url da arte social)"
+    "rank_math_facebook_image": "https://.../social-<slug>.png (source_url da arte social)",
+    "rank_math_facebook_image_id": ID_DO_ANEXO_DA_ARTE_SOCIAL
   }
 }
 ```
