@@ -134,18 +134,7 @@ add_action( 'template_redirect', function () {
 	.sbp-content #rank-math-toc li{margin-bottom:8px}
 	.sbp-content #rank-math-toc a{color:#2D1D7A;text-decoration:none;font-weight:500}
 	.sbp-content #rank-math-toc a:hover{color:#7E30E1}
-	/* newsletter (Substack) */
-	.sbp-news{max-width:760px;margin:38px auto;background:#0A0A0F;color:#fff;border-radius:22px;padding:30px 34px;display:flex;flex-direction:column;gap:16px}
-	.sbp-news .sbp-news-text{font-size:16px;line-height:1.55;color:rgba(255,255,255,.85)}
-	.sbp-news .sbp-news-text strong{color:#fff}
-	.sbp-news .sbp-news-text strong .sb-grain{margin-right:8px}
-	.sal-news-form{display:flex;gap:12px;flex-wrap:wrap}
-	.sal-news-form input[type=email]{flex:1;min-width:220px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:40px;padding:14px 22px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;outline:none}
-	.sal-news-form input[type=email]::placeholder{color:rgba(255,255,255,.45)}
-	.sal-news-form input[type=email]:focus{border-color:#7E30E1}
-	.sal-news-form button{background:#F6FF74;color:#0A0A0F;border:none;border-radius:40px;padding:14px 30px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:transform .15s ease}
-	.sal-news-form button:hover{transform:translateY(-2px)}
-	.sal-news-form.is-success button{background:#7E30E1;color:#fff}
+	/* newsletter: cards ORIGINAIS injetados via wp_footer pelo snippet antigo (CSS deles, não estilizar aqui) */
 	/* CTA diagnóstico */
 	.sbp-cta{max-width:760px;margin:14px auto 8px;background:#F8F6F2;border:1px solid #E9E7E1;border-radius:22px;padding:36px;text-align:center}
 	.sbp-cta h2{font-size:26px;font-weight:800;letter-spacing:-.5px;margin:0 0 8px;color:#0A0A0F}
@@ -171,19 +160,26 @@ add_action( 'template_redirect', function () {
 	.sb-card-body .sb-eyebrow{font-size:10.5px;letter-spacing:2.5px}
 	.sb-card-body h3{font-size:16.5px;font-weight:700;line-height:1.3;color:#0A0A0F;margin:0}
 	.sb-card-body time{font-family:'Inter',sans-serif;font-size:12.5px;color:#5A5A66;margin-top:auto}
-	/* footer */
-	.sb-footer{background:#0A0A0F;color:rgba(255,255,255,.8);padding:64px 0 40px;font-size:14.5px}
-	.sb-ft-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px}
-	.sb-footer img.sb-logo{width:180px;height:auto;margin-bottom:18px;display:block}
-	.sb-footer .sb-tagline{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600}
-	.sb-footer h5{font-family:'Inter',sans-serif;font-size:12px;letter-spacing:2.5px;color:rgba(255,255,255,.5);text-transform:uppercase;margin:0 0 16px}
-	.sb-footer ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-	.sb-footer a:hover{color:#A76BF2}
-	.sb-ft-base{border-top:1px solid rgba(255,255,255,.12);padding-top:24px;display:flex;justify-content:space-between;gap:12px;font-family:'Inter',sans-serif;font-size:12.5px;color:rgba(255,255,255,.5)}
+	/* footer oficial do site (v10), adaptado pro blog */
+	.sbf{background:#0A0A0F;color:rgba(255,255,255,.7);padding:64px 32px 32px;border-top:1px solid rgba(255,255,255,.08)}
+	.sbf-inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:48px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:32px}
+	.sbf-brand{display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+	.sbf-brand img{height:52px;width:auto;margin-bottom:4px}
+	.sbf-tag{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#F6FF74;font-weight:700}
+	.sbf-brand p{font-size:14px;line-height:1.6;max-width:38ch;margin:0}
+	.sbf-col h4{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#F6FF74;font-weight:700;margin:0 0 16px}
+	.sbf-col ul{list-style:none;margin:0;padding:0}
+	.sbf-col li{padding:6px 0;font-size:14px}
+	.sbf-col a:hover{color:#F6FF74}
+	.sbf-bottom{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5);flex-wrap:wrap;gap:16px}
+	.sbf-social{display:flex;gap:14px;align-items:center}
+	.sbf-social a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);transition:background .2s,color .2s,transform .2s}
+	.sbf-social a:hover{background:#F6FF74;color:#0A0A0F;transform:translateY(-2px)}
 	@media(max-width:1020px){
 		.sb-nav{display:none}
 		.sb-grid-cards{grid-template-columns:1fr}
-		.sb-ft-grid{grid-template-columns:1fr 1fr}
+		.sbf-inner{grid-template-columns:1fr 1fr}
+		.sbf-brand{grid-column:1/-1}
 	}
 	@media(max-width:620px){
 		.sb-wrap{padding:0 20px}
@@ -235,30 +231,17 @@ add_action( 'template_redirect', function () {
 		<div class="sbp-figura"><img src="<?php echo esc_url( $img_destaque ); ?>" alt="<?php echo esc_attr( get_the_title( $post ) ); ?>"></div>
 		<?php endif; ?>
 
-		<div class="sbp-content" id="sbp-content">
+		<?php
+		// .sal-sp-content: seletor que o snippet antigo de newsletter procura — os cards
+		// originais (injetados via wp_footer por outro snippet) se posicionam sozinhos:
+		// inline no meio dos parágrafos e final antes do #sal-cta-after-post.
+		?>
+		<div class="sbp-content sal-sp-content" id="sbp-content">
 			<?php echo $conteudo; // já passou por the_content (esc feito pelo WP no save) ?>
 		</div>
 	</article>
 
-	<!-- Newsletter inline (posicionada no meio do texto via JS) — mecanismo Substack preservado -->
-	<aside id="sal-news-inline" class="sbp-news" data-substack="<?php echo esc_url( $SUBSTACK ); ?>">
-		<div class="sbp-news-text"><strong><span class="sb-grain sb-neon"></span>Curtindo o conteúdo?</strong> Receba 1 email por semana com insights de marketing, tráfego, SEO e conteúdo direto da SAL.</div>
-		<form class="sal-news-form sal-news-form--inline" novalidate>
-			<input type="email" name="email" placeholder="seu@email.com" required aria-label="Seu email">
-			<button type="submit">Assinar <span aria-hidden="true">→</span></button>
-		</form>
-	</aside>
-
-	<!-- Newsletter final -->
-	<aside id="sal-news-final" class="sbp-news" data-substack="<?php echo esc_url( $SUBSTACK ); ?>">
-		<div class="sbp-news-text"><strong><span class="sb-grain sb-neon"></span>O varejo muda toda semana. A gente resume pra você.</strong> Assine a newsletter e receba o essencial de tráfego, SEO e e-commerce, na medida certa.</div>
-		<form class="sal-news-form sal-news-form--final" novalidate>
-			<input type="email" name="email" placeholder="seu@email.com" required aria-label="Seu email">
-			<button type="submit">Assinar <span aria-hidden="true">→</span></button>
-		</form>
-	</aside>
-
-	<div class="sbp-cta">
+	<div class="sbp-cta" id="sal-cta-after-post">
 		<h2>Esse conteúdo fez sentido pro seu negócio? Então vem <em>fechar a conta</em> com a gente.</h2>
 		<p>Diagnóstico gratuito · 15 minutos · direto com quem faz</p>
 		<a class="sb-pill" href="<?php echo esc_url( $DIAG ); ?>">Fazer diagnóstico gratuito →</a>
@@ -298,78 +281,65 @@ add_action( 'template_redirect', function () {
 	</section>
 	<?php endif; ?>
 
-	<div class="sb-footer">
-		<div class="sb-wrap">
-			<div class="sb-ft-grid">
-				<div>
-					<img class="sb-logo" src="<?php echo esc_url( $LOGO_BRANCO ); ?>" alt="SAL">
-					<div class="sb-tagline"><span class="sb-grain sb-neon"></span> Marketing na Medida Certa</div>
-				</div>
-				<div>
-					<h5>Serviços</h5>
-					<ul>
-						<li><a href="https://salestrategias.com.br/servicos/gestao-trafego-pago/">Gestão de tráfego pago</a></li>
-						<li><a href="https://salestrategias.com.br/servicos/agencia-de-seo/">SEO</a></li>
-						<li><a href="https://salestrategias.com.br/servicos/producao-de-conteudo/">Produção de conteúdo</a></li>
-					</ul>
-				</div>
-				<div>
-					<h5>Blog</h5>
-					<ul>
-						<?php foreach ( $EDITORIAS as $slug => $ed ) : ?>
-							<li><a href="<?php echo $ed_url( $slug ); ?>"><?php echo esc_html( $ed['nome'] ); ?></a></li>
-						<?php endforeach; ?>
-					</ul>
-				</div>
-				<div>
-					<h5>SAL</h5>
-					<ul>
-						<li><a href="<?php echo esc_url( $DIAG ); ?>">Diagnóstico gratuito</a></li>
-						<li><a href="<?php echo esc_url( $WHATS ); ?>">WhatsApp</a></li>
-						<li>Porto Alegre · RS</li>
-						<li>Atendemos o Brasil todo</li>
-					</ul>
-				</div>
+	<footer class="sbf">
+		<div class="sbf-inner">
+			<div class="sbf-brand">
+				<img src="<?php echo esc_url( $LOGO_ROXO ); ?>" alt="SAL Estratégias de Marketing" width="100" height="24">
+				<div class="sbf-tag">Marketing na Medida Certa</div>
+				<p>Assessoria de marketing pra varejo e e-commerce, com método. Sede em Porto Alegre, atendemos o Brasil todo.</p>
 			</div>
-			<div class="sb-ft-base">
-				<span>© <?php echo esc_html( date_i18n( 'Y' ) ); ?> SAL Estratégias de Marketing</span>
-				<span>Sede em Porto Alegre · Atendemos o Brasil todo</span>
+			<div class="sbf-col">
+				<h4>Serviços</h4>
+				<ul>
+					<li><a href="/servicos/agencia-de-seo/">SEO + GEO</a></li>
+					<li><a href="/servicos/gestao-de-trafego-pago/">Tráfego Pago</a></li>
+					<li><a href="/servicos/agencia-de-producao-de-conteudo/">Conteúdo</a></li>
+					<li><a href="/servicos/criacao-de-sites/">Sites</a></li>
+					<li><a href="/servicos/consultoria/">Consultoria</a></li>
+					<li><a href="/servicos/assessoria-de-google-meu-negocio/">Google Meu Negócio</a></li>
+				</ul>
+			</div>
+			<div class="sbf-col">
+				<h4>Navegar</h4>
+				<ul>
+					<li><a href="/quem-somos/">Sobre</a></li>
+					<li><a href="/blog/">Blog</a></li>
+					<li><a href="/diagnostico/">Diagnóstico</a></li>
+					<li><a href="/#cases">Cases</a></li>
+				</ul>
+			</div>
+			<div class="sbf-col">
+				<h4>Editorias</h4>
+				<ul>
+					<?php foreach ( $EDITORIAS as $slug => $ed ) : ?>
+						<li><a href="<?php echo $ed_url( $slug ); ?>"><?php echo esc_html( $ed['nome'] ); ?></a></li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<div class="sbf-col">
+				<h4>Contato</h4>
+				<ul>
+					<li><a href="<?php echo esc_url( $WHATS ); ?>" target="_blank" rel="noopener">WhatsApp</a></li>
+					<li><a href="mailto:contato@salestrategias.com.br">contato@salestrategias.com.br</a></li>
+					<li>Porto Alegre · RS</li>
+					<li><a href="/politica-de-privacidade/">Privacidade</a> · <a href="/termos-de-uso/">Termos</a></li>
+				</ul>
 			</div>
 		</div>
-	</div>
+		<div class="sbf-bottom">
+			<span>© <?php echo esc_html( date_i18n( 'Y' ) ); ?> SAL ESTRATÉGIAS DE MARKETING LTDA · Marketing na Medida Certa</span>
+			<div class="sbf-social">
+				<a href="https://instagram.com/salestrategias" target="_blank" rel="noopener" aria-label="Instagram da SAL">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.336 3.608 1.311.975.975 1.249 2.242 1.311 3.608.058 1.266.07 1.646.07 4.849 0 3.205-.012 3.585-.07 4.85-.062 1.366-.336 2.633-1.311 3.608-.975.975-2.242 1.249-3.608 1.311-1.265.058-1.645.07-4.85.07-3.204 0-3.584-.012-4.849-.07-1.366-.062-2.633-.336-3.608-1.311-.975-.975-1.249-2.242-1.311-3.608C2.175 15.747 2.163 15.368 2.163 12s.012-3.584.07-4.849c.062-1.366.336-2.633 1.311-3.608.975-.975 2.242-1.249 3.608-1.311C8.416 2.175 8.796 2.163 12 2.163zm0 1.838c-3.15 0-3.523.011-4.766.068-1.06.048-1.633.224-2.014.372-.506.197-.867.432-1.247.812-.38.38-.615.741-.812 1.247-.148.381-.324.954-.372 2.014-.057 1.243-.068 1.616-.068 4.766s.011 3.523.068 4.766c.048 1.06.224 1.633.372 2.014.197.506.432.867.812 1.247.38.38.741.615 1.247.812.381.148.954.324 2.014.372 1.243.057 1.616.068 4.766.068s3.523-.011 4.766-.068c1.06-.048 1.633-.224 2.014-.372.506-.197.867-.432 1.247-.812.38-.38.615-.741.812-1.247.148-.381.324-.954.372-2.014.057-1.243.068-1.616.068-4.766s-.011-3.523-.068-4.766c-.048-1.06-.224-1.633-.372-2.014-.197-.506-.432-.867-.812-1.247-.38-.38-.741-.615-1.247-.812-.381-.148-.954-.324-2.014-.372C15.523 4.012 15.15 4.001 12 4.001zM12 6.865c-2.838 0-5.135 2.297-5.135 5.135 0 2.838 2.297 5.135 5.135 5.135 2.838 0 5.135-2.297 5.135-5.135 0-2.838-2.297-5.135-5.135-5.135zm0 8.469c-1.842 0-3.334-1.493-3.334-3.334 0-1.842 1.492-3.334 3.334-3.334s3.334 1.492 3.334 3.334c0 1.841-1.492 3.334-3.334 3.334zm6.538-8.671c0 .662-.537 1.2-1.2 1.2-.662 0-1.2-.538-1.2-1.2 0-.663.538-1.2 1.2-1.2.663 0 1.2.537 1.2 1.2z"/></svg>
+				</a>
+				<a href="https://br.linkedin.com/company/salagenciademarketing" target="_blank" rel="noopener" aria-label="LinkedIn da SAL">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+				</a>
+			</div>
+		</div>
+	</footer>
 
-	<script>
-	document.addEventListener('DOMContentLoaded', function () {
-		// 1) Posiciona a newsletter inline no meio do conteúdo (comportamento herdado do template anterior)
-		var content = document.getElementById('sbp-content');
-		var inlineNews = document.getElementById('sal-news-inline');
-		if (content && inlineNews) {
-			var paragraphs = content.querySelectorAll(':scope > p');
-			if (paragraphs.length >= 4) {
-				var midIdx = Math.floor(paragraphs.length / 2);
-				paragraphs[midIdx].parentNode.insertBefore(inlineNews, paragraphs[midIdx].nextSibling);
-			}
-		}
-		// 2) Submit -> abre o Substack com email pré-preenchido (mecanismo preservado, UTMs idênticos)
-		document.querySelectorAll('.sal-news-form').forEach(function (form) {
-			form.addEventListener('submit', function (e) {
-				e.preventDefault();
-				var emailInput = form.querySelector('input[type=email]');
-				var email = (emailInput.value || '').trim();
-				if (!email || email.indexOf('@') === -1) { emailInput.focus(); return; }
-				var card = form.closest('[data-substack]');
-				var base = card ? card.getAttribute('data-substack') : '<?php echo esc_js( $SUBSTACK ); ?>';
-				var url = base + '?email=' + encodeURIComponent(email) + '&utm_source=salestrategias&utm_medium=blog&utm_campaign=post-newsletter';
-				form.classList.add('is-success');
-				var btn = form.querySelector('button');
-				btn.innerHTML = 'Abrindo Substack…';
-				btn.disabled = true;
-				window.open(url, '_blank', 'noopener');
-				setTimeout(function () { btn.innerHTML = 'Confirme no Substack ✓'; }, 800);
-			});
-		});
-	});
-	</script>
+	<?php // Newsletter: posicionamento e submit ficam por conta do snippet original (wp_footer) ?>
 
 	<?php
 	if ( function_exists( 'sal_lead_modal_render' ) ) { sal_lead_modal_render(); }
