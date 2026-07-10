@@ -1,0 +1,381 @@
+<?php
+// ─────────────────────────────────────────────────────────────────
+// SAL — Artigo 2026 (single post no modelo do portal)
+// Intercepta is_singular('post') ANTES do template Elementor single.
+// Rollback = desativar este snippet.
+// Newsletter: mecanismo Substack PRESERVADO (ids sal-news-inline/final,
+// data-substack, submit abre marcelofreitas.substack.com/subscribe
+// com email + UTMs — idêntico ao comportamento anterior).
+// CSS prefixado sb- / sbp-.
+// ─────────────────────────────────────────────────────────────────
+add_action( 'template_redirect', function () {
+	if ( ! is_singular( 'post' ) || post_password_required() ) return;
+
+	$post = get_queried_object();
+
+	$LOGO_ROXO   = 'https://www.salestrategias.com.br/wp-content/uploads/2025/11/logotipo-sal-estrategias-marketing-2.svg';
+	$LOGO_BRANCO = 'https://www.salestrategias.com.br/wp-content/uploads/2025/11/logo-sal-branco.png';
+	$WHATS       = 'https://wa.me/5551993380278';
+	$DIAG        = 'https://salestrategias.com.br/diagnostico/';
+	$SUBSTACK    = 'https://marcelofreitas.substack.com/subscribe';
+
+	$EDITORIAS = [
+		'trafego-pago' => [ 'id' => 15, 'nome' => 'Tráfego Pago' ],
+		'seo-geo'      => [ 'id' => 13, 'nome' => 'SEO & GEO' ],
+		'e-commerce'   => [ 'id' => 14, 'nome' => 'E-commerce' ],
+		'varejo-local' => [ 'id' => 17, 'nome' => 'Varejo Local' ],
+	];
+	$ROTULOS = [ 15 => 'Tráfego Pago', 13 => 'SEO & GEO', 14 => 'E-commerce', 17 => 'Varejo Local', 29 => 'Estratégia' ];
+
+	$blog_url = home_url( '/blog/' );
+	$ed_url = function ( $slug ) use ( $blog_url ) {
+		return esc_url( add_query_arg( 'editoria', $slug, $blog_url ) );
+	};
+
+	// rótulo + editoria do post
+	$cats_do_post = wp_get_post_categories( $post->ID );
+	$rotulo = 'Estratégia'; $ed_slug_post = '';
+	foreach ( $cats_do_post as $cid ) {
+		if ( isset( $ROTULOS[ $cid ] ) ) {
+			$rotulo = $ROTULOS[ $cid ];
+			foreach ( $EDITORIAS as $slug => $ed ) { if ( $ed['id'] === $cid ) { $ed_slug_post = $slug; break; } }
+			break;
+		}
+	}
+
+	// conteúdo processado (blocos do Rank Math, shortcodes, lazyload etc.)
+	$conteudo = apply_filters( 'the_content', $post->post_content );
+
+	// tempo de leitura
+	$palavras = str_word_count( wp_strip_all_tags( $post->post_content ) );
+	$minutos  = max( 1, (int) round( $palavras / 200 ) );
+
+	// relacionados: mesma categoria, senão recentes
+	$rel = get_posts( [ 'numberposts' => 3, 'category' => $cats_do_post ? $cats_do_post[0] : 0, 'post__not_in' => [ $post->ID ] ] );
+	if ( count( $rel ) < 3 ) {
+		$extras = get_posts( [ 'numberposts' => 6, 'post__not_in' => array_merge( [ $post->ID ], wp_list_pluck( $rel, 'ID' ) ) ] );
+		$rel = array_slice( array_merge( $rel, $extras ), 0, 3 );
+	}
+
+	$img_destaque = get_the_post_thumbnail_url( $post, 'full' );
+	$favicon_32  = function_exists( 'get_site_icon_url' ) ? get_site_icon_url( 32 ) : '';
+	$favicon_192 = function_exists( 'get_site_icon_url' ) ? get_site_icon_url( 192 ) : '';
+
+	?><!doctype html>
+	<html lang="pt-BR">
+	<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Glook&display=swap" rel="stylesheet">
+	<?php if ( $favicon_32 ) : ?><link rel="icon" type="image/png" sizes="32x32" href="<?php echo esc_url( $favicon_32 ); ?>"><?php endif; ?>
+	<?php if ( $favicon_192 ) : ?><link rel="icon" type="image/png" sizes="192x192" href="<?php echo esc_url( $favicon_192 ); ?>"><link rel="apple-touch-icon" href="<?php echo esc_url( $favicon_192 ); ?>"><?php endif; ?>
+	<?php wp_head(); ?>
+	<style>
+	.sb-body{margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif;color:#0A0A0F;background:#fff;-webkit-font-smoothing:antialiased}
+	.sb-body *{box-sizing:border-box}
+	.sb-body a{color:inherit;text-decoration:none}
+	.sb-body img{max-width:100%;border:none}
+	.sb-wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+	.sb-grain{display:inline-block;width:7px;height:7px;background:#2D1D7A;transform:rotate(45deg);flex:none}
+	.sb-grain.sb-roxo{background:#7E30E1}.sb-grain.sb-neon{background:#F6FF74}
+	.sb-eyebrow{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2D1D7A}
+	.sb-cat{color:#7E30E1}
+	.sb-pill{display:inline-flex;align-items:center;gap:10px;background:#7E30E1;color:#fff !important;border-radius:40px;padding:18px 44px;font-weight:600;font-size:16px;transition:transform .15s ease,box-shadow .15s ease;cursor:pointer;border:none}
+	.sb-pill:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(126,48,225,.28)}
+	.sb-topbar{background:#0A0A0F;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:12.5px;letter-spacing:1px}
+	.sb-topbar .sb-wrap{display:flex;justify-content:space-between;align-items:center;height:38px;gap:16px}
+	.sb-topbar b{color:#fff;font-weight:600}
+	.sb-topbar .sb-tag{display:flex;align-items:center;gap:10px}
+	.sb-header{position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);z-index:50;border-bottom:1px solid #E9E7E1}
+	.sb-header .sb-wrap{display:flex;align-items:center;justify-content:space-between;height:78px;gap:24px}
+	.sb-header img.sb-logo{width:148px;height:auto;display:block}
+	.sb-nav{display:flex;gap:28px;font-size:15px;font-weight:600;color:#2D1D7A}
+	.sb-nav a{padding:6px 0;border-bottom:2px solid transparent}
+	.sb-nav a:hover{border-color:#7E30E1;color:#7E30E1}
+	.sb-header-cta{background:#7E30E1;color:#fff !important;border-radius:40px;padding:13px 30px;font-weight:600;font-size:15px;white-space:nowrap}
+	/* migalha */
+	.sbp-crumb{border-bottom:1px solid #E9E7E1;background:#F4F7F7}
+	.sbp-crumb .sb-wrap{display:flex;align-items:center;gap:12px;height:46px;font-family:'Inter',sans-serif;font-size:13px;color:#5A5A66;overflow:hidden;white-space:nowrap}
+	.sbp-crumb a:hover{color:#7E30E1}
+	.sbp-crumb .sb-grain{width:5px;height:5px}
+	/* cabeçalho do artigo */
+	.sbp-hero{max-width:860px;margin:0 auto;padding:56px 32px 8px;text-align:left}
+	.sbp-hero .sb-eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+	.sbp-hero h1{font-size:clamp(32px,4vw,52px);font-weight:800;line-height:1.1;letter-spacing:-1.2px;margin:18px 0 16px;color:#0A0A0F}
+	.sbp-dek{font-size:19px;line-height:1.6;color:#5A5A66;margin:0 0 22px}
+	.sbp-autor{display:flex;align-items:center;gap:12px;font-family:'Inter',sans-serif;font-size:14px;color:#5A5A66;padding-bottom:8px}
+	.sbp-autor b{color:#0A0A0F;font-weight:600}
+	.sbp-figura{max-width:1080px;margin:28px auto 0;padding:0 32px}
+	.sbp-figura img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:24px;box-shadow:0 24px 50px rgba(10,10,15,.12);display:block}
+	/* corpo do artigo */
+	.sbp-content{max-width:760px;margin:0 auto;padding:44px 32px 8px;font-size:18px;line-height:1.75;color:#1C1C24}
+	.sbp-content p{margin:0 0 24px}
+	.sbp-content h2{font-size:29px;font-weight:800;letter-spacing:-.6px;line-height:1.25;margin:52px 0 20px;color:#0A0A0F;scroll-margin-top:110px}
+	.sbp-content h3{font-size:21.5px;font-weight:700;line-height:1.3;margin:38px 0 16px;color:#0A0A0F;scroll-margin-top:110px}
+	.sbp-content a{color:#7E30E1;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+	.sbp-content a:hover{color:#2D1D7A}
+	.sbp-content ul,.sbp-content ol{margin:0 0 24px;padding-left:26px}
+	.sbp-content li{margin-bottom:10px}
+	.sbp-content strong{font-weight:700;color:#0A0A0F}
+	.sbp-content table{width:100%;border-collapse:collapse;margin:8px 0 28px;font-size:15.5px;display:block;overflow-x:auto}
+	.sbp-content table thead th{background:#0A0A0F;color:#fff;text-align:left;padding:12px 16px;font-weight:600;white-space:nowrap}
+	.sbp-content table td{border:1px solid #E9E7E1;padding:12px 16px;vertical-align:top}
+	.sbp-content table tbody tr:nth-child(even){background:#F8F6F2}
+	.sbp-content blockquote{border-left:4px solid #7E30E1;background:#F8F6F2;margin:0 0 24px;padding:18px 24px;border-radius:0 14px 14px 0;font-style:normal}
+	.sbp-content img{border-radius:16px;height:auto}
+	.sbp-content figure{margin:0 0 24px}
+	/* sumário (bloco TOC do Rank Math) */
+	.sbp-content #rank-math-toc{background:#F8F6F2;border:1px solid #E9E7E1;border-left:5px solid #7E30E1;border-radius:0 18px 18px 0;padding:26px 30px;margin:0 0 34px;font-size:15.5px}
+	.sbp-content #rank-math-toc h2{font-size:20px;margin:0 0 14px;scroll-margin-top:0}
+	.sbp-content #rank-math-toc nav>ol{margin:0;padding-left:20px}
+	.sbp-content #rank-math-toc ol ol{margin-top:8px}
+	.sbp-content #rank-math-toc li{margin-bottom:8px}
+	.sbp-content #rank-math-toc a{color:#2D1D7A;text-decoration:none;font-weight:500}
+	.sbp-content #rank-math-toc a:hover{color:#7E30E1}
+	/* newsletter (Substack) */
+	.sbp-news{max-width:760px;margin:38px auto;background:#0A0A0F;color:#fff;border-radius:22px;padding:30px 34px;display:flex;flex-direction:column;gap:16px}
+	.sbp-news .sbp-news-text{font-size:16px;line-height:1.55;color:rgba(255,255,255,.85)}
+	.sbp-news .sbp-news-text strong{color:#fff}
+	.sbp-news .sbp-news-text strong .sb-grain{margin-right:8px}
+	.sal-news-form{display:flex;gap:12px;flex-wrap:wrap}
+	.sal-news-form input[type=email]{flex:1;min-width:220px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:40px;padding:14px 22px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;outline:none}
+	.sal-news-form input[type=email]::placeholder{color:rgba(255,255,255,.45)}
+	.sal-news-form input[type=email]:focus{border-color:#7E30E1}
+	.sal-news-form button{background:#F6FF74;color:#0A0A0F;border:none;border-radius:40px;padding:14px 30px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:transform .15s ease}
+	.sal-news-form button:hover{transform:translateY(-2px)}
+	.sal-news-form.is-success button{background:#7E30E1;color:#fff}
+	/* CTA diagnóstico */
+	.sbp-cta{max-width:760px;margin:14px auto 8px;background:#F8F6F2;border:1px solid #E9E7E1;border-radius:22px;padding:36px;text-align:center}
+	.sbp-cta h2{font-size:26px;font-weight:800;letter-spacing:-.5px;margin:0 0 8px;color:#0A0A0F}
+	.sbp-cta h2 em{font-style:normal;color:#7E30E1}
+	.sbp-cta p{color:#5A5A66;font-size:15.5px;margin:0 0 22px}
+	/* autor */
+	.sbp-bio{max-width:760px;margin:34px auto 0;padding:26px 30px;border:1px solid #E9E7E1;border-radius:18px;display:flex;flex-direction:column;gap:8px}
+	.sbp-bio .sb-eyebrow{font-size:11px}
+	.sbp-bio p{margin:0;font-size:15px;line-height:1.6;color:#5A5A66}
+	.sbp-bio b{color:#0A0A0F}
+	.sbp-bio-links{display:flex;gap:18px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600}
+	.sbp-bio-links a{color:#7E30E1}
+	/* relacionados */
+	.sbp-rel{padding:64px 0 76px}
+	.sb-sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:#2D1D7A;text-transform:uppercase;margin-bottom:34px}
+	.sb-sec-label::after{content:"";height:1px;background:#E9E7E1;flex:1}
+	.sb-grid-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+	.sb-card{border-radius:20px;overflow:hidden;background:#fff;border:1px solid #E9E7E1;transition:transform .15s ease,box-shadow .15s ease;display:flex;flex-direction:column}
+	.sb-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(10,10,15,.1)}
+	.sb-card figure{aspect-ratio:16/9;overflow:hidden;background:#F8F6F2;margin:0}
+	.sb-card figure img{width:100%;height:100%;object-fit:cover;display:block}
+	.sb-card-body{padding:20px 20px 22px;display:flex;flex-direction:column;gap:10px;flex:1}
+	.sb-card-body .sb-eyebrow{font-size:10.5px;letter-spacing:2.5px}
+	.sb-card-body h3{font-size:16.5px;font-weight:700;line-height:1.3;color:#0A0A0F;margin:0}
+	.sb-card-body time{font-family:'Inter',sans-serif;font-size:12.5px;color:#5A5A66;margin-top:auto}
+	/* footer */
+	.sb-footer{background:#0A0A0F;color:rgba(255,255,255,.8);padding:64px 0 40px;font-size:14.5px}
+	.sb-ft-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px}
+	.sb-footer img.sb-logo{width:180px;height:auto;margin-bottom:18px;display:block}
+	.sb-footer .sb-tagline{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600}
+	.sb-footer h5{font-family:'Inter',sans-serif;font-size:12px;letter-spacing:2.5px;color:rgba(255,255,255,.5);text-transform:uppercase;margin:0 0 16px}
+	.sb-footer ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+	.sb-footer a:hover{color:#A76BF2}
+	.sb-ft-base{border-top:1px solid rgba(255,255,255,.12);padding-top:24px;display:flex;justify-content:space-between;gap:12px;font-family:'Inter',sans-serif;font-size:12.5px;color:rgba(255,255,255,.5)}
+	@media(max-width:1020px){
+		.sb-nav{display:none}
+		.sb-grid-cards{grid-template-columns:1fr}
+		.sb-ft-grid{grid-template-columns:1fr 1fr}
+	}
+	@media(max-width:620px){
+		.sb-wrap{padding:0 20px}
+		.sbp-hero,.sbp-content,.sbp-figura{padding-left:20px;padding-right:20px}
+		.sb-topbar .sb-data{display:none}
+		.sbp-news{margin-left:20px;margin-right:20px}
+	}
+	</style>
+	</head>
+	<body class="sb-body">
+
+	<div class="sb-topbar">
+		<div class="sb-wrap">
+			<span class="sb-data"><?php echo esc_html( date_i18n( 'l, j \d\e F \d\e Y' ) ); ?></span>
+			<span class="sb-tag"><span class="sb-grain sb-neon"></span><b>Marketing na Medida Certa</b><span class="sb-grain sb-neon"></span></span>
+			<a href="<?php echo esc_url( $WHATS ); ?>"><b>WhatsApp</b> +55 51 99338-0278</a>
+		</div>
+	</div>
+
+	<div class="sb-header">
+		<div class="sb-wrap">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><img class="sb-logo" src="<?php echo esc_url( $LOGO_ROXO ); ?>" alt="SAL Estratégias de Marketing"></a>
+			<nav class="sb-nav">
+				<?php foreach ( $EDITORIAS as $slug => $ed ) : ?>
+					<a href="<?php echo $ed_url( $slug ); ?>"><?php echo esc_html( $ed['nome'] ); ?></a>
+				<?php endforeach; ?>
+			</nav>
+			<a class="sb-header-cta" href="<?php echo esc_url( $DIAG ); ?>">Contrate a SAL</a>
+		</div>
+	</div>
+
+	<div class="sbp-crumb">
+		<div class="sb-wrap">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a><span class="sb-grain"></span>
+			<a href="<?php echo esc_url( $blog_url ); ?>">Blog</a><span class="sb-grain"></span>
+			<?php if ( $ed_slug_post ) : ?><a href="<?php echo $ed_url( $ed_slug_post ); ?>"><?php echo esc_html( $rotulo ); ?></a><?php else : ?><span><?php echo esc_html( $rotulo ); ?></span><?php endif; ?>
+		</div>
+	</div>
+
+	<article>
+		<header class="sbp-hero">
+			<div class="sb-eyebrow"><span class="sb-cat"><?php echo esc_html( $rotulo ); ?></span><span class="sb-grain sb-roxo"></span><span><?php echo esc_html( date_i18n( 'j \d\e F \d\e Y', strtotime( $post->post_date ) ) ); ?></span><span class="sb-grain sb-roxo"></span><span><?php echo (int) $minutos; ?> min de leitura</span></div>
+			<h1><?php echo esc_html( get_the_title( $post ) ); ?></h1>
+			<?php $dek = wp_strip_all_tags( get_the_excerpt( $post ) ); if ( $dek ) : ?><p class="sbp-dek"><?php echo esc_html( $dek ); ?></p><?php endif; ?>
+			<div class="sbp-autor"><b>Marcelo Freitas</b><span class="sb-grain" style="width:5px;height:5px"></span><span>Fundador da SAL · marketing desde 2014</span></div>
+		</header>
+
+		<?php if ( $img_destaque ) : ?>
+		<div class="sbp-figura"><img src="<?php echo esc_url( $img_destaque ); ?>" alt="<?php echo esc_attr( get_the_title( $post ) ); ?>"></div>
+		<?php endif; ?>
+
+		<div class="sbp-content" id="sbp-content">
+			<?php echo $conteudo; // já passou por the_content (esc feito pelo WP no save) ?>
+		</div>
+	</article>
+
+	<!-- Newsletter inline (posicionada no meio do texto via JS) — mecanismo Substack preservado -->
+	<aside id="sal-news-inline" class="sbp-news" data-substack="<?php echo esc_url( $SUBSTACK ); ?>">
+		<div class="sbp-news-text"><strong><span class="sb-grain sb-neon"></span>Curtindo o conteúdo?</strong> Receba 1 email por semana com insights de marketing, tráfego, SEO e conteúdo direto da SAL.</div>
+		<form class="sal-news-form sal-news-form--inline" novalidate>
+			<input type="email" name="email" placeholder="seu@email.com" required aria-label="Seu email">
+			<button type="submit">Assinar <span aria-hidden="true">→</span></button>
+		</form>
+	</aside>
+
+	<!-- Newsletter final -->
+	<aside id="sal-news-final" class="sbp-news" data-substack="<?php echo esc_url( $SUBSTACK ); ?>">
+		<div class="sbp-news-text"><strong><span class="sb-grain sb-neon"></span>O varejo muda toda semana. A gente resume pra você.</strong> Assine a newsletter e receba o essencial de tráfego, SEO e e-commerce, na medida certa.</div>
+		<form class="sal-news-form sal-news-form--final" novalidate>
+			<input type="email" name="email" placeholder="seu@email.com" required aria-label="Seu email">
+			<button type="submit">Assinar <span aria-hidden="true">→</span></button>
+		</form>
+	</aside>
+
+	<div class="sbp-cta">
+		<h2>Esse conteúdo fez sentido pro seu negócio? Então vem <em>fechar a conta</em> com a gente.</h2>
+		<p>Diagnóstico gratuito · 15 minutos · direto com quem faz</p>
+		<a class="sb-pill" href="<?php echo esc_url( $DIAG ); ?>">Fazer diagnóstico gratuito →</a>
+	</div>
+
+	<div class="sbp-bio sb-wrap" style="max-width:760px">
+		<span class="sb-eyebrow">Escrito por</span>
+		<p><b>Marcelo Freitas</b> · Fundador da SAL Estratégias de Marketing. Trabalha com marketing desde 2014, com foco em tráfego pago, SEO e crescimento de lojas e negócios locais. Sede em Porto Alegre, atendimento no Brasil todo.</p>
+		<div class="sbp-bio-links">
+			<a href="https://linkedin.com/in/mcfreitas" rel="noopener" target="_blank">LinkedIn</a>
+			<a href="https://instagram.com/salestrategias" rel="noopener" target="_blank">Instagram</a>
+			<a href="https://marcelofreitas.substack.com/" rel="noopener" target="_blank">Newsletter</a>
+		</div>
+	</div>
+
+	<?php if ( $rel ) : ?>
+	<section class="sbp-rel">
+		<div class="sb-wrap">
+			<div class="sb-sec-label">Continue lendo</div>
+			<div class="sb-grid-cards">
+				<?php foreach ( $rel as $r ) :
+					$rimg = get_the_post_thumbnail_url( $r, 'large' );
+					$rrot = 'Estratégia';
+					foreach ( wp_get_post_categories( $r->ID ) as $cid ) { if ( isset( $ROTULOS[ $cid ] ) ) { $rrot = $ROTULOS[ $cid ]; break; } }
+				?>
+				<a class="sb-card" href="<?php echo esc_url( get_permalink( $r ) ); ?>">
+					<figure><?php if ( $rimg ) : ?><img src="<?php echo esc_url( $rimg ); ?>" alt="<?php echo esc_attr( get_the_title( $r ) ); ?>" loading="lazy"><?php endif; ?></figure>
+					<div class="sb-card-body">
+						<span class="sb-eyebrow sb-cat"><?php echo esc_html( $rrot ); ?></span>
+						<h3><?php echo esc_html( get_the_title( $r ) ); ?></h3>
+						<time><?php echo esc_html( date_i18n( 'j \d\e F \d\e Y', strtotime( $r->post_date ) ) ); ?></time>
+					</div>
+				</a>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</section>
+	<?php endif; ?>
+
+	<div class="sb-footer">
+		<div class="sb-wrap">
+			<div class="sb-ft-grid">
+				<div>
+					<img class="sb-logo" src="<?php echo esc_url( $LOGO_BRANCO ); ?>" alt="SAL">
+					<div class="sb-tagline"><span class="sb-grain sb-neon"></span> Marketing na Medida Certa</div>
+				</div>
+				<div>
+					<h5>Serviços</h5>
+					<ul>
+						<li><a href="https://salestrategias.com.br/servicos/gestao-trafego-pago/">Gestão de tráfego pago</a></li>
+						<li><a href="https://salestrategias.com.br/servicos/agencia-de-seo/">SEO</a></li>
+						<li><a href="https://salestrategias.com.br/servicos/producao-de-conteudo/">Produção de conteúdo</a></li>
+					</ul>
+				</div>
+				<div>
+					<h5>Blog</h5>
+					<ul>
+						<?php foreach ( $EDITORIAS as $slug => $ed ) : ?>
+							<li><a href="<?php echo $ed_url( $slug ); ?>"><?php echo esc_html( $ed['nome'] ); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+				<div>
+					<h5>SAL</h5>
+					<ul>
+						<li><a href="<?php echo esc_url( $DIAG ); ?>">Diagnóstico gratuito</a></li>
+						<li><a href="<?php echo esc_url( $WHATS ); ?>">WhatsApp</a></li>
+						<li>Porto Alegre · RS</li>
+						<li>Atendemos o Brasil todo</li>
+					</ul>
+				</div>
+			</div>
+			<div class="sb-ft-base">
+				<span>© <?php echo esc_html( date_i18n( 'Y' ) ); ?> SAL Estratégias de Marketing</span>
+				<span>Sede em Porto Alegre · Atendemos o Brasil todo</span>
+			</div>
+		</div>
+	</div>
+
+	<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		// 1) Posiciona a newsletter inline no meio do conteúdo (comportamento herdado do template anterior)
+		var content = document.getElementById('sbp-content');
+		var inlineNews = document.getElementById('sal-news-inline');
+		if (content && inlineNews) {
+			var paragraphs = content.querySelectorAll(':scope > p');
+			if (paragraphs.length >= 4) {
+				var midIdx = Math.floor(paragraphs.length / 2);
+				paragraphs[midIdx].parentNode.insertBefore(inlineNews, paragraphs[midIdx].nextSibling);
+			}
+		}
+		// 2) Submit -> abre o Substack com email pré-preenchido (mecanismo preservado, UTMs idênticos)
+		document.querySelectorAll('.sal-news-form').forEach(function (form) {
+			form.addEventListener('submit', function (e) {
+				e.preventDefault();
+				var emailInput = form.querySelector('input[type=email]');
+				var email = (emailInput.value || '').trim();
+				if (!email || email.indexOf('@') === -1) { emailInput.focus(); return; }
+				var card = form.closest('[data-substack]');
+				var base = card ? card.getAttribute('data-substack') : '<?php echo esc_js( $SUBSTACK ); ?>';
+				var url = base + '?email=' + encodeURIComponent(email) + '&utm_source=salestrategias&utm_medium=blog&utm_campaign=post-newsletter';
+				form.classList.add('is-success');
+				var btn = form.querySelector('button');
+				btn.innerHTML = 'Abrindo Substack…';
+				btn.disabled = true;
+				window.open(url, '_blank', 'noopener');
+				setTimeout(function () { btn.innerHTML = 'Confirme no Substack ✓'; }, 800);
+			});
+		});
+	});
+	</script>
+
+	<?php
+	if ( function_exists( 'sal_lead_modal_render' ) ) { sal_lead_modal_render(); }
+	wp_footer();
+	?>
+	</body>
+	</html><?php
+	exit;
+}, 1 );
