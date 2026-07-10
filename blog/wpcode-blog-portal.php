@@ -132,6 +132,9 @@ add_action( 'template_redirect', function () {
 	.sb-nav a{padding:6px 0;border-bottom:2px solid transparent}
 	.sb-nav a:hover{border-color:#7E30E1;color:#7E30E1}
 	.sb-header-cta{background:#7E30E1;color:#fff !important;border-radius:40px;padding:13px 30px;font-weight:600;font-size:15px;white-space:nowrap}
+	.sb-search-btn{display:inline-flex;align-items:center;gap:10px;background:transparent;border:1.5px solid #E9E7E1;border-radius:40px;padding:10px 16px;color:#2D1D7A;cursor:pointer;transition:border-color .15s ease,color .15s ease;font-family:'Plus Jakarta Sans',sans-serif}
+	.sb-search-btn:hover{border-color:#7E30E1;color:#7E30E1}
+	.sb-search-btn kbd{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:1px;color:#5A5A66;background:#F4F7F7;border:1px solid #E9E7E1;border-radius:6px;padding:2px 7px}
 	.sb-hero{padding:64px 0 56px}
 	.sb-hero .sb-wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
 	.sb-hero .sb-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:22px}
@@ -254,6 +257,7 @@ add_action( 'template_redirect', function () {
 					<a href="<?php echo $ed_url( $slug ); ?>"><?php echo esc_html( $ed['nome'] ); ?></a>
 				<?php endforeach; ?>
 			</nav>
+			<button type="button" class="sb-search-btn" id="sal-be-search-open" aria-label="Buscar no blog" title="Buscar (Ctrl+K)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg><kbd>Ctrl K</kbd></button>
 			<a class="sb-header-cta" href="<?php echo esc_url( $DIAG ); ?>">Contrate a SAL</a>
 		</div>
 	</div>
@@ -283,7 +287,7 @@ add_action( 'template_redirect', function () {
 		<div class="sb-wrap">
 			<div>
 				<div class="sb-eyebrow"><span>01 · Manchete</span><span class="sb-grain sb-roxo"></span><span class="sb-cat"><?php echo esc_html( $rotulo( $manchete ) ); ?></span></div>
-				<h1><?php echo esc_html( get_the_title( $manchete ) ); ?></h1>
+				<h1><a href="<?php echo esc_url( get_permalink( $manchete ) ); ?>"><?php echo esc_html( get_the_title( $manchete ) ); ?></a></h1>
 				<p class="sb-dek"><?php echo $resumo( $manchete, 34 ); ?></p>
 				<div class="sb-meta">Marcelo Freitas <span class="sb-grain" style="width:5px;height:5px"></span> <?php echo $dataf( $manchete ); ?></div>
 				<div class="sb-cta-row">
@@ -291,7 +295,7 @@ add_action( 'template_redirect', function () {
 					<a class="sb-pill sb-ghost" href="#sb-ultimas">Todas as últimas</a>
 				</div>
 			</div>
-			<figure><span class="sb-badge">EM DESTAQUE</span><?php if ( $mimg ) : ?><img src="<?php echo esc_url( $mimg ); ?>" alt="<?php echo esc_attr( get_the_title( $manchete ) ); ?>"><?php endif; ?></figure>
+			<a href="<?php echo esc_url( get_permalink( $manchete ) ); ?>" aria-label="<?php echo esc_attr( get_the_title( $manchete ) ); ?>"><figure><span class="sb-badge">EM DESTAQUE</span><?php if ( $mimg ) : ?><img src="<?php echo esc_url( $mimg ); ?>" alt="<?php echo esc_attr( get_the_title( $manchete ) ); ?>"><?php endif; ?></figure></a>
 		</div>
 	</section>
 	<?php endif; ?>
