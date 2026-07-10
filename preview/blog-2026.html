@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blog SAL 2026 · Portal do Varejo — PREVIEW</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Glook&display=swap" rel="stylesheet">
+<style>
+:root{
+  --roxo:#7E30E1; --indigo:#2D1D7A; --ink:#0A0A0F;
+  --paper-warm:#F8F6F2; --paper-cool:#F4F7F7; --neon:#F6FF74;
+  --roxo-claro:#A76BF2; --cinza:#5A5A66; --borda:#E9E7E1;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+.eyebrow{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--indigo)}
+.eyebrow .cat{color:var(--roxo)}
+.grain{display:inline-block;width:7px;height:7px;background:var(--indigo);transform:rotate(45deg);flex:none}
+.grain.roxo{background:var(--roxo)} .grain.neon{background:var(--neon)}
+.sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:var(--indigo);text-transform:uppercase;margin-bottom:34px}
+.sec-label::after{content:"";height:1px;background:var(--borda);flex:1}
+.pill{display:inline-flex;align-items:center;gap:10px;background:var(--roxo);color:#fff;border-radius:40px;padding:18px 44px;font-weight:600;font-size:16px;transition:transform .15s ease, box-shadow .15s ease}
+.pill:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(126,48,225,.28)}
+.pill.ghost{background:transparent;color:var(--indigo);border:2px solid var(--indigo)}
+.pill.sm{padding:12px 26px;font-size:14px}
+
+/* top bar */
+.topbar{background:var(--ink);color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:12.5px;letter-spacing:1px}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:38px}
+.topbar b{color:#fff;font-weight:600}
+.topbar .tag{display:flex;align-items:center;gap:10px}
+.topbar .tag .grain{width:6px;height:6px}
+
+/* header */
+header{position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);z-index:50;border-bottom:1px solid var(--borda)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:78px;gap:24px}
+header img.logo{width:148px}
+nav{display:flex;gap:28px;font-size:15px;font-weight:600;color:var(--indigo)}
+nav a{padding:6px 0;border-bottom:2px solid transparent}
+nav a:hover{border-color:var(--roxo);color:var(--roxo)}
+.header-cta{background:var(--roxo);color:#fff;border-radius:40px;padding:13px 30px;font-weight:600;font-size:15px;white-space:nowrap}
+
+/* hero */
+.hero{padding:64px 0 56px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+.hero .eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.hero h1{font-size:clamp(38px,4.6vw,60px);font-weight:800;line-height:1.06;letter-spacing:-1.5px;margin-bottom:22px}
+.hero h1 em{font-style:normal;color:var(--roxo)}
+.hero p.dek{font-size:19px;line-height:1.55;color:var(--cinza);max-width:56ch;margin-bottom:26px}
+.hero .meta{font-family:'Inter',sans-serif;font-size:14px;color:var(--cinza);display:flex;align-items:center;gap:10px;margin-bottom:34px}
+.hero .cta-row{display:flex;gap:16px;flex-wrap:wrap}
+.hero figure{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:16/11;box-shadow:0 30px 60px rgba(10,10,15,.14)}
+.hero figure img{width:100%;height:100%;object-fit:cover}
+.hero figure .badge{position:absolute;top:18px;left:18px;background:var(--neon);color:var(--ink);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;padding:7px 14px;border-radius:40px}
+
+/* ticker */
+.ticker{background:var(--paper-cool);border-block:1px solid var(--borda)}
+.ticker .wrap{display:flex;align-items:center;gap:22px;height:52px;overflow:hidden}
+.ticker .lbl{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:3px;color:var(--roxo);white-space:nowrap;display:flex;gap:9px;align-items:center}
+.ticker ul{display:flex;gap:34px;list-style:none;white-space:nowrap;font-size:14px;font-weight:500;color:var(--indigo);overflow:hidden}
+.ticker li{display:flex;align-items:center;gap:12px}
+.ticker li .grain{width:5px;height:5px}
+
+/* últimas */
+.ultimas{padding:72px 0}
+.grid-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+.card{border-radius:20px;overflow:hidden;background:#fff;border:1px solid var(--borda);transition:transform .15s ease, box-shadow .15s ease;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(10,10,15,.1)}
+.card figure{aspect-ratio:16/9;overflow:hidden}
+.card figure img{width:100%;height:100%;object-fit:cover}
+.card .body{padding:20px 20px 22px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card .eyebrow{font-size:10.5px;letter-spacing:2.5px;color:var(--roxo)}
+.card h3{font-size:16.5px;font-weight:700;line-height:1.3}
+.card time{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--cinza);margin-top:auto}
+
+/* editorias */
+.editorias{padding:24px 0 40px}
+.editoria{padding:46px 0;border-top:1px solid var(--borda)}
+.editoria:nth-child(even){background:var(--paper-warm)}
+.ed-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px}
+.ed-head h2{font-size:30px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:16px}
+.ed-head h2 .grain{width:9px;height:9px}
+.ed-head a{font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;color:var(--roxo)}
+.ed-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:44px;align-items:center}
+.ed-destaque{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}
+.ed-destaque figure{border-radius:18px;overflow:hidden;aspect-ratio:4/3}
+.ed-destaque figure img{width:100%;height:100%;object-fit:cover}
+.ed-destaque h3{font-size:21px;font-weight:800;line-height:1.25;margin:10px 0 10px}
+.ed-destaque p{font-size:14.5px;line-height:1.55;color:var(--cinza)}
+.ed-lista{list-style:none;display:flex;flex-direction:column}
+.ed-lista li{display:flex;gap:18px;padding:16px 0;border-bottom:1px solid var(--borda);align-items:baseline}
+.ed-lista li:last-child{border-bottom:none}
+.ed-lista .num{font-family:'Glook',cursive;font-size:26px;color:var(--roxo);min-width:34px}
+.ed-lista h4{font-size:16.5px;font-weight:700;line-height:1.35}
+.ed-lista h4:hover{color:var(--roxo)}
+
+/* guias (dark) */
+.guias{background:var(--ink);color:#fff;padding:78px 0}
+.guias .sec-label{color:rgba(255,255,255,.75)}
+.guias .sec-label::after{background:rgba(255,255,255,.14)}
+.guias h2.tit{font-size:clamp(30px,3.4vw,44px);font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.guias p.sub{color:rgba(255,255,255,.65);font-size:17px;margin-bottom:44px;max-width:60ch}
+.guias .lista{display:grid;grid-template-columns:repeat(2,1fr);gap:0 60px;list-style:none}
+.guias .lista li{display:flex;gap:24px;align-items:baseline;padding:24px 0;border-bottom:1px solid rgba(255,255,255,.12)}
+.guias .num{font-family:'Glook',cursive;font-size:44px;color:var(--roxo-claro);min-width:64px}
+.guias h3{font-size:19px;font-weight:700;line-height:1.35}
+.guias h3:hover{color:var(--roxo-claro)}
+.guias .dot{display:inline-block;width:6px;height:6px;background:var(--neon);transform:rotate(45deg);margin-left:10px}
+
+/* diagnostico */
+.diag{background:var(--paper-warm);padding:84px 0;text-align:center}
+.diag h2{font-size:clamp(30px,3.8vw,48px);font-weight:800;letter-spacing:-1px;max-width:22ch;margin:0 auto 14px}
+.diag h2 em{font-style:normal;color:var(--roxo)}
+.diag p{color:var(--cinza);font-size:17px;margin-bottom:34px}
+.diag .grains{display:flex;justify-content:center;gap:16px;margin-bottom:30px}
+
+/* mais lidos + news */
+.rodape-conteudo{padding:76px 0}
+.rc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:70px}
+.maislidos ol{list-style:none;display:flex;flex-direction:column}
+.maislidos li{display:flex;gap:22px;align-items:baseline;padding:17px 0;border-bottom:1px solid var(--borda)}
+.maislidos .num{font-family:'Glook',cursive;font-size:38px;color:var(--roxo);min-width:50px}
+.maislidos h4{font-size:17.5px;font-weight:700;line-height:1.35}
+.news{background:var(--paper-cool);border-radius:24px;padding:44px;height:fit-content}
+.news h3{font-size:24px;font-weight:800;margin-bottom:10px}
+.news p{font-size:15px;color:var(--cinza);line-height:1.55;margin-bottom:24px}
+.news form{display:flex;gap:12px}
+.news input{flex:1;border:1px solid var(--borda);border-radius:40px;padding:15px 22px;font-family:inherit;font-size:15px;background:#fff}
+.news button{border:none;cursor:pointer}
+
+/* footer */
+footer{background:var(--ink);color:rgba(255,255,255,.8);padding:64px 0 40px;font-size:14.5px}
+.ft-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px}
+footer img.logo{width:180px;margin-bottom:18px}
+footer .tagline{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600}
+footer h5{font-family:'Inter',sans-serif;font-size:12px;letter-spacing:2.5px;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:16px}
+footer ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+footer a:hover{color:var(--roxo-claro)}
+.ft-base{border-top:1px solid rgba(255,255,255,.12);padding-top:24px;display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-size:12.5px;color:rgba(255,255,255,.5)}
+
+/* preview badge */
+.preview-badge{position:fixed;bottom:18px;right:18px;background:var(--ink);color:var(--neon);font-family:'Inter',sans-serif;font-size:11px;letter-spacing:2px;font-weight:600;padding:10px 18px;border-radius:40px;z-index:99;opacity:.92}
+
+@media(max-width:1020px){
+  .hero .wrap,.ed-grid,.rc-grid{grid-template-columns:1fr}
+  .grid-cards{grid-template-columns:repeat(2,1fr)}
+  .guias .lista{grid-template-columns:1fr}
+  nav{display:none}
+  .ft-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .grid-cards{grid-template-columns:1fr}
+  .ed-destaque{grid-template-columns:1fr}
+  .wrap{padding:0 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <span id="data-hoje"></span>
+    <span class="tag"><span class="grain neon"></span><b>Marketing na Medida Certa</b><span class="grain neon"></span></span>
+    <a href="https://wa.me/5551993380278"><b>WhatsApp</b> +55 51 99338-0278</a>
+  </div>
+</div>
+
+<header>
+  <div class="wrap">
+    <a href="#"><img class="logo" src="assets/logo-sal-horizontal-purple.png" alt="SAL Estratégias de Marketing"></a>
+    <nav>
+      <a href="#ed-trafego">Tráfego Pago</a>
+      <a href="#ed-seo">SEO &amp; GEO</a>
+      <a href="#ed-ecommerce">E-commerce</a>
+      <a href="#ed-local">Varejo Local</a>
+      <a href="#guias">Guias</a>
+    </nav>
+    <a class="header-cta" href="https://salestrategias.com.br/diagnostico/">Contrate a SAL</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap" id="hero-slot"></div>
+</section>
+
+<div class="ticker">
+  <div class="wrap">
+    <span class="lbl"><span class="grain roxo"></span> AGORA NO VAREJO</span>
+    <ul id="ticker-slot"></ul>
+  </div>
+</div>
+
+<section class="ultimas">
+  <div class="wrap">
+    <div class="sec-label">02 · Últimas</div>
+    <div class="grid-cards" id="ultimas-slot"></div>
+  </div>
+</section>
+
+<section class="editorias">
+  <div class="wrap"><div class="sec-label">03 · Editorias</div></div>
+  <div id="editorias-slot"></div>
+</section>
+
+<section class="guias" id="guias">
+  <div class="wrap">
+    <div class="sec-label">04 · Guias essenciais</div>
+    <h2 class="tit">Comece por aqui.</h2>
+    <p class="sub">Os artigos de fundação: a conta que protege a sua margem, o diagnóstico da loja que não vende e as bases de tráfego e SEO.</p>
+    <ul class="lista" id="guias-slot"></ul>
+  </div>
+</section>
+
+<section class="diag">
+  <div class="wrap">
+    <div class="grains"><span class="grain roxo"></span><span class="grain"></span><span class="grain roxo"></span></div>
+    <h2>Sua loja merece marketing <em>na medida certa</em>.</h2>
+    <p>Diagnóstico gratuito · 15 minutos · direto com quem faz</p>
+    <a class="pill" href="https://salestrategias.com.br/diagnostico/">Fazer diagnóstico gratuito →</a>
+  </div>
+</section>
+
+<section class="rodape-conteudo">
+  <div class="wrap rc-grid">
+    <div class="maislidos">
+      <div class="sec-label">05 · Mais lidos</div>
+      <ol id="maislidos-slot"></ol>
+    </div>
+    <div class="news">
+      <h3>O varejo muda toda semana.<br>A gente resume pra você.</h3>
+      <p>Um e-mail por semana com o que importa em tráfego, SEO e e-commerce. Sem spam, sem enrolação.</p>
+      <form onsubmit="event.preventDefault();alert('Preview: formulário ilustrativo')">
+        <input type="email" placeholder="Seu melhor e-mail" required>
+        <button class="pill sm" type="submit">Assinar</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div>
+        <img class="logo" src="assets/logo-sal-white.svg" alt="SAL">
+        <div class="tagline"><span class="grain neon"></span> Marketing na Medida Certa</div>
+      </div>
+      <div>
+        <h5>Serviços</h5>
+        <ul>
+          <li><a href="https://salestrategias.com.br/servicos/gestao-trafego-pago/">Gestão de tráfego pago</a></li>
+          <li><a href="https://salestrategias.com.br/servicos/agencia-de-seo/">SEO</a></li>
+          <li><a href="https://salestrategias.com.br/servicos/producao-de-conteudo/">Produção de conteúdo</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Blog</h5>
+        <ul>
+          <li><a href="#ed-trafego">Tráfego Pago</a></li>
+          <li><a href="#ed-seo">SEO &amp; GEO</a></li>
+          <li><a href="#ed-ecommerce">E-commerce</a></li>
+          <li><a href="#ed-local">Varejo Local</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>SAL</h5>
+        <ul>
+          <li><a href="https://salestrategias.com.br/diagnostico/">Diagnóstico gratuito</a></li>
+          <li><a href="https://wa.me/5551993380278">WhatsApp</a></li>
+          <li>Porto Alegre · RS</li>
+          <li>Atendemos o Brasil todo</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ft-base">
+      <span>© 2026 SAL Estratégias de Marketing</span>
+      <span>Sede em Porto Alegre · Atendemos o Brasil todo</span>
+    </div>
+  </div>
+</footer>
+
+<div class="preview-badge">PREVIEW · DADOS REAIS DO BLOG</div>
+
+<script>
+const POSTS_RAW = [
+ {
+  "id": 1875,
+  "slug": "loja-virtual-nao-vende-o-que-fazer",
+  "titulo": "Loja Virtual Não Vende? O Que Fazer: Diagnóstico em 7 Pontos",
+  "resumo": "Sua loja virtual não vende? Veja o diagnóstico em 7 pontos: velocidade, página de produto, frete, checkout e confiança. Peça o diagnóstico gratuito da SAL.",
+  "data": "2026-07-09T16:14:44",
+  "cats": [
+   14
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/07/destacada-loja-virtual-nao-vende-o-que-fazer-1024x572.png"
+ },
+ {
+  "id": 1870,
+  "slug": "roas-alto-mas-sem-lucro",
+  "titulo": "ROAS Alto Mas Sem Lucro: o Erro de Conta Que Está Sangrando a Margem da Sua Loja",
+  "resumo": "ROAS alto mas sem lucro? Entenda por que a métrica engana, aprenda a calcular o ROAS mínimo pela margem de contribuição e veja o exemplo prático em reais.",
+  "data": "2026-07-09T12:29:37",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/07/destacada-roas-alto-mas-sem-lucro-1024x572.png"
+ },
+ {
+  "id": 1551,
+  "slug": "como-estruturar-marketing-de-uma-loja",
+  "titulo": "Como estruturar o marketing de uma loja: o sistema em 4 camadas",
+  "resumo": "Veja como estruturar o marketing de uma loja virtual ou física em 4 camadas: dados, aquisição, conversão e retenção, com prioridades por fase de faturamento.",
+  "data": "2026-07-09T16:30:26",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/07/destacada-como-estruturar-marketing-de-uma-loja-1024x572.png"
+ },
+ {
+  "id": 1549,
+  "slug": "seo-nacional-ou-seo-local",
+  "titulo": "SEO nacional ou SEO local: onde a sua loja deve apostar",
+  "resumo": "SEO nacional ou SEO local? Entenda a diferença, veja a conta em reais e descubra onde investir conforme o seu modelo: loja física, virtual ou híbrida.",
+  "data": "2026-07-09T16:30:25",
+  "cats": [
+   17
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/07/destacada-seo-nacional-ou-seo-local-1024x572.png"
+ },
+ {
+  "id": 1547,
+  "slug": "campanha-black-friday-google-ads-meta-ads",
+  "titulo": "Campanha de Black Friday no Google Ads e Meta Ads: como estruturar a mídia da sua loja",
+  "resumo": "Como montar a campanha de Black Friday no Google Ads e Meta Ads: aquecimento de públicos, remarketing, verba por fase e lances que protegem a sua margem.",
+  "data": "2026-07-09T16:30:25",
+  "cats": [
+   15
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/07/destacada-campanha-black-friday-google-ads-meta-ads-1024x572.png"
+ },
+ {
+  "id": 1545,
+  "slug": "micro-influenciadores-para-lojas",
+  "titulo": "Micro influenciadores para lojas: como encontrar, quanto custa e como medir o retorno",
+  "resumo": "Como encontrar micro influenciadores para lojas, escolher entre permuta e cachê, montar um contrato simples e medir o retorno de cada parceria em reais.",
+  "data": "2026-07-09T16:30:24",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/07/destacada-micro-influenciadores-para-lojas-1024x572.png"
+ },
+ {
+  "id": 1875,
+  "slug": "loja-virtual-nao-vende-o-que-fazer",
+  "titulo": "Loja Virtual Não Vende? O Que Fazer: Diagnóstico em 7 Pontos",
+  "resumo": "Sua loja virtual não vende? Veja o diagnóstico em 7 pontos: velocidade, página de produto, frete, checkout e confiança. Peça o diagnóstico gratuito da SAL.",
+  "data": "2026-07-09T16:14:44",
+  "cats": [
+   14
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/07/destacada-loja-virtual-nao-vende-o-que-fazer-1024x572.png"
+ },
+ {
+  "id": 1870,
+  "slug": "roas-alto-mas-sem-lucro",
+  "titulo": "ROAS Alto Mas Sem Lucro: o Erro de Conta Que Está Sangrando a Margem da Sua Loja",
+  "resumo": "ROAS alto mas sem lucro? Entenda por que a métrica engana, aprenda a calcular o ROAS mínimo pela margem de contribuição e veja o exemplo prático em reais.",
+  "data": "2026-07-09T12:29:37",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/07/destacada-roas-alto-mas-sem-lucro-1024x572.png"
+ },
+ {
+  "id": 1341,
+  "slug": "meta-ads-em-2026-impostos-custos",
+  "titulo": "Meta Ads em 2026: Entenda os Novos Custos e Impostos",
+  "resumo": "Descubra como a estrutura de custos do Meta Ads mudou em 2026. Entenda o repasse de impostos e proteja a margem do seu negócio agora.",
+  "data": "2026-03-07T17:02:15",
+  "cats": [
+   15
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/02/capa-1771884117-1024x572.jpg"
+ },
+ {
+  "id": 1334,
+  "slug": "otimizacao-google-meu-negocio-2026-algoritmo-frescor",
+  "titulo": "Otimização de Google Meu Negócio 2026: O Algoritmo de Frescor",
+  "resumo": "Entenda o algoritmo de frescor e domine a otimização de Google Meu Negócio. Estratégias práticas para 2026. Atualize sua empresa agora.",
+  "data": "2026-02-23T16:40:53",
+  "cats": [
+   17
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/02/capa-1771797732-1024x572.jpg"
+ },
+ {
+  "id": 1332,
+  "slug": "seo-para-negocios-locais-2026-dominacao-regional",
+  "titulo": "SEO para Negócios Locais 2026: Domine sua Região Agora",
+  "resumo": "Descubra estratégias de SEO para negócios locais e atraia mais clientes em 2026. Técnicas avançadas de dominação regional. Leia agora!",
+  "data": "2026-02-23T10:33:17",
+  "cats": [
+   17
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/02/capa-1771754514-1024x572.jpg"
+ },
+ {
+  "id": 1327,
+  "slug": "seo-para-pequenas-empresas-2026",
+  "titulo": "SEO para Pequenas Empresas em 2026: Estratégia Prática",
+  "resumo": "Domine o mercado local. Descubra como aplicar SEO para pequenas empresas em 2026 e supere a concorrência com inteligência. Leia na SAL.",
+  "data": "2026-02-21T15:42:08",
+  "cats": [
+   17
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/02/capa-1771698648-1024x572.jpg"
+ },
+ {
+  "id": 1299,
+  "slug": "o-que-e-inbound-marketing-como-implementar",
+  "titulo": "O que é Inbound Marketing e Como Implementar",
+  "resumo": "Aprenda o que é Inbound Marketing e como criar uma estratégia para atrair clientes qualificados. Fale com um especialista da SAL Estratégias.",
+  "data": "2026-01-20T11:36:35",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/01/capa-1768917329-1024x572.jpg"
+ },
+ {
+  "id": 1288,
+  "slug": "cac-e-ltv-como-calcular-metricas-negocio",
+  "titulo": "CAC e LTV: O que são, como calcular e otimizar",
+  "resumo": "Aprenda a calcular o CAC e LTV do seu negócio. Domine essas métricas essenciais para tomar decisões estratégicas e acelerar o crescimento.",
+  "data": "2026-01-19T16:28:57",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/01/capa-1768850921.png"
+ },
+ {
+  "id": 1285,
+  "slug": "planejamento-de-marketing-digital-2026",
+  "titulo": "Planejamento Marketing Digital 2026: Passo a Passo Prático",
+  "resumo": "Estruture seu planejamento de marketing digital para 2026. Aprenda o passo a passo que CMOs usam para gerar resultados reais. Comece agora!",
+  "data": "2026-01-19T16:25:45",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/01/capa-1768850734.png"
+ },
+ {
+  "id": 1282,
+  "slug": "google-analytics-4-guia-completo",
+  "titulo": "Google Analytics 4: O Guia Completo para Análise de Dados",
+  "resumo": "Domine o Google Analytics 4. Aprenda como usar o GA4, suas diferenças para o Universal e como analisar dados para impulsionar seu negócio.",
+  "data": "2026-01-19T16:17:11",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2026/01/capa-1768849633.png"
+ },
+ {
+  "id": 1174,
+  "slug": "palavras-chave-de-cauda-longa-o-que-sao",
+  "titulo": "Palavras-Chave de Cauda Longa: Domine Nichos de Mercado",
+  "resumo": "Use palavras-chave cauda longa para atrair tráfego qualificado e aumentar o ROI. Execute uma estratégia SEO de nicho com precisão. Fale conosco.",
+  "data": "2025-12-28T20:31:17",
+  "cats": [
+   13
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/capa-1766962841-1024x572.jpg"
+ },
+ {
+  "id": 1165,
+  "slug": "como-criar-uma-loja-virtual-ecommerce-2026",
+  "titulo": "Como Criar Uma Loja Virtual: Guia de E-commerce 2026",
+  "resumo": "Aprenda como criar uma loja virtual de alta conversão. Guia 2026 com estratégias de ROI, tecnologia e marketing. Transforme seu e-commerce em uma máquina de vendas.",
+  "data": "2025-12-28T19:39:02",
+  "cats": [
+   14
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/capa-1766924264-1024x572.jpg"
+ },
+ {
+  "id": 1156,
+  "slug": "otimizar-google-meu-negocio-guia-avancado",
+  "titulo": "Otimizar Google Meu Negócio: 11 Estratégias Avançadas",
+  "resumo": "Guia para otimizar Google Meu Negócio. Aplique 11 táticas de SEO local e domine o GMB para atrair mais clientes. Aumente seu ROI.",
+  "data": "2025-12-27T22:37:57",
+  "cats": [
+   17
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/capa-1766878939-1024x572.jpg"
+ },
+ {
+  "id": 1158,
+  "slug": "como-anunciar-no-google-ads-em-2026-guia",
+  "titulo": "Como Anunciar no Google Ads em 2026: guia fácil e prático",
+  "resumo": "Aprenda a criar sua campanha Google Ads do zero. Guia passo a passo para iniciantes focado em ROI. Comece a gerar resultados hoje.",
+  "data": "2025-12-27T21:17:07",
+  "cats": [
+   15
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/capa-1766879616-1024x572.jpg"
+ },
+ {
+  "id": 1122,
+  "slug": "como-anunciar-no-meta-ads-em-2026-guia",
+  "titulo": "Como Anunciar no Meta Ads 2026: Guia Completo",
+  "resumo": "Domine o Meta Ads em 2026. Aprenda a criar anúncios no Facebook e Instagram com foco em ROI. Estratégia para PMEs e e-commerce. Otimize suas campanhas agora.",
+  "data": "2025-12-27T20:01:01",
+  "cats": [
+   15
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/capa-1766406208-1024x572.jpg"
+ },
+ {
+  "id": 1095,
+  "slug": "seo-para-negocios-locais-2026-5",
+  "titulo": "SEO para Negócios Locais 2026: Guia Definitivo de ROI",
+  "resumo": "Domine o SEO para negócios locais em 2026. Estratégias de ROI para aumentar seu tráfego e vendas. Implemente agora e supere a concorrência.",
+  "data": "2025-12-19T20:21:47",
+  "cats": [
+   17
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/capa-1766174558-1024x572.jpg"
+ },
+ {
+  "id": 1097,
+  "slug": "otimizacao-de-google-meu-negocio-2026-2",
+  "titulo": "Otimização de Google Meu Negócio: Domine o SEO Local em 2026",
+  "resumo": "Prepare seu negócio para 2026. Aprenda a otimização de Google Meu Negócio com estratégias avançadas de IA e dados. Aumente sua visibilidade local agora.",
+  "data": "2025-12-19T18:11:46",
+  "cats": [
+   17
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/capa-1766174704-1024x572.jpg"
+ },
+ {
+  "id": 1079,
+  "slug": "geo-seo-para-ias-chatgpt-google-sge",
+  "titulo": "GEO SEO para IAs: Posicione sua Marca no ChatGPT e SGE",
+  "resumo": "Aprenda a otimizar seu site para o futuro da busca com GEO SEO para IAs. Posicione-se no ChatGPT e Google SGE. Aumente seu tráfego qualificado agora.",
+  "data": "2025-12-19T17:49:50",
+  "cats": [
+   13
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/capa-1766166295-1024x572.jpg"
+ },
+ {
+  "id": 1067,
+  "slug": "o-que-e-seo-como-funciona-guia",
+  "titulo": "O Que é SEO: Aumente Tráfego e Vendas com Nosso Guia",
+  "resumo": "Entenda o que é SEO e como funciona para gerar tráfego qualificado e vendas. Guia completo para iniciantes e empresas. Comece a otimizar agora!",
+  "data": "2025-12-19T00:30:21",
+  "cats": [
+   13
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/capa-1766113776-1024x572.jpg"
+ },
+ {
+  "id": 1026,
+  "slug": "como-fazer-seo-para-negocios-locais",
+  "titulo": "Como Fazer SEO Para Negócios Locais: Guia Prático De Google Meu Negócio Com Agência De SEO",
+  "resumo": "Descubra como fazer seu negócio aparecer no Google e no mapa, com SEO local e Perfil de Empresa otimizados, para atrair mais clientes qualificados.",
+  "data": "2025-12-15T09:26:16",
+  "cats": [
+   13,
+   17
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/como-fazer-seo-para-neg-cios-locais-guia-pr-tico-de-google-meu-neg-cio-com-ag-ncia-de-seo-1765801574043-1024x683.jpg"
+ },
+ {
+  "id": 1021,
+  "slug": "agencia-de-marketing-digital-em-porto-alegre",
+  "titulo": "Melhor Agência de Marketing Digital em Porto Alegre: Conheça a SAL Estratégias",
+  "resumo": "Qual a melhor agência de marketing em Porto Alegre? Encontrar a melhor agência de marketing digital em Porto Alegre não é tarefa simples. Com centenas de opções disponíveis, desde grandes agências estabelecidas até freelancers iniciantes, como escolher o parceiro certo para fazer seu negócio crescer no ambiente digital? A resposta está em entender a diferença [&hellip;]",
+  "data": "2025-12-11T17:38:48",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/agencia-de-marketing-digital-porto-alegre.jpg"
+ },
+ {
+  "id": 1014,
+  "slug": "sal-em-marketing-sales-accepted-lead",
+  "titulo": "SAL em Marketing: Guia Completo sobre Sales Accepted Lead (MQL, SQL)",
+  "resumo": "Entenda tudo sobre SAL em Marketing (Sales Accepted Lead) O marketing digital moderno exige precisão na qualificação de leads. Cada etapa do funil de vendas representa uma decisão estratégica sobre onde investir tempo e recursos. Entre os conceitos fundamentais desse processo, o SAL (Sales Accepted Lead) se destaca como ponto crítico de transição entre marketing [&hellip;]",
+  "data": "2025-12-10T17:59:37",
+  "cats": [
+   29
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/12/SAL-em-Marketing-O-Guia-Definitivo-sobre-Sales-Accepted-Lead.jpg"
+ },
+ {
+  "id": 371,
+  "slug": "seo-e-geo-2026-o-guia-completo-para-dominar-a-busca-com-ia",
+  "titulo": "SEO e GEO 2026: O Guia Completo Para Dominar a Busca com IA",
+  "resumo": "Prepare-se para 2026 com o guia sobre SEO e GEO. Descubra como otimizar seu conteúdo para ser a resposta da IA.",
+  "data": "2025-11-06T19:09:58",
+  "cats": [
+   13
+  ],
+  "img": "https://www.salestrategias.com.br/wp-content/uploads/2025/11/otimizacao-de-seo-1024x576.webp"
+ }
+];
+// dedupe por id, mantém a primeira ocorrência
+const vistos = new Set();
+const POSTS = POSTS_RAW.filter(p => !vistos.has(p.id) && vistos.add(p.id));
+
+const EDITORIAS = {
+  15: 'Tráfego Pago', 13: 'SEO & GEO', 14: 'E-commerce', 17: 'Varejo Local', 29: 'Estratégia'
+};
+const catDe = p => { for (const c of p.cats) if (EDITORIAS[c]) return EDITORIAS[c]; return 'Estratégia'; };
+const dataFmt = iso => new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+const urlDe = p => 'https://www.salestrategias.com.br/' + p.slug + '/';
+
+document.getElementById('data-hoje').textContent =
+  new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+// 01 — manchete: post mais recente
+const [manchete, ...resto] = POSTS;
+document.getElementById('hero-slot').innerHTML = `
+  <div>
+    <div class="eyebrow"><span>01 · Manchete</span><span class="grain roxo"></span><span class="cat">${catDe(manchete)}</span></div>
+    <h1>${manchete.titulo.replace(/(na medida certa|sem lucro|não vende\??|margem)/i, '<em>$1</em>')}</h1>
+    <p class="dek">${manchete.resumo}</p>
+    <div class="meta">Marcelo Freitas <span class="grain" style="width:5px;height:5px"></span> ${dataFmt(manchete.data)}</div>
+    <div class="cta-row">
+      <a class="pill" href="${urlDe(manchete)}">Ler agora →</a>
+      <a class="pill ghost" href="#ultimas">Todas as últimas</a>
+    </div>
+  </div>
+  <figure><span class="badge">EM DESTAQUE</span><img src="${manchete.img}" alt="${manchete.titulo}"></figure>`;
+
+// ticker: 3 seguintes
+document.getElementById('ticker-slot').innerHTML = resto.slice(0, 3)
+  .map(p => `<li><span class="grain roxo"></span><a href="${urlDe(p)}">${p.titulo}</a></li>`).join('');
+
+// 02 — últimas: 8 cards
+document.getElementById('ultimas-slot').innerHTML = resto.slice(0, 8).map(p => `
+  <a class="card" href="${urlDe(p)}">
+    <figure><img src="${p.img}" alt="${p.titulo}" loading="lazy"></figure>
+    <div class="body">
+      <span class="eyebrow">${catDe(p)}</span>
+      <h3>${p.titulo}</h3>
+      <time>${dataFmt(p.data)}</time>
+    </div>
+  </a>`).join('');
+
+// 03 — editorias
+const ORDEM = [[15, 'ed-trafego'], [13, 'ed-seo'], [14, 'ed-ecommerce'], [17, 'ed-local']];
+document.getElementById('editorias-slot').innerHTML = ORDEM.map(([cat, anchor]) => {
+  const doCat = POSTS.filter(p => p.cats.includes(cat));
+  if (!doCat.length) return '';
+  const [top, ...outros] = doCat;
+  return `
+  <div class="editoria" id="${anchor}">
+    <div class="wrap">
+      <div class="ed-head">
+        <h2><span class="grain roxo"></span>${EDITORIAS[cat]}</h2>
+        <a href="#">Ver editoria →</a>
+      </div>
+      <div class="ed-grid">
+        <a class="ed-destaque" href="${urlDe(top)}">
+          <figure><img src="${top.img}" alt="${top.titulo}" loading="lazy"></figure>
+          <div>
+            <span class="eyebrow cat" style="color:var(--roxo)">Destaque</span>
+            <h3>${top.titulo}</h3>
+            <p>${top.resumo.slice(0, 150)}${top.resumo.length > 150 ? '…' : ''}</p>
+          </div>
+        </a>
+        <ul class="ed-lista">
+          ${outros.slice(0, 3).map((p, i) => `
+          <li><span class="num">${String(i + 2).padStart(2, '0')}</span>
+            <a href="${urlDe(p)}"><h4>${p.titulo}</h4></a></li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  </div>`;
+}).join('');
+
+// 04 — guias essenciais (curadoria: os 2 novos + 2 pilares)
+const GUIAS_SLUGS = ['roas-alto-mas-sem-lucro', 'loja-virtual-nao-vende-o-que-fazer', 'como-estruturar-marketing-de-uma-loja', 'cac-e-ltv-como-calcular-metricas-negocio'];
+document.getElementById('guias-slot').innerHTML = GUIAS_SLUGS
+  .map(s => POSTS.find(p => p.slug === s)).filter(Boolean)
+  .map((p, i) => `
+  <li><span class="num">${String(i + 1).padStart(2, '0')}</span>
+    <a href="${urlDe(p)}"><h3>${p.titulo}<span class="dot"></span></h3></a></li>`).join('');
+
+// 05 — mais lidos (preview: 5 mais recentes com títulos fortes)
+document.getElementById('maislidos-slot').innerHTML = POSTS.slice(0, 5).map((p, i) => `
+  <li><span class="num">${i + 1}</span><a href="${urlDe(p)}"><h4>${p.titulo}</h4></a></li>`).join('');
+</script>
+</body>
+</html>
