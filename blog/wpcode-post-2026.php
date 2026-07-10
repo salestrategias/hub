@@ -135,11 +135,7 @@ add_action( 'template_redirect', function () {
 	.sbp-content #rank-math-toc a{color:#2D1D7A;text-decoration:none;font-weight:500}
 	.sbp-content #rank-math-toc a:hover{color:#7E30E1}
 	/* newsletter: cards ORIGINAIS injetados via wp_footer pelo snippet antigo (CSS deles, não estilizar aqui) */
-	/* CTA diagnóstico */
-	.sbp-cta{max-width:760px;margin:14px auto 8px;background:#F8F6F2;border:1px solid #E9E7E1;border-radius:22px;padding:36px;text-align:center}
-	.sbp-cta h2{font-size:26px;font-weight:800;letter-spacing:-.5px;margin:0 0 8px;color:#0A0A0F}
-	.sbp-cta h2 em{font-style:normal;color:#7E30E1}
-	.sbp-cta p{color:#5A5A66;font-size:15.5px;margin:0 0 22px}
+	/* CTA: card roxo original do snippet legado (CSS dele) */
 	/* autor */
 	.sbp-bio{max-width:760px;margin:34px auto 0;padding:26px 30px;border:1px solid #E9E7E1;border-radius:18px;display:flex;flex-direction:column;gap:8px}
 	.sbp-bio .sb-eyebrow{font-size:11px}
@@ -240,11 +236,11 @@ add_action( 'template_redirect', function () {
 		</div>
 	</article>
 
-	<div class="sbp-cta" id="sal-cta-after-post">
-		<h2>Esse conteúdo fez sentido pro seu negócio? Então vem <em>fechar a conta</em> com a gente.</h2>
-		<p>Diagnóstico gratuito · 15 minutos · direto com quem faz</p>
-		<a class="sb-pill" href="<?php echo esc_url( $DIAG ); ?>">Fazer diagnóstico gratuito →</a>
-	</div>
+	<?php
+	// CTA: o card roxo ORIGINAL (#sal-cta-after-post) vem do snippet legado via wp_footer;
+	// o JS dele o move pra logo depois de .sal-sp-content. Não renderizar CTA próprio
+	// (id duplicado deixa o card original órfão abaixo do rodapé).
+	?>
 
 	<div class="sbp-bio sb-wrap" style="max-width:760px">
 		<span class="sb-eyebrow">Escrito por</span>
