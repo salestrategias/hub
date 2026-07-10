@@ -185,7 +185,6 @@ add_action( 'template_redirect', function () {
 		.sb-wrap{padding:0 20px}
 		.sbp-hero,.sbp-content,.sbp-figura{padding-left:20px;padding-right:20px}
 		.sb-topbar .sb-data{display:none}
-		.sbp-news{margin-left:20px;margin-right:20px}
 	}
 	</style>
 	</head>
