@@ -1,28 +1,36 @@
 "use client";
 /**
- * Portal do Cliente — área pública por cliente.
+ * Portal do Cliente v4 — área pública por cliente.
+ *
+ * Navegação em 4 abas (era 7 — bottom-nav mobile ficava espremida):
+ *   Início    → o que precisa de você + entregas do mês
+ *   Conteúdo  → posts + anúncios unificados (aprovação/acompanhamento)
+ *   Enviar    → caixa de entrada de material do cliente
+ *   Mais      → Briefings, Relatórios, Reuniões, Tarefas, contato
  *
  * Fluxo:
  *  1. GET /api/p/cliente/[token] → info + permissões (ou pede senha)
  *  2. Se precisa senha → tela de login → POST com senha → cria sessão
- *  3. Tabs: Calendário | Tarefas | Reuniões | Relatórios (filtradas
- *     por permissão)
+ *  3. Sessão expirada em QUALQUER fetch → evento global → volta pra
+ *     tela de entrada (nada de "portal vazio" silencioso)
+ *
+ * Deep-link por hash: #conteudo · #enviar · #mais · #revisar (abre o
+ * Modo Revisão direto — pronto pros e-mails de notificação da Fase 1).
  *
  * Layout próprio (não usa Sidebar/Header do app). Mobile-first.
  */
 import { useEffect, useState } from "react";
-import { Sparkles, Calendar, Megaphone, ListChecks, Mic, BarChart3, ClipboardList, Lock, Loader2, XCircle } from "lucide-react";
+import { Sparkles, LayoutGrid, UploadCloud, Menu, Lock, Loader2, XCircle, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/toast";
+import { EVENTO_SESSAO_EXPIRADA } from "@/lib/portal-fetch";
 import { PortalInicio } from "@/components/portal-inicio";
-import { PortalCalendario } from "@/components/portal-calendario";
-import { PortalCriativos } from "@/components/portal-criativos";
-import { PortalTarefas } from "@/components/portal-tarefas";
-import { PortalReunioes } from "@/components/portal-reunioes";
-import { PortalRelatorios } from "@/components/portal-relatorios";
-import { PortalBriefing } from "@/components/portal-briefing";
+import { PortalConteudo } from "@/components/portal-conteudo";
+import { PortalEnviarTab } from "@/components/portal-enviar-tab";
+import { PortalMais } from "@/components/portal-mais";
+import { PortalRevisao } from "@/components/portal-revisao";
 
 type Permissoes = {
   verCalendario: boolean;
@@ -48,9 +56,9 @@ type EstadoInicial =
   | { tipo: "erro"; mensagem: string }
   | { tipo: "ok"; clienteId: string; clienteNome: string; permissoes: Permissoes; marca: Marca };
 
-export type Tab = "inicio" | "calendario" | "criativos" | "tarefas" | "reunioes" | "relatorios" | "briefing";
+export type Tab = "inicio" | "conteudo" | "enviar" | "mais";
 
-/** Estado dos briefings do cliente (controla se a aba aparece + badge). */
+/** Estado dos briefings do cliente (badge na aba Mais). */
 type BriefingsResumo = { total: number; pendentes: number };
 
 /** Roxo SAL (default). Acento da marca só substitui quando difere disso. */
@@ -62,6 +70,15 @@ function sanitizarHex(cor: string | null | undefined): string | null {
   return /^#[0-9a-fA-F]{6}$/.test(cor) ? cor : null;
 }
 
+/** Aba inicial via hash da URL (deep-link de e-mails/atalhos). */
+function tabDoHash(): { tab: Tab; revisar: boolean } {
+  if (typeof window === "undefined") return { tab: "inicio", revisar: false };
+  const h = window.location.hash.replace("#", "");
+  if (h === "revisar") return { tab: "inicio", revisar: true };
+  if (h === "conteudo" || h === "enviar" || h === "mais") return { tab: h, revisar: false };
+  return { tab: "inicio", revisar: false };
+}
+
 export function PortalCliente({ token }: { token: string }) {
   const [estado, setEstado] = useState<EstadoInicial>({ tipo: "carregando" });
   const [tab, setTab] = useState<Tab>("inicio");
@@ -69,10 +86,11 @@ export function PortalCliente({ token }: { token: string }) {
   const [autenticando, setAutenticando] = useState(false);
   const [pendencias, setPendencias] = useState<Pendencias>({ posts: 0, criativos: 0 });
   const [briefingsResumo, setBriefingsResumo] = useState<BriefingsResumo>({ total: 0, pendentes: 0 });
+  const [revisando, setRevisando] = useState(false);
+  // Muda pra forçar remount da aba Conteúdo após o Modo Revisão agir.
+  const [versaoConteudo, setVersaoConteudo] = useState(0);
 
-  // Pendências de aprovação (badges + bloco "Esperando você"). Lê do /resumo
-  // (que já devolve `pendencias`). Recarregado após aprovar/pedir ajuste pra
-  // a contagem cair na hora. Silencioso — é complementar.
+  // Pendências de aprovação (badges + bloco "Esperando você"). Lê do /resumo.
   async function recarregarPendencias() {
     try {
       const res = await fetch(`/api/p/cliente/${token}/resumo`);
@@ -89,9 +107,7 @@ export function PortalCliente({ token }: { token: string }) {
     }
   }
 
-  // Briefings do cliente (ENVIADO/RESPONDIDO). Define se a aba "Briefing"
-  // aparece (total ≥ 1) e a contagem de pendentes (badge). Silencioso —
-  // aba e badge são complementares; recarregado após o cliente responder.
+  // Briefings do cliente (aba Mais + badge de pendentes).
   async function recarregarBriefings() {
     try {
       const res = await fetch(`/api/p/cliente/${token}/briefings`);
@@ -121,6 +137,12 @@ export function PortalCliente({ token }: { token: string }) {
       const res = await fetch(`/api/p/cliente/${token}`, opts);
       const data = await res.json();
       if (!res.ok) {
+        // Senha errada / rate limit: continua na tela de senha com aviso —
+        // não derruba pro estado de erro terminal.
+        if (senhaProvida && (res.status === 401 || res.status === 429)) {
+          toast.error(data?.error ?? "Senha incorreta");
+          return;
+        }
         setEstado({ tipo: "erro", mensagem: data?.error ?? "Falha ao carregar" });
         return;
       }
@@ -139,11 +161,12 @@ export function PortalCliente({ token }: { token: string }) {
         permissoes: data.permissoes,
         marca: { logoUrl: data.cliente.logoUrl ?? null, corPrimaria: data.cliente.corPrimaria ?? null },
       });
-      // Início é a primeira tab e existe sempre — cliente cai nela ao abrir.
-      setTab("inicio");
-      // Carrega contagem de pendências pros badges (não bloqueia render).
+      // Aba inicial: respeita deep-link (#conteudo/#enviar/#mais/#revisar).
+      const { tab: tabInicial, revisar } = tabDoHash();
+      setTab(tabInicial);
+      if (revisar) setRevisando(true);
+      // Carrega badges (não bloqueia render).
       void recarregarPendencias();
-      // Carrega briefings (define se a aba aparece + badge de pendentes).
       void recarregarBriefings();
     } catch (e) {
       setEstado({ tipo: "erro", mensagem: e instanceof Error ? e.message : "Erro" });
@@ -154,6 +177,18 @@ export function PortalCliente({ token }: { token: string }) {
     void carregar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Sessão expirou em qualquer fetch do portal → volta pra tela de entrada.
+  useEffect(() => {
+    function aoExpirar() {
+      setRevisando(false);
+      setEstado({ tipo: "carregando" });
+      void carregar();
+    }
+    window.addEventListener(EVENTO_SESSAO_EXPIRADA, aoExpirar);
+    return () => window.removeEventListener(EVENTO_SESSAO_EXPIRADA, aoExpirar);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   async function entrarComSenha() {
     if (!senha.trim()) return;
@@ -240,39 +275,45 @@ export function PortalCliente({ token }: { token: string }) {
   }
 
   // Estado OK — renderiza portal completo
-  const { permissoes, clienteNome, clienteId, marca } = estado;
-  // Acento da marca: só aplica se for um hex válido E diferente do roxo SAL
-  // (quando é o default, os tokens `primary` já dão conta — sem inline).
+  const { permissoes, clienteNome, marca } = estado;
+  // Acento da marca: só aplica se for um hex válido E diferente do roxo SAL.
   const acento = sanitizarHex(marca.corPrimaria);
   const temAcento = !!acento && acento.toUpperCase() !== COR_SAL;
   const corAtiva = temAcento ? acento! : undefined;
+
+  const verConteudo = permissoes.verCalendario || permissoes.verCriativos;
+  const totalPendencias = pendencias.posts + pendencias.criativos;
+
   const tabsVisiveis: {
     id: Tab;
     label: string;
-    labelCurto: string;
-    icon: typeof Calendar;
+    icon: typeof Sparkles;
     visivel: boolean;
-    /** nº de itens aguardando aprovação nesta aba (0 = sem badge). */
     badge: number;
   }[] = [
-    { id: "inicio", label: "Início", labelCurto: "Início", icon: Sparkles, visivel: true, badge: 0 },
-    { id: "calendario", label: "Calendário", labelCurto: "Agenda", icon: Calendar, visivel: permissoes.verCalendario, badge: pendencias.posts },
-    { id: "criativos", label: "Criativos", labelCurto: "Criativos", icon: Megaphone, visivel: permissoes.verCriativos, badge: pendencias.criativos },
-    { id: "tarefas", label: "Tarefas", labelCurto: "Tarefas", icon: ListChecks, visivel: permissoes.verTarefas, badge: 0 },
-    { id: "briefing", label: "Briefing", labelCurto: "Briefing", icon: ClipboardList, visivel: briefingsResumo.total > 0, badge: briefingsResumo.pendentes },
-    { id: "reunioes", label: "Reuniões", labelCurto: "Reuniões", icon: Mic, visivel: permissoes.verReunioes, badge: 0 },
-    { id: "relatorios", label: "Relatórios", labelCurto: "Relatórios", icon: BarChart3, visivel: permissoes.verRelatorios, badge: 0 },
+    { id: "inicio", label: "Início", icon: Sparkles, visivel: true, badge: 0 },
+    { id: "conteudo", label: "Conteúdo", icon: LayoutGrid, visivel: verConteudo, badge: totalPendencias },
+    { id: "enviar", label: "Enviar", icon: UploadCloud, visivel: permissoes.podeEnviarConteudo, badge: 0 },
+    { id: "mais", label: "Mais", icon: Menu, visivel: true, badge: briefingsResumo.pendentes },
   ];
   const visiveis = tabsVisiveis.filter((t) => t.visivel);
   const temBottomNav = visiveis.length > 1;
+
+  function fecharRevisao(agiu: boolean) {
+    setRevisando(false);
+    if (agiu) {
+      void recarregarPendencias();
+      setVersaoConteudo((v) => v + 1);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background pb-[env(safe-area-inset-bottom)]">
       {/* Header — sticky com safe area pra notch iOS */}
       <header className="sticky top-0 z-20 border-b border-border bg-card/90 backdrop-blur-md safe-area-inset-top">
-        {/* Acento sutil da marca do cliente — fininho, não quebra o clean */}
+        {/* Acento sutil da marca do cliente */}
         {temAcento && <div className="h-[3px] w-full" style={{ background: corAtiva }} />}
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center gap-2.5 sm:gap-3">
+        <div className="max-w-2xl lg:max-w-3xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center gap-2.5 sm:gap-3">
           {marca.logoUrl ? (
             <div
               className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-white border border-border shadow-sm"
@@ -292,11 +333,23 @@ export function PortalCliente({ token }: { token: string }) {
               entregue por SAL Estratégias de Marketing
             </p>
           </div>
+          {/* Atalho de revisão no header (desktop) quando há pendência */}
+          {totalPendencias > 0 && verConteudo && (
+            <button
+              type="button"
+              onClick={() => setRevisando(true)}
+              className="touch-feedback hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-[12px] font-semibold text-primary-foreground shadow-sm hover:opacity-90"
+              style={temAcento ? { background: corAtiva } : undefined}
+            >
+              <ClipboardCheck className="h-3.5 w-3.5" />
+              Revisar ({totalPendencias})
+            </button>
+          )}
         </div>
 
         {/* Tabs no TOPO — só em >= sm (no mobile vira bottom-nav app-like) */}
         {visiveis.length > 1 && (
-          <nav className="hidden sm:flex max-w-5xl mx-auto px-6 gap-1 portal-tabs-scroll overflow-x-auto border-t border-border/30">
+          <nav className="hidden sm:flex max-w-2xl lg:max-w-3xl mx-auto px-6 gap-1 border-t border-border/30">
             {visiveis.map((t) => {
               const Icon = t.icon;
               const ativo = tab === t.id;
@@ -329,7 +382,7 @@ export function PortalCliente({ token }: { token: string }) {
 
       {/* Conteúdo — padding-bottom extra no mobile pra não ficar atrás da bottom-nav */}
       <main
-        className={`max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-5 ${
+        className={`max-w-2xl lg:max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-5 ${
           temBottomNav ? "pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-5" : ""
         }`}
       >
@@ -339,66 +392,63 @@ export function PortalCliente({ token }: { token: string }) {
             clienteNome={clienteNome}
             acento={corAtiva}
             pendencias={pendencias}
-            podeVerCalendario={permissoes.verCalendario}
-            podeVerCriativos={permissoes.verCriativos}
+            briefingsPendentes={briefingsResumo.pendentes}
+            podeRevisar={verConteudo && (permissoes.podeAprovarPosts || permissoes.podeAprovarCriativos)}
+            podeEnviar={permissoes.podeEnviarConteudo}
+            onRevisar={() => setRevisando(true)}
             onIrParaTab={(t) => setTab(t)}
           />
         )}
-        {tab === "calendario" && permissoes.verCalendario && (
-          <PortalCalendario
+        {tab === "conteudo" && verConteudo && (
+          <PortalConteudo
+            key={versaoConteudo}
             token={token}
-            podeAprovar={permissoes.podeAprovarPosts}
-            podeComentar={permissoes.podeComentar}
-            podeEnviar={permissoes.podeEnviarConteudo}
+            permissoes={{
+              verCalendario: permissoes.verCalendario,
+              verCriativos: permissoes.verCriativos,
+              podeAprovarPosts: permissoes.podeAprovarPosts,
+              podeAprovarCriativos: permissoes.podeAprovarCriativos,
+              podeComentar: permissoes.podeComentar,
+              podeEnviarConteudo: permissoes.podeEnviarConteudo,
+            }}
             onPendenciasMudaram={recarregarPendencias}
+            onAbrirRevisao={() => setRevisando(true)}
           />
         )}
-        {tab === "criativos" && permissoes.verCriativos && (
-          <PortalCriativos
-            token={token}
-            podeAprovar={permissoes.podeAprovarCriativos}
-            podeComentar={permissoes.podeComentar}
-            podeEnviar={permissoes.podeEnviarConteudo}
-            onPendenciasMudaram={recarregarPendencias}
-          />
+        {tab === "enviar" && permissoes.podeEnviarConteudo && (
+          <PortalEnviarTab token={token} clienteNome={clienteNome} />
         )}
-        {tab === "tarefas" && permissoes.verTarefas && <PortalTarefas token={token} />}
-        {tab === "briefing" && briefingsResumo.total > 0 && (
-          <PortalBriefing
+        {tab === "mais" && (
+          <PortalMais
             token={token}
             clienteNome={clienteNome}
+            permissoes={{
+              verTarefas: permissoes.verTarefas,
+              verReunioes: permissoes.verReunioes,
+              verRelatorios: permissoes.verRelatorios,
+            }}
+            briefingsPendentes={briefingsResumo.pendentes}
+            temBriefings={briefingsResumo.total > 0}
             onPendenciasMudaram={recarregarBriefings}
           />
-        )}
-        {tab === "reunioes" && permissoes.verReunioes && <PortalReunioes token={token} />}
-        {tab === "relatorios" && permissoes.verRelatorios && (
-          <PortalRelatorios clienteId={clienteId} />
-        )}
-        {visiveis.length === 0 && (
-          <Card>
-            <CardContent className="p-8 text-center text-sm text-muted-foreground">
-              Nada habilitado pra exibir. Entre em contato com a SAL.
-            </CardContent>
-          </Card>
         )}
       </main>
 
       <footer
-        className={`max-w-5xl mx-auto px-3 sm:px-6 py-6 text-center text-[10.5px] text-muted-foreground/70 ${
+        className={`max-w-2xl lg:max-w-3xl mx-auto px-3 sm:px-6 py-6 text-center text-[10.5px] text-muted-foreground/70 ${
           temBottomNav ? "hidden sm:block" : "safe-area-inset-bottom"
         }`}
       >
         SAL Estratégias de Marketing · Portal do Cliente
       </footer>
 
-      {/* Bottom-nav app-like — só no mobile (< sm). Tabs fixas no rodapé,
-          alcance do polegar. Tab ativa destacada na cor SAL. */}
+      {/* Bottom-nav app-like — só no mobile (< sm). 4 abas, alcance do polegar. */}
       {temBottomNav && (
         <nav
           className="sm:hidden fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)]"
           aria-label="Navegação principal"
         >
-          <div className="mx-auto flex max-w-5xl items-stretch justify-around">
+          <div className="mx-auto flex max-w-2xl items-stretch justify-around">
             {visiveis.map((t) => {
               const Icon = t.icon;
               const ativo = tab === t.id;
@@ -420,7 +470,7 @@ export function PortalCliente({ token }: { token: string }) {
                       <span
                         className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-primary-foreground ring-2 ring-card"
                         style={temAcento ? { background: corAtiva } : undefined}
-                        aria-label={`${t.badge} aguardando aprovação`}
+                        aria-label={`${t.badge} pendências`}
                       >
                         {t.badge > 9 ? "9+" : t.badge}
                       </span>
@@ -436,7 +486,7 @@ export function PortalCliente({ token }: { token: string }) {
                     }`}
                     style={ativo && temAcento ? { color: corAtiva } : undefined}
                   >
-                    {t.labelCurto}
+                    {t.label}
                   </span>
                 </button>
               );
@@ -444,20 +494,35 @@ export function PortalCliente({ token }: { token: string }) {
           </div>
         </nav>
       )}
+
+      {/* Modo Revisão — overlay fullscreen (fila item a item) */}
+      {revisando && (
+        <PortalRevisao
+          token={token}
+          permissoes={{
+            verCalendario: permissoes.verCalendario,
+            verCriativos: permissoes.verCriativos,
+            podeAprovarPosts: permissoes.podeAprovarPosts,
+            podeAprovarCriativos: permissoes.podeAprovarCriativos,
+            podeComentar: permissoes.podeComentar,
+          }}
+          onFechar={fecharRevisao}
+        />
+      )}
     </div>
   );
 }
 
 /**
  * Badge de contagem das top-tabs (≥ sm) — pílula pequena com o nº de itens
- * aguardando aprovação. Usa o acento da marca quando há; senão, primary.
+ * aguardando. Usa o acento da marca quando há; senão, primary.
  */
 function ContadorBadge({ n, acento }: { n: number; acento?: string }) {
   return (
     <span
       className="ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-primary-foreground"
       style={acento ? { background: acento } : undefined}
-      aria-label={`${n} aguardando aprovação`}
+      aria-label={`${n} pendências`}
     >
       {n > 9 ? "9+" : n}
     </span>

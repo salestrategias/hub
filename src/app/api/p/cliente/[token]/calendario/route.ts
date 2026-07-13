@@ -6,7 +6,7 @@
  * estágios em que cliente faz sentido enxergar (COPY_PRONTA em
  * diante).
  */
-import { apiHandler } from "@/lib/api";
+import { apiHandler, ApiError } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { requerSessaoCliente, COOKIE_PORTAL_CLIENTE } from "@/lib/cliente-acesso";
 import { cookies } from "next/headers";
@@ -15,7 +15,7 @@ export async function GET(req: Request, { params }: { params: { token: string } 
   return apiHandler(async () => {
     const cookieValue = cookies().get(COOKIE_PORTAL_CLIENTE)?.value;
     const r = await requerSessaoCliente(params.token, cookieValue);
-    if (!r.acesso.verCalendario) throw new Error("Sem permissão pra calendário");
+    if (!r.acesso.verCalendario) throw new ApiError(403, "Sem permissão pra calendário");
 
     const { searchParams } = new URL(req.url);
     const desdeRaw = searchParams.get("desde");
@@ -33,9 +33,11 @@ export async function GET(req: Request, { params }: { params: { token: string } 
         status: { in: ["COPY_PRONTA", "DESIGN_PRONTO", "AGENDADO", "PUBLICADO"] },
       },
       include: {
+        // Thread completa (limite alto por sanidade) — o portal mostra a
+        // conversa inteira de aprovação/ajustes, não só o 1º de cada tipo.
         comentarios: {
           orderBy: { createdAt: "desc" },
-          take: 5,
+          take: 30,
           select: { id: true, tipo: true, texto: true, createdAt: true },
         },
         arquivos: {
@@ -54,6 +56,9 @@ export async function GET(req: Request, { params }: { params: { token: string } 
       formato: p.formato,
       status: p.status,
       dataPublicacao: p.dataPublicacao.toISOString(),
+      // updatedAt alimenta a heurística "Com a SAL": se o post não mudou
+      // desde o pedido de ajuste do cliente, a bola está com a agência.
+      updatedAt: p.updatedAt.toISOString(),
       hashtags: p.hashtags,
       cta: p.cta,
       // observacoesProducao é interno — NÃO expõe pro cliente

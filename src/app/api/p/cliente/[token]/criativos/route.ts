@@ -5,7 +5,7 @@
  *  - Só do cliente do token
  *  - Só status que faz sentido pro cliente ver (RASCUNHO fica interno)
  */
-import { apiHandler } from "@/lib/api";
+import { apiHandler, ApiError } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { requerSessaoCliente, COOKIE_PORTAL_CLIENTE } from "@/lib/cliente-acesso";
 import { cookies } from "next/headers";
@@ -14,7 +14,7 @@ export async function GET(_req: Request, { params }: { params: { token: string }
   return apiHandler(async () => {
     const cookieValue = cookies().get(COOKIE_PORTAL_CLIENTE)?.value;
     const r = await requerSessaoCliente(params.token, cookieValue);
-    if (!r.acesso.verCriativos) throw new Error("Sem permissão pra criativos");
+    if (!r.acesso.verCriativos) throw new ApiError(403, "Sem permissão pra criativos");
 
     const criativos = await prisma.criativo.findMany({
       where: {
@@ -25,7 +25,7 @@ export async function GET(_req: Request, { params }: { params: { token: string }
       include: {
         comentarios: {
           orderBy: { createdAt: "desc" },
-          take: 5,
+          take: 30,
           select: { id: true, tipo: true, texto: true, createdAt: true },
         },
         arquivos: {
@@ -40,6 +40,7 @@ export async function GET(_req: Request, { params }: { params: { token: string }
       id: c.id,
       titulo: c.titulo,
       status: c.status,
+      updatedAt: c.updatedAt.toISOString(),
       plataforma: c.plataforma,
       formato: c.formato,
       textoPrincipal: c.textoPrincipal,

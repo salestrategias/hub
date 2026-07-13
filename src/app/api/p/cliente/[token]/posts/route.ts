@@ -68,12 +68,22 @@ export async function POST(req: Request, { params }: { params: { token: string }
 
     const data = portalPostSubmissaoSchema.parse(await req.json());
 
+    // Envio simplificado (Portal v4): título e data são opcionais — o
+    // cliente pode só soltar os arquivos. Defaults amigáveis; a SAL
+    // renomeia/reagenda na triagem.
+    const agora = new Date();
+    const tituloFinal =
+      (data.titulo ?? "").trim() ||
+      `Material de ${r.cliente.nome} — ${agora.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}`;
+    const dataFinal =
+      data.dataPublicacao ?? new Date(agora.getTime() + 7 * 24 * 3600_000);
+
     const post = await prisma.post.create({
       data: {
-        titulo: data.titulo,
+        titulo: tituloFinal,
         legenda: data.legenda || null,
         formato: data.formato,
-        dataPublicacao: data.dataPublicacao,
+        dataPublicacao: dataFinal,
         hashtags: data.hashtags,
         clienteId: r.cliente.id,
         // Caminho inverso: submetido pelo cliente, aguardando revisão do Marcelo

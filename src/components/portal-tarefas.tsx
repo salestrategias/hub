@@ -4,11 +4,13 @@
  * Cliente vê em que a SAL está trabalhando, separado em abertas e
  * concluídas (últimos 30 dias).
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ListChecks, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fetchPortal } from "@/lib/portal-fetch";
 
 type Tarefa = {
   id: string;
@@ -38,14 +40,24 @@ const PRIO_LABEL: Record<string, string> = {
 export function PortalTarefas({ token }: { token: string }) {
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(false);
+
+  const carregar = useCallback(() => {
+    setLoading(true);
+    setErro(false);
+    fetchPortal(`/api/p/cliente/${token}/tarefas`)
+      .then(async (r) => {
+        const d = await r.json().catch(() => null);
+        if (r.ok && Array.isArray(d)) setTarefas(d);
+        else setErro(true);
+      })
+      .catch(() => setErro(true))
+      .finally(() => setLoading(false));
+  }, [token]);
 
   useEffect(() => {
-    fetch(`/api/p/cliente/${token}/tarefas`)
-      .then((r) => r.json())
-      .then((d) => { if (Array.isArray(d)) setTarefas(d); })
-      .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    carregar();
+  }, [carregar]);
 
   if (loading) {
     return (
@@ -74,7 +86,14 @@ export function PortalTarefas({ token }: { token: string }) {
       <Card>
         <CardContent className="p-8 text-center space-y-2">
           <ListChecks className="h-10 w-10 mx-auto text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">Sem tarefas registradas pra você no momento.</p>
+          <p className="text-sm text-muted-foreground">
+            {erro ? "Não conseguimos carregar as tarefas." : "Sem tarefas registradas pra você no momento."}
+          </p>
+          {erro && (
+            <Button variant="outline" size="sm" onClick={carregar} className="touch-feedback">
+              Tentar de novo
+            </Button>
+          )}
         </CardContent>
       </Card>
     );

@@ -119,11 +119,14 @@ const portalArquivoSchema = z.object({
   ordem: z.coerce.number().int().default(0),
 });
 
+// Envio simplificado (Portal v4): o cliente pode mandar SÓ os arquivos +
+// um recado. Título e data viram opcionais — o servidor gera defaults
+// ("Material de {cliente} DD/MM" e hoje+7d) e a SAL classifica na triagem.
 export const portalPostSubmissaoSchema = z.object({
-  titulo: z.string().min(1, "Título obrigatório").max(200),
+  titulo: z.string().trim().max(200).optional().nullable().or(z.literal("")),
   legenda: z.string().max(20_000).optional().nullable().or(z.literal("")),
-  formato: z.enum(["FEED", "STORIES", "REELS", "CARROSSEL"]),
-  dataPublicacao: z.coerce.date(),
+  formato: z.enum(["FEED", "STORIES", "REELS", "CARROSSEL"]).default("FEED"),
+  dataPublicacao: z.coerce.date().optional().nullable(),
   hashtags: z.array(z.string().max(80)).max(60).default([]),
   arquivos: z.array(portalArquivoSchema).max(20).default([]),
 });
@@ -139,21 +142,25 @@ export const portalAnexarArteSchema = z.object({
 export type PortalAnexarArteInput = z.infer<typeof portalAnexarArteSchema>;
 
 export const portalCriativoSubmissaoSchema = z.object({
-  titulo: z.string().min(1, "Título obrigatório").max(200),
+  titulo: z.string().trim().max(200).optional().nullable().or(z.literal("")),
   textoPrincipal: z.string().max(5000).optional().nullable().or(z.literal("")),
   headline: z.string().max(200).optional().nullable().or(z.literal("")),
-  plataforma: z.enum(["META_ADS", "GOOGLE_ADS", "TIKTOK_ADS", "YOUTUBE_ADS", "LINKEDIN_ADS"]),
-  formato: z.enum([
-    "POST_IMAGEM",
-    "POST_VIDEO",
-    "CARROSSEL",
-    "COLLECTION",
-    "STORY",
-    "REELS_AD",
-    "RESPONSIVE_DISPLAY",
-    "SEARCH_AD",
-    "PERFORMANCE_MAX",
-  ]),
+  plataforma: z
+    .enum(["META_ADS", "GOOGLE_ADS", "TIKTOK_ADS", "YOUTUBE_ADS", "LINKEDIN_ADS"])
+    .default("META_ADS"),
+  formato: z
+    .enum([
+      "POST_IMAGEM",
+      "POST_VIDEO",
+      "CARROSSEL",
+      "COLLECTION",
+      "STORY",
+      "REELS_AD",
+      "RESPONSIVE_DISPLAY",
+      "SEARCH_AD",
+      "PERFORMANCE_MAX",
+    ])
+    .default("POST_IMAGEM"),
   arquivos: z.array(portalArquivoSchema).max(20).default([]),
 });
 export type PortalCriativoSubmissaoInput = z.infer<typeof portalCriativoSubmissaoSchema>;

@@ -1,22 +1,18 @@
 "use client";
 /**
- * Tab "Início" do Portal — home "Entregas & Resultados".
- *
- * Primeira tela que o cliente vê. Foco em VALOR: o que a SAL entregou
- * pra ele. Read-only.
+ * Tab "Início" do Portal v4 — home de decisão + entregas.
  *
  * Blocos:
- *  1. Boas-vindas (saudação + nome + linha de valor)
- *  2. "Esperando você" — só se há itens aguardando a aprovação do cliente
- *     (atalho que leva pra aba certa). Estado ATUAL, não muda com o mês.
- *  3. Navegação de mês (◀ {Mês} ▶) — histórico de entregas. Não passa do
- *     mês atual (futuro não tem entrega pra mostrar).
- *  4. 4 contadores grandes de entregas do mês (posts, criativos,
- *     reuniões, tarefas concluídas)
- *  5. Últimas entregas (timeline curtinha: ícone + título + data relativa)
+ *  1. Boas-vindas (saudação + nome)
+ *  2. "Esperando você" — hero com UMA chamada: "Revisar agora" abre o
+ *     Modo Revisão (fila item a item). Briefing pendente vira linha à parte.
+ *  3. Atalho "Enviar material" (quando o cliente pode enviar)
+ *  4. Navegação de mês (◀ {Mês} ▶) — histórico de entregas
+ *  5. 4 contadores de entregas do mês
+ *  6. Últimas entregas (timeline curtinha)
  *
- * Acento da marca (corPrimaria) é opcional, aplicado via style inline
- * só nos números/ícones/destaques. Sem CSS-in-JS — só tokens Tailwind.
+ * Acento da marca (corPrimaria) aplicado via style inline só em
+ * números/ícones/destaques. Sem CSS-in-JS — só tokens Tailwind.
  */
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -29,9 +25,12 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
+  ClipboardList,
+  UploadCloud,
   ArrowRight,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { fetchPortal } from "@/lib/portal-fetch";
 import type { Tab } from "@/components/portal-cliente";
 
 type EntregasMes = {
@@ -58,21 +57,17 @@ type Resumo = {
 type Pendencias = { posts: number; criativos: number };
 
 // ─── Helpers de mês ────────────────────────────────────────────────────
-/** "YYYY-MM" de uma data. */
 function mesIso(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
-/** "YYYY-MM" do mês atual. */
 function mesAtualIso(): string {
   return mesIso(new Date());
 }
-/** Soma `delta` meses a um "YYYY-MM" e devolve outro "YYYY-MM". */
 function somarMes(iso: string, delta: number): string {
   const [a, m] = iso.split("-").map(Number);
   const d = new Date(a, m - 1 + delta, 1);
   return mesIso(d);
 }
-/** Rótulo por extenso de um "YYYY-MM", ex.: "Junho de 2026" (capitalizado). */
 function rotuloMes(iso: string): string {
   const [a, m] = iso.split("-").map(Number);
   const s = new Date(a, m - 1, 1).toLocaleDateString("pt-BR", {
@@ -102,8 +97,10 @@ export function PortalInicio({
   clienteNome,
   acento,
   pendencias = { posts: 0, criativos: 0 },
-  podeVerCalendario = false,
-  podeVerCriativos = false,
+  briefingsPendentes = 0,
+  podeRevisar = false,
+  podeEnviar = false,
+  onRevisar,
   onIrParaTab,
 }: {
   token: string;
@@ -112,15 +109,19 @@ export function PortalInicio({
   acento?: string;
   /** Itens aguardando a aprovação do cliente (alimenta "Esperando você"). */
   pendencias?: Pendencias;
-  /** Permissões — só oferece atalho de aprovação pra aba que o cliente vê. */
-  podeVerCalendario?: boolean;
-  podeVerCriativos?: boolean;
-  /** Troca a aba do portal (atalhos do bloco "Esperando você"). */
+  /** Briefings aguardando resposta (linha própria no "Esperando você"). */
+  briefingsPendentes?: number;
+  /** Cliente pode aprovar algo → CTA abre o Modo Revisão. */
+  podeRevisar?: boolean;
+  /** Cliente pode enviar material → atalho pra aba Enviar. */
+  podeEnviar?: boolean;
+  /** Abre o Modo Revisão (fila item a item). */
+  onRevisar?: () => void;
+  /** Troca a aba do portal (atalhos). */
   onIrParaTab?: (tab: Tab) => void;
 }) {
   const [resumo, setResumo] = useState<Resumo | null>(null);
   const [loading, setLoading] = useState(true);
-  // Mês exibido (histórico). Default = mês atual.
   const [mes, setMes] = useState<string>(mesAtualIso());
 
   const ehMesAtual = mes === mesAtualIso();
@@ -128,12 +129,13 @@ export function PortalInicio({
   const carregar = useCallback(
     (alvoMes: string) => {
       setLoading(true);
-      fetch(`/api/p/cliente/${token}/resumo?mes=${alvoMes}`)
+      fetchPortal(`/api/p/cliente/${token}/resumo?mes=${alvoMes}`)
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => {
           if (d && d.entregasMes) setResumo(d as Resumo);
           else setResumo(null);
         })
+        .catch(() => setResumo(null))
         .finally(() => setLoading(false));
     },
     [token]
@@ -143,10 +145,7 @@ export function PortalInicio({
     carregar(mes);
   }, [carregar, mes]);
 
-  // Pendências só viram atalho se a aba correspondente está visível.
-  const pendPosts = podeVerCalendario ? pendencias.posts : 0;
-  const pendCriativos = podeVerCriativos ? pendencias.criativos : 0;
-  const totalPendencias = pendPosts + pendCriativos;
+  const totalPendencias = podeRevisar ? pendencias.posts + pendencias.criativos : 0;
 
   const entregas = resumo?.entregasMes ?? {
     postsPublicados: 0,
@@ -163,7 +162,7 @@ export function PortalInicio({
 
   const cards: { label: string; valor: number; icon: typeof Megaphone }[] = [
     { label: "Posts publicados", valor: entregas.postsPublicados, icon: Megaphone },
-    { label: "Criativos", valor: entregas.criativosProduzidos, icon: ImageIcon },
+    { label: "Anúncios produzidos", valor: entregas.criativosProduzidos, icon: ImageIcon },
     { label: "Reuniões", valor: entregas.reunioesRealizadas, icon: Mic },
     { label: "Tarefas concluídas", valor: entregas.tarefasConcluidas, icon: CheckCircle2 },
   ];
@@ -188,17 +187,102 @@ export function PortalInicio({
         </p>
       </section>
 
-      {/* 2) Esperando você — só se há pendências de aprovação (estado atual) */}
-      {totalPendencias > 0 && onIrParaTab && (
-        <EsperandoVoce
-          posts={pendPosts}
-          criativos={pendCriativos}
-          acento={acento}
-          onIrParaTab={onIrParaTab}
-        />
+      {/* 2) Esperando você — UMA chamada de ação */}
+      {(totalPendencias > 0 || briefingsPendentes > 0) && (
+        <section
+          className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 sm:p-4 space-y-3"
+          style={acento ? { borderColor: `${acento}4D`, background: `${acento}0D` } : undefined}
+        >
+          <div className="flex items-start gap-3">
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15"
+              style={acento ? { background: `${acento}26` } : undefined}
+            >
+              <ClipboardCheck className="h-5 w-5 text-primary" style={acento ? { color: acento } : undefined} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h2 className="font-display text-sm font-semibold leading-tight">Esperando você</h2>
+              <p className="text-[12.5px] text-muted-foreground leading-snug mt-0.5">
+                {totalPendencias > 0 ? (
+                  <>
+                    <span className="font-semibold text-foreground">
+                      {totalPendencias} {totalPendencias === 1 ? "conteúdo" : "conteúdos"}
+                    </span>{" "}
+                    pra você aprovar
+                    {briefingsPendentes > 0 &&
+                      ` · ${briefingsPendentes} briefing${briefingsPendentes > 1 ? "s" : ""} pra responder`}
+                  </>
+                ) : (
+                  <>
+                    <span className="font-semibold text-foreground">
+                      {briefingsPendentes} briefing{briefingsPendentes > 1 ? "s" : ""}
+                    </span>{" "}
+                    pra você responder
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row">
+            {totalPendencias > 0 && onRevisar && (
+              <button
+                type="button"
+                onClick={onRevisar}
+                className="touch-feedback flex flex-1 items-center justify-between gap-2 rounded-lg bg-primary px-3.5 py-3 text-[13.5px] font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
+                style={acento ? { background: acento } : undefined}
+              >
+                <span>Revisar agora</span>
+                <ArrowRight className="h-4 w-4 shrink-0" />
+              </button>
+            )}
+            {briefingsPendentes > 0 && onIrParaTab && (
+              <button
+                type="button"
+                onClick={() => onIrParaTab("mais")}
+                className={`touch-feedback flex items-center justify-between gap-2 rounded-lg px-3.5 py-3 text-[13px] font-medium shadow-sm transition-opacity hover:opacity-90 ${
+                  totalPendencias > 0
+                    ? "border border-border bg-card text-foreground sm:w-auto"
+                    : "flex-1 bg-primary text-primary-foreground"
+                }`}
+                style={
+                  totalPendencias === 0 && acento ? { background: acento } : undefined
+                }
+              >
+                <span className="flex items-center gap-1.5">
+                  <ClipboardList className="h-4 w-4" /> Responder briefing
+                </span>
+                <ArrowRight className="h-4 w-4 shrink-0" />
+              </button>
+            )}
+          </div>
+        </section>
       )}
 
-      {/* 3) Navegação de mês (histórico de entregas) */}
+      {/* 3) Atalho de envio */}
+      {podeEnviar && onIrParaTab && (
+        <button
+          type="button"
+          onClick={() => onIrParaTab("enviar")}
+          className="touch-feedback flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left hover:border-primary/40 transition-colors"
+        >
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10"
+            style={acento ? { background: `${acento}1A` } : undefined}
+          >
+            <UploadCloud className="h-5 w-5 text-primary" style={acento ? { color: acento } : undefined} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13.5px] font-medium leading-tight">Enviar material pra SAL</span>
+            <span className="block text-[11.5px] text-muted-foreground leading-snug mt-0.5">
+              Fotos, vídeos e ideias viram conteúdo
+            </span>
+          </span>
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
+        </button>
+      )}
+
+      {/* 4) Navegação de mês (histórico de entregas) */}
       <section className="flex items-center justify-between gap-2">
         <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Entregas do mês
@@ -231,7 +315,7 @@ export function PortalInicio({
         <ConteudoSkeleton />
       ) : (
         <>
-          {/* 4) Cards de entregas do mês */}
+          {/* 5) Cards de entregas do mês */}
           <section className="grid grid-cols-2 gap-2.5 sm:gap-3">
             {cards.map((c) => {
               const Icon = c.icon;
@@ -262,7 +346,7 @@ export function PortalInicio({
             })}
           </section>
 
-          {/* 5) Últimas entregas */}
+          {/* 6) Últimas entregas */}
           <section className="space-y-2">
             <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               {ehMesAtual ? "Últimas entregas" : "Entregas do mês"}
@@ -301,92 +385,9 @@ export function PortalInicio({
   );
 }
 
-/**
- * Bloco "Esperando você" — destaque acionável quando há itens aguardando a
- * aprovação do cliente. Um botão por tipo com pendência (posts → Calendário,
- * criativos → Criativos). Acento da marca quando há; senão, primary.
- */
-function EsperandoVoce({
-  posts,
-  criativos,
-  acento,
-  onIrParaTab,
-}: {
-  posts: number;
-  criativos: number;
-  acento?: string;
-  onIrParaTab: (tab: Tab) => void;
-}) {
-  const total = posts + criativos;
-  return (
-    <section
-      className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 sm:p-4"
-      style={acento ? { borderColor: `${acento}4D`, background: `${acento}0D` } : undefined}
-    >
-      <div className="flex items-start gap-3">
-        <span
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15"
-          style={acento ? { background: `${acento}26` } : undefined}
-        >
-          <ClipboardCheck className="h-5 w-5 text-primary" style={acento ? { color: acento } : undefined} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h2 className="font-display text-sm font-semibold leading-tight">Esperando você</h2>
-          <p className="text-[12.5px] text-muted-foreground leading-snug mt-0.5">
-            Você tem{" "}
-            <span className="font-semibold text-foreground">
-              {total} {total === 1 ? "item" : "itens"}
-            </span>{" "}
-            pra aprovar.
-          </p>
-        </div>
-      </div>
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-        {posts > 0 && (
-          <BotaoPendencia
-            label={`${posts} ${posts === 1 ? "post" : "posts"} pra aprovar`}
-            acento={acento}
-            onClick={() => onIrParaTab("calendario")}
-          />
-        )}
-        {criativos > 0 && (
-          <BotaoPendencia
-            label={`${criativos} ${criativos === 1 ? "criativo" : "criativos"} pra aprovar`}
-            acento={acento}
-            onClick={() => onIrParaTab("criativos")}
-          />
-        )}
-      </div>
-    </section>
-  );
-}
-
-/** Botão de atalho do bloco "Esperando você" (cor sólida da marca/primary). */
-function BotaoPendencia({
-  label,
-  acento,
-  onClick,
-}: {
-  label: string;
-  acento?: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="touch-feedback flex flex-1 items-center justify-between gap-2 rounded-lg bg-primary px-3.5 py-2.5 text-[13px] font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
-      style={acento ? { background: acento } : undefined}
-    >
-      <span className="truncate">{label}</span>
-      <ArrowRight className="h-4 w-4 shrink-0" />
-    </button>
-  );
-}
-
 function EntregaItem({ entrega, acento }: { entrega: Entrega; acento?: string }) {
   const Icon = entrega.tipo === "post" ? Megaphone : ImageIcon;
-  const rotuloTipo = entrega.tipo === "post" ? "Post publicado" : "Criativo";
+  const rotuloTipo = entrega.tipo === "post" ? "Post publicado" : "Anúncio produzido";
   return (
     <div className="flex items-center gap-3 px-3.5 py-3">
       <span

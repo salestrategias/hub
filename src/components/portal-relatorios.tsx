@@ -1,14 +1,11 @@
 "use client";
 /**
- * Tab Relatórios do Portal — reusa o PDF mensal que já existe.
+ * Relatórios do Portal — reusa o PDF mensal que já existe.
  *
  * Lista os últimos 6 meses. Click → abre o PDF gerado on-demand pelo
- * endpoint `/api/clientes/[id]/relatorio-mensal?ano=...&mes=...`.
- *
- * NOTA: o endpoint do PDF requer auth interna (NextAuth) hoje. Pra
- * funcionar no portal, precisaria liberar via token. MVP: cliente
- * vê a lista mas o link só funciona depois que liberarmos o endpoint
- * pra portal (próxima sessão). Por enquanto, lista + nota explicativa.
+ * endpoint DO PORTAL `/api/p/cliente/[token]/relatorio-mensal?ano=&mes=`,
+ * autenticado pela sessão do cliente (não exige mais login interno —
+ * o antigo 401 morreu aqui).
  */
 import { BarChart3, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,7 +15,7 @@ const MESES = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
-export function PortalRelatorios({ clienteId }: { clienteId: string }) {
+export function PortalRelatorios({ token }: { token: string }) {
   const hoje = new Date();
   const meses: { ano: number; mes: number; label: string }[] = [];
   for (let i = 0; i < 6; i++) {
@@ -48,7 +45,7 @@ export function PortalRelatorios({ clienteId }: { clienteId: string }) {
         {meses.map((m) => (
           <a
             key={`${m.ano}-${m.mes}`}
-            href={`/api/clientes/${clienteId}/relatorio-mensal?ano=${m.ano}&mes=${m.mes}`}
+            href={`/api/p/cliente/${token}/relatorio-mensal?ano=${m.ano}&mes=${m.mes}`}
             target="_blank"
             rel="noreferrer"
             className="block touch-feedback"
@@ -70,7 +67,7 @@ export function PortalRelatorios({ clienteId }: { clienteId: string }) {
       </div>
 
       <p className="text-[10.5px] text-muted-foreground/70 text-center px-4">
-        Se o PDF não abrir, peça ao seu contato na SAL — o relatório pode estar em produção.
+        O PDF é gerado na hora, com os dados mais recentes do seu mês.
       </p>
     </div>
   );

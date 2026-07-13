@@ -1,42 +1,40 @@
 "use client";
 /**
- * Portal v2 — submissão de conteúdo PELO CLIENTE (caminho inverso).
+ * Portal v4 — envio de conteúdo PELO CLIENTE (caminho inverso).
  *
- * Quando `podeEnviarConteudo` está ligado, o cliente pode enviar posts
- * (calendário) e criativos (tráfego) pra SAL revisar. Este arquivo
- * concentra:
- *   - <EnviarConteudoDialog>  — formulário (bottom-sheet) com upload de
- *     arte/vídeo + campos por tipo. Comprime imagens client-side (mesma
- *     mecânica do post-arquivos-editor) e manda como dataURL.
- *   - <MinhasSubmissoes>      — lista das submissões do próprio cliente
+ * Este arquivo concentra as peças reutilizáveis do fluxo de envio:
+ *   - <UploaderArquivos>  — dropzone (arrastar/colar/câmera/galeria) com
+ *     compressão client-side de imagem; usado na aba Enviar e no
+ *     "Anexar arte" de um post existente.
+ *   - <MinhasSubmissoes>  — lista das submissões do próprio cliente
  *     com badge de status (Em revisão / Aprovado / Ajuste pedido).
- *   - <BotaoEnviar>           — botão de abrir o form (+ Enviar post/criativo).
  *
- * Mobile-first: touch targets 44px, bottom-sheet, safe-area herdada do
- * shell. Sem <style jsx>.
+ * O formulário completo de submissão (v2/v3) foi substituído pela aba
+ * Enviar (portal-enviar-tab.tsx) — classificar conteúdo é trabalho da
+ * SAL, não do cliente.
+ *
+ * Mobile-first: touch targets 44px, safe-area herdada do shell.
+ * Sem <style jsx>.
  */
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Upload,
   Link2,
   Trash2,
   Loader2,
   Send,
-  Plus,
   FileText,
   Video,
   Clock,
   CheckCircle2,
   AlertTriangle,
+  Camera,
   Image as ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export type ModoEnvio = "post" | "criativo";
 
@@ -58,42 +56,6 @@ export type Submissao = {
   dataPublicacao?: string;
   arquivos: { id: string; tipo: string; url: string; nome: string | null }[];
 };
-
-const FORMATO_POST = [
-  { v: "FEED", l: "Post estático" },
-  { v: "CARROSSEL", l: "Carrossel" },
-  { v: "REELS", l: "Reels / Vídeo" },
-  { v: "STORIES", l: "Stories" },
-];
-
-const PLATAFORMA_CRIATIVO = [
-  { v: "META_ADS", l: "Meta Ads (Face/Insta)" },
-  { v: "GOOGLE_ADS", l: "Google Ads" },
-  { v: "TIKTOK_ADS", l: "TikTok Ads" },
-  { v: "YOUTUBE_ADS", l: "YouTube Ads" },
-  { v: "LINKEDIN_ADS", l: "LinkedIn Ads" },
-];
-
-const FORMATO_CRIATIVO = [
-  { v: "POST_IMAGEM", l: "Post imagem" },
-  { v: "POST_VIDEO", l: "Post vídeo" },
-  { v: "CARROSSEL", l: "Carrossel" },
-  { v: "STORY", l: "Story" },
-  { v: "REELS_AD", l: "Reels Ad" },
-  { v: "RESPONSIVE_DISPLAY", l: "Display responsivo" },
-  { v: "SEARCH_AD", l: "Search Ad" },
-  { v: "PERFORMANCE_MAX", l: "Performance Max" },
-];
-
-// ─── Botão de abrir o form ──────────────────────────────────────────
-export function BotaoEnviar({ modo, onClick }: { modo: ModoEnvio; onClick: () => void }) {
-  return (
-    <Button onClick={onClick} className="w-full h-12 sm:h-10 text-sm touch-feedback">
-      <Plus className="h-4 w-4" />
-      {modo === "post" ? "Enviar post pra revisão" : "Enviar criativo pra revisão"}
-    </Button>
-  );
-}
 
 // ─── Lista das submissões do próprio cliente ────────────────────────
 export function MinhasSubmissoes({ modo, submissoes }: { modo: ModoEnvio; submissoes: Submissao[] }) {
@@ -189,246 +151,68 @@ function BadgeStatus({ status }: { status: string }) {
   );
 }
 
-// ─── Dialog do formulário de submissão ──────────────────────────────
-export function EnviarConteudoDialog({
-  modo,
-  token,
-  onClose,
-  onSuccess,
-}: {
-  modo: ModoEnvio;
-  token: string;
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
-  const [titulo, setTitulo] = useState("");
-  const [legenda, setLegenda] = useState(""); // post: legenda; criativo: textoPrincipal
-  const [headline, setHeadline] = useState(""); // só criativo
-  const [hashtags, setHashtags] = useState(""); // só post (texto separado por espaço/vírgula)
-  const [formato, setFormato] = useState(modo === "post" ? "FEED" : "POST_IMAGEM");
-  const [plataforma, setPlataforma] = useState("META_ADS"); // só criativo
-  const [dataPublicacao, setDataPublicacao] = useState(""); // só post (YYYY-MM-DD)
-  const [arquivos, setArquivos] = useState<ArquivoLocal[]>([]);
-  const [processando, setProcessando] = useState(false);
-  const [enviando, setEnviando] = useState(false);
-
-  async function enviar() {
-    if (!titulo.trim()) {
-      toast.error("Dê um título pra SAL identificar");
-      return;
-    }
-    if (modo === "post" && !dataPublicacao) {
-      toast.error("Escolha uma data sugerida de publicação");
-      return;
-    }
-    setEnviando(true);
-    try {
-      const body =
-        modo === "post"
-          ? {
-              titulo: titulo.trim(),
-              legenda: legenda.trim() || null,
-              formato,
-              dataPublicacao,
-              hashtags: parseHashtags(hashtags),
-              arquivos: arquivos.map((a, i) => ({ ...a, ordem: (i + 1) * 10 })),
-            }
-          : {
-              titulo: titulo.trim(),
-              textoPrincipal: legenda.trim() || null,
-              headline: headline.trim() || null,
-              plataforma,
-              formato,
-              arquivos: arquivos.map((a, i) => ({ ...a, ordem: (i + 1) * 10 })),
-            };
-
-      const endpoint = modo === "post" ? "posts" : "criativos-enviar";
-      const res = await fetch(`/api/p/cliente/${token}/${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        toast.error(d?.error ?? "Falha ao enviar");
-        return;
-      }
-      toast.success(
-        modo === "post" ? "Post enviado! SAL vai revisar." : "Criativo enviado! SAL vai revisar."
-      );
-      onSuccess();
-    } finally {
-      setEnviando(false);
-    }
-  }
-
-  const formatos = modo === "post" ? FORMATO_POST : FORMATO_CRIATIVO;
-
-  return (
-    <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="dialog-bottom-sheet max-h-[90dvh] overflow-y-auto">
-        <div className="sm:hidden flex justify-center -mt-1 mb-2">
-          <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
-        </div>
-        <DialogHeader>
-          <DialogTitle className="text-base">
-            {modo === "post" ? "Enviar post pra revisão" : "Enviar criativo pra revisão"}
-          </DialogTitle>
-          <p className="text-xs text-muted-foreground mt-1">
-            A SAL recebe pra revisar. Você acompanha o status aqui mesmo.
-          </p>
-        </DialogHeader>
-
-        <div className="space-y-3.5">
-          {/* Título */}
-          <Campo label="Título">
-            <Input
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              placeholder={modo === "post" ? "Ex: Promoção de inverno" : "Ex: Anúncio coleção nova"}
-              className="h-11 text-base sm:text-sm"
-              autoFocus
-            />
-          </Campo>
-
-          {/* Plataforma (só criativo) */}
-          {modo === "criativo" && (
-            <Campo label="Plataforma">
-              <SelectNativo value={plataforma} onChange={setPlataforma} options={PLATAFORMA_CRIATIVO} />
-            </Campo>
-          )}
-
-          {/* Formato */}
-          <Campo label="Formato">
-            <SelectNativo value={formato} onChange={setFormato} options={formatos} />
-          </Campo>
-
-          {/* Data sugerida (só post) */}
-          {modo === "post" && (
-            <Campo label="Data sugerida de publicação">
-              <Input
-                type="date"
-                value={dataPublicacao}
-                onChange={(e) => setDataPublicacao(e.target.value)}
-                className="h-11 text-base sm:text-sm"
-              />
-            </Campo>
-          )}
-
-          {/* Headline (só criativo) */}
-          {modo === "criativo" && (
-            <Campo label="Headline (opcional)">
-              <Input
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-                placeholder="Título curto do anúncio"
-                className="h-11 text-base sm:text-sm"
-              />
-            </Campo>
-          )}
-
-          {/* Legenda / texto */}
-          <Campo label={modo === "post" ? "Legenda / texto (opcional)" : "Texto do anúncio (opcional)"}>
-            <Textarea
-              value={legenda}
-              onChange={(e) => setLegenda(e.target.value)}
-              placeholder={
-                modo === "post"
-                  ? "Escreva a legenda ou uma ideia do que quer comunicar."
-                  : "Texto principal do anúncio (Primary Text)."
-              }
-              rows={4}
-              className="text-base sm:text-sm min-h-[96px]"
-            />
-          </Campo>
-
-          {/* Hashtags (só post) */}
-          {modo === "post" && (
-            <Campo label="Hashtags (opcional)">
-              <Input
-                value={hashtags}
-                onChange={(e) => setHashtags(e.target.value)}
-                placeholder="#promo #inverno (separe por espaço)"
-                className="h-11 text-base sm:text-sm"
-              />
-            </Campo>
-          )}
-
-          {/* Upload de arquivos */}
-          <Campo label="Artes / vídeo (opcional)">
-            <UploaderArquivos
-              value={arquivos}
-              onChange={setArquivos}
-              onProcessandoChange={setProcessando}
-            />
-          </Campo>
-        </div>
-
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} className="h-11 sm:h-9 touch-feedback">
-            Cancelar
-          </Button>
-          <Button
-            onClick={enviar}
-            disabled={enviando || processando || !titulo.trim()}
-            className="h-11 sm:h-9 touch-feedback"
-          >
-            {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            Enviar pra SAL
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function Campo({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</Label>
-      {children}
-    </div>
-  );
-}
-
 /**
- * Uploader de artes/vídeo reutilizável (upload comprimido + paste de URL +
- * previews com remover). Mesma mecânica usada no envio de post novo e no
- * "Anexar arte" num post existente. Owner do estado é o pai (controlled via
- * value/onChange) pra o caller poder enviar pro endpoint que quiser.
+ * Uploader de artes/vídeo reutilizável — Portal v4.
  *
- * `processando` é reportado via onProcessandoChange pra o pai desabilitar o
- * botão de submit enquanto uma imagem comprime.
+ * Dropzone de verdade: arrastar & soltar, colar da área de transferência
+ * (Ctrl+V), câmera direta no mobile (input capture) e galeria. Arquivos
+ * processam em fila com preview progressivo. Owner do estado é o pai
+ * (controlled via value/onChange).
+ *
+ * `processando` é reportado via onProcessandoChange pra o pai desabilitar
+ * o botão de submit enquanto uma imagem comprime.
+ *
+ * `grande` deixa a dropzone em formato hero (usada na aba Enviar).
+ * Os limites atuais (vídeo/PDF 5MB, imagem comprimida client-side) vêm do
+ * armazenamento em banco — caem quando o storage de arquivos entrar (F2).
  */
 export function UploaderArquivos({
   value,
   onChange,
   onProcessandoChange,
+  grande = false,
 }: {
   value: ArquivoLocal[];
   onChange: (arquivos: ArquivoLocal[]) => void;
   onProcessandoChange?: (processando: boolean) => void;
+  grande?: boolean;
 }) {
   const [urlExterna, setUrlExterna] = useState("");
-  const [processando, setProcessando] = useState(false);
-  const inputFileRef = useRef<HTMLInputElement>(null);
+  const [filaProcessando, setFilaProcessando] = useState(0);
+  const [arrastando, setArrastando] = useState(false);
+  const inputGaleriaRef = useRef<HTMLInputElement>(null);
+  const inputCameraRef = useRef<HTMLInputElement>(null);
+  // `value` muda durante o processamento em fila — ref evita perder itens.
+  const valueRef = useRef(value);
+  valueRef.current = value;
 
-  function setProc(v: boolean) {
-    setProcessando(v);
-    onProcessandoChange?.(v);
+  function reportarProc(delta: number) {
+    setFilaProcessando((n) => {
+      const novo = Math.max(0, n + delta);
+      onProcessandoChange?.(novo > 0);
+      return novo;
+    });
   }
 
   async function processarArquivo(file: File) {
-    setProc(true);
+    reportarProc(1);
     try {
       let url: string;
       let tipo: ArquivoLocal["tipo"];
-      if (file.type.startsWith("image/")) {
-        url = await comprimirImagem(file);
+      if (file.type.startsWith("image/") || /\.(heic|heif)$/i.test(file.name)) {
+        try {
+          url = await comprimirImagem(file);
+        } catch {
+          // HEIC/HEIF sem suporte no navegador → orienta em vez de falhar mudo
+          toast.error(
+            `"${file.name}": formato de foto não suportado neste navegador. Tente exportar como JPEG.`
+          );
+          return;
+        }
         tipo = "IMAGEM";
       } else if (file.type.startsWith("video/")) {
         if (file.size > 5_000_000) {
-          toast.error("Vídeo grande demais (max 5MB). Cole um link do Drive/YouTube.");
+          toast.error("Vídeo acima de 5MB por enquanto: cole um link do Drive/YouTube.");
           return;
         }
         url = await fileToDataURL(file);
@@ -441,13 +225,17 @@ export function UploaderArquivos({
         url = await fileToDataURL(file);
         tipo = "DOCUMENTO";
       } else {
-        toast.error("Tipo de arquivo não suportado");
+        toast.error(`"${file.name}": tipo de arquivo não suportado`);
         return;
       }
-      onChange([...value, { tipo, url, nome: file.name }]);
+      onChange([...valueRef.current, { tipo, url, nome: file.name }]);
     } finally {
-      setProc(false);
+      reportarProc(-1);
     }
+  }
+
+  async function processarLista(files: File[]) {
+    for (const f of files) await processarArquivo(f);
   }
 
   function adicionarUrl() {
@@ -459,7 +247,7 @@ export function UploaderArquivos({
       : /\.(mp4|mov|webm)(\?|$)/.test(low)
       ? "VIDEO"
       : "LINK_EXTERNO";
-    onChange([...value, { tipo, url: u, nome: null }]);
+    onChange([...valueRef.current, { tipo, url: u, nome: null }]);
     setUrlExterna("");
   }
 
@@ -467,57 +255,140 @@ export function UploaderArquivos({
     onChange(value.filter((_, i) => i !== idx));
   }
 
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setArrastando(false);
+    const files = Array.from(e.dataTransfer.files ?? []);
+    if (files.length > 0) void processarLista(files);
+  }
+
+  function onPaste(e: React.ClipboardEvent) {
+    const files = Array.from(e.clipboardData?.files ?? []);
+    if (files.length > 0) {
+      e.preventDefault();
+      void processarLista(files);
+    }
+  }
+
+  const processando = filaProcessando > 0;
+
   return (
     <div>
       <input
-        ref={inputFileRef}
+        ref={inputGaleriaRef}
         type="file"
         accept="image/*,video/*,application/pdf"
         multiple
         className="hidden"
-        onChange={async (e) => {
+        onChange={(e) => {
           const files = Array.from(e.target.files ?? []);
-          for (const f of files) await processarArquivo(f);
-          if (inputFileRef.current) inputFileRef.current.value = "";
+          void processarLista(files);
+          if (inputGaleriaRef.current) inputGaleriaRef.current.value = "";
         }}
       />
-      <div className="flex flex-col gap-2">
+      {/* Câmera direta (mobile) — capture abre a câmera em vez da galeria */}
+      <input
+        ref={inputCameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => {
+          const files = Array.from(e.target.files ?? []);
+          void processarLista(files);
+          if (inputCameraRef.current) inputCameraRef.current.value = "";
+        }}
+      />
+
+      {/* Dropzone */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => inputGaleriaRef.current?.click()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            inputGaleriaRef.current?.click();
+          }
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setArrastando(true);
+        }}
+        onDragLeave={() => setArrastando(false)}
+        onDrop={onDrop}
+        onPaste={onPaste}
+        aria-label="Adicionar fotos, vídeos ou PDFs"
+        className={`touch-feedback w-full cursor-pointer rounded-xl border-2 border-dashed text-center transition-colors focus:outline-none focus:ring-2 focus:ring-ring ${
+          arrastando
+            ? "border-primary bg-primary/5"
+            : "border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40"
+        } ${grande ? "px-4 py-8" : "px-3 py-5"}`}
+      >
+        {processando ? (
+          <Loader2 className={`mx-auto animate-spin text-primary ${grande ? "h-8 w-8" : "h-6 w-6"}`} />
+        ) : (
+          <Upload className={`mx-auto text-muted-foreground ${grande ? "h-8 w-8" : "h-6 w-6"}`} />
+        )}
+        <p className={`font-medium mt-2 ${grande ? "text-sm" : "text-[13px]"}`}>
+          {processando
+            ? `Preparando ${filaProcessando} arquivo${filaProcessando > 1 ? "s" : ""}…`
+            : "Solte fotos e vídeos aqui"}
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-0.5">
+          ou toque pra escolher · dá pra colar (Ctrl+V)
+        </p>
+      </div>
+
+      {/* Atalhos câmera/galeria — mobile-first */}
+      <div className="flex gap-2 mt-2">
         <Button
           type="button"
           variant="outline"
-          onClick={() => inputFileRef.current?.click()}
+          onClick={() => inputCameraRef.current?.click()}
           disabled={processando}
-          className="h-11 sm:h-10 text-sm touch-feedback w-full"
+          className="h-11 sm:h-10 flex-1 text-[13px] touch-feedback sm:hidden"
         >
-          {processando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          Enviar do dispositivo
+          <Camera className="h-4 w-4" /> Câmera
         </Button>
-        <div className="flex gap-1.5">
-          <Input
-            value={urlExterna}
-            onChange={(e) => setUrlExterna(e.target.value)}
-            placeholder="Ou cole link (Drive, YouTube...)"
-            className="h-11 sm:h-10 text-base sm:text-sm"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                adicionarUrl();
-              }
-            }}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={adicionarUrl}
-            disabled={!urlExterna.trim()}
-            className="h-11 sm:h-10 shrink-0 touch-feedback"
-          >
-            <Link2 className="h-4 w-4" />
-          </Button>
-        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => inputGaleriaRef.current?.click()}
+          disabled={processando}
+          className="h-11 sm:h-10 flex-1 text-[13px] touch-feedback"
+        >
+          <ImageIcon className="h-4 w-4" /> Galeria
+        </Button>
+      </div>
+
+      {/* Link externo (vídeos pesados, Drive, YouTube) */}
+      <div className="flex gap-1.5 mt-2">
+        <Input
+          value={urlExterna}
+          onChange={(e) => setUrlExterna(e.target.value)}
+          placeholder="Ou cole um link (Drive, YouTube...)"
+          className="h-11 sm:h-10 text-base sm:text-sm"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              adicionarUrl();
+            }
+          }}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={adicionarUrl}
+          disabled={!urlExterna.trim()}
+          className="h-11 sm:h-10 shrink-0 touch-feedback"
+          aria-label="Adicionar link"
+        >
+          <Link2 className="h-4 w-4" />
+        </Button>
       </div>
       <p className="text-[10.5px] text-muted-foreground mt-1.5">
-        Imagens são otimizadas automaticamente. Vídeos pesados: use link do Drive/YouTube.
+        Fotos são otimizadas automaticamente. Vídeo acima de 5MB: use link do Drive/YouTube (por enquanto).
       </p>
 
       {/* Previews */}
@@ -558,43 +429,7 @@ export function UploaderArquivos({
   );
 }
 
-/**
- * Select nativo estilizado como Input. Melhor pra mobile/touch que um
- * dropdown custom dentro de bottom-sheet (evita conflito de portais).
- */
-function SelectNativo({
-  value,
-  onChange,
-  options,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  options: { v: string; l: string }[];
-}) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="flex h-11 sm:h-10 w-full items-center rounded-md border border-input bg-background px-3 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-    >
-      {options.map((o) => (
-        <option key={o.v} value={o.v}>
-          {o.l}
-        </option>
-      ))}
-    </select>
-  );
-}
-
 // ─── Helpers de arquivo (mesma mecânica do post-arquivos-editor) ────
-function parseHashtags(raw: string): string[] {
-  return raw
-    .split(/[\s,]+/)
-    .map((t) => t.replace(/^#/, "").trim())
-    .filter(Boolean)
-    .slice(0, 60);
-}
-
 export async function fileToDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -604,9 +439,16 @@ export async function fileToDataURL(file: File): Promise<string> {
   });
 }
 
-/** Resize máx 1600px, JPEG 80% → dataURL pequeno que cabe no @db.Text. */
+/** Resize máx 1600px, JPEG 80% → dataURL pequeno que cabe no @db.Text.
+ *  `imageOrientation: "from-image"` respeita o EXIF — foto de celular não
+ *  deita mais (fallback sem a opção em navegadores antigos). */
 export async function comprimirImagem(file: File, maxLado = 1600, qualidade = 0.8): Promise<string> {
-  const bitmap = await createImageBitmap(file);
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  } catch {
+    bitmap = await createImageBitmap(file);
+  }
   const ratio = Math.min(1, maxLado / Math.max(bitmap.width, bitmap.height));
   const w = Math.round(bitmap.width * ratio);
   const h = Math.round(bitmap.height * ratio);

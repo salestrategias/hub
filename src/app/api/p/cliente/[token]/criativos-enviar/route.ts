@@ -67,9 +67,15 @@ export async function POST(req: Request, { params }: { params: { token: string }
 
     const data = portalCriativoSubmissaoSchema.parse(await req.json());
 
+    // Envio simplificado (Portal v4): título opcional — default amigável;
+    // a SAL renomeia/classifica na triagem.
+    const tituloFinal =
+      (data.titulo ?? "").trim() ||
+      `Material de anúncio — ${r.cliente.nome} ${new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}`;
+
     const criativo = await prisma.criativo.create({
       data: {
-        titulo: data.titulo,
+        titulo: tituloFinal,
         textoPrincipal: data.textoPrincipal || null,
         headline: data.headline || null,
         plataforma: data.plataforma,

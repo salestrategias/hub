@@ -3,11 +3,13 @@
  * Tab Reuniões do Portal — read-only.
  * Lista de reuniões com resumo + action items.
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Mic, CheckSquare, Square } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BlockRenderer } from "@/components/editor";
+import { fetchPortal } from "@/lib/portal-fetch";
 
 type Action = {
   id: string;
@@ -29,14 +31,24 @@ type Reuniao = {
 export function PortalReunioes({ token }: { token: string }) {
   const [reunioes, setReunioes] = useState<Reuniao[]>([]);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(false);
+
+  const carregar = useCallback(() => {
+    setLoading(true);
+    setErro(false);
+    fetchPortal(`/api/p/cliente/${token}/reunioes`)
+      .then(async (r) => {
+        const d = await r.json().catch(() => null);
+        if (r.ok && Array.isArray(d)) setReunioes(d);
+        else setErro(true);
+      })
+      .catch(() => setErro(true))
+      .finally(() => setLoading(false));
+  }, [token]);
 
   useEffect(() => {
-    fetch(`/api/p/cliente/${token}/reunioes`)
-      .then((r) => r.json())
-      .then((d) => { if (Array.isArray(d)) setReunioes(d); })
-      .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    carregar();
+  }, [carregar]);
 
   if (loading) {
     return (
@@ -63,7 +75,14 @@ export function PortalReunioes({ token }: { token: string }) {
       <Card>
         <CardContent className="p-8 text-center space-y-2">
           <Mic className="h-10 w-10 mx-auto text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">Nenhuma reunião registrada.</p>
+          <p className="text-sm text-muted-foreground">
+            {erro ? "Não conseguimos carregar suas reuniões." : "Nenhuma reunião registrada."}
+          </p>
+          {erro && (
+            <Button variant="outline" size="sm" onClick={carregar} className="touch-feedback">
+              Tentar de novo
+            </Button>
+          )}
         </CardContent>
       </Card>
     );
