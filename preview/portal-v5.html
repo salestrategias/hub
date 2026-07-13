@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portal SAL v5 — protótipo navegável</title>
+<style>
+  /* ─── Tokens ──────────────────────────────────────────────────────── */
+  :root {
+    --brand: #7E30E1;
+    --brand-ink: #FFFFFF;
+    --ground: #F6F5FA;
+    --page: #E9E7F1;
+    --surface: #FFFFFF;
+    --surface-2: #F1EFF7;
+    --ink: #191526;
+    --muted: #6B6580;
+    --faint: #9B94B0;
+    --hairline: #EAE7F2;
+    --ok: #0F9D6A;
+    --ok-bg: #E3F6EE;
+    --warn: #B47800;
+    --warn-bg: #FCF2DC;
+    --sky: #0E7ABF;
+    --sky-bg: #E4F2FB;
+    --shadow-card: 0 2px 6px rgba(25,15,50,.05), 0 14px 34px rgba(25,15,50,.09);
+    --shadow-float: 0 6px 16px rgba(25,15,50,.18), 0 20px 44px rgba(25,15,50,.22);
+    --radius: 22px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #141020;
+      --page: #0C0A14;
+      --surface: #1E1930;
+      --surface-2: #272040;
+      --ink: #EFECF8;
+      --muted: #A79FC0;
+      --faint: #776F92;
+      --hairline: #2C2545;
+      --ok: #4ED9A4;
+      --ok-bg: #12382A;
+      --warn: #EFC46A;
+      --warn-bg: #37290F;
+      --sky: #6EC1F0;
+      --sky-bg: #0F2C3F;
+      --shadow-card: 0 2px 6px rgba(0,0,0,.35), 0 14px 34px rgba(0,0,0,.4);
+      --shadow-float: 0 6px 16px rgba(0,0,0,.5), 0 20px 44px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141020; --page: #0C0A14; --surface: #1E1930; --surface-2: #272040;
+    --ink: #EFECF8; --muted: #A79FC0; --faint: #776F92; --hairline: #2C2545;
+    --ok: #4ED9A4; --ok-bg: #12382A; --warn: #EFC46A; --warn-bg: #37290F;
+    --sky: #6EC1F0; --sky-bg: #0F2C3F;
+    --shadow-card: 0 2px 6px rgba(0,0,0,.35), 0 14px 34px rgba(0,0,0,.4);
+    --shadow-float: 0 6px 16px rgba(0,0,0,.5), 0 20px 44px rgba(0,0,0,.55);
+  }
+  :root[data-theme="light"] {
+    --ground: #F6F5FA; --page: #E9E7F1; --surface: #FFFFFF; --surface-2: #F1EFF7;
+    --ink: #191526; --muted: #6B6580; --faint: #9B94B0; --hairline: #EAE7F2;
+    --ok: #0F9D6A; --ok-bg: #E3F6EE; --warn: #B47800; --warn-bg: #FCF2DC;
+    --sky: #0E7ABF; --sky-bg: #E4F2FB;
+    --shadow-card: 0 2px 6px rgba(25,15,50,.05), 0 14px 34px rgba(25,15,50,.09);
+    --shadow-float: 0 6px 16px rgba(25,15,50,.18), 0 20px 44px rgba(25,15,50,.22);
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font-family: "Segoe UI Variable Text", "Segoe UI", -apple-system, system-ui, "Inter", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+  /* ─── Moldura de app (coluna mobile) ─────────────────────────────── */
+  .device {
+    max-width: 430px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    background: var(--ground);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: clip;
+  }
+  @media (min-width: 480px) {
+    .device { min-height: 100dvh; box-shadow: 0 0 0 1px var(--hairline), 0 30px 80px rgba(20,10,50,.25); }
+  }
+
+  main { flex: 1; padding: 0 18px calc(108px + env(safe-area-inset-bottom)); }
+
+  /* ─── Barra demo (só do protótipo) ───────────────────────────────── */
+  .demo-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 18px;
+    font-size: 11px; color: var(--faint);
+    border-bottom: 1px dashed var(--hairline);
+  }
+  .demo-bar select {
+    margin-left: auto;
+    font: inherit; font-weight: 700; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: 999px; padding: 4px 10px;
+  }
+
+  /* ─── Header do app ──────────────────────────────────────────────── */
+  .app-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 18px 4px;
+  }
+  .brand-dot {
+    width: 38px; height: 38px; border-radius: 13px;
+    background: var(--brand); color: var(--brand-ink);
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 16px;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--brand) 35%, transparent);
+  }
+  .app-head .who { line-height: 1.15; }
+  .app-head .who b { font-size: 14px; display: block; }
+  .app-head .who span { font-size: 10.5px; color: var(--faint); }
+
+  /* ─── Blocos comuns ──────────────────────────────────────────────── */
+  .greet { padding: 14px 0 2px; }
+  .greet h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+  .greet p { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+
+  .sec-label {
+    font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em;
+    color: var(--faint); margin: 22px 2px 10px;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .sec-label .more { font-size: 11px; letter-spacing: 0; text-transform: none; color: var(--brand); font-weight: 700; }
+
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Cartão de pendências (hero fintech) */
+  .hero {
+    border-radius: 26px;
+    padding: 20px;
+    color: var(--brand-ink);
+    background:
+      radial-gradient(120% 160% at 100% 0%, color-mix(in srgb, var(--brand) 55%, #fff 10%) 0%, var(--brand) 55%),
+      var(--brand);
+    box-shadow: 0 14px 34px color-mix(in srgb, var(--brand) 38%, transparent);
+    margin-top: 16px;
+  }
+  .hero .k { font-size: 11px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; opacity: .8; }
+  .hero .n { font-size: 40px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
+  .hero .d { font-size: 13px; opacity: .85; }
+  .hero .row { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+  .hero .thumbs { display: flex; }
+  .hero .thumbs i {
+    width: 34px; height: 34px; border-radius: 11px;
+    border: 2px solid color-mix(in srgb, var(--brand) 60%, #fff 15%);
+    margin-left: -8px; flex-shrink: 0;
+    background-size: cover;
+  }
+  .hero .thumbs i:first-child { margin-left: 0; }
+  .btn-hero {
+    margin-left: auto;
+    background: #fff; color: #1B1730;
+    font-weight: 800; font-size: 13.5px;
+    padding: 12px 18px; border-radius: 999px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.18);
+    transition: transform .12s ease;
+  }
+  .btn-hero:active { transform: scale(.96); }
+  .hero.zero {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow-card);
+  }
+  .hero.zero .d, .hero.zero .k { color: var(--muted); opacity: 1; }
+
+  /* Semana (agenda strip) */
+  .week { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .week::-webkit-scrollbar { display: none; }
+  .day {
+    min-width: 52px; padding: 10px 0 9px;
+    border-radius: 16px; text-align: center;
+    background: var(--surface); box-shadow: var(--shadow-card);
+    flex-shrink: 0;
+  }
+  .day .dw { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
+  .day .dn { font-size: 16px; font-weight: 800; margin: 2px 0 4px; font-variant-numeric: tabular-nums; }
+  .day .dots { display: flex; gap: 3px; justify-content: center; min-height: 6px; }
+  .day .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--brand); }
+  .day .dots i.w { background: var(--warn); }
+  .day.today { outline: 2px solid var(--brand); outline-offset: -2px; }
+  .day.today .dw { color: var(--brand); }
+
+  /* Carrossel "para aprovar" */
+  .h-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: none; }
+  .h-scroll::-webkit-scrollbar { display: none; }
+  .mini {
+    min-width: 150px; width: 150px;
+    border-radius: 18px; overflow: hidden;
+    background: var(--surface); box-shadow: var(--shadow-card);
+    text-align: left;
+    flex-shrink: 0;
+  }
+  .mini .art { aspect-ratio: 1; background-size: cover; position: relative; }
+  .mini .art .chip { position: absolute; top: 8px; left: 8px; }
+  .mini .t { font-size: 12px; font-weight: 700; padding: 9px 11px 3px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .mini .s { font-size: 10.5px; color: var(--faint); padding: 0 11px 11px; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 800;
+    padding: 4px 9px; border-radius: 999px;
+    background: rgba(15,12,25,.55); color: #fff;
+    backdrop-filter: blur(6px);
+  }
+  .chip.solid-warn { background: var(--warn-bg); color: var(--warn); }
+  .chip.solid-ok { background: var(--ok-bg); color: var(--ok); }
+  .chip.solid-sky { background: var(--sky-bg); color: var(--sky); }
+
+  /* Lista de entregas */
+  .rows { padding: 4px 0; }
+  .row-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px;
+  }
+  .row-item + .row-item { border-top: 1px solid var(--hairline); }
+  .row-item .th { width: 44px; height: 44px; border-radius: 13px; background-size: cover; flex-shrink: 0; }
+  .row-item .tx { flex: 1; min-width: 0; }
+  .row-item .tx b { font-size: 13px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-item .tx span { font-size: 11px; color: var(--faint); }
+  .row-item .when { font-size: 10.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+  /* ─── Conteúdo: grade instagram + lista ──────────────────────────── */
+  .filters { display: flex; gap: 8px; margin: 14px 0 4px; }
+  .filters button {
+    font-size: 12px; font-weight: 700;
+    padding: 8px 14px; border-radius: 999px;
+    background: var(--surface); color: var(--muted);
+    box-shadow: var(--shadow-card);
+  }
+  .filters button[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); }
+  .view-toggle { margin-left: auto; display: flex; gap: 4px; background: var(--surface); border-radius: 999px; padding: 4px; box-shadow: var(--shadow-card); }
+  .view-toggle button { padding: 5px 11px; border-radius: 999px; font-size: 11.5px; font-weight: 700; color: var(--muted); }
+  .view-toggle button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); }
+
+  .ig-note { font-size: 11.5px; color: var(--faint); margin: 10px 2px 8px; }
+  .ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; border-radius: 18px; overflow: hidden; }
+  .ig-grid button { aspect-ratio: 1; background-size: cover; position: relative; }
+  .ig-grid .st { position: absolute; top: 6px; right: 6px; width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
+  .st.warn { background: #F5A623; } .st.ok { background: #21C07A; } .st.sky { background: #3AA9E8; }
+
+  .media-card { border-radius: var(--radius); overflow: hidden; background: var(--surface); box-shadow: var(--shadow-card); margin-bottom: 14px; text-align: left; width: 100%; }
+  .media-card .art { aspect-ratio: 4/3; background-size: cover; position: relative; }
+  .media-card .art .chip { position: absolute; top: 10px; left: 10px; }
+  .media-card .body { padding: 13px 15px 15px; }
+  .media-card .body b { font-size: 14.5px; display: block; line-height: 1.3; }
+  .media-card .meta { font-size: 11.5px; color: var(--faint); margin-top: 3px; }
+  .media-card .acts { display: flex; gap: 8px; margin-top: 12px; }
+  .btn {
+    flex: 1; text-align: center;
+    font-size: 13px; font-weight: 800;
+    padding: 12px; border-radius: 999px;
+    transition: transform .12s ease;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn.primary { background: var(--ok); color: #fff; }
+  .btn.ghost { background: var(--surface-2); color: var(--ink); }
+  .btn.brandful { background: var(--brand); color: var(--brand-ink); }
+
+  /* ─── Resultados ─────────────────────────────────────────────────── */
+  .stats2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-card { padding: 15px; border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .stat-card .n { font-size: 26px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .stat-card .l { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.3; }
+  .stat-card .delta { font-size: 10.5px; font-weight: 800; color: var(--ok); }
+  .bars { display: flex; align-items: flex-end; gap: 6px; height: 74px; padding: 14px 14px 6px; }
+  .bars i { flex: 1; background: color-mix(in srgb, var(--brand) 22%, transparent); border-radius: 6px 6px 2px 2px; }
+  .bars i.hot { background: var(--brand); }
+  .bars-cap { display: flex; gap: 6px; padding: 0 14px 12px; }
+  .bars-cap span { flex: 1; text-align: center; font-size: 9px; color: var(--faint); text-transform: uppercase; font-weight: 700; }
+
+  /* ─── Mais (menu) ────────────────────────────────────────────────── */
+  .menu .row-item b { font-weight: 700; }
+  .menu .ico { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--brand) 12%, transparent); font-size: 16px; flex-shrink: 0; }
+  .menu .chev { color: var(--faint); }
+
+  /* ─── Bottom nav + FAB ───────────────────────────────────────────── */
+  .navbar {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px; bottom: 0; z-index: 30;
+    padding: 8px 10px calc(12px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--ground) 82%, transparent);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid var(--hairline);
+    display: grid; grid-template-columns: 1fr 1fr 76px 1fr 1fr; align-items: center;
+  }
+  .navbar .ni {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 9.5px; font-weight: 700; color: var(--faint);
+    padding: 6px 0;
+    position: relative;
+  }
+  .navbar .ni .ic { font-size: 19px; line-height: 1; }
+  .navbar .ni[aria-current="page"] { color: var(--brand); }
+  .navbar .ni .bdg {
+    position: absolute; top: 0; right: calc(50% - 20px);
+    min-width: 16px; height: 16px; border-radius: 999px;
+    background: var(--brand); color: var(--brand-ink);
+    font-size: 9px; font-weight: 800;
+    display: grid; place-items: center; padding: 0 4px;
+  }
+  .fab {
+    width: 60px; height: 60px; margin: -26px auto 0;
+    border-radius: 22px;
+    background: var(--brand); color: var(--brand-ink);
+    font-size: 26px; font-weight: 700; line-height: 1;
+    display: grid; place-items: center;
+    box-shadow: var(--shadow-float);
+    transition: transform .12s ease;
+  }
+  .fab:active { transform: scale(.94); }
+
+  /* ─── Revisão (stories) ──────────────────────────────────────────── */
+  .story {
+    position: fixed; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px; z-index: 50;
+    background: #0D0A16;
+    display: flex; flex-direction: column;
+    color: #fff;
+  }
+  .story .prog { display: flex; gap: 5px; padding: 14px 14px 0; }
+  .story .prog i { flex: 1; height: 3.5px; border-radius: 99px; background: rgba(255,255,255,.25); overflow: hidden; }
+  .story .prog i b { display: block; height: 100%; width: 0; background: #fff; border-radius: 99px; }
+  .story .prog i.done b { width: 100%; }
+  .story .prog i.cur b { width: 45%; }
+  .story .top { display: flex; align-items: center; gap: 9px; padding: 12px 16px; }
+  .story .top .brand-dot { width: 30px; height: 30px; border-radius: 10px; font-size: 12px; box-shadow: none; }
+  .story .top .t { font-size: 12.5px; font-weight: 700; }
+  .story .top .s { font-size: 10.5px; opacity: .6; }
+  .story .top .x { margin-left: auto; font-size: 22px; opacity: .8; padding: 6px 2px; }
+  .story .canvas { flex: 1; background-size: cover; background-position: center; position: relative; min-height: 0; }
+  .story .canvas .fade { position: absolute; inset: auto 0 0 0; height: 55%; background: linear-gradient(180deg, transparent, rgba(8,5,15,.88)); }
+  .story .info { position: absolute; left: 18px; right: 18px; bottom: 14px; }
+  .story .info .chips { display: flex; gap: 6px; margin-bottom: 8px; }
+  .story .info .chip { background: rgba(255,255,255,.16); }
+  .story .info h2 { font-size: 19px; font-weight: 800; line-height: 1.25; letter-spacing: -.01em; }
+  .story .info p { font-size: 13px; line-height: 1.5; opacity: .82; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .story .deck { padding: 14px 16px calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; background: #0D0A16; }
+  .story .deck .duo { display: flex; gap: 10px; }
+  .story .deck .btn { padding: 15px; font-size: 14.5px; }
+  .story .deck .btn.ghost { background: rgba(255,255,255,.1); color: #fff; }
+  .story .skip { text-align: center; font-size: 12px; opacity: .55; padding: 2px; }
+  .story .ajuste-box { background: #1A1428; border-radius: 18px; padding: 14px; display: none; }
+  .story .ajuste-box.open { display: block; }
+  .story textarea {
+    width: 100%; min-height: 84px; resize: none;
+    background: #0D0A16; color: #fff;
+    border: 1px solid rgba(255,255,255,.15); border-radius: 12px;
+    padding: 11px; font: inherit; font-size: 14px;
+  }
+  .story textarea:focus { outline: 2px solid var(--brand); }
+
+  .story .fim {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; padding: 24px; text-align: center;
+  }
+  .story .fim .ok-ball {
+    width: 86px; height: 86px; border-radius: 50%;
+    background: var(--ok); display: grid; place-items: center;
+    font-size: 40px;
+    animation: pop .45s cubic-bezier(.2,1.6,.4,1);
+  }
+  @keyframes pop { from { transform: scale(.3); opacity: 0; } }
+  .story .fim h2 { font-size: 22px; font-weight: 800; }
+  .story .fim p { font-size: 13.5px; opacity: .7; max-width: 260px; line-height: 1.5; }
+  .story .fim .btn { flex: none; padding: 15px 30px; margin-top: 8px; }
+
+  /* ─── Sheet Enviar ───────────────────────────────────────────────── */
+  .scrim { position: fixed; inset: 0; z-index: 40; background: rgba(10,6,20,.5); backdrop-filter: blur(2px); }
+  .sheet {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px; bottom: 0; z-index: 45;
+    background: var(--ground);
+    border-radius: 26px 26px 0 0;
+    padding: 10px 18px calc(20px + env(safe-area-inset-bottom));
+    max-height: 88dvh; overflow-y: auto;
+    animation: rise .28s cubic-bezier(.2,1,.3,1);
+  }
+  @keyframes rise { from { transform: translate(-50%, 40px); opacity: .4; } }
+  .sheet .handle { width: 40px; height: 4.5px; border-radius: 99px; background: var(--hairline); margin: 4px auto 14px; }
+  .sheet h2 { font-size: 19px; font-weight: 800; letter-spacing: -.01em; }
+  .sheet .sub { font-size: 12.5px; color: var(--muted); margin: 4px 0 14px; }
+  .mode-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .mode-duo button {
+    text-align: left; padding: 13px; border-radius: 18px;
+    background: var(--surface); box-shadow: var(--shadow-card);
+    border: 2px solid transparent;
+  }
+  .mode-duo button[aria-pressed="true"] { border-color: var(--brand); }
+  .mode-duo b { font-size: 13px; display: block; }
+  .mode-duo span { font-size: 10.5px; color: var(--muted); }
+  .drop {
+    border: 2px dashed color-mix(in srgb, var(--brand) 40%, var(--hairline));
+    background: color-mix(in srgb, var(--brand) 5%, var(--surface));
+    border-radius: 20px; padding: 26px 16px; text-align: center;
+  }
+  .drop .ic { font-size: 30px; }
+  .drop b { display: block; font-size: 14px; margin-top: 6px; }
+  .drop span { font-size: 11px; color: var(--muted); }
+  .drop-btns { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+  .drop-btns .btn { flex: 0 1 auto; padding: 9px 16px; font-size: 12px; }
+  .field { margin-top: 12px; }
+  .field label { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); display: block; margin-bottom: 6px; }
+  .field .in {
+    background: var(--surface); border-radius: 14px; box-shadow: var(--shadow-card);
+    padding: 13px; font-size: 13.5px; color: var(--faint);
+  }
+  .sheet .btn.brandful { width: 100%; margin-top: 16px; padding: 15px; font-size: 14.5px; }
+
+  /* ─── Transições de aba ──────────────────────────────────────────── */
+  .screen { animation: fadeUp .22s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .screen, .sheet, .story .fim .ok-ball { animation: none; }
+    .btn, .fab, .btn-hero { transition: none; }
+  }
+
+  .toast {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(118px + env(safe-area-inset-bottom));
+    background: var(--ink); color: var(--ground);
+    font-size: 12.5px; font-weight: 700;
+    padding: 10px 18px; border-radius: 999px;
+    box-shadow: var(--shadow-float);
+    z-index: 60; opacity: 0; pointer-events: none;
+    transition: opacity .2s ease;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="device" id="device">
+  <div class="demo-bar">
+    PROTÓTIPO · Portal v5 — navegue à vontade
+    <select id="brandSel" aria-label="Trocar marca demo">
+      <option value="sal">Marca: SAL (padrão)</option>
+      <option value="lindoia" selected>Marca: Lindóia</option>
+      <option value="tavi">Marca: Tavi</option>
+      <option value="rdp">Marca: Rua da Praia</option>
+    </select>
+  </div>
+
+  <div class="app-head">
+    <div class="brand-dot" id="brandDot">L</div>
+    <div class="who">
+      <b id="brandName">Lindóia</b>
+      <span>cuidado pela SAL Estratégias</span>
+    </div>
+  </div>
+
+  <main id="main"></main>
+
+  <nav class="navbar" aria-label="Navegação principal">
+    <button class="ni" data-tab="inicio"><span class="ic">✦</span>Início</button>
+    <button class="ni" data-tab="conteudo"><span class="ic">▦</span>Conteúdo<span class="bdg" id="bdgConteudo">3</span></button>
+    <button class="fab" id="fabEnviar" aria-label="Enviar material">+</button>
+    <button class="ni" data-tab="resultados"><span class="ic">◔</span>Resultados</button>
+    <button class="ni" data-tab="mais"><span class="ic">≡</span>Mais</button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  // ─── Dados demo ──────────────────────────────────────────────────
+  const MARCAS = {
+    sal:     { nome: "Sua Marca", letra: "S", cor: "#7E30E1", ink: "#FFFFFF" },
+    lindoia: { nome: "Lindóia",   letra: "L", cor: "#0E7A5F", ink: "#FFFFFF" },
+    tavi:    { nome: "Tavi",      letra: "T", cor: "#C2426E", ink: "#FFFFFF" },
+    rdp:     { nome: "Rua da Praia", letra: "R", cor: "#1F5FBF", ink: "#FFFFFF" },
+  };
+
+  // "Artes" fake — gradientes (sem imagem externa; CSP-safe)
+  const ART = [
+    "linear-gradient(135deg,#F7B733,#FC4A1A)",
+    "linear-gradient(135deg,#7F7FD5,#86A8E7,#91EAE4)",
+    "linear-gradient(135deg,#11998E,#38EF7D)",
+    "linear-gradient(135deg,#EC008C,#FC6767)",
+    "linear-gradient(135deg,#403B4A,#E7E9BB)",
+    "linear-gradient(135deg,#02AAB0,#00CDAC)",
+    "linear-gradient(135deg,#DA22FF,#9733EE)",
+    "linear-gradient(135deg,#F953C6,#B91D73)",
+    "linear-gradient(135deg,#00B4DB,#0083B0)",
+  ];
+
+  const PENDENTES = [
+    { id: 1, art: ART[0], tipo: "Orgânico", quando: "qui · 16 jul", titulo: "Promoção de inverno — casacos 30% off",
+      legenda: "O frio chegou e o desconto também. Toda a linha de casacos com 30% off até domingo. Corre que é só essa semana!" },
+    { id: 2, art: ART[3], tipo: "Orgânico", quando: "sáb · 18 jul", titulo: "Bastidores: chegou coleção nova",
+      legenda: "Spoiler do que acabou de chegar na loja. Vem ver de perto — tem tamanho pra todo mundo." },
+    { id: 3, art: ART[6], tipo: "Anúncio · Meta", quando: "campanha", titulo: "Anúncio — frete grátis POA",
+      legenda: "Frete grátis pra Porto Alegre em compras acima de R$ 199. Aproveita!" },
+  ];
+
+  const SEMANA = [
+    { dw: "dom", dn: 13, dots: [] },
+    { dw: "seg", dn: 14, dots: ["b"], today: true },
+    { dw: "ter", dn: 15, dots: [] },
+    { dw: "qua", dn: 16, dots: ["w"] },
+    { dw: "qui", dn: 17, dots: ["b","b"] },
+    { dw: "sex", dn: 18, dots: ["w"] },
+    { dw: "sáb", dn: 19, dots: ["b"] },
+  ];
+
+  const ENTREGAS = [
+    { art: ART[2], t: "Dica: como escolher o tamanho certo", s: "Post publicado", when: "ontem" },
+    { art: ART[5], t: "Reels — tour pela loja", s: "Post publicado", when: "há 3 dias" },
+    { art: ART[8], t: "Anúncio — coleção outono", s: "Anúncio no ar", when: "08/07" },
+    { art: ART[4], t: "Relatório de junho", s: "Resultados do mês", when: "05/07" },
+  ];
+
+  const GRID = [
+    { art: ART[0], st: "warn" }, { art: ART[3], st: "warn" }, { art: ART[6], st: "warn" },
+    { art: ART[2], st: "ok" },   { art: ART[5], st: "sky" },  { art: ART[1], st: "ok" },
+    { art: ART[8], st: "ok" },   { art: ART[7], st: "sky" },  { art: ART[4], st: "ok" },
+  ];
+
+  // ─── Estado ──────────────────────────────────────────────────────
+  const S = {
+    tab: "inicio",
+    view: "grade",
+    revisao: null,       // { idx, decididos: n } | null
+    ajusteAberto: false,
+    fimRevisao: false,
+    sheet: false,
+    modoEnvio: "rapido",
+    aprovados: new Set(),
+  };
+
+  const $ = (sel) => document.querySelector(sel);
+  const main = $("#main");
+
+  function pendentesRestantes() {
+    return PENDENTES.filter(p => !S.aprovados.has(p.id));
+  }
+
+  // ─── Marca (white-label demo) ────────────────────────────────────
+  function aplicarMarca(chave) {
+    const m = MARCAS[chave];
+    document.documentElement.style.setProperty("--brand", m.cor);
+    document.documentElement.style.setProperty("--brand-ink", m.ink);
+    $("#brandDot").textContent = m.letra;
+    $("#brandName").textContent = m.nome;
+    render();
+  }
+  $("#brandSel").addEventListener("change", (e) => aplicarMarca(e.target.value));
+
+  // ─── Telas ───────────────────────────────────────────────────────
+  function telaInicio() {
+    const pend = pendentesRestantes();
+    const hero = pend.length > 0 ? `
+      <section class="hero" aria-label="Pendências">
+        <div class="k">Esperando você</div>
+        <div class="n">${pend.length}</div>
+        <div class="d">${pend.length === 1 ? "conteúdo pra aprovar" : "conteúdos pra aprovar"} · leva ~1 min</div>
+        <div class="row">
+          <div class="thumbs">${pend.slice(0,3).map(p => `<i style="background-image:${p.art}"></i>`).join("")}</div>
+          <button class="btn-hero" data-act="revisar">Revisar agora</button>
+        </div>
+      </section>` : `
+      <section class="hero zero">
+        <div class="k">Tudo em dia ✦</div>
+        <div class="n" style="font-size:22px">Nada esperando você</div>
+        <div class="d">Quando a SAL mandar conteúdo novo, o cartão volta a aparecer aqui.</div>
+      </section>`;
+
+    return `<div class="screen">
+      <div class="greet">
+        <h1>Boa tarde! 👋</h1>
+        <p>Seu marketing está andando — veja o que chegou.</p>
+      </div>
+      ${hero}
+
+      <div class="sec-label">Sua semana</div>
+      <div class="week">${SEMANA.map(d => `
+        <div class="day ${d.today ? "today" : ""}">
+          <div class="dw">${d.dw}</div>
+          <div class="dn">${d.dn}</div>
+          <div class="dots">${d.dots.map(x => `<i class="${x === "w" ? "w" : ""}"></i>`).join("")}</div>
+        </div>`).join("")}
+      </div>
+
+      ${pend.length > 0 ? `
+      <div class="sec-label">Para aprovar <button class="more" data-act="ir-conteudo">ver tudo →</button></div>
+      <div class="h-scroll">${pend.map(p => `
+        <button class="mini" data-act="revisar">
+          <div class="art" style="background-image:${p.art}"><span class="chip">${p.tipo}</span></div>
+          <div class="t">${p.titulo}</div>
+          <div class="s">${p.quando}</div>
+        </button>`).join("")}
+      </div>` : ""}
+
+      <div class="sec-label">Últimas entregas</div>
+      <div class="card rows">${ENTREGAS.map(e => `
+        <div class="row-item">
+          <div class="th" style="background-image:${e.art}"></div>
+          <div class="tx"><b>${e.t}</b><span>${e.s}</span></div>
+          <div class="when">${e.when}</div>
+        </div>`).join("")}
+      </div>
+    </div>`;
+  }
+
+  function telaConteudo() {
+    const pend = pendentesRestantes();
+    const grade = `
+      <p class="ig-note">É assim que seu feed vai ficar 👇 · <b style="color:var(--warn)">●</b> aguardando você · <b style="color:var(--ok)">●</b> aprovado/publicado · <b style="color:var(--sky)">●</b> agendado</p>
+      <div class="ig-grid">${GRID.map((g,i) => `
+        <button style="background-image:${g.art}" aria-label="Conteúdo ${i+1}" data-act="${g.st === "warn" ? "revisar" : ""}">
+          <span class="st ${g.st}"></span>
+        </button>`).join("")}
+      </div>`;
+
+    const lista = `
+      ${pend.map(p => `
+      <div class="media-card">
+        <div class="art" style="background-image:${p.art}"><span class="chip">${p.tipo}</span></div>
+        <div class="body">
+          <b>${p.titulo}</b>
+          <div class="meta">${p.quando} · <span style="color:var(--warn);font-weight:700">aguardando você</span></div>
+          <div class="acts">
+            <button class="btn ghost" data-act="revisar">Ver e ajustar</button>
+            <button class="btn primary" data-act="aprovar-direto" data-id="${p.id}">Aprovar ✓</button>
+          </div>
+        </div>
+      </div>`).join("")}
+      <div class="media-card">
+        <div class="art" style="background-image:${ART[5]}"><span class="chip">Orgânico</span></div>
+        <div class="body">
+          <b>Reels — tour pela loja</b>
+          <div class="meta">publicado há 3 dias · <span style="color:var(--ok);font-weight:700">no ar</span></div>
+        </div>
+      </div>`;
+
+    return `<div class="screen">
+      <div class="greet"><h1>Conteúdo</h1><p>Tudo que a SAL preparou — orgânico e anúncios juntos.</p></div>
+      <div class="filters">
+        <button aria-pressed="true">Tudo</button>
+        <button aria-pressed="false">Orgânico</button>
+        <button aria-pressed="false">Anúncios</button>
+        <div class="view-toggle">
+          <button aria-pressed="${S.view === "grade"}" data-act="view-grade">Feed</button>
+          <button aria-pressed="${S.view === "lista"}" data-act="view-lista">Lista</button>
+        </div>
+      </div>
+      ${S.view === "grade" ? grade : lista}
+    </div>`;
+  }
+
+  function telaResultados() {
+    return `<div class="screen">
+      <div class="greet"><h1>Resultados</h1><p>O que o marketing rendeu — sem precisar pedir.</p></div>
+      <div class="stats2" style="margin-top:8px">
+        <div class="stat-card"><div class="n">12</div><div class="l">posts publicados em julho</div></div>
+        <div class="stat-card"><div class="n">48,2k <span class="delta">+23%</span></div><div class="l">pessoas alcançadas</div></div>
+        <div class="stat-card"><div class="n">1.240</div><div class="l">interações no mês</div></div>
+        <div class="stat-card"><div class="n">89 <span class="delta">+12%</span></div><div class="l">cliques pro WhatsApp</div></div>
+      </div>
+      <div class="sec-label">Alcance por semana</div>
+      <div class="card">
+        <div class="bars">
+          <i style="height:38%"></i><i style="height:52%"></i><i style="height:44%"></i><i class="hot" style="height:86%"></i>
+        </div>
+        <div class="bars-cap"><span>sem 1</span><span>sem 2</span><span>sem 3</span><span>sem 4</span></div>
+      </div>
+      <div class="sec-label">Relatórios em PDF</div>
+      <div class="card rows">
+        ${["Julho 2026 · parcial", "Junho 2026", "Maio 2026"].map((m,i) => `
+        <div class="row-item">
+          <div class="ico" style="width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb, var(--brand) 12%, transparent)">📊</div>
+          <div class="tx"><b>${m}</b><span>relatório mensal completo</span></div>
+          <div class="when" style="color:var(--brand);font-weight:800">Abrir</div>
+        </div>`).join("")}
+      </div>
+    </div>`;
+  }
+
+  function telaMais() {
+    return `<div class="screen">
+      <div class="greet"><h1>Mais</h1><p>Reuniões, briefings e o canal direto com a SAL.</p></div>
+      <div class="card rows menu" style="margin-top:8px">
+        ${[
+          ["📋","Briefings","1 aguardando sua resposta"],
+          ["🎙️","Reuniões","resumos e combinados"],
+          ["✅","Tarefas","no que a SAL está trabalhando"],
+        ].map(([ic,t,s]) => `
+        <div class="row-item">
+          <div class="ico">${ic}</div>
+          <div class="tx"><b>${t}</b><span>${s}</span></div>
+          <div class="chev">›</div>
+        </div>`).join("")}
+      </div>
+      <div class="sec-label">Fale com a gente</div>
+      <div class="card rows menu">
+        <div class="row-item">
+          <div class="ico" style="background:var(--ok-bg)">💬</div>
+          <div class="tx"><b>WhatsApp da SAL</b><span>dúvidas e urgências, resposta rápida</span></div>
+          <div class="chev">›</div>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:10.5px;color:var(--faint);margin-top:22px">Portal do Cliente · SAL Estratégias de Marketing</p>
+    </div>`;
+  }
+
+  // ─── Revisão (stories) ───────────────────────────────────────────
+  function telaRevisao() {
+    const fila = pendentesRestantes();
+    const total = PENDENTES.length;
+    const feitos = total - fila.length;
+
+    if (S.fimRevisao || fila.length === 0) {
+      return `<div class="story" role="dialog" aria-label="Revisão concluída">
+        <div class="fim">
+          <div class="ok-ball">✓</div>
+          <h2>Tudo revisado!</h2>
+          <p>Você decidiu ${S.revisao?.decididos ?? feitos} ${(S.revisao?.decididos ?? feitos) === 1 ? "conteúdo" : "conteúdos"}. A SAL já foi avisada e segue com a produção.</p>
+          <button class="btn brandful" style="min-width:220px" data-act="fechar-revisao">Voltar ao portal</button>
+        </div>
+      </div>`;
+    }
+
+    const item = fila[0];
+    return `<div class="story" role="dialog" aria-label="Revisar conteúdo">
+      <div class="prog">${PENDENTES.map(p =>
+        `<i class="${S.aprovados.has(p.id) ? "done" : (p.id === item.id ? "cur" : "")}"><b></b></i>`).join("")}
+      </div>
+      <div class="top">
+        <div class="brand-dot">${$("#brandDot").textContent}</div>
+        <div><div class="t">Revisar conteúdo</div><div class="s">${feitos + 1} de ${total}</div></div>
+        <button class="x" data-act="fechar-revisao" aria-label="Fechar">×</button>
+      </div>
+      <div class="canvas" style="background-image:${item.art}">
+        <div class="fade"></div>
+        <div class="info">
+          <div class="chips"><span class="chip">${item.tipo}</span><span class="chip">${item.quando}</span></div>
+          <h2>${item.titulo}</h2>
+          <p>${item.legenda}</p>
+        </div>
+      </div>
+      <div class="deck">
+        <div class="ajuste-box ${S.ajusteAberto ? "open" : ""}">
+          <textarea placeholder="O que você quer ajustar? Quanto mais específico, mais rápido a SAL resolve."></textarea>
+          <div class="duo" style="margin-top:10px">
+            <button class="btn ghost" data-act="fechar-ajuste">Cancelar</button>
+            <button class="btn brandful" data-act="enviar-ajuste" data-id="${item.id}">Enviar pedido</button>
+          </div>
+        </div>
+        ${!S.ajusteAberto ? `
+        <div class="duo">
+          <button class="btn ghost" data-act="abrir-ajuste">✎ Pedir ajuste</button>
+          <button class="btn primary" data-act="aprovar-story" data-id="${item.id}">Aprovar ✓</button>
+        </div>
+        <button class="skip" data-act="pular">Decidir depois →</button>` : ""}
+      </div>
+    </div>`;
+  }
+
+  // ─── Sheet Enviar ────────────────────────────────────────────────
+  function sheetEnviar() {
+    const rapido = S.modoEnvio === "rapido";
+    return `
+    <div class="scrim" data-act="fechar-sheet"></div>
+    <div class="sheet" role="dialog" aria-label="Enviar material">
+      <div class="handle"></div>
+      <h2>Enviar pra SAL</h2>
+      <p class="sub">${rapido ? "Solta o material que a SAL transforma em conteúdo." : "Publique o conteúdo pronto — a SAL só revisa e aprova."}</p>
+      <div class="mode-duo">
+        <button aria-pressed="${rapido}" data-act="modo-rapido"><b>⚡ Só o material</b><span>você manda, a SAL produz</span></button>
+        <button aria-pressed="${!rapido}" data-act="modo-completo"><b>📋 Conteúdo pronto</b><span>completo, só pra aprovar</span></button>
+      </div>
+      <div class="drop">
+        <div class="ic">⇪</div>
+        <b>Solte fotos e vídeos aqui</b>
+        <span>ou toque pra escolher · vale colar (Ctrl+V)</span>
+        <div class="drop-btns">
+          <button class="btn ghost">📷 Câmera</button>
+          <button class="btn ghost">🖼 Galeria</button>
+        </div>
+      </div>
+      ${rapido ? `
+      <div class="field"><label>Recado pra SAL (opcional)</label>
+        <div class="in">Ex: "Fotos da vitrine nova, chegou coleção de inverno."</div>
+      </div>` : `
+      <div class="field"><label>Título</label><div class="in">Ex: Promoção de inverno</div></div>
+      <div class="field"><label>Legenda</label><div class="in">A legenda completa, do jeito que deve ser publicada.</div></div>
+      <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label>Formato</label><div class="in">Post estático ▾</div></div>
+        <div><label>Data</label><div class="in">18/07/2026</div></div>
+      </div>
+      <div class="field"><label>Hashtags</label><div class="in">#promo #inverno</div></div>`}
+      <button class="btn brandful" data-act="enviar-demo">${rapido ? "Enviar pra SAL" : "Enviar pra aprovação da SAL"}</button>
+    </div>`;
+  }
+
+  // ─── Render + eventos ────────────────────────────────────────────
+  function render() {
+    const telas = { inicio: telaInicio, conteudo: telaConteudo, resultados: telaResultados, mais: telaMais };
+    main.innerHTML = telas[S.tab]();
+
+    document.querySelectorAll(".navbar .ni").forEach(b => {
+      if (b.dataset.tab === S.tab) b.setAttribute("aria-current", "page");
+      else b.removeAttribute("aria-current");
+    });
+    const pend = pendentesRestantes().length;
+    const bdg = $("#bdgConteudo");
+    bdg.textContent = pend;
+    bdg.style.display = pend > 0 ? "grid" : "none";
+
+    // Overlays
+    document.querySelectorAll(".story, .scrim, .sheet").forEach(el => el.remove());
+    if (S.revisao) $("#device").insertAdjacentHTML("beforeend", telaRevisao());
+    if (S.sheet) $("#device").insertAdjacentHTML("beforeend", sheetEnviar());
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $("#toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 1900);
+  }
+
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("[data-act], .ni");
+    if (!el) return;
+
+    if (el.classList.contains("ni")) { S.tab = el.dataset.tab; render(); return; }
+
+    const act = el.dataset.act;
+    if (!act) return;
+    switch (act) {
+      case "revisar":       S.revisao = { decididos: 0 }; S.fimRevisao = false; S.ajusteAberto = false; render(); break;
+      case "fechar-revisao": S.revisao = null; S.fimRevisao = false; S.ajusteAberto = false; render(); break;
+      case "abrir-ajuste":  S.ajusteAberto = true; render(); break;
+      case "fechar-ajuste": S.ajusteAberto = false; render(); break;
+      case "enviar-ajuste": {
+        S.aprovados.add(Number(el.dataset.id)); // sai da fila (foi decidido)
+        S.revisao.decididos++;
+        S.ajusteAberto = false;
+        if (pendentesRestantes().length === 0) S.fimRevisao = true;
+        render(); toast("Pedido enviado — a SAL foi avisada 💬");
+        break;
+      }
+      case "aprovar-story": {
+        S.aprovados.add(Number(el.dataset.id));
+        S.revisao.decididos++;
+        if (pendentesRestantes().length === 0) S.fimRevisao = true;
+        render(); toast("Aprovado ✓");
+        break;
+      }
+      case "pular": {
+        // No protótipo, pular encerra (fila de 1 em diante seria rotacionada)
+        S.fimRevisao = true; render();
+        break;
+      }
+      case "aprovar-direto": {
+        S.aprovados.add(Number(el.dataset.id));
+        render(); toast("Aprovado ✓ — a SAL foi avisada");
+        break;
+      }
+      case "ir-conteudo":   S.tab = "conteudo"; render(); break;
+      case "view-grade":    S.view = "grade"; render(); break;
+      case "view-lista":    S.view = "lista"; render(); break;
+      case "fechar-sheet":  S.sheet = false; render(); break;
+      case "modo-rapido":   S.modoEnvio = "rapido"; render(); break;
+      case "modo-completo": S.modoEnvio = "completo"; render(); break;
+      case "enviar-demo":   S.sheet = false; render(); toast("Enviado! A SAL foi avisada 📥"); break;
+    }
+  });
+
+  $("#fabEnviar").addEventListener("click", () => { S.sheet = true; render(); });
+
+  aplicarMarca("lindoia");
+</script>
+</body>
+</html>

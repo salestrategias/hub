@@ -1,40 +1,39 @@
 "use client";
 /**
- * Portal v4 — aba CONTEÚDO (posts + anúncios num lugar só).
+ * Conteúdo v5 — posts + anúncios num lugar só, com a vista FEED.
  *
- * A separação Calendário × Criativos era uma distinção interna (orgânico ×
- * tráfego pago) que o cliente não precisa entender: pra ele, tudo é
- * "conteúdo pra aprovar/acompanhar". Esta aba unifica:
+ * Vistas (padrão do protótipo aprovado):
+ *  - FEED: grade 3×3 estilo perfil do Instagram — "é assim que seu feed
+ *    vai ficar". Capa = 1ª imagem do item (ou gradiente decorativo),
+ *    bolinha de status no canto. Agrupada por mês; anúncios em seção
+ *    própria (não têm data de publicação). Tocar abre o item num sheet
+ *    com o card completo (aprovar/ajustar/thread).
+ *  - LISTA: cards completos, pendentes primeiro.
  *
- *  - Fila "Esperando você" no topo (o que precisa de ação, primeiro)
- *  - Filtros por chip: Todos · Orgânico · Anúncios
- *  - View Lista (agrupada por mês) ↔ Calendário (grade, posts com data)
- *  - Cards unificados (ConteudoCard) com estados claros + thread
- *
- * Anúncios não têm data de publicação — na view Calendário eles ficam
- * numa seção própria abaixo da grade.
+ * A grade mensal de calendário do v4 saiu — o feed comunica melhor pro
+ * cliente de social e a agenda vive na strip "Sua semana" do Início.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Calendar, CalendarDays, List, ChevronLeft, ChevronRight, ClipboardCheck } from "lucide-react";
+import { Calendar, ClipboardCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { fetchPortal } from "@/lib/portal-fetch";
+import { gradiente } from "@/components/portal-inicio";
 import {
   type ItemConteudo,
   type PostPortal,
   aguardandoCliente,
-  statusUI,
-  STATUS_LABEL_POST,
+  estadoAprovacao,
   AprovarDialog,
   PedirAjusteDialog,
 } from "@/components/portal-conteudo-shared";
 import { ConteudoCard } from "@/components/portal-conteudo-cards";
 
 type Filtro = "todos" | "organico" | "anuncios";
-type CalView = "lista" | "calendario";
-const VIEW_STORAGE_KEY = "portal-conteudo-view";
-const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+type Vista = "feed" | "lista";
+const VIEW_STORAGE_KEY = "portal-v5-view";
 
 export type Permissoes = {
   verCalendario: boolean;
@@ -45,29 +44,35 @@ export type Permissoes = {
   podeEnviarConteudo: boolean;
 };
 
-// ─── Helpers de data (grade usa data LOCAL, consistente com os cards) ──
-function isoDia(data: string | Date): string {
-  const d = typeof data === "string" ? new Date(data) : data;
-  return isoLocal(d.getFullYear(), d.getMonth(), d.getDate());
+/** Cor da bolinha de status na grade (3 estados que o cliente entende). */
+function dotDoItem(item: ItemConteudo): string {
+  const estado = estadoAprovacao(item);
+  if (estado === "aguardando_voce") return "#F5A623"; // âmbar — bola com você
+  if (estado === "com_a_sal") return "#3AA9E8"; // céu — em produção na SAL
+  if (item.status === "RECUSADO") return "#F43F5E";
+  if (item.status === "DESIGN_PRONTO" || item.status === "AGENDADO" || item.status === "PAUSADO")
+    return "#3AA9E8";
+  return "#21C07A"; // aprovado / publicado / no ar
 }
-function isoLocal(ano: number, mes: number, dia: number): string {
-  return `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-}
-function rotuloMes(ano: number, mes: number): string {
-  return new Date(ano, mes, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+
+/** Capa do item: 1ª imagem, senão gradiente decorativo estável. */
+function capaDoItem(item: ItemConteudo, idx: number): { img?: string; grad?: string } {
+  const img = item.arquivos.find((a) => a.tipo === "IMAGEM");
+  if (img) return { img: img.url };
+  return { grad: gradiente(idx) };
 }
 
 export function PortalConteudo({
   token,
+  corMarca,
   permissoes,
   onPendenciasMudaram,
   onAbrirRevisao,
 }: {
   token: string;
+  corMarca: string;
   permissoes: Permissoes;
-  /** Avisa o shell pra recarregar badges após aprovar/pedir ajuste. */
   onPendenciasMudaram?: () => void;
-  /** Abre o Modo Revisão (fila item a item). */
   onAbrirRevisao?: () => void;
 }) {
   const [posts, setPosts] = useState<PostPortal[]>([]);
@@ -75,22 +80,22 @@ export function PortalConteudo({
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(false);
   const [filtro, setFiltro] = useState<Filtro>("todos");
-  const [view, setView] = useState<CalView>("lista");
+  const [vista, setVista] = useState<Vista>("feed");
+  const [aberto, setAberto] = useState<ItemConteudo | null>(null);
   const [aprovando, setAprovando] = useState<ItemConteudo | null>(null);
   const [pedindoAjuste, setPedindoAjuste] = useState<ItemConteudo | null>(null);
 
-  // Restaura preferência de view.
   useEffect(() => {
     try {
       const salvo = localStorage.getItem(VIEW_STORAGE_KEY);
-      if (salvo === "lista" || salvo === "calendario") setView(salvo);
+      if (salvo === "feed" || salvo === "lista") setVista(salvo);
     } catch {
-      /* localStorage indisponível — mantém default */
+      /* mantém default */
     }
   }, []);
 
-  function trocarView(v: CalView) {
-    setView(v);
+  function trocarVista(v: Vista) {
+    setVista(v);
     try {
       localStorage.setItem(VIEW_STORAGE_KEY, v);
     } catch {
@@ -138,11 +143,11 @@ export function PortalConteudo({
   function aposAcao() {
     setAprovando(null);
     setPedindoAjuste(null);
+    setAberto(null);
     void carregar();
     onPendenciasMudaram?.();
   }
 
-  // ─── Merge + filtro ──────────────────────────────────────────────────
   const itens = useMemo<ItemConteudo[]>(() => {
     const todos: ItemConteudo[] = [...posts, ...criativos];
     if (filtro === "organico") return todos.filter((i) => i.kind === "post");
@@ -166,43 +171,76 @@ export function PortalConteudo({
     [permissoes.podeAprovarPosts, permissoes.podeAprovarCriativos]
   );
 
+  const renderCard = useCallback(
+    (i: ItemConteudo) => (
+      <ConteudoCard
+        key={`${i.kind}-${i.id}`}
+        item={i}
+        token={token}
+        podeAprovar={podeAprovarItem(i)}
+        podeComentar={permissoes.podeComentar}
+        podeEnviar={permissoes.podeEnviarConteudo}
+        onAprovar={setAprovando}
+        onPedirAjuste={setPedindoAjuste}
+        onAlterado={() => {
+          void carregar();
+          onPendenciasMudaram?.();
+        }}
+      />
+    ),
+    [token, podeAprovarItem, permissoes.podeComentar, permissoes.podeEnviarConteudo, carregar, onPendenciasMudaram]
+  );
+
   if (loading) return <ConteudoSkeleton />;
 
   const temAlgo = posts.length > 0 || criativos.length > 0;
   const mostraFiltros = permissoes.verCalendario && permissoes.verCriativos && temAlgo;
 
   return (
-    <div className="space-y-4">
-      {/* Fila de pendências → CTA do Modo Revisão */}
+    <div className="p5-screen space-y-4">
+      <section className="pt-1">
+        <h1 className="font-display text-[26px] font-extrabold tracking-tight leading-tight">Conteúdo</h1>
+        <p className="text-[13.5px] text-muted-foreground mt-1">
+          Tudo que a SAL preparou — orgânico e anúncios juntos.
+        </p>
+      </section>
+
+      {/* CTA da fila de pendências */}
       {pendentes.length > 0 && onAbrirRevisao && (
         <button
           type="button"
           onClick={onAbrirRevisao}
-          className="touch-feedback w-full rounded-xl border border-primary/30 bg-primary/5 p-3.5 flex items-center gap-3 text-left hover:bg-primary/10 transition-colors"
+          className="touch-feedback p5-card flex w-full items-center gap-3 bg-card p-4 text-left"
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-            <ClipboardCheck className="h-5 w-5 text-primary" />
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] text-white"
+            style={{ background: corMarca }}
+          >
+            <ClipboardCheck className="h-5 w-5" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-display text-sm font-semibold leading-tight">
+            <span className="block font-display text-[14px] font-bold leading-tight">
               {pendentes.length === 1
                 ? "1 conteúdo esperando você"
                 : `${pendentes.length} conteúdos esperando você`}
             </span>
-            <span className="block text-[12px] text-muted-foreground leading-snug">
-              Revise um por um, sem procurar na lista
+            <span className="block text-[12px] text-muted-foreground mt-0.5">
+              revise um por um, sem procurar
             </span>
           </span>
-          <span className="shrink-0 rounded-full bg-primary px-3.5 py-2 text-[12px] font-semibold text-primary-foreground">
+          <span
+            className="shrink-0 rounded-full px-4 py-2.5 text-[12px] font-extrabold text-white"
+            style={{ background: corMarca }}
+          >
             Revisar
           </span>
         </button>
       )}
 
-      {/* Filtros + toggle de view */}
+      {/* Filtros + vista */}
       {temAlgo && (
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          {mostraFiltros ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {mostraFiltros && (
             <div className="flex items-center gap-1.5">
               {(
                 [
@@ -216,53 +254,45 @@ export function PortalConteudo({
                   type="button"
                   onClick={() => setFiltro(f.id)}
                   aria-pressed={filtro === f.id}
-                  className={`touch-feedback rounded-full px-3 py-1.5 text-[12px] font-medium border transition-colors ${
-                    filtro === f.id
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border text-muted-foreground hover:text-foreground"
+                  className={`touch-feedback rounded-full px-3.5 py-2 text-[12px] font-bold transition-colors ${
+                    filtro === f.id ? "text-white" : "p5-card bg-card text-muted-foreground"
                   }`}
+                  style={filtro === f.id ? { background: corMarca } : undefined}
                 >
                   {f.label}
                 </button>
               ))}
             </div>
-          ) : (
-            <span />
           )}
-          <div className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5">
+          <div className="p5-card ml-auto flex gap-1 rounded-full bg-card p-1">
             <button
               type="button"
-              onClick={() => trocarView("lista")}
-              aria-pressed={view === "lista"}
-              className={`touch-feedback flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors ${
-                view === "lista"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+              onClick={() => trocarVista("feed")}
+              aria-pressed={vista === "feed"}
+              className={`touch-feedback rounded-full px-3.5 py-1.5 text-[11.5px] font-bold ${
+                vista === "feed" ? "bg-muted text-foreground" : "text-muted-foreground"
               }`}
             >
-              <List className="h-3.5 w-3.5" /> Lista
+              Feed
             </button>
             <button
               type="button"
-              onClick={() => trocarView("calendario")}
-              aria-pressed={view === "calendario"}
-              className={`touch-feedback flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors ${
-                view === "calendario"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+              onClick={() => trocarVista("lista")}
+              aria-pressed={vista === "lista"}
+              className={`touch-feedback rounded-full px-3.5 py-1.5 text-[11.5px] font-bold ${
+                vista === "lista" ? "bg-muted text-foreground" : "text-muted-foreground"
               }`}
             >
-              <CalendarDays className="h-3.5 w-3.5" /> Calendário
+              Lista
             </button>
           </div>
         </div>
       )}
 
-      {/* Conteúdo */}
       {!temAlgo ? (
-        <Card>
+        <Card className="p5-card">
           <CardContent className="p-8 text-center space-y-2">
-            <Calendar className="h-10 w-10 mx-auto text-muted-foreground/40" />
+            <Calendar className="mx-auto h-10 w-10 text-muted-foreground/40" />
             <p className="text-sm text-muted-foreground">
               {erro ? "Não conseguimos carregar seu conteúdo." : "Nenhum conteúdo pra mostrar agora."}
             </p>
@@ -272,51 +302,27 @@ export function PortalConteudo({
               </Button>
             ) : (
               <p className="text-[11px] text-muted-foreground/70">
-                Quando a SAL produzir conteúdo novo pra aprovação, aparece aqui.
+                Quando a SAL produzir conteúdo novo, aparece aqui.
               </p>
             )}
           </CardContent>
         </Card>
-      ) : view === "calendario" ? (
-        <ConteudoGrade
-          itens={itens}
-          renderCard={(i) => (
-            <ConteudoCard
-              key={`${i.kind}-${i.id}`}
-              item={i}
-              token={token}
-              podeAprovar={podeAprovarItem(i)}
-              podeComentar={permissoes.podeComentar}
-              podeEnviar={permissoes.podeEnviarConteudo}
-              onAprovar={setAprovando}
-              onPedirAjuste={setPedindoAjuste}
-              onAlterado={() => {
-                void carregar();
-                onPendenciasMudaram?.();
-              }}
-            />
-          )}
-        />
+      ) : vista === "feed" ? (
+        <FeedGrid itens={itens} onAbrir={setAberto} />
       ) : (
-        <ConteudoLista
-          itens={itens}
-          renderCard={(i) => (
-            <ConteudoCard
-              key={`${i.kind}-${i.id}`}
-              item={i}
-              token={token}
-              podeAprovar={podeAprovarItem(i)}
-              podeComentar={permissoes.podeComentar}
-              podeEnviar={permissoes.podeEnviarConteudo}
-              onAprovar={setAprovando}
-              onPedirAjuste={setPedindoAjuste}
-              onAlterado={() => {
-                void carregar();
-                onPendenciasMudaram?.();
-              }}
-            />
-          )}
-        />
+        <ListaCards itens={itens} renderCard={renderCard} />
+      )}
+
+      {/* Sheet do item (tocar na grade) */}
+      {aberto && (
+        <Dialog open onOpenChange={(o) => !o && setAberto(null)}>
+          <DialogContent className="dialog-bottom-sheet max-h-[90dvh] overflow-y-auto p-0 sm:max-w-lg sm:p-0">
+            <DialogTitle className="sr-only">{aberto.titulo}</DialogTitle>
+            <div className="p-1.5 sm:p-2">
+              {renderCard(aberto)}
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       {aprovando && (
@@ -340,8 +346,104 @@ export function PortalConteudo({
   );
 }
 
-// ─── Lista agrupada: pendentes primeiro, depois por mês ────────────────
-function ConteudoLista({
+// ─── Vista FEED (grade Instagram) ────────────────────────────────────
+function FeedGrid({
+  itens,
+  onAbrir,
+}: {
+  itens: ItemConteudo[];
+  onAbrir: (i: ItemConteudo) => void;
+}) {
+  const posts = itens.filter((i): i is PostPortal => i.kind === "post");
+  const criativos = itens.filter((i) => i.kind === "criativo");
+
+  // Posts agrupados por mês, mais recente primeiro (feed de perfil).
+  const grupos = new Map<string, PostPortal[]>();
+  const ordenados = [...posts].sort((a, b) => b.dataPublicacao.localeCompare(a.dataPublicacao));
+  for (const p of ordenados) {
+    const chave = new Date(p.dataPublicacao).toLocaleDateString("pt-BR", {
+      month: "long",
+      year: "numeric",
+    });
+    const arr = grupos.get(chave) ?? [];
+    arr.push(p);
+    grupos.set(chave, arr);
+  }
+
+  return (
+    <div className="space-y-5">
+      {posts.length > 0 && (
+        <p className="px-0.5 text-[11.5px] text-muted-foreground">
+          É assim que seu feed vai ficar 👇 · <b style={{ color: "#F5A623" }}>●</b> esperando você ·{" "}
+          <b style={{ color: "#3AA9E8" }}>●</b> com a SAL / agendado · <b style={{ color: "#21C07A" }}>●</b>{" "}
+          aprovado / no ar
+        </p>
+      )}
+
+      {Array.from(grupos.entries()).map(([mes, doMes]) => (
+        <section key={mes}>
+          <h2 className="mb-2 px-0.5 text-[11px] font-extrabold uppercase tracking-[.09em] text-muted-foreground/80 capitalize">
+            {mes}
+          </h2>
+          <Grade itens={doMes} onAbrir={onAbrir} />
+        </section>
+      ))}
+
+      {criativos.length > 0 && (
+        <section>
+          <h2 className="mb-2 px-0.5 text-[11px] font-extrabold uppercase tracking-[.09em] text-muted-foreground/80">
+            Anúncios ({criativos.length})
+          </h2>
+          <Grade itens={criativos} onAbrir={onAbrir} />
+        </section>
+      )}
+    </div>
+  );
+}
+
+function Grade({
+  itens,
+  onAbrir,
+}: {
+  itens: ItemConteudo[];
+  onAbrir: (i: ItemConteudo) => void;
+}) {
+  return (
+    <div className="grid grid-cols-3 gap-[3px] overflow-hidden rounded-[18px]">
+      {itens.map((item, idx) => {
+        const capa = capaDoItem(item, idx);
+        return (
+          <button
+            key={`${item.kind}-${item.id}`}
+            type="button"
+            onClick={() => onAbrir(item)}
+            aria-label={item.titulo}
+            className="touch-feedback relative aspect-square bg-muted"
+            style={capa.grad ? { background: capa.grad } : undefined}
+          >
+            {capa.img && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={capa.img}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            )}
+            <span
+              className="absolute right-1.5 top-1.5 h-[9px] w-[9px] rounded-full shadow-[0_0_0_2px_rgba(255,255,255,.85)]"
+              style={{ background: dotDoItem(item) }}
+            />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Vista LISTA ─────────────────────────────────────────────────────
+function ListaCards({
   itens,
   renderCard,
 }: {
@@ -351,7 +453,6 @@ function ConteudoLista({
   const pendentes = itens.filter(aguardandoCliente);
   const resto = itens.filter((i) => !aguardandoCliente(i));
 
-  // Agrupa o resto por mês (posts pela dataPublicacao; criativos por updatedAt).
   const grupos = new Map<string, ItemConteudo[]>();
   for (const i of resto) {
     const d = new Date(i.kind === "post" ? (i as PostPortal).dataPublicacao : i.updatedAt);
@@ -364,294 +465,42 @@ function ConteudoLista({
   return (
     <div className="space-y-5">
       {pendentes.length > 0 && (
-        <section className="space-y-2">
-          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+        <section className="space-y-2.5">
+          <h2 className="px-0.5 text-[11px] font-extrabold uppercase tracking-[.09em]" style={{ color: "#B47800" }}>
             Esperando você ({pendentes.length})
           </h2>
-          <div className="space-y-2">{pendentes.map(renderCard)}</div>
+          <div className="space-y-3">{pendentes.map(renderCard)}</div>
         </section>
       )}
       {Array.from(grupos.entries()).map(([mes, doMes]) => (
-        <section key={mes} className="space-y-2">
-          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground capitalize">
+        <section key={mes} className="space-y-2.5">
+          <h2 className="px-0.5 text-[11px] font-extrabold uppercase tracking-[.09em] text-muted-foreground/80 capitalize">
             {mes}
           </h2>
-          <div className="space-y-2">{doMes.map(renderCard)}</div>
+          <div className="space-y-3">{doMes.map(renderCard)}</div>
         </section>
       ))}
     </div>
-  );
-}
-
-// ─── Grade mensal (posts com data) + seção de anúncios ─────────────────
-function ConteudoGrade({
-  itens,
-  renderCard,
-}: {
-  itens: ItemConteudo[];
-  renderCard: (i: ItemConteudo) => React.ReactNode;
-}) {
-  const posts = itens.filter((i): i is PostPortal => i.kind === "post");
-  const criativos = itens.filter((i) => i.kind === "criativo");
-
-  const porDia = useMemo(() => {
-    const m = new Map<string, PostPortal[]>();
-    for (const p of posts) {
-      const k = isoDia(p.dataPublicacao);
-      const arr = m.get(k);
-      if (arr) arr.push(p);
-      else m.set(k, [p]);
-    }
-    return m;
-  }, [posts]);
-
-  const hoje = new Date();
-  const hojeIso = isoLocal(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-
-  const inicio = useMemo(() => {
-    const datas = posts.map((p) => p.dataPublicacao).sort();
-    const alvo = datas.find((d) => isoDia(d) >= hojeIso) ?? datas[0];
-    if (!alvo) return { ano: hoje.getFullYear(), mes: hoje.getMonth() };
-    const d = new Date(alvo);
-    return { ano: d.getFullYear(), mes: d.getMonth() };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [posts]);
-
-  const [cursor, setCursor] = useState<{ ano: number; mes: number }>(inicio);
-  const [diaSel, setDiaSel] = useState<string | null>(null);
-
-  function irMes(delta: number) {
-    setDiaSel(null);
-    setCursor((c) => {
-      const d = new Date(c.ano, c.mes + delta, 1);
-      return { ano: d.getFullYear(), mes: d.getMonth() };
-    });
-  }
-  function irHoje() {
-    setCursor({ ano: hoje.getFullYear(), mes: hoje.getMonth() });
-    setDiaSel(porDia.has(hojeIso) ? hojeIso : null);
-  }
-
-  const primeiroDiaSemana = new Date(cursor.ano, cursor.mes, 1).getDay();
-  const diasNoMes = new Date(cursor.ano, cursor.mes + 1, 0).getDate();
-  const totalCelulas = Math.ceil((primeiroDiaSemana + diasNoMes) / 7) * 7;
-  type Celula = { iso: string; dia: number; doMes: boolean };
-  const celulas: Celula[] = [];
-  for (let i = 0; i < totalCelulas; i++) {
-    const offset = i - primeiroDiaSemana;
-    const d = new Date(cursor.ano, cursor.mes, 1 + offset);
-    celulas.push({
-      iso: isoLocal(d.getFullYear(), d.getMonth(), d.getDate()),
-      dia: d.getDate(),
-      doMes: d.getMonth() === cursor.mes,
-    });
-  }
-
-  const postsDoDia = diaSel ? porDia.get(diaSel) ?? [] : [];
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 min-w-0">
-          <CalendarDays className="h-4 w-4 text-muted-foreground shrink-0" />
-          <span className="font-display text-base font-semibold capitalize truncate">
-            {rotuloMes(cursor.ano, cursor.mes)}
-          </span>
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => irMes(-1)}
-            className="touch-feedback h-8 w-8 flex items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-            aria-label="Mês anterior"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={irHoje}
-            className="touch-feedback h-8 px-3 flex items-center rounded-md border border-border text-[12px] text-muted-foreground hover:text-foreground hover:bg-muted"
-          >
-            Hoje
-          </button>
-          <button
-            type="button"
-            onClick={() => irMes(1)}
-            className="touch-feedback h-8 w-8 flex items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-            aria-label="Próximo mês"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-border overflow-hidden">
-        <div className="grid grid-cols-7 bg-muted/40 border-b border-border">
-          {DIAS_SEMANA.map((d) => (
-            <div
-              key={d}
-              className="px-1 py-1.5 text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-muted-foreground text-center"
-            >
-              {d}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7">
-          {celulas.map((cel) => (
-            <DiaCelula
-              key={cel.iso}
-              dia={cel.dia}
-              doMes={cel.doMes}
-              ehHoje={cel.iso === hojeIso}
-              selecionado={cel.iso === diaSel}
-              posts={porDia.get(cel.iso) ?? []}
-              onSelecionar={() => setDiaSel((atual) => (atual === cel.iso ? null : cel.iso))}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Legenda de status */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-0.5">
-        {Object.entries(STATUS_LABEL_POST).map(([st, label]) => (
-          <span key={st} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-            <span className={`h-2 w-2 rounded-full ${statusUI(st).dot}`} />
-            {label}
-          </span>
-        ))}
-      </div>
-
-      {diaSel && (
-        <section className="space-y-2 pt-1">
-          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {new Date(diaSel + "T00:00:00").toLocaleDateString("pt-BR", {
-              weekday: "long",
-              day: "2-digit",
-              month: "long",
-            })}
-            {postsDoDia.length > 0 ? ` · ${postsDoDia.length}` : ""}
-          </h2>
-          {postsDoDia.length === 0 ? (
-            <Card>
-              <CardContent className="p-6 text-center text-[12px] text-muted-foreground">
-                Nenhum conteúdo neste dia.
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-2">{postsDoDia.map(renderCard)}</div>
-          )}
-        </section>
-      )}
-
-      {/* Anúncios não têm data — seção própria abaixo da grade */}
-      {criativos.length > 0 && (
-        <section className="space-y-2 pt-2">
-          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Anúncios ({criativos.length})
-          </h2>
-          <div className="space-y-2">{criativos.map(renderCard)}</div>
-        </section>
-      )}
-    </div>
-  );
-}
-
-function DiaCelula({
-  dia,
-  doMes,
-  ehHoje,
-  selecionado,
-  posts,
-  onSelecionar,
-}: {
-  dia: number;
-  doMes: boolean;
-  ehHoje: boolean;
-  selecionado: boolean;
-  posts: PostPortal[];
-  onSelecionar: () => void;
-}) {
-  const temPosts = posts.length > 0;
-  return (
-    <button
-      type="button"
-      onClick={onSelecionar}
-      aria-label={`${dia} — ${temPosts ? `${posts.length} conteúdo(s)` : "sem conteúdo"}`}
-      aria-pressed={selecionado}
-      className={`touch-feedback group/dia relative min-h-[64px] sm:min-h-[88px] border-b border-r border-border p-1 text-left transition-colors [&:nth-child(7n)]:border-r-0 ${
-        doMes ? "bg-background" : "bg-muted/20"
-      } ${selecionado ? "ring-2 ring-inset ring-primary/60 bg-primary/5" : "hover:bg-muted/40"}`}
-    >
-      <div className="flex items-center justify-center sm:justify-start px-0.5 pt-0.5">
-        <span
-          className={`text-[12px] tabular-nums ${
-            ehHoje
-              ? "h-5 w-5 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
-              : doMes
-                ? "text-foreground/80"
-                : "text-muted-foreground/40"
-          }`}
-        >
-          {dia}
-        </span>
-      </div>
-
-      {temPosts && (
-        <div className="mt-1 flex flex-wrap justify-center gap-0.5 sm:hidden">
-          {posts.slice(0, 4).map((p) => (
-            <span key={p.id} className={`h-1.5 w-1.5 rounded-full ${statusUI(p.status).dot}`} />
-          ))}
-          {posts.length > 4 && (
-            <span className="text-[8px] leading-none text-muted-foreground">+{posts.length - 4}</span>
-          )}
-        </div>
-      )}
-
-      {temPosts && (
-        <div className="mt-1 hidden sm:block space-y-1">
-          {posts.slice(0, 3).map((p) => (
-            <span
-              key={p.id}
-              className={`block w-full truncate rounded px-1.5 py-0.5 text-[11px] font-medium ${statusUI(p.status).chip}`}
-              title={p.titulo}
-            >
-              {p.titulo}
-            </span>
-          ))}
-          {posts.length > 3 && (
-            <span className="block px-1.5 text-[10px] text-muted-foreground">
-              +{posts.length - 3} mais
-            </span>
-          )}
-        </div>
-      )}
-    </button>
   );
 }
 
 function ConteudoSkeleton() {
   return (
     <div className="space-y-4">
-      <Skeleton className="h-16 w-full rounded-xl" />
-      <div className="flex justify-between">
-        <Skeleton className="h-8 w-52 rounded-full" />
-        <Skeleton className="h-8 w-44" />
+      <div className="pt-1 space-y-2">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-4 w-64" />
       </div>
-      {[0, 1].map((i) => (
-        <Card key={i}>
-          <CardContent className="p-4 flex items-start gap-3">
-            <Skeleton className="h-12 w-12 rounded-xl shrink-0" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-2/3" />
-              <div className="flex gap-1.5">
-                <Skeleton className="h-4 w-24 rounded-full" />
-                <Skeleton className="h-4 w-20 rounded-full" />
-              </div>
-              <Skeleton className="h-24 w-full rounded-md" />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      <Skeleton className="h-[76px] w-full rounded-[22px]" />
+      <div className="flex gap-2">
+        <Skeleton className="h-9 w-44 rounded-full" />
+        <Skeleton className="ml-auto h-9 w-32 rounded-full" />
+      </div>
+      <div className="grid grid-cols-3 gap-[3px] overflow-hidden rounded-[18px]">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <Skeleton key={i} className="aspect-square rounded-none" />
+        ))}
+      </div>
     </div>
   );
 }

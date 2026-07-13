@@ -298,6 +298,61 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────
+   Portal v5 — "app da marca do cliente".
+   Escopo .portal-v5: ground levemente tingido de violeta, cards SEM
+   borda com sombra dupla suave, raio maior. Só afeta o portal — o Hub
+   interno continua no visual clean padrão.
+   ───────────────────────────────────────────────────────────────────── */
+.portal-v5 {
+  --background: 252 30% 97%;
+  --card: 0 0% 100%;
+  --border: 251 26% 92%;
+  --muted: 251 26% 94%;
+  --p5-shadow: 0 2px 6px rgba(25, 15, 50, 0.05), 0 14px 34px rgba(25, 15, 50, 0.09);
+  --p5-shadow-float: 0 6px 16px rgba(25, 15, 50, 0.18), 0 20px 44px rgba(25, 15, 50, 0.22);
+}
+.dark .portal-v5 {
+  --background: 251 30% 9%;
+  --card: 251 29% 14%;
+  --border: 250 28% 20%;
+  --muted: 250 28% 18%;
+  --p5-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 14px 34px rgba(0, 0, 0, 0.4);
+  --p5-shadow-float: 0 6px 16px rgba(0, 0, 0, 0.5), 0 20px 44px rgba(0, 0, 0, 0.55);
+}
+
+/* Card v5: sem borda, sombra suave, raio 22px */
+.p5-card {
+  border: 0 !important;
+  border-radius: 22px;
+  box-shadow: var(--p5-shadow);
+}
+.p5-float { box-shadow: var(--p5-shadow-float); }
+
+/* Scroll horizontal sem scrollbar (semana, carrossel "para aprovar") */
+.p5-hscroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+.p5-hscroll::-webkit-scrollbar { display: none; }
+
+/* Entrada suave das telas ao trocar de aba */
+.p5-screen { animation: p5-fade-up 0.22s ease; }
+@keyframes p5-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+/* Check animado da tela "Tudo revisado" */
+.p5-pop { animation: p5-pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1); }
+@keyframes p5-pop {
+  from { transform: scale(0.3); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p5-screen, .p5-pop { animation: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
    Drag handle — alça "⋮⋮" à esquerda do bloco no hover (estilo Notion).
    Renderizada por tiptap-extension-global-drag-handle.
    ───────────────────────────────────────────────────────────────────── */

@@ -90,8 +90,8 @@ export function ConteudoCard({
   }
 
   return (
-    <Card>
-      <CardContent className="p-0 overflow-hidden">
+    <Card className="p5-card">
+      <CardContent className="p-0 overflow-hidden rounded-[22px]">
         {/* Cabeçalho */}
         <div className="p-4 flex items-start gap-3">
           {ehPost ? (

@@ -1,80 +1,48 @@
 "use client";
 /**
- * Tab "Início" do Portal v4 — home de decisão + entregas.
+ * Início v5 — feed de decisão (padrão do protótipo aprovado).
  *
- * Blocos:
- *  1. Boas-vindas (saudação + nome)
- *  2. "Esperando você" — hero com UMA chamada: "Revisar agora" abre o
- *     Modo Revisão (fila item a item). Briefing pendente vira linha à parte.
- *  3. Atalho "Enviar material" (quando o cliente pode enviar)
- *  4. Navegação de mês (◀ {Mês} ▶) — histórico de entregas
- *  5. 4 contadores de entregas do mês
- *  6. Últimas entregas (timeline curtinha)
+ * Blocos, na ordem:
+ *  1. Saudação grande por hora do dia
+ *  2. HERÓI de pendências (estilo fintech): número grande + thumbs
+ *     decorativas + "Revisar agora" (abre o Modo Revisão stories).
+ *     Zero pendências → cartão calmo "Tudo em dia".
+ *  3. "Sua semana" — strip de 7 dias com bolinhas de publicação
+ *     (bolinha âmbar = tem pendência no dia)
+ *  4. Carrossel "Para aprovar" — itens leves (sem artes; capa é um
+ *     gradiente decorativo). Tocar abre o Modo Revisão.
+ *  5. Últimas entregas do mês
  *
- * Acento da marca (corPrimaria) aplicado via style inline só em
- * números/ícones/destaques. Sem CSS-in-JS — só tokens Tailwind.
+ * Métricas/contadores saíram daqui — agora vivem na aba Resultados.
+ * SEM fetch próprio: o shell já busca o /resumo (pendências + semana +
+ * últimas entregas) e passa tudo por props — uma chamada só no load.
  */
-import { useCallback, useEffect, useState } from "react";
-import {
-  Megaphone,
-  Mic,
-  CheckCircle2,
-  Image as ImageIcon,
-  Sparkles,
-  CalendarCheck,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardCheck,
-  ClipboardList,
-  UploadCloud,
-  ArrowRight,
-} from "lucide-react";
+import { Megaphone, Image as ImageIcon, CalendarCheck, ClipboardList, ArrowRight, Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { fetchPortal } from "@/lib/portal-fetch";
-import type { Tab } from "@/components/portal-cliente";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Tab, PendenciaItem, DiaSemana, Entrega } from "@/components/portal-cliente";
 
-type EntregasMes = {
-  postsPublicados: number;
-  criativosProduzidos: number;
-  reunioesRealizadas: number;
-  tarefasConcluidas: number;
-};
-
-type Entrega = {
-  id: string;
-  tipo: "post" | "criativo";
-  titulo: string;
-  data: string;
-};
-
-type Resumo = {
-  mes?: string;
-  entregasMes: EntregasMes;
-  ultimasEntregas: Entrega[];
-  totais?: { postsPublicados: number };
-};
-
-type Pendencias = { posts: number; criativos: number };
-
-// ─── Helpers de mês ────────────────────────────────────────────────────
-function mesIso(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+/** Gradientes decorativos pros cards sem arte (pool fixo, escolhido por índice). */
+export const GRADIENTES = [
+  "linear-gradient(135deg,#F7B733,#FC4A1A)",
+  "linear-gradient(135deg,#7F7FD5,#86A8E7,#91EAE4)",
+  "linear-gradient(135deg,#11998E,#38EF7D)",
+  "linear-gradient(135deg,#EC008C,#FC6767)",
+  "linear-gradient(135deg,#DA22FF,#9733EE)",
+  "linear-gradient(135deg,#02AAB0,#00CDAC)",
+  "linear-gradient(135deg,#00B4DB,#0083B0)",
+  "linear-gradient(135deg,#F953C6,#B91D73)",
+];
+export function gradiente(i: number): string {
+  return GRADIENTES[Math.abs(i) % GRADIENTES.length];
 }
-function mesAtualIso(): string {
-  return mesIso(new Date());
-}
-function somarMes(iso: string, delta: number): string {
-  const [a, m] = iso.split("-").map(Number);
-  const d = new Date(a, m - 1 + delta, 1);
-  return mesIso(d);
-}
-function rotuloMes(iso: string): string {
-  const [a, m] = iso.split("-").map(Number);
-  const s = new Date(a, m - 1, 1).toLocaleDateString("pt-BR", {
-    month: "long",
-    year: "numeric",
-  });
-  return s.charAt(0).toUpperCase() + s.slice(1);
+
+function saudacao(): string {
+  const h = new Date().getHours();
+  if (h < 6) return "Boa noite";
+  if (h < 12) return "Bom dia";
+  if (h < 18) return "Boa tarde";
+  return "Boa noite";
 }
 
 /** Data relativa curta em pt-BR ("hoje", "ontem", "há 3 dias", "12/05"). */
@@ -92,354 +60,283 @@ function dataRelativa(iso: string): string {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 }
 
+const DIAS_CURTOS = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+
 export function PortalInicio({
-  token,
-  clienteNome,
-  acento,
-  pendencias = { posts: 0, criativos: 0 },
+  corMarca,
+  pendencias,
+  semana,
+  ultimas,
   briefingsPendentes = 0,
   podeRevisar = false,
-  podeEnviar = false,
   onRevisar,
   onIrParaTab,
 }: {
-  token: string;
-  clienteNome: string;
-  /** hex já sanitizado da marca, ou undefined (usa tokens primary). */
-  acento?: string;
-  /** Itens aguardando a aprovação do cliente (alimenta "Esperando você"). */
-  pendencias?: Pendencias;
-  /** Briefings aguardando resposta (linha própria no "Esperando você"). */
+  /** cor efetiva da marca (acento ou roxo SAL) — herói/CTAs. */
+  corMarca: string;
+  pendencias: { posts: number; criativos: number; itens: PendenciaItem[] };
+  semana: DiaSemana[];
+  /** null = ainda carregando (skeleton). */
+  ultimas: Entrega[] | null;
   briefingsPendentes?: number;
-  /** Cliente pode aprovar algo → CTA abre o Modo Revisão. */
   podeRevisar?: boolean;
-  /** Cliente pode enviar material → atalho pra aba Enviar. */
-  podeEnviar?: boolean;
-  /** Abre o Modo Revisão (fila item a item). */
   onRevisar?: () => void;
-  /** Troca a aba do portal (atalhos). */
   onIrParaTab?: (tab: Tab) => void;
 }) {
-  const [resumo, setResumo] = useState<Resumo | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [mes, setMes] = useState<string>(mesAtualIso());
-
-  const ehMesAtual = mes === mesAtualIso();
-
-  const carregar = useCallback(
-    (alvoMes: string) => {
-      setLoading(true);
-      fetchPortal(`/api/p/cliente/${token}/resumo?mes=${alvoMes}`)
-        .then((r) => (r.ok ? r.json() : null))
-        .then((d) => {
-          if (d && d.entregasMes) setResumo(d as Resumo);
-          else setResumo(null);
-        })
-        .catch(() => setResumo(null))
-        .finally(() => setLoading(false));
-    },
-    [token]
-  );
-
-  useEffect(() => {
-    carregar(mes);
-  }, [carregar, mes]);
-
   const totalPendencias = podeRevisar ? pendencias.posts + pendencias.criativos : 0;
-
-  const entregas = resumo?.entregasMes ?? {
-    postsPublicados: 0,
-    criativosProduzidos: 0,
-    reunioesRealizadas: 0,
-    tarefasConcluidas: 0,
-  };
-  const ultimas = resumo?.ultimasEntregas ?? [];
-  const totalEntregasMes =
-    entregas.postsPublicados +
-    entregas.criativosProduzidos +
-    entregas.reunioesRealizadas +
-    entregas.tarefasConcluidas;
-
-  const cards: { label: string; valor: number; icon: typeof Megaphone }[] = [
-    { label: "Posts publicados", valor: entregas.postsPublicados, icon: Megaphone },
-    { label: "Anúncios produzidos", valor: entregas.criativosProduzidos, icon: ImageIcon },
-    { label: "Reuniões", valor: entregas.reunioesRealizadas, icon: Mic },
-    { label: "Tarefas concluídas", valor: entregas.tarefasConcluidas, icon: CheckCircle2 },
-  ];
+  const hojeIso = new Date().toDateString();
 
   return (
-    <div className="space-y-5">
-      {/* 1) Boas-vindas */}
-      <section className="space-y-1.5">
-        <div className="flex items-center gap-2">
-          <span
-            className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10"
-            style={acento ? { background: `${acento}1A` } : undefined}
-          >
-            <Sparkles className="h-4 w-4 text-primary" style={acento ? { color: acento } : undefined} />
-          </span>
-          <h1 className="font-display text-lg sm:text-xl font-semibold leading-tight">
-            Olá, {clienteNome}!
-          </h1>
-        </div>
-        <p className="text-[13px] sm:text-sm text-muted-foreground leading-relaxed">
-          Aqui você acompanha o que a SAL está entregando pra você.
+    <div className="p5-screen space-y-6">
+      {/* 1) Saudação */}
+      <section className="pt-1">
+        <h1 className="font-display text-[26px] font-extrabold tracking-tight leading-tight">
+          {saudacao()}! 👋
+        </h1>
+        <p className="text-[13.5px] text-muted-foreground mt-1">
+          Seu marketing está andando — veja o que chegou.
         </p>
       </section>
 
-      {/* 2) Esperando você — UMA chamada de ação */}
-      {(totalPendencias > 0 || briefingsPendentes > 0) && (
+      {/* 2) Herói de pendências */}
+      {totalPendencias > 0 ? (
         <section
-          className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 sm:p-4 space-y-3"
-          style={acento ? { borderColor: `${acento}4D`, background: `${acento}0D` } : undefined}
+          className="rounded-[26px] p-5 text-white"
+          style={{
+            background: `radial-gradient(120% 160% at 100% 0%, color-mix(in srgb, ${corMarca} 55%, #ffffff 12%) 0%, ${corMarca} 55%)`,
+            boxShadow: `0 14px 34px color-mix(in srgb, ${corMarca} 38%, transparent)`,
+          }}
+          aria-label="Conteúdos esperando sua aprovação"
         >
-          <div className="flex items-start gap-3">
-            <span
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15"
-              style={acento ? { background: `${acento}26` } : undefined}
-            >
-              <ClipboardCheck className="h-5 w-5 text-primary" style={acento ? { color: acento } : undefined} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <h2 className="font-display text-sm font-semibold leading-tight">Esperando você</h2>
-              <p className="text-[12.5px] text-muted-foreground leading-snug mt-0.5">
-                {totalPendencias > 0 ? (
-                  <>
-                    <span className="font-semibold text-foreground">
-                      {totalPendencias} {totalPendencias === 1 ? "conteúdo" : "conteúdos"}
-                    </span>{" "}
-                    pra você aprovar
-                    {briefingsPendentes > 0 &&
-                      ` · ${briefingsPendentes} briefing${briefingsPendentes > 1 ? "s" : ""} pra responder`}
-                  </>
-                ) : (
-                  <>
-                    <span className="font-semibold text-foreground">
-                      {briefingsPendentes} briefing{briefingsPendentes > 1 ? "s" : ""}
-                    </span>{" "}
-                    pra você responder
-                  </>
-                )}
-              </p>
-            </div>
+          <div className="text-[11px] font-extrabold uppercase tracking-[.09em] opacity-80">
+            Esperando você
           </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row">
-            {totalPendencias > 0 && onRevisar && (
+          <div className="font-display text-[40px] font-extrabold leading-[1.05] tracking-tight tabular-nums mt-1">
+            {totalPendencias}
+          </div>
+          <div className="text-[13px] opacity-85">
+            {totalPendencias === 1 ? "conteúdo pra aprovar" : "conteúdos pra aprovar"} · leva ~1 min
+          </div>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="flex">
+              {pendencias.itens.slice(0, 3).map((p, i) => (
+                <i
+                  key={p.id}
+                  className={`h-[34px] w-[34px] rounded-[11px] border-2 ${i > 0 ? "-ml-2" : ""}`}
+                  style={{
+                    background: gradiente(i),
+                    borderColor: `color-mix(in srgb, ${corMarca} 60%, #ffffff 18%)`,
+                  }}
+                />
+              ))}
+            </div>
+            {onRevisar && (
               <button
                 type="button"
                 onClick={onRevisar}
-                className="touch-feedback flex flex-1 items-center justify-between gap-2 rounded-lg bg-primary px-3.5 py-3 text-[13.5px] font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
-                style={acento ? { background: acento } : undefined}
+                className="touch-feedback ml-auto rounded-full bg-white px-5 py-3 text-[13.5px] font-extrabold text-[#1B1730] shadow-[0_4px_14px_rgba(0,0,0,.18)]"
               >
-                <span>Revisar agora</span>
-                <ArrowRight className="h-4 w-4 shrink-0" />
-              </button>
-            )}
-            {briefingsPendentes > 0 && onIrParaTab && (
-              <button
-                type="button"
-                onClick={() => onIrParaTab("mais")}
-                className={`touch-feedback flex items-center justify-between gap-2 rounded-lg px-3.5 py-3 text-[13px] font-medium shadow-sm transition-opacity hover:opacity-90 ${
-                  totalPendencias > 0
-                    ? "border border-border bg-card text-foreground sm:w-auto"
-                    : "flex-1 bg-primary text-primary-foreground"
-                }`}
-                style={
-                  totalPendencias === 0 && acento ? { background: acento } : undefined
-                }
-              >
-                <span className="flex items-center gap-1.5">
-                  <ClipboardList className="h-4 w-4" /> Responder briefing
-                </span>
-                <ArrowRight className="h-4 w-4 shrink-0" />
+                Revisar agora
               </button>
             )}
           </div>
         </section>
+      ) : (
+        <Card className="p5-card">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <span
+                className="flex h-10 w-10 items-center justify-center rounded-[13px] text-white"
+                style={{ background: corMarca }}
+              >
+                <Check className="h-5 w-5" />
+              </span>
+              <div>
+                <div className="font-display text-[15px] font-bold">Tudo em dia ✦</div>
+                <p className="text-[12px] text-muted-foreground mt-0.5">
+                  Quando a SAL mandar conteúdo novo, aparece aqui pra você aprovar.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* 3) Atalho de envio */}
-      {podeEnviar && onIrParaTab && (
+      {/* Briefing pendente — linha própria, acionável */}
+      {briefingsPendentes > 0 && onIrParaTab && (
         <button
           type="button"
-          onClick={() => onIrParaTab("enviar")}
-          className="touch-feedback flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left hover:border-primary/40 transition-colors"
+          onClick={() => onIrParaTab("mais")}
+          className="touch-feedback p5-card flex w-full items-center gap-3 bg-card p-4 text-left"
         >
           <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10"
-            style={acento ? { background: `${acento}1A` } : undefined}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+            style={{ background: `color-mix(in srgb, ${corMarca} 12%, transparent)` }}
           >
-            <UploadCloud className="h-5 w-5 text-primary" style={acento ? { color: acento } : undefined} />
+            <ClipboardList className="h-[18px] w-[18px]" style={{ color: corMarca }} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13.5px] font-medium leading-tight">Enviar material pra SAL</span>
-            <span className="block text-[11.5px] text-muted-foreground leading-snug mt-0.5">
-              Fotos, vídeos e ideias viram conteúdo
+            <span className="block text-[13.5px] font-bold leading-tight">
+              {briefingsPendentes === 1
+                ? "1 briefing esperando sua resposta"
+                : `${briefingsPendentes} briefings esperando sua resposta`}
+            </span>
+            <span className="block text-[11.5px] text-muted-foreground mt-0.5">
+              suas respostas afinam a estratégia
             </span>
           </span>
           <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
         </button>
       )}
 
-      {/* 4) Navegação de mês (histórico de entregas) */}
-      <section className="flex items-center justify-between gap-2">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Entregas do mês
-        </h2>
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => setMes((m) => somarMes(m, -1))}
-            className="touch-feedback flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-            aria-label="Mês anterior"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="min-w-[7.5rem] text-center font-display text-[13px] font-semibold capitalize">
-            {rotuloMes(mes)}
-          </span>
-          <button
-            type="button"
-            onClick={() => setMes((m) => somarMes(m, 1))}
-            disabled={ehMesAtual}
-            className="touch-feedback flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
-            aria-label="Próximo mês"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </section>
-
-      {loading ? (
-        <ConteudoSkeleton />
-      ) : (
-        <>
-          {/* 5) Cards de entregas do mês */}
-          <section className="grid grid-cols-2 gap-2.5 sm:gap-3">
-            {cards.map((c) => {
-              const Icon = c.icon;
+      {/* 3) Sua semana */}
+      {semana.length > 0 && (
+        <section>
+          <h2 className="text-[11px] font-extrabold uppercase tracking-[.09em] text-muted-foreground/80 mb-2.5 px-0.5">
+            Sua semana
+          </h2>
+          <div className="p5-hscroll flex gap-2 overflow-x-auto pb-1">
+            {semana.map((d) => {
+              const data = new Date(d.data);
+              const ehHoje = data.toDateString() === hojeIso;
               return (
-                <Card key={c.label}>
-                  <CardContent className="p-3.5 sm:p-4 space-y-1.5">
-                    <span
-                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10"
-                      style={acento ? { background: `${acento}1A` } : undefined}
-                    >
-                      <Icon
-                        className="h-[18px] w-[18px] text-primary"
-                        style={acento ? { color: acento } : undefined}
+                <div
+                  key={d.data}
+                  className="p5-card min-w-[52px] shrink-0 rounded-2xl bg-card px-0 py-2.5 text-center"
+                  style={ehHoje ? { boxShadow: `inset 0 0 0 2px ${corMarca}, var(--p5-shadow)` } : undefined}
+                >
+                  <div
+                    className="text-[9.5px] font-extrabold uppercase tracking-wide"
+                    style={{ color: ehHoje ? corMarca : "hsl(var(--muted-foreground))" }}
+                  >
+                    {DIAS_CURTOS[data.getDay()]}
+                  </div>
+                  <div className="font-display text-base font-extrabold tabular-nums mt-0.5">
+                    {data.getDate()}
+                  </div>
+                  <div className="mt-1 flex min-h-[6px] items-center justify-center gap-[3px]">
+                    {Array.from({ length: Math.min(d.posts, 3) }).map((_, i) => (
+                      <span
+                        key={i}
+                        className="h-[5px] w-[5px] rounded-full"
+                        style={{ background: i < d.pendentes ? "#F5A623" : corMarca }}
                       />
-                    </span>
-                    <div
-                      className="font-display text-2xl sm:text-[26px] font-bold leading-none text-foreground"
-                      style={acento && c.valor > 0 ? { color: acento } : undefined}
-                    >
-                      {c.valor}
-                    </div>
-                    <div className="text-[11.5px] sm:text-xs text-muted-foreground leading-tight">
-                      {c.label}
-                    </div>
-                  </CardContent>
-                </Card>
+                    ))}
+                  </div>
+                </div>
               );
             })}
-          </section>
-
-          {/* 6) Últimas entregas */}
-          <section className="space-y-2">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {ehMesAtual ? "Últimas entregas" : "Entregas do mês"}
-            </h2>
-            {ultimas.length === 0 ? (
-              <Card>
-                <CardContent className="p-7 sm:p-8 text-center space-y-2">
-                  <CalendarCheck className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                  <p className="text-sm text-muted-foreground">
-                    {ehMesAtual
-                      ? totalEntregasMes > 0
-                        ? "As entregas deste mês aparecem aqui conforme ficam prontas."
-                        : "Sua primeira entrega aparece aqui."
-                      : `Nenhuma entrega registrada em ${rotuloMes(mes).toLowerCase()}.`}
-                  </p>
-                  {ehMesAtual && (
-                    <p className="text-[11px] text-muted-foreground/60">
-                      A SAL está trabalhando nos seus conteúdos.
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardContent className="p-0 divide-y divide-border">
-                  {ultimas.map((e) => (
-                    <EntregaItem key={`${e.tipo}-${e.id}`} entrega={e} acento={acento} />
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-          </section>
-        </>
+          </div>
+        </section>
       )}
-    </div>
-  );
-}
 
-function EntregaItem({ entrega, acento }: { entrega: Entrega; acento?: string }) {
-  const Icon = entrega.tipo === "post" ? Megaphone : ImageIcon;
-  const rotuloTipo = entrega.tipo === "post" ? "Post publicado" : "Anúncio produzido";
-  return (
-    <div className="flex items-center gap-3 px-3.5 py-3">
-      <span
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10"
-        style={acento ? { background: `${acento}1A` } : undefined}
-      >
-        <Icon className="h-4 w-4 text-primary" style={acento ? { color: acento } : undefined} />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="text-[13.5px] sm:text-[13px] font-medium leading-snug truncate">
-          {entrega.titulo}
-        </div>
-        <div className="text-[11px] text-muted-foreground leading-tight">{rotuloTipo}</div>
-      </div>
-      <span className="shrink-0 text-[11px] font-mono text-muted-foreground">
-        {dataRelativa(entrega.data)}
-      </span>
-    </div>
-  );
-}
+      {/* 4) Para aprovar (carrossel) */}
+      {totalPendencias > 0 && pendencias.itens.length > 0 && (
+        <section>
+          <div className="mb-2.5 flex items-baseline justify-between px-0.5">
+            <h2 className="text-[11px] font-extrabold uppercase tracking-[.09em] text-muted-foreground/80">
+              Para aprovar
+            </h2>
+            {onIrParaTab && (
+              <button
+                type="button"
+                onClick={() => onIrParaTab("conteudo")}
+                className="touch-feedback text-[11.5px] font-bold"
+                style={{ color: corMarca }}
+              >
+                ver tudo →
+              </button>
+            )}
+          </div>
+          <div className="p5-hscroll flex gap-3 overflow-x-auto pb-2 pl-0.5">
+            {pendencias.itens.map((p, i) => (
+              <button
+                key={`${p.kind}-${p.id}`}
+                type="button"
+                onClick={onRevisar}
+                className="p5-card w-[150px] shrink-0 overflow-hidden rounded-[18px] bg-card text-left touch-feedback"
+              >
+                <div className="relative aspect-square" style={{ background: gradiente(i) }}>
+                  <span className="absolute left-2 top-2 rounded-full bg-black/55 px-2 py-1 text-[10px] font-extrabold text-white backdrop-blur-sm">
+                    {p.kind === "post" ? "Orgânico" : "Anúncio"}
+                  </span>
+                </div>
+                <div className="px-3 pb-3 pt-2.5">
+                  <div className="line-clamp-2 text-[12px] font-bold leading-snug">{p.titulo}</div>
+                  <div className="mt-0.5 text-[10.5px] text-muted-foreground">
+                    {p.quando
+                      ? new Date(p.quando).toLocaleDateString("pt-BR", {
+                          weekday: "short",
+                          day: "2-digit",
+                          month: "short",
+                        })
+                      : "campanha"}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
-/** Skeleton só dos cards + lista (o cabeçalho de mês fica estável ao navegar). */
-function ConteudoSkeleton() {
-  return (
-    <div className="space-y-5 animate-pulse">
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-        {[0, 1, 2, 3].map((i) => (
-          <Card key={i}>
-            <CardContent className="p-3.5 sm:p-4 space-y-2">
-              <div className="h-8 w-8 rounded-lg bg-muted" />
-              <div className="h-6 w-10 rounded bg-muted" />
-              <div className="h-3 w-20 rounded bg-muted" />
+      {/* 5) Últimas entregas */}
+      <section>
+        <h2 className="text-[11px] font-extrabold uppercase tracking-[.09em] text-muted-foreground/80 mb-2.5 px-0.5">
+          Últimas entregas
+        </h2>
+        {ultimas === null ? (
+          <Card className="p5-card">
+            <CardContent className="space-y-3 p-4">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <Skeleton className="h-11 w-11 rounded-[13px]" />
+                  <div className="flex-1 space-y-1.5">
+                    <Skeleton className="h-3.5 w-3/4" />
+                    <Skeleton className="h-2.5 w-20" />
+                  </div>
+                </div>
+              ))}
             </CardContent>
           </Card>
-        ))}
-      </div>
-      <div className="space-y-2">
-        <div className="h-3 w-28 rounded bg-muted" />
-        <Card>
-          <CardContent className="p-0 divide-y divide-border">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="flex items-center gap-3 px-3.5 py-3">
-                <div className="h-8 w-8 rounded-lg bg-muted" />
-                <div className="flex-1 space-y-1.5">
-                  <div className="h-3.5 w-3/4 rounded bg-muted" />
-                  <div className="h-2.5 w-16 rounded bg-muted" />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+        ) : ultimas.length === 0 ? (
+          <Card className="p5-card">
+            <CardContent className="p-8 text-center space-y-2">
+              <CalendarCheck className="mx-auto h-10 w-10 text-muted-foreground/40" />
+              <p className="text-sm text-muted-foreground">Sua primeira entrega do mês aparece aqui.</p>
+              <p className="text-[11px] text-muted-foreground/60">
+                A SAL está trabalhando nos seus conteúdos.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="p5-card">
+            <CardContent className="divide-y divide-border p-0">
+              {ultimas.map((e, i) => {
+                const Icon = e.tipo === "post" ? Megaphone : ImageIcon;
+                return (
+                  <div key={`${e.tipo}-${e.id}`} className="flex items-center gap-3 px-4 py-3">
+                    <span
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] text-white"
+                      style={{ background: gradiente(i + 3) }}
+                    >
+                      <Icon className="h-4.5 w-4.5 h-[18px] w-[18px]" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-[13.5px] font-bold leading-snug">{e.titulo}</div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {e.tipo === "post" ? "Post publicado" : "Anúncio produzido"}
+                      </div>
+                    </div>
+                    <span className="shrink-0 text-[10.5px] tabular-nums text-muted-foreground">
+                      {dataRelativa(e.data)}
+                    </span>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        )}
+      </section>
     </div>
   );
 }

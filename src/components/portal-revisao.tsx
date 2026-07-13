@@ -1,23 +1,21 @@
 "use client";
 /**
- * Portal v4 — MODO REVISÃO: fila de aprovação item a item.
+ * MODO REVISÃO v5 — stories (padrão do protótipo aprovado).
  *
- * Em vez de caçar cards na lista, o cliente toca "Revisar" e percorre os
- * conteúdos pendentes um por um, em tela cheia: arte grande, legenda,
- * dois botões fixos no rodapé (Aprovar / Pedir ajuste) e "Pular". Barra
- * de progresso em cima; tela de "tudo revisado" no final.
+ * Imersivo e sempre escuro (como stories do Instagram): barra de
+ * progresso SEGMENTADA no topo (um segmento por item), arte grande,
+ * legenda logo abaixo, dois botões fixos no rodapé (Pedir ajuste /
+ * Aprovar) e "Decidir depois". Fim de fila = check animado.
  *
- * Self-contained: busca posts + criativos ao abrir (dados frescos),
- * filtra o que está "aguardando você" e age direto nos endpoints de
- * aprovar/comentar. Ao fechar, avisa o pai pra recarregar listas/badges.
+ * Lógica do v4 mantida: busca posts + criativos ao abrir (dados
+ * frescos), filtra o que está "aguardando você", age direto nos
+ * endpoints de aprovar/comentar. Ao fechar, avisa o pai pra recarregar.
  *
- * Renderiza via createPortal(document.body) — imune a containing blocks
- * de backdrop-filter (lição do drawer mobile). Trava o scroll do body.
+ * createPortal(document.body) + scroll lock (lição do drawer mobile).
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { CheckCircle2, MessageSquare, X, Loader2, PartyPopper, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, MessageSquare, X, Loader2, ArrowRight, Check } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { BlockRenderer } from "@/components/editor";
@@ -42,14 +40,21 @@ type Perms = {
   podeComentar: boolean;
 };
 
+const FUNDO = "#0D0A16";
+const PAINEL = "#1A1428";
+
 export function PortalRevisao({
   token,
+  clienteNome,
+  corMarca,
   permissoes,
   onFechar,
 }: {
   token: string;
+  clienteNome: string;
+  corMarca: string;
   permissoes: Perms;
-  /** Chamado ao sair (X, fim da fila). `agiu` = aprovou/pediu ajuste em ≥1. */
+  /** Chamado ao sair (X, fim da fila). `agiu` = decidiu ≥1 item. */
   onFechar: (agiu: boolean) => void;
 }) {
   const [fila, setFila] = useState<ItemConteudo[] | null>(null);
@@ -93,9 +98,7 @@ export function PortalRevisao({
             criativos.push(...data.map((c) => ({ ...c, kind: "criativo" as const })));
         }
         if (cancelado) return;
-        // Fila: pendentes, posts por data crescente primeiro, depois anúncios.
-        const pendentes = [...posts, ...criativos].filter(aguardandoCliente);
-        setFila(pendentes);
+        setFila([...posts, ...criativos].filter(aguardandoCliente));
       } catch {
         if (!cancelado) setFila([]);
       }
@@ -110,28 +113,6 @@ export function PortalRevisao({
   const atual = fila?.[indice] ?? null;
   const total = fila?.length ?? 0;
   const acabou = fila !== null && indice >= total;
-
-  const meta = useMemo(() => {
-    if (!atual) return null;
-    if (atual.kind === "post") {
-      const p = atual as PostPortal;
-      return {
-        chips: [
-          "Orgânico",
-          FORMATO_LABEL_POST[p.formato] ?? p.formato,
-          new Date(p.dataPublicacao).toLocaleDateString("pt-BR", {
-            weekday: "short",
-            day: "2-digit",
-            month: "short",
-          }),
-        ],
-      };
-    }
-    const c = atual as CriativoPortal;
-    return {
-      chips: ["Anúncio", PLATAFORMA_LABEL[c.plataforma] ?? c.plataforma],
-    };
-  }, [atual]);
 
   function proximo() {
     setAjustando(false);
@@ -171,116 +152,140 @@ export function PortalRevisao({
     }
   }
 
+  const chips: string[] = atual
+    ? atual.kind === "post"
+      ? [
+          "Orgânico",
+          FORMATO_LABEL_POST[(atual as PostPortal).formato] ?? (atual as PostPortal).formato,
+          new Date((atual as PostPortal).dataPublicacao).toLocaleDateString("pt-BR", {
+            weekday: "short",
+            day: "2-digit",
+            month: "short",
+          }),
+        ]
+      : ["Anúncio", PLATAFORMA_LABEL[(atual as CriativoPortal).plataforma] ?? (atual as CriativoPortal).plataforma]
+    : [];
+
   const conteudo = (
     <div
-      className="fixed inset-0 z-50 flex flex-col bg-background"
+      className="fixed inset-0 z-50 flex flex-col text-white"
+      style={{ background: FUNDO }}
       role="dialog"
       aria-modal="true"
       aria-label="Modo revisão de conteúdo"
     >
-      {/* Header: título + progresso + fechar */}
-      <header className="safe-area-inset-top border-b border-border bg-card">
-        <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
-          <div className="min-w-0 flex-1">
-            <h1 className="font-display text-sm font-semibold leading-tight">Revisar conteúdo</h1>
-            {total > 0 && !acabou && (
-              <p className="text-[11px] text-muted-foreground tabular-nums">
-                {Math.min(indice + 1, total)} de {total}
-              </p>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => onFechar(feitos > 0)}
-            className="touch-feedback flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-            aria-label="Fechar revisão"
-          >
-            <X className="h-5 w-5" />
-          </button>
+      {/* Progresso segmentado (stories) */}
+      {total > 0 && !acabou && (
+        <div className="safe-area-inset-top flex gap-[5px] px-3.5 pt-3.5">
+          {Array.from({ length: total }).map((_, i) => (
+            <span key={i} className="h-[3.5px] flex-1 overflow-hidden rounded-full bg-white/25">
+              <span
+                className="block h-full rounded-full bg-white transition-all duration-300"
+                style={{ width: i < indice ? "100%" : i === indice ? "45%" : "0%" }}
+              />
+            </span>
+          ))}
         </div>
-        {/* Barra de progresso */}
-        {total > 0 && (
-          <div className="h-1 w-full bg-muted">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${(Math.min(indice, total) / total) * 100}%` }}
-            />
-          </div>
-        )}
-      </header>
+      )}
+
+      {/* Topo: marca + título + fechar */}
+      <div className="flex items-center gap-2.5 px-4 py-3">
+        <span
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] text-[13px] font-extrabold text-white"
+          style={{ background: corMarca }}
+        >
+          {clienteNome.charAt(0).toUpperCase()}
+        </span>
+        <div className="min-w-0 leading-tight">
+          <div className="text-[12.5px] font-bold">Revisar conteúdo</div>
+          {total > 0 && !acabou && (
+            <div className="text-[10.5px] opacity-60 tabular-nums">
+              {Math.min(indice + 1, total)} de {total}
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => onFechar(feitos > 0)}
+          className="touch-feedback ml-auto flex h-10 w-10 items-center justify-center rounded-full text-white/80 hover:bg-white/10"
+          aria-label="Fechar revisão"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
       {/* Corpo */}
       {fila === null ? (
         <div className="flex flex-1 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <Loader2 className="h-6 w-6 animate-spin" style={{ color: corMarca }} />
         </div>
       ) : acabou || total === 0 ? (
-        <TelaFim total={total} feitos={feitos} onFechar={() => onFechar(feitos > 0)} />
+        <TelaFim total={total} feitos={feitos} corMarca={corMarca} onFechar={() => onFechar(feitos > 0)} />
       ) : atual ? (
         <>
-          <main className="flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-2xl px-4 py-4 space-y-3 pb-6">
-              {atual.arquivos.length > 0 && (
-                <ArtesCarrossel arquivos={atual.arquivos} compacto />
-              )}
-              <div className="space-y-1.5">
-                <h2 className="font-display text-base font-semibold leading-snug">{atual.titulo}</h2>
-                {meta && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {meta.chips.map((c) => (
-                      <span
-                        key={c}
-                        className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary"
-                      >
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                )}
+          <main className="min-h-0 flex-1 overflow-y-auto">
+            <div className="mx-auto max-w-2xl space-y-3.5 px-4 pb-6">
+              {atual.arquivos.length > 0 && <ArtesCarrossel arquivos={atual.arquivos} compacto />}
+
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {chips.map((c) => (
+                    <span
+                      key={c}
+                      className="rounded-full bg-white/14 px-2.5 py-1 text-[10.5px] font-bold"
+                    >
+                      {c}
+                    </span>
+                  ))}
+                </div>
+                <h2 className="font-display text-[19px] font-extrabold leading-snug tracking-tight">
+                  {atual.titulo}
+                </h2>
               </div>
 
               {atual.kind === "post" ? (
                 <>
                   {(atual as PostPortal).legenda && (
-                    <div className="rounded-lg bg-muted/30 border border-border p-3">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
+                    <div className="rounded-2xl p-3.5" style={{ background: PAINEL }}>
+                      <div className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[.08em] text-white/50">
                         Legenda
                       </div>
                       <BlockRenderer
                         value={(atual as PostPortal).legenda!}
-                        className="text-[13px] leading-relaxed"
+                        className="text-[13.5px] leading-relaxed text-white/85"
                       />
                     </div>
                   )}
                   {(atual as PostPortal).cta && (
-                    <div className="rounded-lg border-l-4 border-l-primary bg-primary/5 px-3 py-2">
-                      <div className="text-[10px] uppercase tracking-wider text-primary font-semibold mb-0.5">
+                    <div
+                      className="rounded-2xl px-3.5 py-2.5"
+                      style={{ background: PAINEL, borderLeft: `4px solid ${corMarca}` }}
+                    >
+                      <div className="mb-0.5 text-[10px] font-extrabold uppercase tracking-[.08em]" style={{ color: corMarca }}>
                         Chamada pra ação
                       </div>
-                      <div className="text-[12.5px] font-medium leading-snug">
-                        {(atual as PostPortal).cta}
-                      </div>
+                      <div className="text-[13px] font-bold leading-snug">{(atual as PostPortal).cta}</div>
                     </div>
                   )}
                 </>
               ) : (
                 <>
                   {(atual as CriativoPortal).textoPrincipal && (
-                    <div className="rounded-lg bg-muted/30 border border-border p-3">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">
+                    <div className="rounded-2xl p-3.5" style={{ background: PAINEL }}>
+                      <div className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[.08em] text-white/50">
                         Texto do anúncio
                       </div>
-                      <p className="text-[13px] leading-relaxed whitespace-pre-wrap">
+                      <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-white/85">
                         {(atual as CriativoPortal).textoPrincipal}
                       </p>
                     </div>
                   )}
                   {(atual as CriativoPortal).headline && (
-                    <div className="rounded-lg bg-muted/30 border border-border p-3">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">
+                    <div className="rounded-2xl p-3.5" style={{ background: PAINEL }}>
+                      <div className="mb-1 text-[10px] font-extrabold uppercase tracking-[.08em] text-white/50">
                         Título do anúncio
                       </div>
-                      <p className="text-[13px] font-medium leading-snug">
+                      <p className="text-[13.5px] font-bold leading-snug">
                         {(atual as CriativoPortal).headline}
                       </p>
                     </div>
@@ -288,35 +293,35 @@ export function PortalRevisao({
                 </>
               )}
 
-              {/* Caixa de ajuste inline (aparece ao tocar "Pedir ajuste") */}
+              {/* Caixa de ajuste inline */}
               {ajustando && (
-                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
-                  <div className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
-                    O que você quer ajustar?
-                  </div>
+                <div className="space-y-2.5 rounded-2xl p-3.5" style={{ background: PAINEL }}>
+                  <div className="text-[12px] font-bold text-amber-400">O que você quer ajustar?</div>
                   <Textarea
                     value={textoAjuste}
                     onChange={(e) => setTextoAjuste(e.target.value)}
                     placeholder="Quanto mais específico, mais rápido a SAL resolve."
                     rows={4}
                     autoFocus
-                    className="text-base sm:text-sm min-h-[100px] bg-background"
+                    className="min-h-[100px] rounded-xl border-white/15 bg-black/40 text-base text-white placeholder:text-white/35 sm:text-sm"
                   />
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
+                    <button
+                      type="button"
                       onClick={() => {
                         setAjustando(false);
                         setTextoAjuste("");
                       }}
-                      className="h-10 flex-1 touch-feedback"
+                      className="touch-feedback h-11 flex-1 rounded-full bg-white/10 text-[13.5px] font-bold"
                     >
                       Cancelar
-                    </Button>
-                    <Button
+                    </button>
+                    <button
+                      type="button"
                       onClick={enviarAjuste}
                       disabled={agindo || textoAjuste.trim().length < 3}
-                      className="h-10 flex-1 touch-feedback"
+                      className="touch-feedback flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-[13.5px] font-extrabold text-white disabled:opacity-50"
+                      style={{ background: corMarca }}
                     >
                       {agindo ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -324,32 +329,33 @@ export function PortalRevisao({
                         <MessageSquare className="h-4 w-4" />
                       )}
                       Enviar pedido
-                    </Button>
+                    </button>
                   </div>
                 </div>
               )}
             </div>
           </main>
 
-          {/* Rodapé fixo: as duas decisões grandes + pular */}
+          {/* Rodapé fixo */}
           {!ajustando && (
-            <footer className="border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
-              <div className="mx-auto max-w-2xl px-4 py-3 space-y-2">
-                <div className="flex gap-2">
+            <footer className="pb-[env(safe-area-inset-bottom)]" style={{ background: FUNDO }}>
+              <div className="mx-auto max-w-2xl space-y-2 px-4 py-3">
+                <div className="flex gap-2.5">
                   {permissoes.podeComentar && (
-                    <Button
-                      variant="outline"
+                    <button
+                      type="button"
                       onClick={() => setAjustando(true)}
                       disabled={agindo}
-                      className="h-12 flex-1 text-sm touch-feedback"
+                      className="touch-feedback flex h-[52px] flex-1 items-center justify-center gap-1.5 rounded-full bg-white/10 text-[14.5px] font-bold"
                     >
                       <MessageSquare className="h-4 w-4" /> Pedir ajuste
-                    </Button>
+                    </button>
                   )}
-                  <Button
+                  <button
+                    type="button"
                     onClick={aprovar}
                     disabled={agindo}
-                    className="h-12 flex-1 text-sm touch-feedback bg-emerald-600 text-white hover:bg-emerald-600/90"
+                    className="touch-feedback flex h-[52px] flex-1 items-center justify-center gap-1.5 rounded-full bg-emerald-500 text-[14.5px] font-extrabold text-white"
                   >
                     {agindo ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -357,13 +363,13 @@ export function PortalRevisao({
                       <CheckCircle2 className="h-4 w-4" />
                     )}
                     Aprovar
-                  </Button>
+                  </button>
                 </div>
                 <button
                   type="button"
                   onClick={proximo}
                   disabled={agindo}
-                  className="touch-feedback mx-auto flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+                  className="touch-feedback mx-auto flex items-center gap-1 text-[12px] font-medium text-white/55 hover:text-white/80"
                 >
                   Decidir depois <ArrowRight className="h-3.5 w-3.5" />
                 </button>
@@ -382,35 +388,38 @@ export function PortalRevisao({
 function TelaFim({
   total,
   feitos,
+  corMarca,
   onFechar,
 }: {
   total: number;
   feitos: number;
+  corMarca: string;
   onFechar: () => void;
 }) {
   return (
     <div className="flex flex-1 items-center justify-center p-6">
-      <div className="max-w-sm text-center space-y-3">
-        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
-          <PartyPopper className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+      <div className="max-w-sm space-y-3.5 text-center">
+        <span className="p5-pop mx-auto flex h-[86px] w-[86px] items-center justify-center rounded-full bg-emerald-500">
+          <Check className="h-11 w-11 text-white" strokeWidth={3} />
         </span>
-        <h2 className="font-display text-lg font-semibold">
-          {total === 0
-            ? "Nada esperando você"
-            : feitos === 0
-              ? "Fila encerrada"
-              : "Tudo revisado!"}
+        <h2 className="font-display text-[22px] font-extrabold tracking-tight">
+          {total === 0 ? "Nada esperando você" : feitos === 0 ? "Fila encerrada" : "Tudo revisado!"}
         </h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className="text-[13.5px] leading-relaxed text-white/70">
           {total === 0
             ? "Quando a SAL mandar conteúdo novo pra aprovação, ele aparece aqui."
             : feitos === 0
               ? "Você deixou pra decidir depois — os conteúdos continuam na aba Conteúdo."
-              : `Você revisou ${feitos} ${feitos === 1 ? "conteúdo" : "conteúdos"}. A SAL já foi avisada.`}
+              : `Você decidiu ${feitos} ${feitos === 1 ? "conteúdo" : "conteúdos"}. A SAL já foi avisada e segue com a produção.`}
         </p>
-        <Button onClick={onFechar} className="h-11 w-full touch-feedback">
+        <button
+          type="button"
+          onClick={onFechar}
+          className="touch-feedback mx-auto mt-1 block rounded-full px-8 py-3.5 text-[14px] font-extrabold text-white"
+          style={{ background: corMarca }}
+        >
           Voltar ao portal
-        </Button>
+        </button>
       </div>
     </div>
   );

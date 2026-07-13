@@ -81,6 +81,12 @@ export async function GET(req: Request, { params }: { params: { token: string } 
     const podePosts = r.acesso.podeAprovarPosts;
     const podeCriativos = r.acesso.podeAprovarCriativos;
 
+    // Janela da "Sua semana" (dom..sáb da semana atual, horário local do servidor)
+    const inicioSemana = new Date(agora);
+    inicioSemana.setHours(0, 0, 0, 0);
+    inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
+    const fimSemana = new Date(inicioSemana.getTime() + 7 * 24 * 3600_000);
+
     const [
       postsPublicados,
       criativosProduzidos,
@@ -91,6 +97,9 @@ export async function GET(req: Request, { params }: { params: { token: string } 
       criativosRecentes,
       pendenciaPosts,
       pendenciaCriativos,
+      itensPendentesPosts,
+      itensPendentesCriativos,
+      postsDaSemana,
     ] = await Promise.all([
       // Entregas do mês — contagens
       prisma.post.count({
@@ -166,6 +175,40 @@ export async function GET(req: Request, { params }: { params: { token: string } 
       podeCriativos
         ? prisma.criativo.count({ where: { clienteId, status: "EM_APROVACAO" } })
         : Promise.resolve(0),
+      // Itens pendentes LEVES (sem artes/base64) — alimentam o carrossel
+      // "Para aprovar" e o herói do Início v5. Máx 6 de cada.
+      podePosts
+        ? prisma.post.findMany({
+            where: {
+              clienteId,
+              status: "COPY_PRONTA",
+              dataPublicacao: {
+                gte: new Date(agora.getTime() - 30 * 24 * 3600_000),
+                lte: new Date(agora.getTime() + 60 * 24 * 3600_000),
+              },
+            },
+            orderBy: { dataPublicacao: "asc" },
+            take: 6,
+            select: { id: true, titulo: true, dataPublicacao: true },
+          })
+        : Promise.resolve([]),
+      podeCriativos
+        ? prisma.criativo.findMany({
+            where: { clienteId, status: "EM_APROVACAO" },
+            orderBy: { updatedAt: "desc" },
+            take: 6,
+            select: { id: true, titulo: true },
+          })
+        : Promise.resolve([]),
+      // Posts da semana atual (strip "Sua semana" do Início v5)
+      prisma.post.findMany({
+        where: {
+          clienteId,
+          status: { in: ["COPY_PRONTA", "DESIGN_PRONTO", "AGENDADO", "PUBLICADO"] },
+          dataPublicacao: { gte: inicioSemana, lt: fimSemana },
+        },
+        select: { dataPublicacao: true, status: true },
+      }),
     ]);
 
     type Entrega = { id: string; tipo: "post" | "criativo"; titulo: string; data: string };
@@ -187,6 +230,36 @@ export async function GET(req: Request, { params }: { params: { token: string } 
       .sort((a, b) => b.data.localeCompare(a.data))
       .slice(0, 6);
 
+    // Carrossel "Para aprovar" (leve): posts por data + criativos por recência
+    type ItemPendente = { id: string; kind: "post" | "criativo"; titulo: string; quando: string | null };
+    const itensPendentes: ItemPendente[] = [
+      ...itensPendentesPosts.map((p) => ({
+        id: p.id,
+        kind: "post" as const,
+        titulo: p.titulo,
+        quando: p.dataPublicacao.toISOString(),
+      })),
+      ...itensPendentesCriativos.map((c) => ({
+        id: c.id,
+        kind: "criativo" as const,
+        titulo: c.titulo,
+        quando: null,
+      })),
+    ].slice(0, 6);
+
+    // "Sua semana": 7 dias (dom..sáb) com contagem de posts e se há pendência
+    const semana = Array.from({ length: 7 }, (_, i) => {
+      const dia = new Date(inicioSemana.getTime() + i * 24 * 3600_000);
+      const doDia = postsDaSemana.filter(
+        (p) => p.dataPublicacao >= dia && p.dataPublicacao < new Date(dia.getTime() + 24 * 3600_000)
+      );
+      return {
+        data: dia.toISOString(),
+        posts: doDia.length,
+        pendentes: doDia.filter((p) => p.status === "COPY_PRONTA").length,
+      };
+    });
+
     return {
       mes: rotulo,
       entregasMes: {
@@ -198,7 +271,9 @@ export async function GET(req: Request, { params }: { params: { token: string } 
       pendencias: {
         posts: pendenciaPosts,
         criativos: pendenciaCriativos,
+        itens: itensPendentes,
       },
+      semana,
       ultimasEntregas,
       totais: {
         postsPublicados: totalPostsPublicados,
