@@ -7,11 +7,13 @@
  *  - Com senha → retorna { precisaSenha: true }
  *
  * GET com cookie válido:
- *  - Retorna info normalmente, ignora senha
+ *  - Retorna info + RENOVA o cookie (sessão deslizante: cada visita
+ *    estica a validade por mais 7 dias — cliente ativo nunca "cai")
  *
- * POST com { senha } → valida, gera cookie, retorna info
+ * POST com { senha } → valida (com rate limit por token+IP), gera cookie,
+ * retorna info
  */
-import { apiHandler } from "@/lib/api";
+import { apiHandler, ApiError } from "@/lib/api";
 import {
   getAcessoPorToken,
   validarSenha,
@@ -20,12 +22,24 @@ import {
   registrarAcesso,
   COOKIE_PORTAL_CLIENTE,
 } from "@/lib/cliente-acesso";
+import { checarRateLimit, ipDoRequest } from "@/lib/rate-limit";
 import { cookies } from "next/headers";
+
+function criarSessao(token: string) {
+  const cookie = gerarCookieSessao(token);
+  cookies().set(COOKIE_PORTAL_CLIENTE, cookie.value, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    maxAge: cookie.maxAge,
+    path: "/",
+  });
+}
 
 async function montarInfo(token: string) {
   const r = await getAcessoPorToken(token);
-  if (!r) throw new Error("Acesso não encontrado ou desativado");
-  registrarAcesso(r.acesso.id);
+  if (!r) throw new ApiError(404, "Acesso não encontrado ou desativado");
+  registrarAcesso(r.acesso);
   return {
     cliente: {
       nome: r.cliente.nome,
@@ -50,14 +64,13 @@ async function montarInfo(token: string) {
 export async function GET(_req: Request, { params }: { params: { token: string } }) {
   return apiHandler(async () => {
     const r = await getAcessoPorToken(params.token);
-    if (!r) throw new Error("Link inválido ou expirado");
+    if (!r) throw new ApiError(404, "Link inválido ou expirado");
 
-    // Sessão válida?
-    const cookieJar = cookies();
-    const cookieValue = cookieJar.get(COOKIE_PORTAL_CLIENTE)?.value;
+    // Sessão válida? Renova (deslizante) e retorna info.
+    const cookieValue = cookies().get(COOKIE_PORTAL_CLIENTE)?.value;
     const tokenSessao = validarCookieSessao(cookieValue);
     if (tokenSessao === params.token) {
-      // Sessão OK → retorna info
+      criarSessao(params.token);
       return montarInfo(params.token);
     }
 
@@ -72,36 +85,29 @@ export async function GET(_req: Request, { params }: { params: { token: string }
     }
 
     // Sem senha — cria sessão automática + retorna info
-    const cookie = gerarCookieSessao(params.token);
-    cookieJar.set(COOKIE_PORTAL_CLIENTE, cookie.value, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: cookie.maxAge,
-      path: "/",
-    });
+    criarSessao(params.token);
     return montarInfo(params.token);
   });
 }
 
 export async function POST(req: Request, { params }: { params: { token: string } }) {
   return apiHandler(async () => {
+    // Freia brute-force de senha: 5 tentativas por token+IP a cada 15 min
+    // (bcrypt já é caro, mas melhor nem chegar nele).
+    checarRateLimit(`portal-senha:${params.token}:${ipDoRequest(req)}`, {
+      max: 5,
+      janelaMs: 15 * 60_000,
+      mensagem: "Muitas tentativas de senha. Aguarde 15 minutos e tente de novo.",
+    });
+
     const r = await getAcessoPorToken(params.token);
-    if (!r) throw new Error("Link inválido ou expirado");
+    if (!r) throw new ApiError(404, "Link inválido ou expirado");
 
     const body = (await req.json().catch(() => ({}))) as { senha?: string };
     const ok = await validarSenha(r.acesso, body.senha ?? null);
-    if (!ok) throw new Error("Senha incorreta");
+    if (!ok) throw new ApiError(401, "Senha incorreta");
 
-    // Cria sessão
-    const cookie = gerarCookieSessao(params.token);
-    cookies().set(COOKIE_PORTAL_CLIENTE, cookie.value, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: cookie.maxAge,
-      path: "/",
-    });
+    criarSessao(params.token);
     return montarInfo(params.token);
   });
 }

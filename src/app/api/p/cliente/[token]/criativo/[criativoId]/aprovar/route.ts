@@ -11,7 +11,7 @@
  * Body (opcional): { texto?: string } — comentário que acompanha a
  * aprovação. Só guardado se o cliente tem permissão `podeComentar`.
  */
-import { apiHandler } from "@/lib/api";
+import { apiHandler, ApiError } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { requerSessaoCliente, COOKIE_PORTAL_CLIENTE } from "@/lib/cliente-acesso";
 import { cookies } from "next/headers";
@@ -28,7 +28,7 @@ export async function POST(
   return apiHandler(async () => {
     const cookieValue = cookies().get(COOKIE_PORTAL_CLIENTE)?.value;
     const r = await requerSessaoCliente(params.token, cookieValue);
-    if (!r.acesso.podeAprovarCriativos) throw new Error("Sem permissão pra aprovar");
+    if (!r.acesso.podeAprovarCriativos) throw new ApiError(403, "Sem permissão pra aprovar");
 
     const body = await req.json().catch(() => ({}));
     const { texto } = schema.parse(body ?? {});
@@ -64,7 +64,7 @@ export async function POST(
     await prisma.notificacao.createMany({
       data: admins.map((a) => ({
         userId: a.id,
-        tipo: "PORTAL_APROVOU_POST" as const, // reusa enum existente (sem migration de enum)
+        tipo: "PORTAL_APROVOU_CRIATIVO" as const,
         titulo: `✅ ${r.cliente.nome} aprovou um criativo`,
         descricao: `"${criativo.titulo}" — pronto pra subir na plataforma${previewComentario}`,
         href: `/criativos?criativo=${criativo.id}`,

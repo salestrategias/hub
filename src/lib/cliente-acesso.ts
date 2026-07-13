@@ -12,6 +12,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { ApiError } from "@/lib/api";
 import type { ClienteAcesso, Cliente } from "@prisma/client";
 
 const COOKIE_NAME = "sal-cliente-sessao";
@@ -102,23 +103,28 @@ export async function requerSessaoCliente(
   cookieValue: string | null | undefined
 ): Promise<{ acesso: ClienteAcesso; cliente: Cliente }> {
   const tokenSessao = validarCookieSessao(cookieValue);
-  if (tokenSessao !== token) throw new Error("Sessão inválida — faça login");
+  // 401 explícito: o front detecta e reabre a tela de entrada (em vez do
+  // antigo 500 que era engolido como "lista vazia").
+  if (tokenSessao !== token) throw new ApiError(401, "Sessão expirada — entre de novo");
   const r = await getAcessoPorToken(token);
-  if (!r) throw new Error("Acesso desativado");
+  if (!r) throw new ApiError(403, "Acesso desativado");
   return r;
 }
 
 /**
- * Registra acesso (incrementa contador + atualiza ultimoAcesso).
+ * Registra acesso (atualiza ultimoAcesso; incrementa o contador no máximo
+ * 1x por meia hora — revalidações/re-fetches não inflam a métrica).
  * Fire-and-forget — não bloqueia caller.
  */
-export function registrarAcesso(acessoId: string): void {
+export function registrarAcesso(acesso: ClienteAcesso): void {
+  const stale =
+    !acesso.ultimoAcesso || Date.now() - acesso.ultimoAcesso.getTime() > 30 * 60_000;
   void prisma.clienteAcesso
     .update({
-      where: { id: acessoId },
+      where: { id: acesso.id },
       data: {
         ultimoAcesso: new Date(),
-        totalAcessos: { increment: 1 },
+        ...(stale ? { totalAcessos: { increment: 1 } } : {}),
       },
     })
     .catch((err) => console.error("[cliente-acesso] erro ao registrar acesso:", err));

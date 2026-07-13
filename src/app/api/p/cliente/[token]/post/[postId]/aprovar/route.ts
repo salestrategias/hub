@@ -12,7 +12,7 @@
  * aprovação ("pode subir", "ficou ótimo", etc). Só guardado se o cliente
  * tem permissão `podeComentar`. Aprovar sem corpo continua funcionando.
  */
-import { apiHandler } from "@/lib/api";
+import { apiHandler, ApiError } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { requerSessaoCliente, COOKIE_PORTAL_CLIENTE } from "@/lib/cliente-acesso";
 import { cookies } from "next/headers";
@@ -29,7 +29,7 @@ export async function POST(
   return apiHandler(async () => {
     const cookieValue = cookies().get(COOKIE_PORTAL_CLIENTE)?.value;
     const r = await requerSessaoCliente(params.token, cookieValue);
-    if (!r.acesso.podeAprovarPosts) throw new Error("Sem permissão pra aprovar");
+    if (!r.acesso.podeAprovarPosts) throw new ApiError(403, "Sem permissão pra aprovar");
 
     // Body é opcional (aprovar sem comentário manda POST vazio).
     const body = await req.json().catch(() => ({}));

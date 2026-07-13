@@ -3,7 +3,7 @@
  *
  * Tarefas em andamento + concluídas do cliente. Read-only.
  */
-import { apiHandler } from "@/lib/api";
+import { apiHandler, ApiError } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { requerSessaoCliente, COOKIE_PORTAL_CLIENTE } from "@/lib/cliente-acesso";
 import { cookies } from "next/headers";
@@ -12,7 +12,7 @@ export async function GET(_req: Request, { params }: { params: { token: string }
   return apiHandler(async () => {
     const cookieValue = cookies().get(COOKIE_PORTAL_CLIENTE)?.value;
     const r = await requerSessaoCliente(params.token, cookieValue);
-    if (!r.acesso.verTarefas) throw new Error("Sem permissão pra tarefas");
+    if (!r.acesso.verTarefas) throw new ApiError(403, "Sem permissão pra tarefas");
 
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);

@@ -26,12 +26,16 @@ type Notificacao = {
   createdAt: string;
 };
 
-const ICONES: Record<TipoNotificacao, React.ComponentType<{ className?: string }>> = {
+const ICONES: Partial<Record<TipoNotificacao, React.ComponentType<{ className?: string }>>> = {
   CONTRATO_VENCENDO: FileSignature,
   ACTION_ITEM_ATRASADO: AlertCircle,
   TAREFA_ATRASADA: ListChecks,
   REUNIAO_HOJE: Mic,
   POST_HOJE: FileText,
+  PORTAL_APROVOU_POST: Check,
+  PORTAL_APROVOU_CRIATIVO: Check,
+  PORTAL_PEDIU_AJUSTE: AlertCircle,
+  CLIENTE_SUBMETEU_CONTEUDO: FileText,
   SISTEMA: Sparkles,
 };
 

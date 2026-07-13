@@ -6,7 +6,7 @@
  *  - NÃO muda status do post
  *  - Notifica admins do SAL com preview do pedido
  */
-import { apiHandler } from "@/lib/api";
+import { apiHandler, ApiError } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { requerSessaoCliente, COOKIE_PORTAL_CLIENTE } from "@/lib/cliente-acesso";
 import { cookies } from "next/headers";
@@ -23,7 +23,7 @@ export async function POST(
   return apiHandler(async () => {
     const cookieValue = cookies().get(COOKIE_PORTAL_CLIENTE)?.value;
     const r = await requerSessaoCliente(params.token, cookieValue);
-    if (!r.acesso.podeComentar) throw new Error("Sem permissão pra comentar");
+    if (!r.acesso.podeComentar) throw new ApiError(403, "Sem permissão pra comentar");
 
     const { texto } = schema.parse(await req.json());
 

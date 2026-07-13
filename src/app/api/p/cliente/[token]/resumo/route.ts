@@ -146,10 +146,22 @@ export async function GET(req: Request, { params }: { params: { token: string } 
         take: 6,
         select: { id: true, titulo: true, createdAt: true },
       }),
-      // Pendências de aprovação — estado ATUAL (não filtra por mês).
+      // Pendências de aprovação — estado ATUAL (não filtra por mês), mas
+      // usando a MESMA janela de datas que o /calendario mostra (-30/+60d).
+      // Sem isso o badge contava posts que o cliente não conseguia achar
+      // na lista (ex.: agendados pra daqui a 90 dias).
       // 0 quando o cliente não tem permissão de aprovar aquele tipo.
       podePosts
-        ? prisma.post.count({ where: { clienteId, status: "COPY_PRONTA" } })
+        ? prisma.post.count({
+            where: {
+              clienteId,
+              status: "COPY_PRONTA",
+              dataPublicacao: {
+                gte: new Date(agora.getTime() - 30 * 24 * 3600_000),
+                lte: new Date(agora.getTime() + 60 * 24 * 3600_000),
+              },
+            },
+          })
         : Promise.resolve(0),
       podeCriativos
         ? prisma.criativo.count({ where: { clienteId, status: "EM_APROVACAO" } })

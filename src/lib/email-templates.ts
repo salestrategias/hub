@@ -56,6 +56,12 @@ const EMOJI: Record<TipoNotificacao, string> = {
   PROPOSTA_VISTA: "👀",
   PROPOSTA_ACEITA: "🎉",
   PROPOSTA_RECUSADA: "💔",
+  PROPOSTA_PDF_BAIXADO: "📄",
+  PROPOSTA_EXPIRANDO: "⏳",
+  PORTAL_APROVOU_POST: "✅",
+  PORTAL_APROVOU_CRIATIVO: "✅",
+  PORTAL_PEDIU_AJUSTE: "💬",
+  CLIENTE_SUBMETEU_CONTEUDO: "📥",
   SISTEMA: "🔔",
 };
 
@@ -68,6 +74,12 @@ const CTA_LABEL: Record<TipoNotificacao, string> = {
   PROPOSTA_VISTA: "Ver proposta",
   PROPOSTA_ACEITA: "Ver proposta",
   PROPOSTA_RECUSADA: "Ver proposta",
+  PROPOSTA_PDF_BAIXADO: "Ver proposta",
+  PROPOSTA_EXPIRANDO: "Ver proposta",
+  PORTAL_APROVOU_POST: "Abrir editorial",
+  PORTAL_APROVOU_CRIATIVO: "Abrir criativos",
+  PORTAL_PEDIU_AJUSTE: "Ver pedido",
+  CLIENTE_SUBMETEU_CONTEUDO: "Abrir triagem",
   SISTEMA: "Abrir Hub",
 };
 

@@ -277,6 +277,8 @@ model ReuniaoAction {
   // Fase 2: action item pode virar uma Tarefa real (1-1 opcional)
   tarefaId  String?  @unique
   tarefa    Tarefa?  @relation("AcaoVirouTarefa", fields: [tarefaId], references: [id], onDelete: SetNull)
+
+  @@index([reuniaoId])
 }
 
 model ReuniaoCapitulo {
@@ -287,6 +289,8 @@ model ReuniaoCapitulo {
 
   reuniaoId String
   reuniao   Reuniao @relation(fields: [reuniaoId], references: [id], onDelete: Cascade)
+
+  @@index([reuniaoId])
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -645,6 +649,9 @@ model Tarefa {
 
   @@index([dataEntrega])
   @@index([reuniaoId])
+  // Postgres não indexa FK sozinho — telas quentes filtram por estes:
+  @@index([clienteId])
+  @@index([projetoId])
 }
 
 model CheckItem {
@@ -655,6 +662,8 @@ model CheckItem {
 
   tarefaId String
   tarefa   Tarefa @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+
+  @@index([tarefaId])
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -678,6 +687,7 @@ model Lancamento {
 
   @@index([data])
   @@index([entidade])
+  @@index([clienteId])
 }
 
 enum LancamentoTipo {
@@ -706,6 +716,8 @@ model DriveArquivo {
   cliente   Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
+
+  @@index([clienteId])
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -809,6 +821,8 @@ model SeoKeyword {
   cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
   updatedAt DateTime @updatedAt
+
+  @@index([clienteId])
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1123,6 +1137,7 @@ enum TipoNotificacao {
   PROPOSTA_PDF_BAIXADO
   PROPOSTA_EXPIRANDO
   PORTAL_APROVOU_POST
+  PORTAL_APROVOU_CRIATIVO
   PORTAL_PEDIU_AJUSTE
   CLIENTE_SUBMETEU_CONTEUDO   // evento inbound: cliente enviou post/criativo pra revisão (sem email)
   SISTEMA
