@@ -13,7 +13,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 4 | Imposto nos anúncios subiu ~12%: como recalcular ROAS-alvo e CPA máximo | imposto anúncios meta google 2026 | TP | 15 | MOFU | DESCARTADA (duplicada — post legado meta-ads-em-2026-impostos-custos já cobre o tema) |
 | 5 | Quanto sobra de cada venda? Unit economics para quem tem loja | como calcular lucro por venda loja virtual | DAD | 29 | TOFU | PUBLICADO 2026-07-11 https://www.salestrategias.com.br/lucro-por-venda-loja-virtual/ |
 | 6 | Google Ads para loja física: como anunciar só para quem está no seu bairro | google ads para loja física | LOC | 15 | MOFU | PUBLICADO 2026-07-12 https://www.salestrategias.com.br/google-ads-para-loja-fisica/ |
-| 7 | Carrinho abandonado no WhatsApp: modelos de mensagem que recuperam vendas | mensagem carrinho abandonado whatsapp | CRM | 14 | MOFU | PENDENTE |
+| 7 | Carrinho abandonado no WhatsApp: modelos de mensagem que recuperam vendas | mensagem carrinho abandonado whatsapp | CRM | 14 | MOFU | PUBLICADO 2026-07-13 https://www.salestrategias.com.br/mensagem-carrinho-abandonado-whatsapp/ |
 | 8 | Campanha de Dia dos Pais: cronograma de 3 semanas para a sua loja | campanha dia dos pais loja | SAZ | 29 | MOFU | PENDENTE |
 | 9 | SEO para página de produto: checklist para ranquear e vender | seo para página de produto | SEO | 13 | MOFU | PENDENTE |
 | 10 | Como precificar produto na loja virtual: custo, comissão, frete e margem | como precificar produto loja virtual | CRO | 14 | MOFU | PENDENTE |
