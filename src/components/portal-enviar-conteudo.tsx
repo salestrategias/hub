@@ -58,7 +58,17 @@ export type Submissao = {
 };
 
 // ─── Lista das submissões do próprio cliente ────────────────────────
-export function MinhasSubmissoes({ modo, submissoes }: { modo: ModoEnvio; submissoes: Submissao[] }) {
+export function MinhasSubmissoes({
+  modo,
+  submissoes,
+  onAnexar,
+}: {
+  modo: ModoEnvio;
+  submissoes: Submissao[];
+  /** Se definido (só posts), mostra "Anexar arquivos" — deixa o cliente
+   *  completar um envio que ficou sem artes/links. */
+  onAnexar?: (submissao: Submissao) => void;
+}) {
   if (submissoes.length === 0) return null;
 
   return (
@@ -69,16 +79,25 @@ export function MinhasSubmissoes({ modo, submissoes }: { modo: ModoEnvio; submis
       </h2>
       <div className="space-y-2">
         {submissoes.map((s) => (
-          <SubmissaoCard key={s.id} modo={modo} submissao={s} />
+          <SubmissaoCard key={s.id} modo={modo} submissao={s} onAnexar={onAnexar} />
         ))}
       </div>
     </section>
   );
 }
 
-function SubmissaoCard({ modo, submissao }: { modo: ModoEnvio; submissao: Submissao }) {
+function SubmissaoCard({
+  modo,
+  submissao,
+  onAnexar,
+}: {
+  modo: ModoEnvio;
+  submissao: Submissao;
+  onAnexar?: (submissao: Submissao) => void;
+}) {
   const status = submissao.revisao ?? "PENDENTE";
   const thumb = submissao.arquivos.find((a) => a.tipo === "IMAGEM");
+  const semArquivos = submissao.arquivos.length === 0;
 
   return (
     <Card className={`border-l-4 ${corBordaStatus(status)}`}>
@@ -104,6 +123,8 @@ function SubmissaoCard({ modo, submissao }: { modo: ModoEnvio; submissao: Submis
           </div>
           <p className="text-[10.5px] text-muted-foreground">
             Enviado em {new Date(submissao.createdAt).toLocaleDateString("pt-BR")}
+            {!semArquivos &&
+              ` · ${submissao.arquivos.length} ${submissao.arquivos.length === 1 ? "arquivo" : "arquivos"}`}
           </p>
           {status === "AJUSTE" && submissao.revisaoNota && (
             <div className="rounded-md bg-amber-500/5 border border-amber-500/20 p-2 mt-1">
@@ -112,6 +133,30 @@ function SubmissaoCard({ modo, submissao }: { modo: ModoEnvio; submissao: Submis
               </div>
               <p className="text-[12px] leading-snug whitespace-pre-wrap">{submissao.revisaoNota}</p>
             </div>
+          )}
+          {onAnexar && semArquivos && (
+            <div className="rounded-md bg-sky-500/5 border border-sky-500/20 p-2 mt-1">
+              <p className="text-[11px] leading-snug text-muted-foreground">
+                Este envio está <b className="text-foreground">sem fotos, vídeos ou links</b>.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onAnexar(submissao)}
+                className="mt-1.5 h-9 w-full text-[12px] touch-feedback"
+              >
+                <Upload className="h-3.5 w-3.5" /> Anexar arquivos agora
+              </Button>
+            </div>
+          )}
+          {onAnexar && !semArquivos && (
+            <button
+              type="button"
+              onClick={() => onAnexar(submissao)}
+              className="touch-feedback text-[11px] font-medium text-muted-foreground hover:underline"
+            >
+              + Anexar mais arquivos
+            </button>
           )}
         </div>
       </CardContent>
@@ -362,11 +407,15 @@ export function UploaderArquivos({
         </Button>
       </div>
 
-      {/* Link externo (vídeos pesados, Drive, YouTube) */}
+      {/* Link externo (vídeos pesados, Drive, YouTube).
+          IMPORTANTE: o link é adicionado também no BLUR — cliente que cola
+          e vai direto no "Enviar" não perde mais o link (bug real do Rua
+          da Praia: 8 posts chegaram sem os links colados). */}
       <div className="flex gap-1.5 mt-2">
         <Input
           value={urlExterna}
           onChange={(e) => setUrlExterna(e.target.value)}
+          onBlur={adicionarUrl}
           placeholder="Ou cole um link (Drive, YouTube...)"
           className="h-11 sm:h-10 text-base sm:text-sm"
           onKeyDown={(e) => {

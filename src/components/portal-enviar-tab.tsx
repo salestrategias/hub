@@ -30,6 +30,7 @@ import {
   type ArquivoLocal,
   type Submissao,
 } from "@/components/portal-enviar-conteudo";
+import { AnexarArteDialog } from "@/components/portal-anexar-arte";
 
 type TipoEnvio = "post" | "criativo";
 type ModoEnvio = "rapido" | "completo";
@@ -94,6 +95,8 @@ export function PortalEnviarTab({
 
   const [subsPosts, setSubsPosts] = useState<Submissao[]>([]);
   const [subsCriativos, setSubsCriativos] = useState<Submissao[]>([]);
+  // Anexar arquivos num envio JÁ FEITO (ex.: envio que ficou sem os links)
+  const [anexandoEm, setAnexandoEm] = useState<Submissao | null>(null);
 
   const carregarSubmissoes = useCallback(async () => {
     try {
@@ -419,9 +422,22 @@ export function PortalEnviarTab({
       {/* Meus envios */}
       {(subsPosts.length > 0 || subsCriativos.length > 0) && (
         <div className="space-y-5 border-t border-border pt-5">
-          <MinhasSubmissoes modo="post" submissoes={subsPosts} />
+          <MinhasSubmissoes modo="post" submissoes={subsPosts} onAnexar={setAnexandoEm} />
           <MinhasSubmissoes modo="criativo" submissoes={subsCriativos} />
         </div>
+      )}
+
+      {anexandoEm && (
+        <AnexarArteDialog
+          token={token}
+          postId={anexandoEm.id}
+          postTitulo={anexandoEm.titulo}
+          onClose={() => setAnexandoEm(null)}
+          onSuccess={() => {
+            setAnexandoEm(null);
+            void carregarSubmissoes();
+          }}
+        />
       )}
 
       {subsPosts.length === 0 && subsCriativos.length === 0 && (

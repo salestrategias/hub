@@ -423,6 +423,38 @@ export function EditorialCalendarClient({
 
   return (
     <div className="space-y-4">
+      {/* Caixa de entrada de envios do cliente — impossível de ignorar.
+          Sem isso, submissões viravam RASCUNHO espalhado no calendário
+          (e envios com data errada, ex. ano 2025, sumiam da vista do mês).
+          O CTA liga o filtro "pendentes" + vista LISTA (independe de data). */}
+      {pendentesRevisao.length > 0 && !soPendentes && (
+        <button
+          type="button"
+          onClick={() => {
+            setSoPendentes(true);
+            changeView("lista");
+          }}
+          className="flex w-full items-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-left transition-colors hover:bg-amber-500/15"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/15">
+            <Inbox className="h-[18px] w-[18px] text-amber-600 dark:text-amber-400" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold leading-tight">
+              {pendentesRevisao.length === 1
+                ? "1 envio de cliente aguardando revisão"
+                : `${pendentesRevisao.length} envios de cliente aguardando revisão`}
+            </span>
+            <span className="block text-xs text-muted-foreground mt-0.5">
+              {Array.from(new Set(pendentesRevisao.map((p) => p.clienteNome))).slice(0, 3).join(" · ")}
+            </span>
+          </span>
+          <span className="shrink-0 rounded-full bg-amber-600 px-3.5 py-1.5 text-xs font-semibold text-white">
+            Revisar agora
+          </span>
+        </button>
+      )}
+
       {/* Barra de controles: filtros + toggle de view + novo post */}
       <div className="flex flex-wrap gap-2 items-center justify-between">
         <div className="flex flex-wrap gap-2 items-center">
