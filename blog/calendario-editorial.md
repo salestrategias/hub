@@ -19,7 +19,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 10 | Como precificar produto na loja virtual: custo, comissão, frete e margem | como precificar produto loja virtual | CRO | 14 | MOFU | PUBLICADO 2026-07-16 https://www.salestrategias.com.br/como-precificar-produto-loja-virtual/ |
 | 11 | Como responder avaliação negativa no Google: 10 exemplos prontos | como responder avaliação negativa google | LOC | 17 | MOFU | PUBLICADO 2026-07-17 https://www.salestrategias.com.br/como-responder-avaliacao-negativa-google/ |
 | 12 | Campanha de Google Shopping não gasta o orçamento: como destravar | google shopping não gasta orçamento | TP | 15 | MOFU | PUBLICADO 2026-07-18 https://www.salestrategias.com.br/google-shopping-nao-gasta-orcamento/ |
-| 13 | Os 5 fluxos de e-mail que toda loja virtual deveria ter no ar | email marketing para e-commerce fluxos | CRM | 14 | MOFU | PENDENTE |
+| 13 | Os 5 fluxos de e-mail que toda loja virtual deveria ter no ar | email marketing para e-commerce fluxos | CRM | 14 | MOFU | PUBLICADO 2026-07-19 https://www.salestrategias.com.br/fluxos-de-email-para-loja-virtual/ |
 | 14 | Página de categoria: a página mais poderosa (e esquecida) da sua loja | seo página de categoria | SEO | 13 | MOFU | PENDENTE |
 | 15 | Quanto investir em anúncios para uma loja de bairro: plano a partir de R$20/dia | quanto investir anúncio loja física | LOC | 15 | MOFU | PENDENTE |
 | 16 | Frete grátis sem prejuízo: como calcular o pedido mínimo ideal | frete grátis como calcular pedido mínimo | CRO | 14 | MOFU | PENDENTE |
