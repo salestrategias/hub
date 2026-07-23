@@ -26,14 +26,16 @@ Coordenei o marketing desde o lançamento. Na expansão comercial, trouxemos mai
 
 Pela mesma administradora, participei da reestruturação de dois empreendimentos históricos do varejo gaúcho:
 
-- **Rua da Praia Shopping**, o único shopping do centro de Porto Alegre. Trabalhei na captação de novas lojas para renovar o mix comercial.
+- **Rua da Praia Shopping**, o único shopping do centro de Porto Alegre. Trabalhei na captação de novas lojas para renovar o mix comercial. Em doze meses, junto com a equipe da administradora, colocamos 23 lojas novas no mix.
 - **Lindóia Shopping**, shopping de bairro da zona norte. Estruturei o marketing com pesquisa de mercado e produção de eventos para reaproximar o empreendimento da comunidade.
 
 E participei da gestão da **Galeria Chaves Barcellos**, no centro histórico, o centro comercial mais antigo de Porto Alegre, com mais de 90 anos. Trabalhamos a restauração da marca, a expansão comercial e a produção de eventos. Foi lá que participei do lançamento da primeira Starbucks de Porto Alegre, a loja ícone da marca no Rio Grande do Sul.
 
-Nesse período também atendi marcas como Unimed, Cacau Show, Natura, Beagle e McDonald's.
+Ao longo desses anos me relacionei também com marcas como Unimed, Cacau Show, Natura, Beagle, McDonald's, Bistek Supermercados e Laghetto Hotéis. São relações da minha trajetória como gestor, e cada uma me ensinou um pedaço de como o varejo funciona por dentro.
 
-Esses três empreendimentos de Porto Alegre não ficaram no passado: Rua da Praia Shopping, Lindóia Shopping e Galeria Chaves Barcellos são clientes da SAL até hoje, em consultoria. É o tipo de confiança que não se compra com anúncio.
+Três desses empreendimentos de Porto Alegre não ficaram no passado: Rua da Praia Shopping, Lindóia Shopping e Galeria Chaves Barcellos são clientes da SAL até hoje, em consultoria. É o tipo de confiança que não se compra com anúncio.
+
+[FOTOS: intercalar nesta seção as fotos da trajetória que o Marcelo vai enviar, com legenda e alt text descritivo (ex.: lançamento da Starbucks na Chaves Barcellos, Vita Boulevard, eventos).]
 
 ## H2: Por que fundei a SAL
 
@@ -57,6 +59,12 @@ Em 2024, fundei a SAL. O nome vem do elemento mais simples da cozinha: em excess
 ## H2: Fora do trabalho
 
 [PENDENTE: lado pessoal do Marcelo. Cinema? Fotografia? Família? Uma ou duas frases humanizam a página.]
+
+## H2: Onde me encontrar
+
+- LinkedIn: [PENDENTE: URL do perfil pessoal do Marcelo]
+- Instagram: [PENDENTE: perfil pessoal ou @salestrategias?]
+- Newsletter no Substack: https://marcelofreitas.substack.com
 
 ## [CTA final]
 

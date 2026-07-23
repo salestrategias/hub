@@ -106,8 +106,11 @@ Mapeamento do plano para o real: a LP "SEO Local" evolui a página `/servicos/as
 - ✅ Números: NÃO publicar quantidade de clientes nem resultados da SAL (assessoria nova). Prova social = empreendimentos da carreira que seguem clientes hoje: Rua da Praia Shopping, Lindóia Shopping e Galeria Chaves Barcellos (consultoria). Tavi Papelaria não é mais cliente: não citar. Números de era-carreira (ex.: 23 lojas) fora da copy.
 - ✅ Materiais ricos: nada pronto; desenvolver para download (começar pelos 4 propostos no item 4).
 - ✅ Fotos: Marcelo tem fotos da trajetória para a página dele (aguardar envio dos arquivos).
+- ✅ Marcas da carreira: citar de forma sutil e claramente como relações da trajetória (não clientes da SAL); Bistek Supermercados e Laghetto Hotéis incluídas. "23 lojas" só como menção discreta no texto do Marcelo (case da era Ponto Pronto, com equipe).
+- ✅ Time: não citar time da SAL; a página do Marcelo é a única página de pessoas. Redes na página dele: LinkedIn pessoal (URL pendente), Instagram (confirmar pessoal ou @salestrategias), Substack.
+- ✅ Contatos reais no tema: WhatsApp 5551993380278, @salestrategias, LinkedIn company (padrões do Personalizar).
 - Lado pessoal (1-2 frases) para a seção "Fora do trabalho".
-- Formação do time hoje (só Marcelo? parceiros?) para o FAQ do Quem Somos.
+- URL do LinkedIn pessoal do Marcelo + qual Instagram usar na página dele.
 
 ## 5b. Diagnóstico atual (/diagnostico/) — analisado em jul/2026
 

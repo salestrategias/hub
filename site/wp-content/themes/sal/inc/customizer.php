@@ -45,11 +45,11 @@ function sal_padroes(): array {
 		'sal_final_titulo' => __( 'Quer saber onde sua loja está deixando dinheiro na mesa?', 'sal' ),
 		'sal_final_texto'  => __( 'Peça o diagnóstico gratuito: a gente analisa seu funil, seus canais e seus números e devolve um plano claro, mesmo que você não feche com a SAL.', 'sal' ),
 
-		// Contato e redes.
-		'sal_whatsapp'     => '',
+		// Contato e redes (valores reais do site atual; ajustáveis no Personalizar).
+		'sal_whatsapp'     => '5551993380278',
 		'sal_email'        => 'contato@salestrategias.com.br',
-		'sal_instagram'    => '',
-		'sal_linkedin'     => '',
+		'sal_instagram'    => 'https://www.instagram.com/salestrategias/',
+		'sal_linkedin'     => 'https://www.linkedin.com/company/sal-estrategias-de-marketing/',
 		'sal_substack'     => 'https://marcelofreitas.substack.com',
 
 		// SEO da home (usado só sem plugin de SEO ativo).

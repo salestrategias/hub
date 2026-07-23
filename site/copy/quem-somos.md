@@ -65,6 +65,4 @@ Não. A SAL é especializada em varejo e e-commerce: lojas de rua, lojas de shop
 Sim. A sede é em Porto Alegre e o atendimento cobre o Brasil todo, com processos e reuniões remotas.
 
 **Quem cuida do meu projeto?**
-O plano é conduzido por Marcelo Freitas, fundador da SAL, com mais de dez anos de experiência em marketing de varejo. Sem repassar sua conta para um estagiário.
-
-[A CONFIRMAR: como descrever o time hoje? Só Marcelo? Marcelo + rede de parceiros? Preciso da formação real da equipe para não inventar.]
+O plano é conduzido por Marcelo Freitas, fundador da SAL, com mais de dez anos de experiência em marketing e uma década vivida dentro do varejo. Conheça a trajetória dele em /marcelo-freitas/.
