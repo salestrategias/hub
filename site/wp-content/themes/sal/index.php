@@ -13,7 +13,7 @@ get_header();
 		<header class="arquivo-cabeca secao__cabeca">
 			<p class="kicker"><?php esc_html_e( 'Blog', 'sal' ); ?></p>
 			<h1><?php echo esc_html( get_the_title( get_option( 'page_for_posts' ) ) ?: __( 'Artigos', 'sal' ) ); ?></h1>
-			<p class="descricao"><?php esc_html_e( 'Marketing para quem vende de verdade: e-commerce e varejo local, com a conta fechada em reais.', 'sal' ); ?></p>
+			<p class="descricao"><?php esc_html_e( 'Guias e artigos sobre SEO, tráfego pago e gestão para quem tem loja, física ou virtual. Publicamos todos os dias.', 'sal' ); ?></p>
 		</header>
 
 		<?php if ( have_posts() ) : ?>

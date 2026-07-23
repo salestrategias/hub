@@ -17,13 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function sal_padroes(): array {
 	return array(
-		// Hero.
-		'sal_hero_kicker'  => __( 'Para e-commerce e varejo local', 'sal' ),
-		'sal_hero_titulo'  => __( 'Marketing que aparece nas vendas, não só no relatório.', 'sal' ),
-		'sal_hero_sub'     => __( 'A SAL planeja e executa o marketing da sua loja, física ou virtual, e mostra todo mês o que cada real investido trouxe de volta.', 'sal' ),
+		// Hero (headline e subtítulo do site atual, escritos pelo Marcelo).
+		'sal_hero_kicker'  => __( 'Assessoria para varejo e e-commerce', 'sal' ),
+		'sal_hero_titulo'  => __( 'Marketing que faz varejo e e-commerce vender mais e ser lembrado.', 'sal' ),
+		'sal_hero_sub'     => __( 'Assessoria de marketing com método. SEO, tráfego pago, sites e marca trabalhando juntos, da pesquisa ao resultado. A SAL cuida do crescimento da sua marca por inteiro.', 'sal' ),
 		'sal_hero_nota'    => __( 'Diagnóstico gratuito, sem compromisso. Resposta em até 1 dia útil.', 'sal' ),
-		'sal_hero_aside_1' => __( 'Sem pacote de prateleira: o plano sai do diagnóstico do seu negócio, do seu ticket e da sua margem.', 'sal' ),
-		'sal_hero_aside_2' => __( 'Você acompanha tudo em relatórios que fecham a conta: investimento, retorno e o que vem no próximo mês.', 'sal' ),
+		'sal_hero_aside_1' => __( 'Nada aqui é pacote de prateleira: o plano sai do diagnóstico do seu negócio, do seu ticket e da sua margem.', 'sal' ),
+		'sal_hero_aside_2' => __( 'E todo mês você recebe um relatório que fecha a conta: quanto foi investido, quanto voltou e o que vem no mês seguinte.', 'sal' ),
 
 		// CTA principal.
 		'sal_cta_texto'    => __( 'Pedir diagnóstico gratuito', 'sal' ),
@@ -31,19 +31,19 @@ function sal_padroes(): array {
 
 		// Números de prova.
 		'sal_num1_valor'   => '10+',
-		'sal_num1_rotulo'  => __( 'anos de estrada em marketing digital', 'sal' ),
+		'sal_num1_rotulo'  => __( 'anos de experiência em marketing, do ensino superior ao varejo', 'sal' ),
 		'sal_num2_valor'   => '2',
-		'sal_num2_rotulo'  => __( 'especialidades: e-commerce e varejo local, e nada além disso', 'sal' ),
+		'sal_num2_rotulo'  => __( 'mercados atendidos, por escolha: varejo e e-commerce', 'sal' ),
 		'sal_num3_valor'   => '1',
-		'sal_num3_rotulo'  => __( 'relatório por mês que fecha a conta em reais, sem métrica de vaidade', 'sal' ),
+		'sal_num3_rotulo'  => __( 'relatório por mês, com a conta fechada em reais', 'sal' ),
 
-		// Depoimento.
-		'sal_depo_texto'   => __( 'Pela primeira vez eu sei exatamente quanto o marketing devolve pra loja. A conta fecha, e sobra.', 'sal' ),
-		'sal_depo_autor'   => __( 'Cliente SAL · varejo local', 'sal' ),
+		// Depoimento: vazio por padrão. Só publicar depoimento real, com autorização.
+		'sal_depo_texto'   => '',
+		'sal_depo_autor'   => '',
 
-		// CTA final.
-		'sal_final_titulo' => __( 'Quer saber onde sua loja está deixando dinheiro na mesa?', 'sal' ),
-		'sal_final_texto'  => __( 'Peça o diagnóstico gratuito: a gente analisa seu funil, seus canais e seus números e devolve um plano claro, mesmo que você não feche com a SAL.', 'sal' ),
+		// CTA final (headline da página de diagnóstico atual, escrita pelo Marcelo).
+		'sal_final_titulo' => __( 'Onde o seu marketing está travando?', 'sal' ),
+		'sal_final_texto'  => __( 'Em poucas perguntas, o Diagnóstico SAL devolve uma leitura do que falta no marketing do seu varejo ou e-commerce. Gratuito, sem compromisso, com resposta em até 1 dia útil.', 'sal' ),
 
 		// Contato e redes (valores reais do site atual; ajustáveis no Personalizar).
 		'sal_whatsapp'     => '5551993380278',

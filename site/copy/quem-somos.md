@@ -1,6 +1,6 @@
 # Copy · /quem-somos/ — A história da SAL
 
-> Rascunho para aprovação do Marcelo. Segue o guia de redação: sem travessão, sem "PMEs", frases curtas, dados só com fonte. Title sugerido: "Quem Somos · SAL Estratégias de Marketing" (52 chars). Meta description sugerida: "Conheça a SAL: assessoria de marketing para varejo e e-commerce fundada por Marcelo Freitas. Método próprio, sem fórmula de prateleira. Marketing na Medida Certa." (159 chars).
+> Title sugerido: "Quem Somos · SAL Estratégias de Marketing" (52 chars). Meta description: "Conheça a SAL: assessoria de marketing para varejo e e-commerce fundada por Marcelo Freitas em 2024. Método próprio e um nome que explica tudo." (143 chars).
 
 ---
 
@@ -8,61 +8,59 @@
 
 **[Resposta direta, primeiros 50-70 palavras]**
 
-A SAL é uma assessoria de marketing especializada em varejo e e-commerce, fundada em 2024 por Marcelo Freitas, depois de dez anos gerindo marketing de instituição de ensino e de shopping centers. O nome não é sigla de agência. É o tempero mais antigo do mundo, e o resumo do nosso jeito de trabalhar: na dose errada, estraga. Na medida certa, transforma.
+A SAL é uma assessoria de marketing para varejo e e-commerce, fundada em 2024 por Marcelo Freitas, depois de dez anos trabalhando com marketing dentro de uma instituição de ensino e de shopping centers. O nome vem do tempero mesmo: sal demais estraga o prato, sal de menos deixa a comida sem gosto. Marketing funciona do mesmo jeito, e foi dessa ideia que a SAL nasceu.
 
 ## H2: Por que "SAL"
 
-O sal é usado há milhares de anos. Não existe cozinha sem ele. E ele carrega uma regra que todo cozinheiro conhece: demais, o prato fica salgado e ninguém come. De menos, fica insosso, sem graça, sem gosto.
+O sal é usado pra temperar comida há milhares de anos. Não existe cozinha sem ele. E qualquer pessoa que já cozinhou sabe o que acontece quando a mão pesa: fica salgado, ninguém come. Quando falta, fica insosso. O segredo nunca esteve no ingrediente, está na dose.
 
-Marketing funciona igual. Verba demais no canal errado queima caixa. Investimento de menos, ninguém fica sabendo que a sua loja existe. Promessa exagerada afasta cliente. Comunicação tímida não vende. O trabalho todo está na dosagem: o canal certo, a verba certa, a mensagem certa, para o seu negócio, no momento em que ele está.
+Com marketing é a mesma coisa. A gente já viu loja queimando verba em canal que não fazia sentido pra ela, e já viu loja muito boa que ninguém conhecia porque não investia nada. Promessa exagerada espanta o cliente. Comunicação tímida não traz ninguém. O trabalho de verdade está em achar a medida: qual canal, quanta verba e qual mensagem fazem sentido pro seu negócio, no momento em que ele está agora.
 
-Por isso o slogan: **Marketing na Medida Certa.**
+Daí o slogan: **Marketing na Medida Certa.**
 
-E tem um segundo significado, que virou a nossa essência:
+E o nome ainda guarda um segundo sentido, que virou a nossa forma de trabalhar:
 
-- **S**implificar. Processo claro, sem caixa-preta. Você entende o que está sendo feito e por quê.
-- **A**trair. Estratégia desenhada para conectar a sua marca com as pessoas certas, da sua região ou do seu nicho.
-- **L**ibertar. Você cuida do negócio. A SAL cuida do marketing.
+- **S**implificar. Você entende o que está sendo feito com o seu dinheiro e por quê. Sem caixa-preta, sem relatório indecifrável.
+- **A**trair. Estratégia pensada pra conectar a sua marca com as pessoas certas, sejam elas da sua rua ou do seu nicho.
+- **L**ibertar. Você toca o negócio. Do marketing, a gente cuida.
 
 ## H2: De onde a gente veio
 
-A SAL nasceu da experiência de quem passou dez anos do lado de dentro do varejo, não de quem estudou varejo em slide.
+A SAL nasceu de dentro do varejo. Antes de fundar a agência, Marcelo Freitas passou anos como gerente de marketing de uma administradora de shopping centers. Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, trabalhando na expansão comercial que levou mais de 40 marcas pro empreendimento, entre elas Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top e Grand Cru. Depois veio a reestruturação de dois clássicos do varejo de Porto Alegre, o Rua da Praia Shopping e o Lindóia Shopping, e a gestão da Galeria Chaves Barcellos, o centro comercial mais antigo da cidade, onde participou do lançamento da primeira Starbucks de Porto Alegre.
 
-Antes de fundar a SAL, Marcelo Freitas foi gerente de marketing de uma administradora de shopping centers. Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial de mais de 40 marcas, entre elas Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top e Grand Cru. Participou da reestruturação de dois clássicos do varejo de Porto Alegre, o Rua da Praia Shopping e o Lindóia Shopping, e da gestão da Galeria Chaves Barcellos, o centro comercial mais antigo da cidade, onde trabalhou no lançamento da primeira Starbucks de Porto Alegre.
+Esses três empreendimentos continuam com a gente até hoje: Rua da Praia, Lindóia e Galeria Chaves Barcellos são clientes de consultoria da SAL. Pra gente isso diz mais do que qualquer número. Quem viu o trabalho de perto quis continuar.
 
-E aqui está a parte que a gente mais gosta de contar: o Rua da Praia Shopping, o Lindóia Shopping e a Galeria Chaves Barcellos seguem com a SAL até hoje, como clientes de consultoria. Quem conheceu o trabalho do lado de dentro escolheu continuar.
-
-Desse período ficou uma convicção: o que faz uma loja vender não é truque de internet. É posicionamento certo, fluxo de gente certa e conta que fecha no fim do mês. Vale para uma loja de shopping, para uma loja de rua e para uma loja virtual.
+Dessa década toda ficou um aprendizado que guia a SAL até hoje: loja vende quando tem posicionamento claro, quando a pessoa certa passa na porta (ou no site) e quando a conta fecha no fim do mês. O resto é ferramenta.
 
 → [Link] Conheça a trajetória completa do Marcelo
 
 ## H2: O que a gente acredita
 
-**Marketing sem enganação.** A SAL nasceu como resposta ao marketing de guru: promessa milagrosa, print de faturamento, fórmula que serve para todo mundo e não funciona para ninguém. Aqui não tem fórmula. Tem método.
+A SAL nasceu como resposta a um mercado que cansa qualquer lojista: de um lado a agência genérica, que vende o mesmo pacote pra farmácia, pra advogado e pra loja de roupa; do outro, o guru de internet, com print de faturamento e fórmula mágica que serve pra todo mundo e não funciona pra ninguém. A gente não queria ser nenhum dos dois.
 
-**Especialização de verdade.** A gente atende varejo e e-commerce. Só. Não fazemos marketing para indústria, para SaaS, para infoproduto. Essa escolha nos deixa muito melhores no que fazemos.
+Por isso algumas escolhas foram feitas logo no início. A SAL atende varejo e e-commerce, e só. Não fazemos marketing pra indústria, pra software, pra infoproduto. Escolher um mercado deixa a gente muito melhor nele.
 
-**Dado com fonte, meta com margem.** Toda decisão sai de pesquisa e número real. Toda meta de mídia é calculada sobre a sua margem, não sobre a média do mercado.
+E toda decisão aqui sai de pesquisa e de número real. Quando citamos um dado, ele tem fonte. Quando definimos uma meta de mídia, ela é calculada em cima da sua margem, não da média do mercado. Parece básico, mas no nosso mercado isso já é diferencial.
 
 ## H2: Como a gente trabalha (método 4D)
 
-1. **Descobrir.** Mergulhamos no seu negócio: mercado, concorrência, presença digital, público. Entrega: o Diagnóstico SAL, com nota por área e prioridades claras.
-2. **Desenhar.** Estratégia sob medida: canais, verba, mensagens e cronograma, dimensionados pelo seu ticket e pela sua margem.
-3. **Disparar.** Execução: campanhas, SEO, conteúdo, site. Rodando, medindo, ajustando toda semana.
-4. **Decodificar.** Relatório mensal que fecha a conta em reais: o que entrou, o que saiu, o que muda no mês seguinte.
+1. **Descobrir.** A gente mergulha no seu negócio: mercado, concorrência, presença digital, público. O resultado é o Diagnóstico SAL, com uma leitura clara de onde estão os gargalos e as oportunidades.
+2. **Desenhar.** Com o diagnóstico na mão, montamos a estratégia: canais, verba, mensagens e cronograma, tudo dimensionado pelo seu ticket e pela sua margem.
+3. **Disparar.** Estratégia aprovada, mão na massa: campanhas, SEO, conteúdo, site. Rodando, medindo e ajustando toda semana.
+4. **Decodificar.** Todo mês você recebe um relatório que fecha a conta em reais: o que entrou, o que saiu, o que aprendemos e o que muda no mês seguinte.
 
-[CTA] Quer saber em que medida está o marketing da sua loja? Peça o Diagnóstico SAL. É gratuito e a resposta vem com prioridades, não com proposta genérica.
+[CTA] Quer saber em que medida está o marketing da sua loja? Peça o Diagnóstico SAL. É gratuito e a resposta vem em até 1 dia útil.
 
-## FAQ (schema FAQPage)
+## FAQ (usar [sal_faq] no editor)
 
 **A SAL é uma agência ou uma assessoria?**
-Assessoria. A diferença está no envolvimento: em vez de executar pedidos avulsos, a SAL assume a estratégia de crescimento junto com você, do diagnóstico à otimização contínua, com um plano só.
+Assessoria. Na prática, a diferença está no envolvimento: em vez de receber pedidos e entregar peças, a gente assume a estratégia de crescimento junto com você, do diagnóstico à otimização mês a mês, num plano só.
 
 **A SAL atende empresas de qualquer segmento?**
-Não. A SAL é especializada em varejo e e-commerce: lojas de rua, lojas de shopping, negócios locais e lojas virtuais. A especialização é o que garante profundidade no diagnóstico e velocidade na execução.
+Não. A gente trabalha com varejo e e-commerce: loja de rua, loja de shopping, negócio local e loja virtual. Foi uma escolha. Atender um mercado só nos deixa muito mais profundos nele.
 
 **A SAL atende fora de Porto Alegre?**
-Sim. A sede é em Porto Alegre e o atendimento cobre o Brasil todo, com processos e reuniões remotas.
+Sim. A sede é em Porto Alegre e o atendimento cobre o Brasil todo, com reuniões e acompanhamento remotos.
 
 **Quem cuida do meu projeto?**
-O plano é conduzido por Marcelo Freitas, fundador da SAL, com mais de dez anos de experiência em marketing e uma década vivida dentro do varejo. Conheça a trajetória dele em /marcelo-freitas/.
+O plano é conduzido pelo Marcelo Freitas, fundador da SAL, que trabalha com marketing desde 2014 e passou uma década dentro do varejo antes de abrir a agência. A trajetória completa dele está em /marcelo-freitas/.

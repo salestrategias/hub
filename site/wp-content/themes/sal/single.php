@@ -44,7 +44,7 @@ get_header();
 
 				<div class="artigo-cta">
 					<h2><?php esc_html_e( 'Quer aplicar isso na sua loja?', 'sal' ); ?></h2>
-					<p><?php esc_html_e( 'Peça o diagnóstico gratuito da SAL: analisamos seus canais e seus números e devolvemos um plano claro para vender mais com margem.', 'sal' ); ?></p>
+					<p><?php esc_html_e( 'Peça o Diagnóstico SAL: a gente analisa seus canais e seus números e devolve um parecer com prioridades, sem compromisso.', 'sal' ); ?></p>
 					<a class="btn btn--claro" href="<?php echo esc_url( sal_cta_url() ); ?>"><?php echo esc_html( sal_mod( 'sal_cta_texto' ) ); ?> <span class="seta" aria-hidden="true">→</span></a>
 				</div>
 

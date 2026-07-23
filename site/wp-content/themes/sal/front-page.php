@@ -52,8 +52,8 @@ get_header();
 		<div class="wrap">
 			<div class="secao__cabeca">
 				<p class="kicker"><?php esc_html_e( 'Quem atendemos', 'sal' ); ?></p>
-				<h2><?php esc_html_e( 'Duas especialidades. Nenhuma distração.', 'sal' ); ?></h2>
-				<p><?php esc_html_e( 'A SAL não atende "qualquer empresa". Trabalhamos com quem vende no varejo, na rua ou na internet, porque é onde sabemos fazer o investimento voltar.', 'sal' ); ?></p>
+				<h2><?php esc_html_e( 'A gente atende dois mercados. E só dois.', 'sal' ); ?></h2>
+				<p><?php esc_html_e( 'A SAL trabalha com quem vende no varejo, na rua ou na internet. Foi uma escolha: atender um mercado só deixa a gente muito melhor nele.', 'sal' ); ?></p>
 			</div>
 
 			<div class="nichos">
@@ -73,7 +73,7 @@ get_header();
 				<article class="nicho revela">
 					<span class="tag"><?php esc_html_e( 'Loja virtual', 'sal' ); ?></span>
 					<h3><?php esc_html_e( 'E-commerce', 'sal' ); ?></h3>
-					<p><?php esc_html_e( 'Para quem vende online e cansou de ROAS bonito com caixa vazio: crescer com margem, não só com faturamento.', 'sal' ); ?></p>
+					<p><?php esc_html_e( 'Para quem vende online e quer crescer com margem, não só aumentar o número de pedidos.', 'sal' ); ?></p>
 					<ul>
 						<li><?php esc_html_e( 'Google Shopping, Performance Max e Meta com feed de catálogo bem-feito', 'sal' ); ?></li>
 						<li><?php esc_html_e( 'SEO de produto e categoria para vender sem depender só de mídia paga', 'sal' ); ?></li>
@@ -91,8 +91,8 @@ get_header();
 		<div class="wrap">
 			<div class="secao__cabeca">
 				<p class="kicker"><?php esc_html_e( 'O que fazemos', 'sal' ); ?></p>
-				<h2><?php esc_html_e( 'Serviços que se combinam num plano só', 'sal' ); ?></h2>
-				<p><?php esc_html_e( 'Você não contrata uma lista de entregáveis: contrata um plano. Estes são os instrumentos que usamos para montá-lo.', 'sal' ); ?></p>
+				<h2><?php esc_html_e( 'Serviços que trabalham juntos, num plano só', 'sal' ); ?></h2>
+				<p><?php esc_html_e( 'Cada frente abaixo pode ser contratada separada, mas o normal é elas andarem juntas dentro do mesmo plano. É assim que a conta fecha melhor.', 'sal' ); ?></p>
 			</div>
 
 			<div class="servicos">
@@ -101,9 +101,9 @@ get_header();
 					array( __( 'Tráfego pago', 'sal' ), __( 'Google, Meta e TikTok Ads com meta de retorno definida antes de investir o primeiro real.', 'sal' ) ),
 					array( __( 'SEO e conteúdo', 'sal' ), __( 'Aparecer quando o cliente procura: no Google, no mapa e nas respostas de IA.', 'sal' ) ),
 					array( __( 'CRM e retenção', 'sal' ), __( 'E-mail, WhatsApp e fluxos de recompra para aumentar o valor de cada cliente.', 'sal' ) ),
-					array( __( 'Social e criativos', 'sal' ), __( 'Conteúdo e anúncios com cara de marca, produzidos para converter, não para encher grade.', 'sal' ) ),
+					array( __( 'Social e criativos', 'sal' ), __( 'Conteúdo e anúncios pensados para vender, com a cara da sua marca.', 'sal' ) ),
 					array( __( 'Dados e margem', 'sal' ), __( 'GA4, acompanhamento de conversão e relatório mensal que fecha a conta em reais.', 'sal' ) ),
-					array( __( 'Marketplaces', 'sal' ), __( 'Mercado Livre, Shopee e Instagram Shopping como canais com estratégia própria, não como apêndice.', 'sal' ) ),
+					array( __( 'Marketplaces', 'sal' ), __( 'Mercado Livre, Shopee e Instagram Shopping tratados como canal de verdade, com estratégia própria.', 'sal' ) ),
 				);
 				foreach ( $sal_servicos as $sal_i => $sal_servico ) :
 					?>
