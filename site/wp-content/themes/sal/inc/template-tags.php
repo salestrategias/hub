@@ -10,16 +10,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Logo: imagem enviada no Personalizar ou o wordmark "SAL." em texto.
+ * Logo real da SAL (SVG embarcado no tema). Um logo enviado em
+ * Aparência → Personalizar tem prioridade sobre o arquivo do tema.
+ *
+ * @param string $variante 'cor' (fundo claro) ou 'branco' (fundo escuro).
  */
-function sal_logo(): void {
-	if ( has_custom_logo() ) {
+function sal_logo( string $variante = 'cor' ): void {
+	if ( has_custom_logo() && 'cor' === $variante ) {
 		the_custom_logo();
 		return;
 	}
+	$arquivo = 'branco' === $variante ? 'sal-logo-branco.svg' : 'sal-logo.svg';
 	printf(
-		'<a class="logo" href="%s" rel="home">SAL<span class="logo__ponto">.</span></a>',
-		esc_url( home_url( '/' ) )
+		'<a class="logo" href="%s" rel="home"><img src="%s" alt="%s" width="120" height="68"></a>',
+		esc_url( home_url( '/' ) ),
+		esc_url( get_template_directory_uri() . '/assets/img/' . $arquivo ),
+		esc_attr( get_bloginfo( 'name' ) )
 	);
 }
 

@@ -81,7 +81,8 @@ Produto de entrada gratuito. Entregável: parecer com nota por área + 3 priorid
 ## 4. Conteúdo rico + newsletter (Substack)
 
 - Newsletter: **marcelofreitas.substack.com** — captação em: barra da home, meio de artigo (blog), rodapé, página `/newsletter/`, e gate leve dos materiais ricos (baixa em troca do e-mail → inscreve no Substack).
-- Materiais v1 (produzíveis sem pesquisa nova): Checklist de SEO para loja virtual (PDF) · Planilha de ROAS-alvo pela margem · Checklist do Perfil da Empresa no Google · Calendário comercial do varejo 2026-2027.
+- Materiais v1: ✅ **Checklist de SEO para loja virtual** e ✅ **Checklist do Perfil da Empresa no Google** prontos em `site/materiais/*.pdf` (2 páginas cada, identidade v10, dados com fonte, CTA pro diagnóstico). Publicar: subir o PDF na media library, criar o Material no painel e colar o link.
+- Materiais v1 restantes: Planilha de ROAS-alvo pela margem · Calendário comercial do varejo 2026-2027.
 - Materiais v2: pesquisas próprias, infográficos, vídeos (a definir com Marcelo).
 
 ## 4b. Decisões tomadas (Marcelo, 2026-07-23)

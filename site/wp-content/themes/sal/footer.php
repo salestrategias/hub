@@ -12,7 +12,7 @@ $sal_zap = sal_whatsapp_url();
 	<div class="wrap">
 		<div class="rodape__grid">
 			<div>
-				<?php sal_logo(); ?>
+				<?php sal_logo( 'branco' ); ?>
 				<p class="rodape__assinatura"><?php esc_html_e( 'Marketing na Medida Certa', 'sal' ); ?></p>
 				<p style="color:rgba(248,246,242,.6);max-width:26rem;">
 					<?php esc_html_e( 'Agência de marketing para e-commerce e varejo local.', 'sal' ); ?>

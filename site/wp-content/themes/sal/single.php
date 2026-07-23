@@ -48,6 +48,8 @@ get_header();
 					<a class="btn btn--claro" href="<?php echo esc_url( sal_cta_url() ); ?>"><?php echo esc_html( sal_mod( 'sal_cta_texto' ) ); ?> <span class="seta" aria-hidden="true">→</span></a>
 				</div>
 
+				<?php echo sal_newsletter_form( __( 'Recebeu valor deste artigo? Tem mais toda semana.', 'sal' ) ); // phpcs:ignore WordPress.Security.EscapeOutput -- HTML montado com escaping interno. ?>
+
 				<nav class="artigo__nav" aria-label="<?php esc_attr_e( 'Outros artigos', 'sal' ); ?>">
 					<div class="anterior">
 						<?php

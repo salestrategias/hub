@@ -250,7 +250,7 @@ a:hover .seta, .btn:hover .seta { transform: translateX(4px); }
 }
 .logo:hover { color: var(--ink); }
 .logo .logo__ponto { color: var(--roxo); }
-.logo img { max-height: 2.4rem; width: auto; }
+.logo img { height: 2.6rem; width: auto; aspect-ratio: 16 / 9; object-fit: contain; }
 
 .menu-principal { display: flex; align-items: center; gap: 2rem; }
 .menu-principal ul {
@@ -477,6 +477,34 @@ a:hover .seta, .btn:hover .seta { transform: translateX(4px); }
 .card-post p { color: var(--cinza); font-size: 0.95rem; margin: 0; }
 
 .arquivo-lista { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(1.25rem, 3vw, 2rem); }
+
+/* Portal: trilho de categorias + manchete */
+.trilho-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--linha);
+}
+.manchete {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  background: var(--white);
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  overflow: hidden;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+.manchete__capa { display: block; background: var(--paper-cool); }
+.manchete__capa img { width: 100%; height: 100%; object-fit: cover; }
+.manchete__corpo { padding: clamp(1.5rem, 3.5vw, 2.5rem); display: flex; flex-direction: column; gap: 0.8rem; justify-content: center; }
+.manchete h2 { font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2rem); margin: 0; }
+.manchete h2 a { color: var(--ink); text-decoration: none; }
+.manchete h2 a:hover { color: var(--roxo); }
+.manchete p { color: var(--cinza); margin: 0; }
+.manchete__link { font-family: var(--fonte-titulo); font-weight: 700; text-decoration: none; }
 .arquivo-cabeca { max-width: 46rem; }
 .arquivo-cabeca .descricao { color: var(--cinza); font-size: 1.1rem; }
 
@@ -605,6 +633,8 @@ a:hover .seta, .btn:hover .seta { transform: translateX(4px); }
 .news__nota { font-size: var(--t-mini); color: rgba(248, 246, 242, 0.5); margin: 0.9rem 0 0; }
 .secao-news { margin-top: clamp(2.5rem, 6vw, 4rem); }
 .conteudo .news { margin-block: 2rem; }
+.artigo__rodape .news { margin-bottom: 2rem; }
+.rodape .logo img { height: 3.4rem; }
 
 /* Paginação */
 .paginacao { display: flex; justify-content: center; gap: 0.4rem; padding-top: 3rem; flex-wrap: wrap; }
@@ -762,6 +792,7 @@ a:hover .seta, .btn:hover .seta { transform: translateX(4px); }
   .menu-principal li a { display: block; padding: 0.7rem 0; font-size: 1.1rem; }
   .menu-principal .btn { margin-top: 1rem; width: 100%; }
 
+  .manchete { grid-template-columns: 1fr; }
   .numeros__grid { grid-template-columns: 1fr; }
   .numero + .numero { border-left: 0; border-top: 1px solid var(--linha); }
   .nichos { grid-template-columns: 1fr; }
