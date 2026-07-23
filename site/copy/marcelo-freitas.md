@@ -4,7 +4,7 @@
 
 ---
 
-## H1: Dez anos dentro do varejo, do lado de quem vende
+## H1: Dez anos de marketing, do lado de quem vende
 
 **[Resposta direta, primeiros 50-70 palavras]**
 

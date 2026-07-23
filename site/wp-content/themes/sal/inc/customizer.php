@@ -53,7 +53,7 @@ function sal_padroes(): array {
 		'sal_substack'     => 'https://marcelofreitas.substack.com',
 
 		// SEO da home (usado só sem plugin de SEO ativo).
-		'sal_meta_descricao' => __( 'Agência de marketing para e-commerce e varejo local. Tráfego pago, SEO e retenção com relatório que fecha a conta em reais. Diagnóstico gratuito.', 'sal' ),
+		'sal_meta_descricao' => __( 'Assessoria de marketing para e-commerce e varejo local. Tráfego pago, SEO e retenção com relatório que fecha a conta em reais. Diagnóstico gratuito.', 'sal' ),
 	);
 }
 

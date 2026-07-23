@@ -16,9 +16,9 @@ SEO local é o trabalho de fazer o seu negócio aparecer quando alguém da sua r
 
 ## H2: A vitrine que mais recebe gente é a do Google
 
-Antes de entrar em qualquer loja, o cliente passa pelo Google. Uma pesquisa do Think with Google mostra que 96% dos brasileiros pesquisam empresas no buscador antes de visitar ou entrar em contato, e cerca de 76% de quem faz uma busca local acaba visitando um negócio em até 24 horas. Ou seja: quando alguém digita "farmácia perto de mim" ou "loja de roupa no centro", a disputa pela visita já começou ali.
+Antes de entrar em qualquer loja, o cliente passa pelo Google. É ali que ele confere endereço, horário, fotos e avaliações antes de decidir onde comprar. Quando alguém digita "farmácia perto de mim" ou "loja de roupa no centro", a disputa pela visita já começou ali.
 
-E tem um segundo dado que muda a conversa: a pesquisa Decisão Local 2025, da Harmo com o Reclame AQUI, mostrou que 96% dos consumidores leem as avaliações antes de escolher onde comprar, e 93% já desistiram de uma compra por causa de avaliação negativa. A sua ficha no Google, com nota, fotos e respostas, é hoje uma parte da sua vitrine. A diferença é que ela fica aberta 24 horas.
+E tem um dado que muda a conversa: a pesquisa Decisão Local 2025, da Harmo com o Reclame AQUI [Link → https://harmo.me/blog/pesquisa-decisao-local-avaliacoes-google], mostrou que 96% dos consumidores leem as avaliações antes de escolher onde comprar, e 93% já desistiram de uma compra por causa de avaliação negativa. A sua ficha no Google, com nota, fotos e respostas, é hoje uma parte da sua vitrine, e o cliente passa por ela antes de passar na porta da loja.
 
 ## H2: O que a SAL faz no seu Perfil da Empresa no Google
 
@@ -38,7 +38,7 @@ E tem um segundo dado que muda a conversa: a pesquisa Decisão Local 2025, da Ha
 
 ## H2: Pra quem é esse trabalho
 
-Loja de rua, loja de shopping, restaurante, clínica, farmácia, pet shop, oficina, qualquer negócio que atende gente da sua região. A SAL veio do varejo físico: antes de existir como agência, nosso fundador passou anos gerindo o marketing de shopping centers e trabalhando pra levar fluxo de gente até lojas de verdade. É esse olhar que aplicamos no digital. [Link → /quem-somos/]
+Loja de rua, loja de shopping, restaurante, clínica, farmácia, pet shop, oficina, qualquer negócio que atende gente da sua região. A SAL veio do varejo físico: antes de ela existir, nosso fundador passou anos gerindo o marketing de shopping centers e trabalhando pra levar fluxo de gente até lojas de verdade. É esse olhar que aplicamos no digital. [Link → /quem-somos/]
 
 ## H2: Como funciona (método 4D)
 

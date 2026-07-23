@@ -2,7 +2,7 @@
 
 > Template no WP: "Página de serviço (LP)". Keyword primária: "seo para e-commerce" (title cobre "loja virtual"). FAQs viram [sal_faq] no editor.
 >
-> **Title (58 chars):** SEO para E-commerce: sua loja virtual no topo do Google
+> **Title (58 chars):** SEO para E-commerce: sua loja virtual vendendo pelo Google
 > **Meta description (155 chars):** SEO para e-commerce e loja virtual com método: técnica, páginas de produto, conteúdo e GEO pra sua loja vender sem depender só de anúncio. Diagnóstico grátis.
 > **Excerpt (schema Service):** SEO para e-commerce com método: da auditoria técnica à otimização de produto e categoria, pra sua loja virtual vender pelo Google sem depender só de mídia paga.
 
@@ -18,9 +18,9 @@ SEO para e-commerce é o trabalho de fazer a sua loja virtual aparecer no Google
 
 Quem tem e-commerce conhece essa situação: parou a campanha, parou a venda. Tráfego pago é uma ferramenta excelente, a gente trabalha com ele todos os dias e ele tem página própria aqui no site. O problema é quando ele é o único canal, porque aí qualquer alta no custo do clique aperta a margem, e a loja fica refém do leilão.
 
-A busca orgânica é o segundo maior canal de tráfego do e-commerce brasileiro. Ela responde por cerca de 25% dos acessos, à frente da busca paga, segundo o relatório Setores do E-commerce da Conversion (2025). A mesma pesquisa mostra que o brasileiro confia 77% mais no resultado orgânico do que no anúncio. E estamos falando de um mercado que a ABComm projetou em R$ 224,7 bilhões pra 2025.
+A busca orgânica é o segundo maior canal de tráfego do e-commerce brasileiro. Ela responde por cerca de 25% dos acessos, à frente da busca paga, segundo o relatório Setores do E-commerce da Conversion (2025) [Link → https://www.conversion.com.br/blog/relatorio-ecommerce-mensal/]. A mesma pesquisa mostra que o brasileiro confia 77% mais no resultado orgânico do que no anúncio. E estamos falando de um mercado que a ABComm projetou em R$ 224,7 bilhões pra 2025 [Link → https://dados.abcomm.org/previsao-de-vendas-online].
 
-Ou seja: tem muita gente procurando o que você vende, todos os dias, e a sua loja pode aparecer pra essas pessoas sem pagar por clique. Esse é o trabalho.
+Ou seja: tem muita gente procurando o que você vende, todos os dias, e o nosso trabalho é fazer a sua loja aparecer pra essas pessoas sem pagar por clique.
 
 ## H2: O que a SAL faz no SEO da sua loja
 
@@ -53,7 +53,7 @@ Nuvemshop, Shopify, Tray, WooCommerce, VTEX. Cada plataforma tem seus limites e 
 
 ## H2: Quem assina o trabalho
 
-O SEO da sua loja é conduzido pelo Marcelo Freitas, fundador da SAL. Ele trabalha com marketing digital desde 2014, começou pela área de TI e passou uma década no marketing de varejo antes de abrir a agência. [Link → /marcelo-freitas/]
+O SEO da sua loja é conduzido pelo Marcelo Freitas, fundador da SAL. Ele trabalha com marketing digital desde 2014, começou pela área de TI e passou os últimos cinco anos antes da SAL no marketing de varejo, gerindo shopping centers. [Link → /marcelo-freitas/]
 
 ## FAQ (usar [sal_faq] no editor)
 
@@ -70,7 +70,7 @@ Sim. No marketplace, cada venda paga comissão, sempre. O SEO constrói o canal 
 GEO é a otimização pros motores generativos: ChatGPT, Gemini, AI Overviews do Google. Cada vez mais gente pergunta às IAs o que comprar, e as IAs citam fontes. O trabalho é estruturar o seu conteúdo pra que a sua loja seja uma dessas fontes.
 
 **Vocês também cuidam do tráfego pago?**
-Sim, e o melhor cenário é justamente esse: SEO e mídia paga no mesmo plano. O orgânico vai cobrindo o que a mídia não precisa mais pagar, e a mídia acelera o que o orgânico ainda não alcançou. [Link → /servicos/gestao-de-trafego-pago/]
+Sim, e o melhor cenário é justamente esse: SEO e mídia paga no mesmo plano. Com o tempo, o orgânico assume buscas que hoje você paga pra aparecer, e a verba de mídia fica livre pra acelerar lançamento, sazonalidade e o que ainda não ranqueia. [Link → /servicos/gestao-de-trafego-pago/]
 
 **Quanto custa o SEO para e-commerce da SAL?**
 Depende do tamanho do catálogo e do estágio da loja. Por isso o primeiro passo é gratuito: você pede o Diagnóstico SAL, recebe um parecer com prioridades e uma proposta na medida do que a sua loja precisa, sem pacote genérico.

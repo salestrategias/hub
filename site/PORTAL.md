@@ -12,7 +12,7 @@
 - **Por que "SAL":** o sal na dose errada estraga o prato. Em excesso, salga; em falta, fica insosso. Marketing é igual: o desafio é a medida certa.
 - **Essência S.A.L.:** Simplificar · Atrair · Libertar.
 - **Método (4 passos, já definido no Notion):** Descobrir → Desenhar → Disparar → Decodificar.
-- **Fatos:** Marcelo no marketing desde 2014 · SAL fundada em 2024 · sede em Porto Alegre, atendimento Brasil todo (não liderar copy com POA).
+- **Fatos:** Marcelo no marketing desde 2014 (entrou pela TI; varejo a partir de 2020, ~5 anos em shoppings; a década é DE MARKETING, não de varejo) · SAL concebida em 28/03/2024 numa conversa de bar entre três amigos (texto oficial do Marcelo, 2026-07-23) e fundada por Marcelo em 2024 · sede em Porto Alegre, atendimento Brasil todo (não liderar copy com POA) · sempre "assessoria", nunca "agência".
 
 ## 2. Arquitetura do portal
 
@@ -110,8 +110,10 @@ Mapeamento do plano para o real: a LP "SEO Local" evolui a página `/servicos/as
 - ✅ Marcas da carreira: citar de forma sutil e claramente como relações da trajetória (não clientes da SAL); Bistek Supermercados e Laghetto Hotéis incluídas. "23 lojas" só como menção discreta no texto do Marcelo (case da era Ponto Pronto, com equipe).
 - ✅ Time: não citar time da SAL; a página do Marcelo é a única página de pessoas. Redes na página dele: LinkedIn pessoal (URL pendente), Instagram (confirmar pessoal ou @salestrategias), Substack.
 - ✅ Contatos reais no tema: WhatsApp 5551993380278, @salestrategias, LinkedIn company (padrões do Personalizar).
-- Lado pessoal (1-2 frases) para a seção "Fora do trabalho".
-- URL do LinkedIn pessoal do Marcelo + qual Instagram usar na página dele.
+- ✅ Lado pessoal: cinema/audiovisual/escrita (palavras dele, 2026-07-23), na copy.
+- ✅ LinkedIn pessoal: https://www.linkedin.com/in/mcfreitas · ✅ 6 fotos recebidas (plano de posicionamento na copy do Marcelo; subir na media library no deploy).
+- ✅ Certificações sem anos (decisão do Marcelo).
+- Qual Instagram usar na página do Marcelo (pessoal ou @salestrategias).
 
 ## 5b. Diagnóstico atual (/diagnostico/) — analisado em jul/2026
 

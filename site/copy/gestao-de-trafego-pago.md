@@ -14,7 +14,7 @@
 
 Gestão de tráfego pago é o trabalho de planejar, criar e otimizar campanhas no Google, na Meta e no TikTok pra trazer venda, e não só clique. Na SAL, toda campanha nasce com uma meta de retorno calculada em cima da margem real do seu negócio, considerando comissão, frete e imposto, e é acompanhada semana a semana até a conta fechar.
 
-## H2: O problema não costuma ser a plataforma. É a conta.
+## H2: O problema quase sempre é a conta que ninguém fez
 
 A gente recebe com frequência lojista com campanha no ar dizendo que "tráfego não funciona". Quando abrimos a conta, o padrão se repete: campanha sem estrutura, público amplo demais, verba espalhada e, principalmente, nenhuma meta que considere a margem. Um ROAS de 5 pode ser prejuízo numa loja com margem apertada, e um ROAS de 3 pode ser um ótimo negócio pra outra. Sem fazer essa conta antes, a campanha roda no escuro.
 
@@ -22,7 +22,7 @@ Por isso o nosso trabalho começa antes do anúncio: entendendo seu ticket, sua 
 
 ## H2: O que a SAL faz na sua mídia paga
 
-**Google Ads.** Pesquisa, Shopping e Performance Max, com feed de produto bem configurado, que é onde metade das contas de e-commerce perde dinheiro sem saber.
+**Google Ads.** Pesquisa, Shopping e Performance Max, com feed de produto bem configurado, um ponto onde muita conta de e-commerce perde dinheiro sem perceber.
 
 **Meta Ads (Facebook e Instagram).** Campanhas de catálogo, remarketing pra quem visitou e não comprou, e criativos com a cara da sua marca.
 
@@ -49,7 +49,7 @@ Mídia paga acelera, SEO acumula. Na SAL os dois moram no mesmo plano: o orgâni
 
 ## H2: Quem cuida das campanhas
 
-As campanhas são conduzidas pelo Marcelo Freitas, fundador da SAL, que estruturou as primeiras operações de mídia paga em 2014, numa instituição de ensino, e desde então nunca parou: ensino superior, shopping centers e, hoje, varejo e e-commerce. [Link → /marcelo-freitas/]
+As campanhas são conduzidas pelo Marcelo Freitas, fundador da SAL, que trabalha com marketing desde 2014, estruturou suas primeiras operações completas de mídia paga numa instituição de ensino e desde então nunca parou: ensino superior, shopping centers e, hoje, varejo e e-commerce. [Link → /marcelo-freitas/]
 
 ## FAQ (usar [sal_faq] no editor)
 

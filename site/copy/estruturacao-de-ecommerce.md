@@ -18,7 +18,7 @@ Estruturação de e-commerce é o trabalho de montar ou reorganizar uma loja vir
 
 Abrir uma loja virtual ficou fácil. Fazer ela vender é outra história. A diferença entre as duas coisas costuma estar em decisões que ninguém conta pra quem está começando: qual plataforma aguenta o seu plano de crescimento, como cadastrar produto pra ser encontrado, quanto cobrar de frete sem destruir a conversão nem a margem, o que precisa estar na página de produto pra pessoa confiar.
 
-A gente já viu muita loja bonita que não vendia, e loja simples que vendia muito. O que separa uma da outra é estrutura, e estrutura se planeja.
+A gente já viu muita loja bonita que não vendia, e loja simples que vendia muito. O que separa uma da outra é a estrutura por trás, e isso dá pra planejar antes de a loja ir pro ar.
 
 ## H2: O que a SAL estrutura na sua loja
 
