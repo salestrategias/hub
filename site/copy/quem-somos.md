@@ -30,7 +30,7 @@ A SAL nasceu da experiência de quem passou dez anos do lado de dentro do varejo
 
 Antes de fundar a SAL, Marcelo Freitas foi gerente de marketing de uma administradora de shopping centers. Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial de mais de 40 marcas, entre elas Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top e Grand Cru. Participou da reestruturação de dois clássicos do varejo de Porto Alegre, o Rua da Praia Shopping e o Lindóia Shopping, e da gestão da Galeria Chaves Barcellos, o centro comercial mais antigo da cidade, onde trabalhou no lançamento da primeira Starbucks de Porto Alegre.
 
-[A CONFIRMAR com Marcelo: citar "23 novas lojas em 12 meses no Rua da Praia"? É número forte, mas precisa da sua autorização para publicar.]
+E aqui está a parte que a gente mais gosta de contar: o Rua da Praia Shopping, o Lindóia Shopping e a Galeria Chaves Barcellos seguem com a SAL até hoje, como clientes de consultoria. Quem conheceu o trabalho do lado de dentro escolheu continuar.
 
 Desse período ficou uma convicção: o que faz uma loja vender não é truque de internet. É posicionamento certo, fluxo de gente certa e conta que fecha no fim do mês. Vale para uma loja de shopping, para uma loja de rua e para uma loja virtual.
 

@@ -102,12 +102,22 @@ Mapeamento do plano para o real: a LP "SEO Local" evolui a página `/servicos/as
 
 - ✅ Trajetória 2014-2024: respondida (áudio 2026-07-23) + texto do site atual. Copy rascunhada em `site/copy/`.
 - ✅ O clique de 2024: "criar um negócio meu que fizesse marketing da maneira correta, sem enganação, sem guru".
-- Certificações reais (não publicar nenhuma sem confirmação).
-- Autorizações pontuais: "23 novas lojas em 12 meses" (Rua da Praia)? Citar Pernambucanas, Bistek e Laghetto Hotéis (não estão no site atual)?
+- ✅ Certificações: Marketing Exponencial (StartSe) + especialização Head de Marketing (The CMOs).
+- ✅ Números: NÃO publicar quantidade de clientes nem resultados da SAL (assessoria nova). Prova social = empreendimentos da carreira que seguem clientes hoje: Rua da Praia Shopping, Lindóia Shopping e Galeria Chaves Barcellos (consultoria). Tavi Papelaria não é mais cliente: não citar. Números de era-carreira (ex.: 23 lojas) fora da copy.
+- ✅ Materiais ricos: nada pronto; desenvolver para download (começar pelos 4 propostos no item 4).
+- ✅ Fotos: Marcelo tem fotos da trajetória para a página dele (aguardar envio dos arquivos).
+- Lado pessoal (1-2 frases) para a seção "Fora do trabalho".
 - Formação do time hoje (só Marcelo? parceiros?) para o FAQ do Quem Somos.
-- Funcionamento atual do formulário em /diagnostico/ (o que preservar).
-- Materiais ricos: o que já existe pronto vs. produzir os propostos.
-- Foto profissional + lado pessoal (humanizar página do Marcelo).
+
+## 5b. Diagnóstico atual (/diagnostico/) — analisado em jul/2026
+
+Quiz interativo: headline "Onde o seu marketing está travando?", 5 perguntas com progresso (00/05) → "Sua leitura" (resumo na hora) → formulário (Nome*, WhatsApp*, E-mail*, Site/Instagram opcional, Tipo de negócio: E-commerce / Varejo físico / Negócio local / B2B / Mídia / Outro) → botão "Receber diagnóstico e agendar conversa". Promessas: resposta em até 1 dia útil, gratuito, sem compromisso, conversa de 30 min. CTA alternativo de WhatsApp.
+
+**Preservar na evolução:** a mecânica de quiz (5 perguntas + leitura imediata), as promessas (1 dia útil, 30 min) e o dropdown de tipo de negócio. **Evoluir:** ramificar a leitura por nicho (e-commerce vs. local) usando os blocos do Diagnóstico SAL (item 3), e conectar o resultado às LPs de serviço correspondentes. O código-fonte da página vive em outra sessão do Claude; recuperar de lá quando formos reconstruí-la no tema.
+
+## 5c. Assets reais disponíveis no repo (`preview/`)
+
+`sal-logo.svg`, `sal-logo-color.svg`, `logo-sal-white.svg`, `logo-sal-horizontal-purple.png`, `logo-marcelo.png`, `logo-estrategias.png`, `brandkit-sal.png` — usar o logo real no tema (custom logo) em vez do wordmark de fallback.
 
 ## 6. Sequência de implementação
 

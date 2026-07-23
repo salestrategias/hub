@@ -26,12 +26,14 @@ Coordenei o marketing desde o lançamento. Na expansão comercial, trouxemos mai
 
 Pela mesma administradora, participei da reestruturação de dois empreendimentos históricos do varejo gaúcho:
 
-- **Rua da Praia Shopping**, o único shopping do centro de Porto Alegre. Trabalhei na captação de novas lojas para renovar o mix comercial. [A CONFIRMAR: publicar "cerca de 23 novas lojas em 12 meses"?]
+- **Rua da Praia Shopping**, o único shopping do centro de Porto Alegre. Trabalhei na captação de novas lojas para renovar o mix comercial.
 - **Lindóia Shopping**, shopping de bairro da zona norte. Estruturei o marketing com pesquisa de mercado e produção de eventos para reaproximar o empreendimento da comunidade.
 
 E participei da gestão da **Galeria Chaves Barcellos**, no centro histórico, o centro comercial mais antigo de Porto Alegre, com mais de 90 anos. Trabalhamos a restauração da marca, a expansão comercial e a produção de eventos. Foi lá que participei do lançamento da primeira Starbucks de Porto Alegre, a loja ícone da marca no Rio Grande do Sul.
 
-Nesse período também atendi marcas como Unimed, Cacau Show, Natura, Beagle e McDonald's. [A CONFIRMAR: citar também Pernambucanas, Bistek e Laghetto Hotéis? Você mencionou; o site atual não lista.]
+Nesse período também atendi marcas como Unimed, Cacau Show, Natura, Beagle e McDonald's.
+
+Esses três empreendimentos de Porto Alegre não ficaram no passado: Rua da Praia Shopping, Lindóia Shopping e Galeria Chaves Barcellos são clientes da SAL até hoje, em consultoria. É o tipo de confiança que não se compra com anúncio.
 
 ## H2: Por que fundei a SAL
 
