@@ -67,7 +67,7 @@ Sou apaixonado por cinema e audiovisual. Sempre gostei de escrever, e o cinema, 
 ## H2: Onde me encontrar
 
 - LinkedIn: https://www.linkedin.com/in/mcfreitas
-- Instagram: [PENDENTE: perfil pessoal ou @salestrategias?]
+- Instagram: https://www.instagram.com/marcelo.c.freitas/
 - Newsletter no Substack: https://marcelofreitas.substack.com
 
 ## [CTA final]

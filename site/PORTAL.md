@@ -113,7 +113,9 @@ Mapeamento do plano para o real: a LP "SEO Local" evolui a página `/servicos/as
 - ✅ Lado pessoal: cinema/audiovisual/escrita (palavras dele, 2026-07-23), na copy.
 - ✅ LinkedIn pessoal: https://www.linkedin.com/in/mcfreitas · ✅ 6 fotos recebidas (plano de posicionamento na copy do Marcelo; subir na media library no deploy).
 - ✅ Certificações sem anos (decisão do Marcelo).
-- Qual Instagram usar na página do Marcelo (pessoal ou @salestrategias).
+- ✅ Instagram pessoal na página do Marcelo: @marcelo.c.freitas (o @salestrategias segue no rodapé do site).
+
+**Nenhuma pendência de conteúdo em aberto.** Próxima fase: montar as páginas no WordPress (homologação) com as copies aprovadas.
 
 ## 5b. Diagnóstico atual (/diagnostico/) — analisado em jul/2026
 
