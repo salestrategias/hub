@@ -1,6 +1,7 @@
 # Copy · /quem-somos/ — A história da SAL
 
 > Title sugerido: "Quem Somos · SAL Estratégias de Marketing" (52 chars). Meta description: "Conheça a SAL: assessoria de marketing para varejo e e-commerce fundada por Marcelo Freitas em 2024. Método próprio e um nome que explica tudo." (143 chars).
+> Base: texto oficial do Marcelo (2026-07-23) + guia de redação (sem travessão, sem "PMEs").
 
 ---
 
@@ -8,39 +9,49 @@
 
 **[Resposta direta, primeiros 50-70 palavras]**
 
-A SAL é uma assessoria de marketing para varejo e e-commerce, fundada em 2024 por Marcelo Freitas, depois de dez anos trabalhando com marketing dentro de uma instituição de ensino e de shopping centers. O nome vem do tempero mesmo: sal demais estraga o prato, sal de menos deixa a comida sem gosto. Marketing funciona do mesmo jeito, e foi dessa ideia que a SAL nasceu.
+A SAL Estratégias de Marketing é uma assessoria de marketing digital fundada por Marcelo Freitas, especialista em SEO, Performance e estratégias de crescimento. Trabalhamos com varejo e e-commerce: negócios locais e digitais que precisam de algo diferente das agências tradicionais, com atenção personalizada, estratégia sob medida e resultado que dá pra medir. O nome vem do tempero, e a história dele explica bem quem a gente é.
 
-## H2: Por que "SAL"
+## H2: A história do nome
 
-O sal é usado pra temperar comida há milhares de anos. Não existe cozinha sem ele. E qualquer pessoa que já cozinhou sabe o que acontece quando a mão pesa: fica salgado, ninguém come. Quando falta, fica insosso. O segredo nunca esteve no ingrediente, está na dose.
+A SAL foi concebida em 28 de março de 2024, durante uma conversa de bar entre três amigos, todos com anos de carreira em marketing e publicidade. Ali, procurando um nome pro negócio que estava nascendo, a metáfora apareceu pronta na mesa.
 
-Com marketing é a mesma coisa. A gente já viu loja queimando verba em canal que não fazia sentido pra ela, e já viu loja muito boa que ninguém conhecia porque não investia nada. Promessa exagerada espanta o cliente. Comunicação tímida não traz ninguém. O trabalho de verdade está em achar a medida: qual canal, quanta verba e qual mensagem fazem sentido pro seu negócio, no momento em que ele está agora.
+O sal é um elemento essencial. Está presente em todo lugar, e todo mundo percebe quando falta. Usado na medida certa, realça sabores. Em excesso, estraga. De menos, passa despercebido.
 
-Daí o slogan: **Marketing na Medida Certa.**
+Marketing funciona exatamente assim. Verba demais no canal errado queima caixa; investimento de menos, ninguém fica sabendo que a sua loja existe. Promessa exagerada espanta o cliente; comunicação tímida não traz ninguém. O trabalho de verdade está na dose: qual canal, quanta verba e qual mensagem fazem sentido pro seu negócio, no momento em que ele está.
 
-E o nome ainda guarda um segundo sentido, que virou a nossa forma de trabalhar:
+Foi com esse espírito de temperar estratégias na medida certa que a SAL começou. E daí veio o slogan: **Marketing na Medida Certa.**
 
-- **S**implificar. Você entende o que está sendo feito com o seu dinheiro e por quê. Sem caixa-preta, sem relatório indecifrável.
-- **A**trair. Estratégia pensada pra conectar a sua marca com as pessoas certas, sejam elas da sua rua ou do seu nicho.
-- **L**ibertar. Você toca o negócio. Do marketing, a gente cuida.
+## H2: Nossos pilares: Simplificar, Atrair, Libertar
+
+O nome também carrega a nossa forma de trabalhar, em três palavras:
+
+**01 · Simplificar** é tornar o marketing compreensível, executável e mensurável, pra que cada ação tenha propósito e cada decisão tenha dados.
+
+**02 · Atrair** é combinar estratégia, conteúdo e experiência pra gerar interesse qualificado, confiança e desejo de avançar.
+
+**03 · Libertar** é entregar autonomia, clareza e resultados consistentes, pra que o negócio cresça com previsibilidade e escolha.
+
+## H2: Não somos mais uma agência
+
+A SAL nasceu da percepção de que quem tem um negócio, uma loja, um e-commerce, precisa de algo diferente do que as agências tradicionais oferecem. Não somos uma agência que atende dezenas de clientes com processos padronizados. Somos uma assessoria estratégica que trabalha lado a lado com cada cliente, como um parceiro de negócio de verdade.
+
+Na prática, isso significa algumas escolhas. Atendemos varejo e e-commerce, e só: não fazemos marketing pra indústria, pra software, pra infoproduto, porque atender um mercado só nos deixa muito melhores nele. E toda decisão aqui sai de pesquisa e de número real: quando citamos um dado, ele tem fonte; quando definimos uma meta de mídia, ela é calculada em cima da sua margem, não da média do mercado.
 
 ## H2: De onde a gente veio
 
-A SAL nasceu de dentro do varejo. Antes de fundar a agência, Marcelo Freitas passou anos como gerente de marketing de uma administradora de shopping centers. Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, trabalhando na expansão comercial que levou mais de 40 marcas pro empreendimento, entre elas Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top e Grand Cru. Depois veio a reestruturação de dois clássicos do varejo de Porto Alegre, o Rua da Praia Shopping e o Lindóia Shopping, e a gestão da Galeria Chaves Barcellos, o centro comercial mais antigo da cidade, onde participou do lançamento da primeira Starbucks de Porto Alegre.
+Antes de fundar a SAL, Marcelo Freitas passou uma década dentro do varejo. Foi gerente de marketing de uma administradora de shopping centers, coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial de mais de 40 marcas (Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top e Grand Cru, entre outras), e participou da reestruturação de dois clássicos de Porto Alegre, o Rua da Praia Shopping e o Lindóia Shopping, além da gestão da Galeria Chaves Barcellos, onde trabalhou no lançamento da primeira Starbucks da cidade.
 
-Esses três empreendimentos continuam com a gente até hoje: Rua da Praia, Lindóia e Galeria Chaves Barcellos são clientes de consultoria da SAL. Pra gente isso diz mais do que qualquer número. Quem viu o trabalho de perto quis continuar.
-
-Dessa década toda ficou um aprendizado que guia a SAL até hoje: loja vende quando tem posicionamento claro, quando a pessoa certa passa na porta (ou no site) e quando a conta fecha no fim do mês. O resto é ferramenta.
+Esses três empreendimentos continuam com a gente até hoje, como clientes de consultoria da SAL. Pra gente isso diz mais do que qualquer número: quem viu o trabalho de perto quis continuar.
 
 → [Link] Conheça a trajetória completa do Marcelo
 
-## H2: O que a gente acredita
+## H2: Nosso propósito
 
-A SAL nasceu como resposta a um mercado que cansa qualquer lojista: de um lado a agência genérica, que vende o mesmo pacote pra farmácia, pra advogado e pra loja de roupa; do outro, o guru de internet, com print de faturamento e fórmula mágica que serve pra todo mundo e não funciona pra ninguém. A gente não queria ser nenhum dos dois.
+Fazer marketing na medida certa. Esse é o nosso princípio, o ponto de partida e o destino de tudo que fazemos.
 
-Por isso algumas escolhas foram feitas logo no início. A SAL atende varejo e e-commerce, e só. Não fazemos marketing pra indústria, pra software, pra infoproduto. Escolher um mercado deixa a gente muito melhor nele.
+Transformamos negócios por meio de estratégias sólidas, criativas e inteligentes. Fazemos marketing com intenção, que gera resultado e respeita a identidade de cada marca. Ajudamos negócios locais e digitais a crescerem com clareza, estratégia e significado.
 
-E toda decisão aqui sai de pesquisa e de número real. Quando citamos um dado, ele tem fonte. Quando definimos uma meta de mídia, ela é calculada em cima da sua margem, não da média do mercado. Parece básico, mas no nosso mercado isso já é diferencial.
+Conectamos marcas com pessoas, entregando resultados reais, sem fórmulas prontas e sem promessas vazias. Marketing, pra nós, é equilíbrio: pensar, ajustar, criar e agir com a medida certa pra cada negócio.
 
 ## H2: Como a gente trabalha (método 4D)
 

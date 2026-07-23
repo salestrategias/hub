@@ -35,7 +35,13 @@ Ao longo desses anos me relacionei também com marcas como Unimed, Cacau Show, N
 
 Três desses empreendimentos não ficaram no passado: o Rua da Praia Shopping, o Lindóia Shopping e a Galeria Chaves Barcellos são clientes da SAL até hoje, em consultoria. Pra mim, esse é o melhor cartão de visitas que eu poderia apresentar.
 
-[FOTOS: intercalar nesta seção as fotos da trajetória que o Marcelo vai enviar, com legenda e alt text descritivo (ex.: lançamento da Starbucks na Chaves Barcellos, Vita Boulevard, eventos).]
+[FOTOS RECEBIDAS (2026-07-23) — subir na media library e posicionar assim:]
+- **Marcelo falando ao microfone em evento** → hero da página (primeira opção) ou seção "Por que fundei a SAL". Alt: "Marcelo Freitas, fundador da SAL, falando ao microfone em evento".
+- **Marcelo na 50ª edição do Festival de Cinema de Gramado** (credencial no pescoço, ao lado do troféu Kikito) → seção "Fora do trabalho": conecta a paixão por cinema com a parceria do Festival na trajetória. Alt: "Marcelo Freitas na 50ª edição do Festival de Cinema de Gramado, ao lado do troféu Kikito". Legenda: "Na 50ª edição do Festival de Cinema de Gramado".
+- **Retrato do Marcelo em evento** (blazer, taça) → hero da página, no topo. Alt: "Marcelo Freitas, fundador da SAL Estratégias de Marketing, em evento".
+- **Fachada do Vita Boulevard Gramado** → seção "A escola do varejo: Gramado". Alt: "Fachada do Vita Boulevard Gramado, empreendimento onde Marcelo Freitas coordenou o marketing desde o lançamento". Legenda: "O Vita Boulevard Gramado, coordenado desde o lançamento".
+- **Personagens e banda no Natal Luz (letreiro I Love Gramado)** → seção Gramado, junto do parágrafo das ações. Alt: "Ação de Natal Luz com personagens no Vita Boulevard, em Gramado". Legenda: "Ações com o Natal Luz e programação na cidade".
+- **Inauguração da Starbucks na Galeria Chaves Barcellos** (placa da Galeria visível) → seção "De volta a Porto Alegre". Alt: "Equipe corta a fita na inauguração da primeira Starbucks de Porto Alegre, na Galeria Chaves Barcellos". Legenda: "A inauguração da primeira Starbucks de Porto Alegre, na Galeria Chaves Barcellos".
 
 ## H2: Por que fundei a SAL
 
@@ -54,15 +60,13 @@ Em 2024, fundei a SAL. O nome vem do elemento mais simples que existe na cozinha
 - Certificação em Marketing Exponencial pela StartSe
 - Especialização Head de Marketing pela The CMOs
 
-[A CONFIRMAR: anos das certificações, se quiser exibir.]
-
 ## H2: Fora do trabalho
 
-[PENDENTE: lado pessoal do Marcelo, 1-2 frases dele.]
+Sou apaixonado por cinema e audiovisual. Sempre gostei de escrever, e o cinema, as técnicas de roteiro e a cinematografia me ajudam muito no meu processo criativo. E me ajudam também a entender melhor o ser humano, o que é fundamental pra qualquer profissional de marketing.
 
 ## H2: Onde me encontrar
 
-- LinkedIn: [PENDENTE: URL do perfil pessoal]
+- LinkedIn: https://www.linkedin.com/in/mcfreitas
 - Instagram: [PENDENTE: perfil pessoal ou @salestrategias?]
 - Newsletter no Substack: https://marcelofreitas.substack.com
 
