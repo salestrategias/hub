@@ -71,6 +71,33 @@ function sal_card_post(): void {
 }
 
 /**
+ * Breadcrumbs simples com JSON-LD BreadcrumbList.
+ * Uso: sal_breadcrumbs( array( 'Serviços' => home_url('/servicos/') ) );
+ * O último item é sempre a página atual (sem link).
+ */
+function sal_breadcrumbs( array $meio = array() ): void {
+	$trilha = array( __( 'Início', 'sal' ) => home_url( '/' ) ) + $meio;
+	$atual  = get_the_title();
+
+	echo '<nav class="trilha" aria-label="' . esc_attr__( 'Você está em', 'sal' ) . '"><ol>';
+	$schema = array();
+	$pos    = 1;
+	foreach ( $trilha as $rotulo => $url ) {
+		echo '<li><a href="' . esc_url( $url ) . '">' . esc_html( $rotulo ) . '</a></li>';
+		$schema[] = array( '@type' => 'ListItem', 'position' => $pos++, 'name' => $rotulo, 'item' => $url );
+	}
+	echo '<li aria-current="page">' . esc_html( $atual ) . '</li>';
+	$schema[] = array( '@type' => 'ListItem', 'position' => $pos, 'name' => $atual );
+	echo '</ol></nav>';
+
+	echo '<script type="application/ld+json">' . wp_json_encode( array(
+		'@context'        => 'https://schema.org',
+		'@type'           => 'BreadcrumbList',
+		'itemListElement' => $schema,
+	), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>' . "\n";
+}
+
+/**
  * Menu padrão enquanto nenhum menu é atribuído no painel:
  * âncoras das seções da home + blog.
  */

@@ -20,7 +20,7 @@ function sal_padroes(): array {
 		// Hero.
 		'sal_hero_kicker'  => __( 'Para e-commerce e varejo local', 'sal' ),
 		'sal_hero_titulo'  => __( 'Marketing que aparece nas vendas, não só no relatório.', 'sal' ),
-		'sal_hero_sub'     => __( 'A SAL planeja e executa o marketing da sua loja — física ou virtual — e mostra todo mês o que cada real investido trouxe de volta.', 'sal' ),
+		'sal_hero_sub'     => __( 'A SAL planeja e executa o marketing da sua loja, física ou virtual, e mostra todo mês o que cada real investido trouxe de volta.', 'sal' ),
 		'sal_hero_nota'    => __( 'Diagnóstico gratuito, sem compromisso. Resposta em até 1 dia útil.', 'sal' ),
 		'sal_hero_aside_1' => __( 'Sem pacote de prateleira: o plano sai do diagnóstico do seu negócio, do seu ticket e da sua margem.', 'sal' ),
 		'sal_hero_aside_2' => __( 'Você acompanha tudo em relatórios que fecham a conta: investimento, retorno e o que vem no próximo mês.', 'sal' ),
@@ -33,7 +33,7 @@ function sal_padroes(): array {
 		'sal_num1_valor'   => '10+',
 		'sal_num1_rotulo'  => __( 'anos de estrada em marketing digital', 'sal' ),
 		'sal_num2_valor'   => '2',
-		'sal_num2_rotulo'  => __( 'especialidades: e-commerce e varejo local — e nada além disso', 'sal' ),
+		'sal_num2_rotulo'  => __( 'especialidades: e-commerce e varejo local, e nada além disso', 'sal' ),
 		'sal_num3_valor'   => '1',
 		'sal_num3_rotulo'  => __( 'relatório por mês que fecha a conta em reais, sem métrica de vaidade', 'sal' ),
 
@@ -43,13 +43,14 @@ function sal_padroes(): array {
 
 		// CTA final.
 		'sal_final_titulo' => __( 'Quer saber onde sua loja está deixando dinheiro na mesa?', 'sal' ),
-		'sal_final_texto'  => __( 'Peça o diagnóstico gratuito: a gente analisa seu funil, seus canais e seus números e devolve um plano claro — mesmo que você não feche com a SAL.', 'sal' ),
+		'sal_final_texto'  => __( 'Peça o diagnóstico gratuito: a gente analisa seu funil, seus canais e seus números e devolve um plano claro, mesmo que você não feche com a SAL.', 'sal' ),
 
 		// Contato e redes.
 		'sal_whatsapp'     => '',
 		'sal_email'        => 'contato@salestrategias.com.br',
 		'sal_instagram'    => '',
 		'sal_linkedin'     => '',
+		'sal_substack'     => 'https://marcelofreitas.substack.com',
 
 		// SEO da home (usado só sem plugin de SEO ativo).
 		'sal_meta_descricao' => __( 'Agência de marketing para e-commerce e varejo local. Tráfego pago, SEO e retenção com relatório que fecha a conta em reais. Diagnóstico gratuito.', 'sal' ),
@@ -113,6 +114,7 @@ add_action( 'customize_register', function ( WP_Customize_Manager $wp_customize 
 		'sal_email'          => array( 'sal_sec_contato', __( 'E-mail de contato', 'sal' ), 'email' ),
 		'sal_instagram'      => array( 'sal_sec_contato', __( 'Instagram (URL completa)', 'sal' ), 'url' ),
 		'sal_linkedin'       => array( 'sal_sec_contato', __( 'LinkedIn (URL completa)', 'sal' ), 'url' ),
+		'sal_substack'       => array( 'sal_sec_contato', __( 'Newsletter Substack (URL da publicação)', 'sal' ), 'url' ),
 
 		'sal_meta_descricao' => array( 'sal_sec_seo', __( 'Meta description da home (até ~155 caracteres)', 'sal' ), 'textarea' ),
 	);

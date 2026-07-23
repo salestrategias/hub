@@ -43,6 +43,15 @@ Em 2024, fundei a SAL. O nome vem do elemento mais simples da cozinha: em excess
 
 → [Link] Conheça a SAL e o método 4D
 
+## H2: Formação e certificações
+
+- Análise e Desenvolvimento de Sistemas (base técnica em TI e criação de sites)
+- Produção Audiovisual e Cinema
+- Certificação em Marketing Exponencial pela StartSe
+- Especialização Head de Marketing pela The CMOs
+
+[A CONFIRMAR: nomes exatos dos cursos/instituições de ADS e Audiovisual, e anos das certificações, se quiser exibir.]
+
 ## H2: Fora do trabalho
 
 [PENDENTE: lado pessoal do Marcelo. Cinema? Fotografia? Família? Uma ou duas frases humanizam a página.]

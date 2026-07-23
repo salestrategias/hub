@@ -33,7 +33,7 @@ get_header();
 			<?php sal_paginacao(); ?>
 		<?php else : ?>
 			<div class="pagina-vazia">
-				<p><?php esc_html_e( 'Não achamos nada com esse termo. Tente outra palavra — ou fale direto com a gente.', 'sal' ); ?></p>
+				<p><?php esc_html_e( 'Não achamos nada com esse termo. Tente outra palavra, ou fale direto com a gente.', 'sal' ); ?></p>
 			</div>
 		<?php endif; ?>
 	</div>

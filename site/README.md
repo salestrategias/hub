@@ -42,6 +42,15 @@ site/wp-content/themes/sal/
 5. **Aparência → Menus**: crie o menu principal (locais: *Menu principal* e *Menu do rodapé*). Sem menu criado, o tema mostra âncoras das seções da home.
 6. Página `/diagnostico/`: crie a página e, se quiser sem menu (campanha), selecione o template **Página de conversão (sem menu)**.
 
+## Componentes do portal
+
+- **Materiais ricos:** menu *Materiais* no painel (CPT). Cada material tem título, descrição, capa e o link do arquivo (meta box lateral). Arquivo em `/materiais/` com grade + newsletter. Ao ativar o tema, as URLs são registradas automaticamente.
+- **Shortcodes** (usar em qualquer página/post):
+  - `[sal_faq pergunta="…"]resposta[/sal_faq]` · accordion estilizado + schema FAQPage automático no rodapé da página
+  - `[sal_cta titulo="…" texto="…" botao="…" url="…"]` · bloco de CTA no meio do conteúdo (tudo opcional; padrão aponta pro diagnóstico)
+  - `[sal_newsletter titulo="…" texto="…"]` · formulário de assinatura do Substack (URL configurável no Personalizar → Contato e redes)
+- **Template "Página de serviço (LP)":** breadcrumbs com schema BreadcrumbList + schema Service + CTA final automático. O conteúdo extenso da LP vive no editor.
+
 ## Recomendações fora do tema (wp-config.php / servidor)
 
 ```php

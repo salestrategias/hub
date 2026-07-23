@@ -53,7 +53,7 @@ get_header();
 			<div class="secao__cabeca">
 				<p class="kicker"><?php esc_html_e( 'Quem atendemos', 'sal' ); ?></p>
 				<h2><?php esc_html_e( 'Duas especialidades. Nenhuma distração.', 'sal' ); ?></h2>
-				<p><?php esc_html_e( 'A SAL não atende "qualquer empresa". Trabalhamos com quem vende no varejo — na rua ou na internet — porque é onde sabemos fazer o investimento voltar.', 'sal' ); ?></p>
+				<p><?php esc_html_e( 'A SAL não atende "qualquer empresa". Trabalhamos com quem vende no varejo, na rua ou na internet, porque é onde sabemos fazer o investimento voltar.', 'sal' ); ?></p>
 			</div>
 
 			<div class="nichos">
@@ -78,7 +78,7 @@ get_header();
 						<li><?php esc_html_e( 'Google Shopping, Performance Max e Meta com feed de catálogo bem-feito', 'sal' ); ?></li>
 						<li><?php esc_html_e( 'SEO de produto e categoria para vender sem depender só de mídia paga', 'sal' ); ?></li>
 						<li><?php esc_html_e( 'E-mail, WhatsApp e recompra: cliente que volta custa menos que cliente novo', 'sal' ); ?></li>
-						<li><?php esc_html_e( 'Metas de ROAS calculadas com comissão, frete e imposto — não chute', 'sal' ); ?></li>
+						<li><?php esc_html_e( 'Metas de ROAS calculadas com comissão, frete e imposto, sem chute', 'sal' ); ?></li>
 					</ul>
 					<p class="nicho__rodape"><a class="btn btn--contorno btn--mini" href="<?php echo esc_url( sal_cta_url() ); ?>"><?php esc_html_e( 'Diagnóstico para meu e-commerce', 'sal' ); ?></a></p>
 				</article>
@@ -99,9 +99,9 @@ get_header();
 				<?php
 				$sal_servicos = array(
 					array( __( 'Tráfego pago', 'sal' ), __( 'Google, Meta e TikTok Ads com meta de retorno definida antes de investir o primeiro real.', 'sal' ) ),
-					array( __( 'SEO e conteúdo', 'sal' ), __( 'Aparecer quando o cliente procura — no Google, no mapa e nas respostas de IA.', 'sal' ) ),
+					array( __( 'SEO e conteúdo', 'sal' ), __( 'Aparecer quando o cliente procura: no Google, no mapa e nas respostas de IA.', 'sal' ) ),
 					array( __( 'CRM e retenção', 'sal' ), __( 'E-mail, WhatsApp e fluxos de recompra para aumentar o valor de cada cliente.', 'sal' ) ),
-					array( __( 'Social e criativos', 'sal' ), __( 'Conteúdo e anúncios com cara de marca, produzidos para converter — não para encher grade.', 'sal' ) ),
+					array( __( 'Social e criativos', 'sal' ), __( 'Conteúdo e anúncios com cara de marca, produzidos para converter, não para encher grade.', 'sal' ) ),
 					array( __( 'Dados e margem', 'sal' ), __( 'GA4, acompanhamento de conversão e relatório mensal que fecha a conta em reais.', 'sal' ) ),
 					array( __( 'Marketplaces', 'sal' ), __( 'Mercado Livre, Shopee e Instagram Shopping como canais com estratégia própria, não como apêndice.', 'sal' ) ),
 				);
@@ -128,7 +128,7 @@ get_header();
 			<div class="metodo">
 				<div class="passo revela">
 					<h3><?php esc_html_e( 'Diagnóstico', 'sal' ); ?></h3>
-					<p><?php esc_html_e( 'Analisamos seus canais, seu funil e seus números de graça. Você recebe um parecer honesto — inclusive se a conclusão for "ainda não é hora de investir em mídia".', 'sal' ); ?></p>
+					<p><?php esc_html_e( 'Analisamos seus canais, seu funil e seus números de graça. Você recebe um parecer honesto, inclusive se a conclusão for "ainda não é hora de investir em mídia".', 'sal' ); ?></p>
 				</div>
 				<div class="passo revela">
 					<h3><?php esc_html_e( 'Plano na medida', 'sal' ); ?></h3>

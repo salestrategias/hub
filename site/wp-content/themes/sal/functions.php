@@ -27,3 +27,7 @@ require get_template_directory() . '/inc/security.php';
 require get_template_directory() . '/inc/seo.php';
 require get_template_directory() . '/inc/customizer.php';
 require get_template_directory() . '/inc/template-tags.php';
+require get_template_directory() . '/inc/conteudo.php';
+
+// Regras de URL do CPT de materiais passam a valer ao ativar o tema.
+add_action( 'after_switch_theme', 'flush_rewrite_rules' );
