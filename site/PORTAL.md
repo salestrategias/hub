@@ -92,13 +92,21 @@ Produto de entrada gratuito. Entregável: parecer com nota por área + 3 priorid
 - **LPs de serviço:** as 4 confirmadas — SEO para E-commerce, SEO Local/Perfil da Empresa no Google, Gestão de Tráfego Pago, Estruturação de E-commerce.
 - **Keywords e dados:** dossiê completo em `site/pesquisa-seo.md` (keywords por intenção, FAQs reais, padrões de concorrentes, dados com fonte).
 
+## 4c. URLs já existentes no site atual (preservar equity, não quebrar)
+
+Menu real de salestrategias.com.br (verificado em jul/2026): `/servicos/agencia-de-seo/` · `/servicos/gestao-de-trafego-pago/` · `/servicos/agencia-de-producao-de-conteudo/` · `/servicos/criacao-de-sites/` · `/servicos/consultoria/` · `/servicos/assessoria-de-google-meu-negocio/` · `/diagnostico/` · `/quem-somos/` · `/blog/`.
+
+Mapeamento do plano para o real: a LP "SEO Local" evolui a página `/servicos/assessoria-de-google-meu-negocio/` (mantendo URL ou com 301 planejado); "SEO para E-commerce" é página NOVA (`/servicos/seo-para-ecommerce/`) irmã da `/servicos/agencia-de-seo/`; "Estruturação de E-commerce" pode evoluir `/servicos/criacao-de-sites/` + `/servicos/consultoria/` (decidir com Marcelo se funde ou cria nova). `/marcelo-freitas/` é nova.
+
 ## 5. Pendências de verdade (aguardando Marcelo)
 
-- Trajetória 2014-2024: cargos, empresas, papel no FIT e no Festival de Cinema de Gramado, formação.
-- O momento/clique da fundação da SAL em 2024.
+- ✅ Trajetória 2014-2024: respondida (áudio 2026-07-23) + texto do site atual. Copy rascunhada em `site/copy/`.
+- ✅ O clique de 2024: "criar um negócio meu que fizesse marketing da maneira correta, sem enganação, sem guru".
 - Certificações reais (não publicar nenhuma sem confirmação).
-- Números verdadeiros utilizáveis (clientes, verba gerida, resultados) e quais clientes podem ser citados como case (Lindóia Shopping? Rua da Praia? Tavi?).
-- Nome público do diagnóstico e funcionamento atual do formulário em /diagnostico/.
+- Autorizações pontuais: "23 novas lojas em 12 meses" (Rua da Praia)? Citar Pernambucanas, Bistek e Laghetto Hotéis (não estão no site atual)?
+- Formação do time hoje (só Marcelo? parceiros?) para o FAQ do Quem Somos.
+- Funcionamento atual do formulário em /diagnostico/ (o que preservar).
+- Materiais ricos: o que já existe pronto vs. produzir os propostos.
 - Foto profissional + lado pessoal (humanizar página do Marcelo).
 
 ## 6. Sequência de implementação
