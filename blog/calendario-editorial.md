@@ -21,7 +21,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 12 | Campanha de Google Shopping não gasta o orçamento: como destravar | google shopping não gasta orçamento | TP | 15 | MOFU | PUBLICADO 2026-07-18 https://www.salestrategias.com.br/google-shopping-nao-gasta-orcamento/ |
 | 13 | Os 5 fluxos de e-mail que toda loja virtual deveria ter no ar | email marketing para e-commerce fluxos | CRM | 14 | MOFU | PUBLICADO 2026-07-19 https://www.salestrategias.com.br/fluxos-de-email-para-loja-virtual/ |
 | 14 | Página de categoria: a página mais poderosa (e esquecida) da sua loja | seo página de categoria | SEO | 13 | MOFU | PUBLICADO 2026-07-20 https://www.salestrategias.com.br/seo-pagina-de-categoria/ |
-| 15 | Quanto investir em anúncios para uma loja de bairro: plano a partir de R$20/dia | quanto investir anúncio loja física | LOC | 15 | MOFU | PENDENTE |
+| 15 | Quanto investir em anúncios para uma loja de bairro: plano a partir de R$20/dia | quanto investir anúncio loja física | LOC | 15 | MOFU | PUBLICADO 2026-07-23 https://www.salestrategias.com.br/quanto-investir-anuncio-loja-fisica/ |
 | 16 | Frete grátis sem prejuízo: como calcular o pedido mínimo ideal | frete grátis como calcular pedido mínimo | CRO | 14 | MOFU | PENDENTE |
 | 17 | Como calcular o CAC da sua loja (e descobrir qual canal come sua margem) | como calcular cac e-commerce | DAD | 29 | MOFU | PENDENTE |
 | 18 | TikTok Shop vale a pena? Guia realista para lojistas | tiktok shop vale a pena | MKT | 14 | MOFU | PENDENTE |
