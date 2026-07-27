@@ -25,7 +25,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 16 | Frete grátis sem prejuízo: como calcular o pedido mínimo ideal | frete grátis como calcular pedido mínimo | CRO | 14 | MOFU | PUBLICADO 2026-07-24 https://www.salestrategias.com.br/frete-gratis-pedido-minimo/ |
 | 17 | Como calcular o CAC da sua loja (e descobrir qual canal come sua margem) | como calcular cac e-commerce | DAD | 29 | MOFU | PUBLICADO 2026-07-25 https://www.salestrategias.com.br/como-calcular-cac-ecommerce/ |
 | 18 | TikTok Shop vale a pena? Guia realista para lojistas | tiktok shop vale a pena | MKT | 14 | MOFU | PUBLICADO 2026-07-26 https://www.salestrategias.com.br/tiktok-shop-vale-a-pena/ |
-| 19 | Advantage+ ou campanha manual no Meta Ads: o que funciona para loja enxuta | advantage shopping ou campanha manual | TP | 15 | MOFU | PENDENTE |
+| 19 | Advantage+ ou campanha manual no Meta Ads: o que funciona para loja enxuta | advantage shopping ou campanha manual | TP | 15 | MOFU | PUBLICADO 2026-07-27 https://www.salestrategias.com.br/advantage-shopping-ou-campanha-manual/ |
 | 20 | Como fazer sua loja ser recomendada pelo ChatGPT e pelo AI Overviews | loja recomendada chatgpt ai overviews | SEO | 13 | MOFU | PENDENTE |
 | 21 | Drive-to-store: como usar o digital para encher a loja física | drive to store como funciona | LOC | 17 | TOFU | PENDENTE |
 | 22 | Taxa de recompra: como calcular e fazer o cliente voltar | taxa de recompra como calcular | CRM | 14 | MOFU | PENDENTE |
