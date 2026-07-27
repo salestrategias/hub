@@ -115,7 +115,16 @@ Mapeamento do plano para o real: a LP "SEO Local" evolui a página `/servicos/as
 - ✅ Certificações sem anos (decisão do Marcelo).
 - ✅ Instagram pessoal na página do Marcelo: @marcelo.c.freitas (o @salestrategias segue no rodapé do site).
 
-**Nenhuma pendência de conteúdo em aberto.** Próxima fase: montar as páginas no WordPress (homologação) com as copies aprovadas.
+**Nenhuma pendência de conteúdo em aberto.**
+
+## 6b. Deploy no site ao vivo (2026-07-27)
+
+- ✅ Tema **sal v1.0.0** instalado e ATIVADO em salestrategias.com.br via wp-admin (upload de zip; login com captcha do Loginizer resolvido). Rollback: reativar **Hello Biz** em Aparência → Temas.
+- Arquitetura descoberta no site ao vivo: home, diagnóstico, páginas de serviço, posts e blog são todos interceptados por snippets WPCode/Elementor (identidade v10 já aplicada página a página por sessão anterior do Claude). Por isso a ativação do tema NÃO mudou o visual dessas páginas: o tema entrou como camada-base.
+- O que o tema entrega imediatamente no ar: CPT Materiais no painel (arquivo /materiais/ resolve; hoje renderizado pelo snippet de archive "sal-be" existente, visual v10 consistente), shortcodes [sal_faq]/[sal_cta]/[sal_newsletter] disponíveis em qualquer página, hardening (XML-RPC off, versão oculta, headers), fontes/CSS servidos para busca e páginas não interceptadas.
+- Blog: portal WPCode intacto, conforme decisão (o portal atual é melhor como portal; fase 2 = portar o desenho dele pro tema com URLs de categoria indexáveis, substituindo o ?editoria= noindex).
+- Fase 2 (próxima): migrar página a página dos snippets/Elementor pros templates do tema com as copies de site/copy/ (começar por /quem-somos/ e /marcelo-freitas/, que são novas), depois portal do blog nativo, depois desativar Elementor quando nada mais depender dele.
+- Recomendação de segurança: trocar a senha do wp-admin após o projeto (está em nota de texto no SAL Hub) e ativar 2FA.
 
 ## 5b. Diagnóstico atual (/diagnostico/) — analisado em jul/2026
 
