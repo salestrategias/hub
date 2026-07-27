@@ -137,3 +137,28 @@ add_action( 'wp_head', function () {
  * Separador do <title> ("Página · SAL").
  */
 add_filter( 'document_title_separator', fn () => '·' );
+
+/**
+ * Expõe os campos do Rank Math na REST API também para páginas.
+ *
+ * O snippet do blog (wpcode-rankmath-rest.php) registra só para 'post', o que
+ * deixa as páginas do site sem title tag e meta description editáveis via API.
+ */
+add_action( 'init', function () {
+	if ( ! sal_tem_plugin_seo() ) {
+		return;
+	}
+	$campos = array(
+		'rank_math_title'         => 'string',
+		'rank_math_description'   => 'string',
+		'rank_math_focus_keyword' => 'string',
+	);
+	foreach ( $campos as $campo => $tipo ) {
+		register_post_meta( 'page', $campo, array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => $tipo,
+			'auth_callback' => fn () => current_user_can( 'edit_pages' ),
+		) );
+	}
+} );

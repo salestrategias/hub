@@ -26,7 +26,12 @@ get_header();
 			</header>
 
 			<div class="conteudo wrap">
-				<?php the_content(); ?>
+				<?php
+				// Render direto do conteúdo (com shortcodes), sem os filtros de
+				// page builder: garante que LPs migradas do Elementor mostrem o
+				// conteúdo novo, e não o layout antigo salvo em meta.
+				echo do_shortcode( shortcode_unautop( wpautop( get_the_content() ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput -- conteúdo autoral confiável do editor.
+				?>
 			</div>
 
 			<footer class="artigo__rodape wrap">

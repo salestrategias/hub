@@ -1,0 +1,20 @@
+/* Fontes self-hosted da SAL.
+   Caminhos a partir da RAIZ do site (não relativos a este arquivo): plugins de
+   otimização (WP Rocket, LiteSpeed) servem o CSS minificado de outro diretório,
+   e qualquer caminho relativo viraria 404. */
+
+@font-face {
+	font-family: "Plus Jakarta Sans";
+	src: url("/wp-content/themes/sal/assets/fonts/plus-jakarta-sans-var.woff2") format("woff2");
+	font-weight: 200 800;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Inter";
+	src: url("/wp-content/themes/sal/assets/fonts/inter-var.woff2") format("woff2");
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}

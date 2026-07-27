@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SAL_VERSION', '1.0.0' );
+define( 'SAL_VERSION', '1.1.0' );
 
 require get_template_directory() . '/inc/setup.php';
 require get_template_directory() . '/inc/assets.php';

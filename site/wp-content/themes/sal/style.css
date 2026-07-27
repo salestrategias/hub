@@ -4,7 +4,7 @@ Theme URI:   https://salestrategias.com.br
 Author:      SAL Estratégias de Marketing
 Author URI:  https://salestrategias.com.br
 Description: Tema próprio da SAL — agência de marketing para e-commerce e varejo local. Identidade editorial v10: rápido (zero dependências, fontes self-hosted), seguro (saída escapada, cabeçalho enxuto) e otimizado para SEO (semântica, schema.org, Open Graph com fallback quando não há plugin de SEO ativo).
-Version:     1.0.0
+Version:     1.1.0
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
@@ -50,22 +50,10 @@ Text Domain: sal
   --t-mini: 0.8125rem;
 }
 
-/* 2 · Fontes self-hosted (variáveis, um arquivo por família)
-   ---------------------------------------------------------------- */
-@font-face {
-  font-family: "Plus Jakarta Sans";
-  src: url("assets/fonts/plus-jakarta-sans-var.woff2") format("woff2");
-  font-weight: 200 800;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Inter";
-  src: url("assets/fonts/inter-var.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
+/* 2 · Fontes
+   As regras @font-face são impressas inline no <head> (inc/assets.php) com URL
+   absoluta: plugins de minificação movem este arquivo de diretório e quebrariam
+   qualquer caminho relativo de fonte. Não declare @font-face aqui. */
 
 /* 3 · Base
    ---------------------------------------------------------------- */
@@ -516,8 +504,75 @@ a:hover .seta, .btn:hover .seta { transform: translateX(4px); }
 
 .conteudo { max-width: var(--medida); margin-inline: auto; padding-block: clamp(2rem, 5vw, 3.5rem); }
 .conteudo > * { margin-block: 0 1.25em; }
-.conteudo h2 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); margin-top: 1.8em; }
-.conteudo h3 { margin-top: 1.5em; }
+.conteudo h2 {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem);
+  margin-top: 2.2em;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--linha);
+  position: relative;
+}
+.conteudo h2::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 3.5rem;
+  height: 3px;
+  background: var(--roxo);
+}
+.conteudo h3 { margin-top: 1.6em; }
+
+/* Primeiro parágrafo: a resposta direta que o Google e as IAs citam */
+.conteudo > p:first-of-type {
+  font-size: clamp(1.1rem, 1.02rem + 0.4vw, 1.28rem);
+  line-height: 1.55;
+  color: var(--ink);
+  border-left: 3px solid var(--roxo);
+  padding-left: clamp(1rem, 3vw, 1.6rem);
+  margin-bottom: 2rem;
+}
+
+/* Listas com marcador da marca */
+.conteudo ul:not(.trilha ul) { list-style: none; padding-left: 0; }
+.conteudo ul:not(.trilha ul) > li {
+  position: relative;
+  padding-left: 1.7rem;
+  margin-bottom: 0.55em;
+}
+.conteudo ul:not(.trilha ul) > li::before {
+  content: "";
+  position: absolute;
+  left: 0.15rem;
+  top: 0.62em;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--roxo);
+  transform: rotate(45deg);
+}
+.conteudo ol { counter-reset: passos; list-style: none; padding-left: 0; }
+.conteudo ol > li {
+  counter-increment: passos;
+  position: relative;
+  padding-left: 2.6rem;
+  margin-bottom: 0.8em;
+}
+.conteudo ol > li::before {
+  content: counter(passos, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  font-family: var(--fonte-titulo);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--roxo);
+  letter-spacing: -0.02em;
+}
+
+/* Parágrafo que começa com termo em negrito vira item de serviço */
+.conteudo p > strong:first-child {
+  font-family: var(--fonte-titulo);
+  letter-spacing: -0.01em;
+}
 .conteudo img { border-radius: var(--raio); }
 .conteudo blockquote {
   border-left: 3px solid var(--roxo);
@@ -677,7 +732,12 @@ a:hover .seta, .btn:hover .seta { transform: translateX(4px); }
 }
 
 /* Página estática */
-.pagina__cabeca { max-width: 52rem; margin-inline: auto; padding-block: clamp(3rem, 7vw, 5rem) 1rem; }
+.pagina__cabeca {
+  max-width: 52rem;
+  margin-inline: auto;
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) 1rem;
+}
+.pagina__cabeca h1 { margin-bottom: 0.35em; }
 
 /* Comentários (mínimo) */
 .comentarios { max-width: var(--medida); margin-inline: auto; padding-bottom: var(--secao); }

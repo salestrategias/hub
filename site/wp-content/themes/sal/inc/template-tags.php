@@ -110,10 +110,11 @@ function sal_breadcrumbs( array $meio = array() ): void {
 function sal_menu_padrao(): void {
 	$home = esc_url( home_url( '/' ) );
 	echo '<ul>';
-	echo '<li><a href="' . $home . '#quem-atendemos">' . esc_html__( 'Quem atendemos', 'sal' ) . '</a></li>';
-	echo '<li><a href="' . $home . '#servicos">' . esc_html__( 'Serviços', 'sal' ) . '</a></li>';
-	echo '<li><a href="' . $home . '#metodo">' . esc_html__( 'Método', 'sal' ) . '</a></li>';
+	echo '<li><a href="' . $home . 'servicos/seo-para-ecommerce/">' . esc_html__( 'SEO', 'sal' ) . '</a></li>';
+	echo '<li><a href="' . $home . 'servicos/gestao-de-trafego-pago/">' . esc_html__( 'Tráfego Pago', 'sal' ) . '</a></li>';
+	echo '<li><a href="' . $home . 'materiais/">' . esc_html__( 'Materiais', 'sal' ) . '</a></li>';
 	echo '<li><a href="' . $home . 'blog/">' . esc_html__( 'Blog', 'sal' ) . '</a></li>';
+	echo '<li><a href="' . $home . 'quem-somos/">' . esc_html__( 'Quem somos', 'sal' ) . '</a></li>';
 	echo '</ul>';
 }
 
