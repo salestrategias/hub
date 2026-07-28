@@ -1,9 +1,9 @@
 /* =========================================================
-   SAL — Direção visual "Indigo + Champagne" (aprovada 2026-07-28)
-   Evolução do SAL Design System para o público de decisor:
-   o roxo da marca vira profundidade (indigo), o acento vira
-   champagne, e a display passa a ser serifada.
-   O lima #F2FA5A segue vivo no blog e nas redes, fora daqui.
+   SAL — Direção "Indigo + Champagne" (aprovada 2026-07-28)
+   Estrutura de tokens conforme o benchmark: escada de 4 fundos,
+   UMA cor de borda, UM acento (≤5% da tela).
+   O violeta da marca fica em papel de suporte (hover, foco,
+   borda ativa): em área grande ele é a assinatura de site de IA.
    ========================================================= */
 
 @font-face {
@@ -29,71 +29,74 @@
 }
 
 :root {
-  /* -------- Superfícies escuras (a base da marca) -------- */
-  --noite: #14103A;        /* indigo profundo: hero, painéis, rodapé */
-  --noite-2: #1B1650;      /* elevação sobre a noite */
-  --noite-3: #241E63;      /* bordas e divisores no escuro */
-  --indigo: #2D1D7A;       /* âncora oficial da marca */
-  --violeta: #7E30E1;      /* âncora oficial: links e destaques */
-  --violeta-claro: #A78BFA;
+  /* -------- Escada de fundos: quase-preto com veio indigo -------- */
+  --bg:        #0B0A18;
+  --bg-2:      #101024;
+  --surface:   #16142E;
+  --surface-2: #1D1A3A;
+  --line:      #2A2652;   /* a única cor de borda no escuro */
+
+  /* -------- Marca -------- */
+  --indigo:      #2D1D7A;
+  --indigo-deep: #14103A;
+  --violet:      #7E30E1;              /* suporte: hover, foco, borda ativa */
+  --violet-soft: rgba(126, 48, 225, 0.14);
 
   /* -------- Acento champagne (o "caro") -------- */
-  --champagne: #C9A961;
-  --champagne-claro: #E0C88A;
-  --champagne-escuro: #A88940;
+  --gold:       #C9A961;
+  --gold-light: #E0C88A;
+  --gold-deep:  #A88940;
+  --gold-soft:  rgba(201, 169, 97, 0.12);
+  --gold-line:  rgba(201, 169, 97, 0.28);
 
-  /* -------- Superfícies claras -------- */
-  --papel: #F5F1E8;        /* papel quente, seções claras */
-  --papel-2: #FBF9F4;      /* off-white, alternância */
-  --branco: #FFFFFF;
+  /* -------- Osso: a seção clara de respiro -------- */
+  --bone:     #F4F1E8;
+  --bone-2:   #FBF9F4;
+  --bone-ink: #14122B;
+  --bone-txt: #45415F;
+  --bone-line: #E3DDCD;
 
-  /* -------- Tinta -------- */
-  --tinta: #14103A;        /* títulos no claro */
-  --texto: #3A3752;        /* corpo no claro */
-  --texto-suave: #6B6880;
-  --linha: #E2DCCF;        /* divisor no claro */
-  --linha-escura: rgba(245, 241, 232, 0.14);
-  --claro-forte: #F5F1E8;  /* texto no escuro */
-  --claro-suave: rgba(245, 241, 232, 0.72);
-  --claro-fraco: rgba(245, 241, 232, 0.48);
+  /* -------- Texto no escuro -------- */
+  --text:    #FFFFFF;
+  --muted:   #B8B6CE;   /* cinza com veio violeta, não neutro */
+  --muted-2: #7B7897;
 
   /* -------- Tipografia -------- */
   --display: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --corpo: 'Inter', system-ui, -apple-system, sans-serif;
+  --sans:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --body:    'Inter', system-ui, -apple-system, sans-serif;
 
-  --t-hero: clamp(2.6rem, 1.6rem + 4.4vw, 5rem);
-  --t-h2: clamp(2rem, 1.4rem + 2.4vw, 3.1rem);
-  --t-h3: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
-  --t-lead: clamp(1.05rem, 1rem + 0.3vw, 1.2rem);
-  --t-corpo: 1rem;
-  --t-peq: 0.875rem;
-  --t-micro: 0.75rem;
+  --t-h1:  clamp(2.25rem, 1.4rem + 3.6vw, 3.75rem);
+  --t-h2:  clamp(1.75rem, 1.25rem + 2.2vw, 2.75rem);
+  --t-h3:  clamp(1.2rem, 1.08rem + 0.5vw, 1.45rem);
+  --t-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.15rem);
+  --t-sm:   0.875rem;
+  --t-xs:   0.75rem;
 
-  /* -------- Espaço -------- */
+  /* -------- Espaço e medida -------- */
+  --maxw: 1160px;
+  --gutter: clamp(1.25rem, 4vw, 2rem);
+  --sec: clamp(4rem, 7vw, 6rem);
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
-  --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px; --s10: 128px;
-  --secao: clamp(4.5rem, 8vw, 8rem);
-  --gutter: clamp(1.25rem, 4vw, 2.5rem);
-  --largura: 1200px;
+  --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px;
 
-  /* -------- Raio e sombra -------- */
-  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
-  --sombra-sm: 0 2px 8px rgba(20, 16, 58, 0.06);
-  --sombra-md: 0 8px 28px rgba(20, 16, 58, 0.10);
-  --sombra-lg: 0 24px 60px rgba(20, 16, 58, 0.16);
-  --foco: 0 0 0 3px rgba(201, 169, 97, 0.5);
+  /* -------- Forma -------- */
+  --r-sm: 12px; --r: 16px; --r-lg: 20px; --r-pill: 999px;
+  --glow: 0 0 40px rgba(201, 169, 97, 0.13);
+  --shadow: 0 20px 60px rgba(11, 10, 24, 0.55);
+  --shadow-bone: 0 12px 40px rgba(20, 18, 43, 0.10);
+  --focus: 0 0 0 3px rgba(201, 169, 97, 0.45);
 
   /* -------- Movimento -------- */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --rapido: 140ms; --medio: 260ms; --lento: 520ms;
+  --fast: 140ms; --mid: 260ms; --slow: 520ms;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
   -webkit-text-size-adjust: 100%;
-  scroll-padding-top: 96px;
+  scroll-padding-top: 88px;
 }
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
@@ -101,34 +104,44 @@ html {
 
 body {
   margin: 0;
-  background: var(--papel-2);
-  color: var(--texto);
-  font-family: var(--corpo);
-  font-size: var(--t-corpo);
-  line-height: 1.65;
+  background: var(--bg);
+  color: var(--muted);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
-h1, h2, h3, h4 {
+/* Serifada nos títulos, peso 600 (nunca 700: bold pesado envelhece) */
+h1, h2 {
   font-family: var(--display);
   font-weight: 600;
-  color: var(--tinta);
+  font-variation-settings: 'opsz' 96;
+  color: var(--text);
   line-height: 1.08;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   margin: 0 0 var(--s4);
   text-wrap: balance;
 }
-h1 { font-size: var(--t-hero); }
-h2 { font-size: var(--t-h2); }
-h3 { font-family: var(--sans); font-weight: 700; font-size: var(--t-h3); line-height: 1.25; letter-spacing: -0.01em; }
-h4 { font-family: var(--sans); font-weight: 700; font-size: 1.05rem; }
+h1 { font-size: var(--t-h1); }
+h2 { font-size: var(--t-h2); letter-spacing: -0.015em; }
+/* H3/H4 voltam para sans: serifada só nos níveis altos */
+h3, h4 {
+  font-family: var(--sans);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--s3);
+}
+h3 { font-size: var(--t-h3); }
+h4 { font-size: 1.0625rem; }
 
 p { margin: 0 0 var(--s4); }
 img, svg, video { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration: none; }
 
-a { color: var(--violeta); text-decoration: none; }
-a:hover { color: var(--indigo); }
-
-:focus-visible { outline: none; box-shadow: var(--foco); border-radius: var(--r-sm); }
-::selection { background: var(--champagne); color: var(--noite); }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: var(--r-sm); }
+::selection { background: var(--gold); color: var(--bg); }

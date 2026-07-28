@@ -1,0 +1,410 @@
+---
+import Base from '../layouts/Base.astro';
+
+const title = 'Agência de Tráfego Pago e SEO para Varejo e E-commerce · SAL';
+const description =
+  'Tráfego pago e SEO na medida certa para loja física e e-commerce, por quem passou dez anos dentro da operação de varejo. Agende um diagnóstico com a SAL.';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': ['Organization', 'ProfessionalService'],
+      '@id': 'https://salestrategias.com.br/#org',
+      name: 'SAL Estratégias de Marketing',
+      alternateName: 'SAL',
+      url: 'https://salestrategias.com.br/',
+      slogan: 'Marketing na Medida Certa',
+      description: 'Agência de tráfego pago e SEO (tráfego orgânico) para varejo local e e-commerce.',
+      foundingDate: '2024',
+      founder: { '@type': 'Person', name: 'Marcelo Freitas', url: 'https://salestrategias.com.br/marcelo-freitas/' },
+      address: { '@type': 'PostalAddress', addressLocality: 'Porto Alegre', addressRegion: 'RS', addressCountry: 'BR' },
+      areaServed: { '@type': 'Country', name: 'Brasil' },
+      knowsAbout: ['Tráfego pago', 'Google Ads', 'Meta Ads', 'SEO', 'Tráfego orgânico', 'SEO local', 'Google Meu Negócio', 'E-commerce', 'Varejo'],
+      sameAs: ['https://www.instagram.com/salestrategias/', 'https://www.linkedin.com/company/sal-estrategias-de-marketing/'],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://salestrategias.com.br/#site',
+      name: 'SAL Estratégias de Marketing',
+      url: 'https://salestrategias.com.br/',
+      inLanguage: 'pt-BR',
+      publisher: { '@id': 'https://salestrategias.com.br/#org' },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Qual a diferença entre tráfego pago e tráfego orgânico?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Tráfego pago é quando você paga por clique ou impressão, no Google Ads e no Meta Ads: liga hoje, traz visita hoje, e para quando a verba acaba. Tráfego orgânico vem do SEO, das buscas, do mapa e das respostas das IAs: demora mais pra engrenar e não some quando você para de investir. Os dois se completam, e o que muda de loja pra loja é a dose de cada um.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Quanto preciso investir em mídia pra começar?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Trabalhamos com operações que têm pelo menos R$ 2.000 por mês para investir em mídia, fora o valor da gestão. Abaixo disso a campanha não junta dado suficiente pra otimizar, e o dinheiro rende mais em outras frentes, o que a gente diz com todas as letras no diagnóstico.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Em quanto tempo aparece resultado?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Tráfego pago responde nas primeiras semanas, com o mês inicial servindo pra calibrar público e criativo. SEO local, como o Perfil da Empresa no Google, costuma mostrar movimento em algumas semanas. SEO de e-commerce dá sinais entre 3 e 6 meses e consolida entre 6 e 12.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Vocês atendem loja física ou só e-commerce?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'As duas. Metade do trabalho é com loja física, quiosque, franquia e operação em shopping, onde o objetivo é fluxo na porta. A outra metade é e-commerce. Quem tem os dois canais recebe um plano que cobre os dois.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Como funciona o relatório e a reunião mensal?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Todo mês você recebe um documento com o que foi investido, o que voltou, o que o orgânico trouxe e o que muda no mês seguinte. Depois sentamos pra ler os números juntos e decidir o próximo passo. Sem PDF de quarenta páginas e sem gráfico que ninguém explica.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Tem fidelidade no contrato?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'A relação se sustenta pelo relatório de todo mês, não por multa. As condições ficam claras na proposta, antes de qualquer assinatura.',
+          },
+        },
+      ],
+    },
+  ],
+};
+
+const marcas = ['Rua da Praia Shopping', 'Lindóia Shopping', 'Galeria Chaves Barcellos', 'Vita Boulevard Gramado', 'Kopenhagen', 'Hering', 'Panvel', 'Starbucks'];
+
+const servicos = [
+  {
+    titulo: 'Tráfego pago',
+    texto: 'Google Ads e Meta Ads com gestão diária, criativo novo toda semana e meta de retorno calculada sobre a sua margem, não sobre a média do mercado.',
+    icone: 'alvo',
+  },
+  {
+    titulo: 'SEO local',
+    texto: 'Perfil da Empresa no Google, mapa e busca de bairro. Quem procura "perto de mim" precisa achar a sua loja antes da loja do vizinho.',
+    icone: 'pin',
+  },
+  {
+    titulo: 'SEO para e-commerce',
+    texto: 'Categoria, produto e conteúdo ranqueando pra quem já está com o cartão na mão, incluindo as respostas do ChatGPT e do Gemini.',
+    icone: 'busca',
+  },
+  {
+    titulo: 'Criativo de performance',
+    texto: 'Anúncio pensado por quem sabe o que faz alguém atravessar a rua pra entrar numa loja. Peça nova toda semana, testada no ar.',
+    icone: 'camada',
+  },
+  {
+    titulo: 'Dados e relatório',
+    texto: 'GA4, pixel e API de conversão medindo direito, e um relatório mensal em reais que serve pra decidir, não pra arquivar.',
+    icone: 'grafico',
+  },
+];
+---
+
+<Base title={title} description={description} canonical="/" schema={schema}>
+
+  <header class="topo">
+    <div class="wrap">
+      <a href="/" aria-label="SAL Estratégias de Marketing"><img src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="60" height="34" /></a>
+      <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+      <nav class="nav" id="nav" aria-label="Menu principal">
+        <a href="#servicos">Serviços</a>
+        <a href="#para-quem">Para quem</a>
+        <a href="#metodo">Método</a>
+        <a href="#sobre">A SAL</a>
+        <a href="/blog/">Blog</a>
+        <a class="btn btn-primary" href="/diagnostico/">Agendar diagnóstico ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="malha"></div>
+      <div class="wrap">
+        <div>
+          <span class="eyebrow">Tráfego pago e SEO para varejo</span>
+          <h1>Marketing de varejo feito por quem <em>já viveu o balcão</em>.</h1>
+          <p class="sub">
+            Tráfego pago e SEO na medida certa para loja física e e-commerce. Antes de gerir mídia,
+            a gente passou dez anos dentro da operação: em shopping center, em lançamento de loja e
+            na alta temporada de Gramado.
+          </p>
+          <div class="acoes">
+            <a class="btn btn-primary" href="/diagnostico/">Agendar diagnóstico ↗</a>
+            <a class="btn btn-ghost" href="#metodo">Ver como trabalhamos</a>
+          </div>
+          <p class="porta"><a class="link-side" href="/e-commerce/">Tem e-commerce? Comece por aqui →</a></p>
+        </div>
+
+        <div class="retrato">
+          <figure>
+            <span class="ph">Foto · Marcelo Freitas</span>
+          </figure>
+          <div class="selo selo-1"><b>10 anos</b><span>dentro do varejo</span></div>
+          <div class="selo selo-2"><b>3 shoppings</b><span>de Porto Alegre</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGOS -->
+    <div class="logos">
+      <div class="wrap">
+        <p class="rot">Operações e marcas com que a SAL trabalha e trabalhou</p>
+        <div class="esteira">
+          <ul>{marcas.map((m) => <li>{m}</li>)}</ul>
+          <ul aria-hidden="true">{marcas.map((m) => <li>{m}</li>)}</ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- NÚMEROS -->
+    <section class="wrap">
+      <div class="numeros">
+        <div class="numero"><b>10 anos</b><span>de varejo por dentro, antes da mídia</span></div>
+        <div class="numero"><b>3 shoppings</b><span>de Porto Alegre atendidos hoje</span></div>
+        <div class="numero"><b>2 frentes</b><span>tráfego pago e tráfego orgânico</span></div>
+      </div>
+    </section>
+
+    <!-- PARA QUEM -->
+    <section class="sec" id="para-quem">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <span class="eyebrow">Para quem</span>
+          <h2>Dois negócios, duas engrenagens diferentes.</h2>
+          <p>Loja de rua e loja online não vendem do mesmo jeito, e não deveriam ser anunciadas do mesmo jeito. A SAL trabalha as duas, com a dose que cada uma pede.</p>
+        </div>
+        <div class="publicos">
+          <article class="publico fisico rev">
+            <h3>Varejo local</h3>
+            <p>Loja de rua, quiosque, franquia, operação em shopping. O que interessa é gente entrando pela porta.</p>
+            <ul>
+              <li>Perfil da Empresa no Google no topo do mapa</li>
+              <li>Anúncio por raio, só pra quem consegue chegar</li>
+              <li>Avaliações respondidas e reputação cuidada</li>
+              <li>Campanha de data comemorativa e sazonalidade</li>
+            </ul>
+            <a class="vai" href="/varejo-local/">Ver a frente de varejo local →</a>
+          </article>
+          <article class="publico online rev">
+            <h3>E-commerce</h3>
+            <p>Loja virtual que precisa crescer com margem, e não só aumentar o número de pedidos.</p>
+            <ul>
+              <li>Shopping, Performance Max e catálogo bem configurados</li>
+              <li>Meta de retorno calculada sobre comissão, frete e imposto</li>
+              <li>Produto e categoria ranqueando sem pagar por clique</li>
+              <li>Sua marca citada nas respostas das IAs</li>
+            </ul>
+            <a class="vai" href="/e-commerce/">Ver a frente de e-commerce →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVIÇOS -->
+    <section class="sec" id="servicos">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <span class="eyebrow">Nossos serviços</span>
+          <h2>O que a SAL entrega, na prática.</h2>
+        </div>
+        <div class="servicos">
+          {servicos.map((s) => (
+            <article class="servico rev">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                {s.icone === 'alvo' && <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /></>}
+                {s.icone === 'pin' && <><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></>}
+                {s.icone === 'busca' && <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5M8.5 11h5M11 8.5v5" /></>}
+                {s.icone === 'camada' && <><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></>}
+                {s.icone === 'grafico' && <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>}
+              </svg>
+              <h3>{s.titulo}</h3>
+              <p>{s.texto}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- MÉTODO -->
+    <section class="sec" id="metodo">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <span class="eyebrow">Marketing na Medida Certa</span>
+          <h2>O nome é a metodologia.</h2>
+          <p>
+            Sal demais estraga o prato, de menos ninguém sente o gosto. Marketing é igual: a diferença entre
+            queimar verba e crescer com margem está na dosagem. Toda loja passa por estes quatro movimentos,
+            e o que muda é a dose de cada um.
+          </p>
+        </div>
+        <div class="metodo">
+          <div class="passo rev"><b>01</b><h3>Descobrir</h3><p>Auditoria das contas, da presença no mapa, do site e da concorrência. Sai um documento com os gargalos, não uma opinião.</p></div>
+          <div class="passo rev"><b>02</b><h3>Desenhar</h3><p>Verba, canais, metas e calendário definidos antes de qualquer campanha ir pro ar, com base no seu ticket e na sua margem.</p></div>
+          <div class="passo rev"><b>03</b><h3>Disparar</h3><p>Gestão diária, criativo novo toda semana e SEO evoluindo mês a mês. Ajuste enquanto roda, porque o mercado não espera.</p></div>
+          <div class="passo rev"><b>04</b><h3>Decodificar</h3><p>Reunião mensal lendo os números juntos. Canal que não se paga sai do plano no mês seguinte, sem drama.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOBRE (seção osso: a quebra editorial) -->
+    <section class="sec bone" id="sobre">
+      <div class="wrap">
+        <div class="fundador">
+          <div class="rev">
+            <figure class="foto-grande"><span class="ph">Foto · Marcelo no Vita Boulevard</span></figure>
+            <div class="mini-fotos">
+              <figure><span class="ph">Starbucks POA</span></figure>
+              <figure><span class="ph">Natal Luz</span></figure>
+              <figure><span class="ph">Evento</span></figure>
+            </div>
+          </div>
+          <div class="rev">
+            <span class="eyebrow">Quem está por trás</span>
+            <h2>Dez anos operando varejo antes de anunciar para o varejo.</h2>
+            <p class="destaque">A SAL não é uma agência que aprendeu varejo pela planilha. É varejo que passou a operar mídia.</p>
+            <p>
+              Marcelo Freitas passou anos como gerente de marketing de shopping center: coordenou o lançamento do
+              Vita Boulevard em Gramado, participou da reestruturação do Rua da Praia e do Lindóia, e da gestão da
+              Galeria Chaves Barcellos, onde acompanhou a chegada da primeira Starbucks de Porto Alegre.
+            </p>
+            <p>
+              Aprendeu no balcão o que faz uma vitrine converter, por que dezembro não se parece com fevereiro e o
+              que de fato muda o movimento de uma loja. A SAL nasceu disso, em 2024. Rua da Praia, Lindóia e Chaves
+              Barcellos seguem com a gente até hoje, em consultoria.
+            </p>
+            <p><a class="btn btn-ghost" href="/quem-somos/">Conhecer a SAL ↗</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="sec" id="duvidas">
+      <div class="wrap">
+        <div class="faq">
+          <div class="rev">
+            <span class="eyebrow">Perguntas frequentes</span>
+            <h2>Ficou alguma dúvida?</h2>
+            <p style="color:var(--muted)">Se a sua não estiver aqui, chame no WhatsApp que a gente responde.</p>
+            <a class="btn btn-ghost" href="https://wa.me/5551993380278" rel="noopener">Perguntar no WhatsApp</a>
+          </div>
+          <div class="rev">
+            <details>
+              <summary>Qual a diferença entre tráfego pago e tráfego orgânico?</summary>
+              <div><p>Tráfego pago é quando você paga por clique ou impressão, no Google Ads e no Meta Ads: liga hoje, traz visita hoje, e para quando a verba acaba. Tráfego orgânico vem do SEO, das buscas, do mapa e das respostas das IAs: demora mais pra engrenar e não some quando você para de investir. Os dois se completam, e o que muda de loja pra loja é a dose de cada um.</p></div>
+            </details>
+            <details>
+              <summary>Quanto preciso investir em mídia pra começar?</summary>
+              <div><p>Trabalhamos com operações que têm pelo menos R$ 2.000 por mês para investir em mídia, fora o valor da gestão. Abaixo disso a campanha não junta dado suficiente pra otimizar, e o dinheiro rende mais em outras frentes. Se for o seu caso, a gente diz com todas as letras no diagnóstico.</p></div>
+            </details>
+            <details>
+              <summary>Em quanto tempo aparece resultado?</summary>
+              <div><p>Tráfego pago responde nas primeiras semanas, com o mês inicial servindo pra calibrar público e criativo. SEO local costuma mostrar movimento em algumas semanas. SEO de e-commerce dá os primeiros sinais entre 3 e 6 meses e consolida entre 6 e 12. Quem promete primeira página em 30 dias está vendendo o que não pode entregar.</p></div>
+            </details>
+            <details>
+              <summary>Vocês atendem loja física ou só e-commerce?</summary>
+              <div><p>As duas. Metade do trabalho é com loja física, quiosque, franquia e operação em shopping, onde o objetivo é fluxo na porta. A outra metade é e-commerce. Quem tem os dois canais recebe um plano que cobre os dois.</p></div>
+            </details>
+            <details>
+              <summary>Como funciona o relatório e a reunião mensal?</summary>
+              <div><p>Todo mês você recebe um documento com o que foi investido, o que voltou, o que o orgânico trouxe e o que muda no mês seguinte. Depois sentamos pra ler os números juntos e decidir o próximo passo. Sem PDF de quarenta páginas e sem gráfico que ninguém explica.</p></div>
+            </details>
+            <details>
+              <summary>Tem fidelidade no contrato?</summary>
+              <div><p>A relação se sustenta pelo relatório de todo mês, não por multa. As condições ficam claras na proposta, antes de qualquer assinatura.</p></div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="band">
+      <div class="malha"></div>
+      <div class="wrap">
+        <div class="numeros">
+          <div class="numero"><b>10 anos</b><span>de varejo por dentro</span></div>
+          <div class="numero"><b>3 shoppings</b><span>de Porto Alegre</span></div>
+          <div class="numero"><b>2 frentes</b><span>pago e orgânico</span></div>
+        </div>
+        <h2>Vamos olhar a sua operação?</h2>
+        <p class="sub">
+          Escolha um horário e a gente analisa suas contas de anúncio, sua presença no mapa e a sua concorrência.
+          Você sai com as prioridades na mão, com ou sem proposta depois.
+        </p>
+        <a class="btn btn-primary" href="/diagnostico/">Agendar diagnóstico ↗</a>
+        <div class="garantias">
+          <span>Resposta em até 1 dia útil</span>
+          <span>Diagnóstico sem custo</span>
+          <span>Sem compromisso</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="rodape">
+    <div class="wrap">
+      <div class="grade">
+        <div>
+          <img src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="71" height="40" />
+          <p class="assinatura">Marketing na Medida Certa</p>
+          <p>Tráfego pago e SEO para varejo local e e-commerce. Porto Alegre, RS, atendendo o Brasil todo.</p>
+        </div>
+        <nav aria-label="Serviços">
+          <h4>Serviços</h4>
+          <ul>
+            <li><a href="/trafego-pago/">Tráfego pago</a></li>
+            <li><a href="/seo/">SEO e tráfego orgânico</a></li>
+            <li><a href="/varejo-local/">Varejo local</a></li>
+            <li><a href="/e-commerce/">E-commerce</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="A SAL">
+          <h4>A SAL</h4>
+          <ul>
+            <li><a href="/quem-somos/">Quem somos</a></li>
+            <li><a href="/marcelo-freitas/">Marcelo Freitas</a></li>
+            <li><a href="/blog/">Blog da SAL</a></li>
+            <li><a href="/materiais/">Materiais gratuitos</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="Começar">
+          <h4>Começar</h4>
+          <ul>
+            <li><a href="/diagnostico/">Agendar diagnóstico</a></li>
+            <li><a href="/contato/">Contratar a SAL</a></li>
+            <li><a href="https://wa.me/5551993380278" rel="noopener">WhatsApp</a></li>
+            <li><a href="https://www.instagram.com/salestrategias/" rel="noopener">Instagram</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="legal">
+        <span>© 2026 SAL Estratégias de Marketing · Porto Alegre, RS</span>
+        <a href="/politica-de-privacidade/">Política de privacidade</a>
+      </div>
+    </div>
+  </footer>
+
+</Base>
