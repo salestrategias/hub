@@ -1,0 +1,67 @@
+---
+import Servico from '../layouts/Servico.astro';
+---
+
+<Servico
+  title="Tráfego Pago para Varejo e E-commerce · SAL"
+  description="Gestão de Google Ads e Meta Ads com meta de retorno calculada sobre a sua margem real. Anúncio por raio para loja física e catálogo para e-commerce."
+  canonical="/trafego-pago/"
+  servicoNome="Tráfego pago"
+  rotulo="Google Ads e Meta Ads"
+  h1="Anúncio bom não é o que traz clique barato."
+  h1Destaque="É o que fecha a conta no fim do mês."
+  chamada="Gestão diária de Google Ads e Meta Ads com a meta de retorno calculada sobre a sua margem real, e não sobre a média do mercado. Em loja física, com medição de quem de fato apareceu."
+  chips={[
+    'Google Ads e Meta Ads',
+    'Performance Max e Shopping',
+    'Anúncio por raio',
+    'GA4 e API de conversão',
+    'Relatório em reais',
+  ]}
+  problemaTitulo="O retorno que aparece no painel quase nunca é o retorno que entra no caixa."
+  problemaTexto={[
+    'O painel do anúncio conta a venda pelo valor cheio do pedido. O seu caixa desconta comissão, frete, imposto, taxa de pagamento e devolução. A diferença entre os dois números é o que faz uma loja achar que está indo bem enquanto a margem encolhe.',
+    'Por isso a primeira coisa que a gente faz não é abrir campanha. É montar a conta certa, com os seus números, e descobrir qual retorno a sua operação precisa ter para o anúncio se pagar.',
+  ]}
+  problemaLista={[
+    'Meta de retorno copiada de benchmark de mercado, que não conhece a sua margem',
+    'Pixel e API de conversão medindo a mesma venda duas vezes',
+    'Campanha de marca levando o crédito de quem já ia comprar mesmo',
+    'Loja física medindo clique quando o que importa é visita',
+    'Verba espalhada em canal demais para o tamanho da operação',
+    'Criativo rodando há meses, já cansado, sem ninguém para trocar',
+  ]}
+  etapasTitulo="Antes de subir campanha, a gente fecha a conta."
+  etapas={[
+    { n: '01', titulo: 'A conta', texto: 'Ticket médio, margem de contribuição, comissão, frete e imposto. Sai daí a meta de retorno que a sua operação precisa, não a que o mercado usa.' },
+    { n: '02', titulo: 'A medição', texto: 'GA4, pixel, API de conversão e conversões offline validados antes de qualquer verba entrar. Campanha sobre medição errada é dinheiro no escuro.' },
+    { n: '03', titulo: 'A estrutura', texto: 'Canais, campanhas, públicos e verba definidos por objetivo, com o criativo pensado antes da arte.' },
+    { n: '04', titulo: 'A rotina', texto: 'Gestão diária, criativo novo toda semana e reunião mensal lendo os números juntos. Canal que não se paga sai do plano no mês seguinte.' },
+  ]}
+  entregasTitulo="O que entra na gestão de tráfego pago."
+  entregas={[
+    { titulo: 'Google Ads completo', texto: 'Pesquisa, Performance Max, Shopping, Demanda e campanhas de Maps para quem tem loja física. Cada uma com o papel dela no plano.' },
+    { titulo: 'Meta Ads', texto: 'Instagram e Facebook, com catálogo configurado, públicos que fazem sentido para o seu tamanho e teste contínuo de criativo.' },
+    { titulo: 'Anúncio por raio', texto: 'Para loja física, entrega só para quem consegue chegar até você, com ajuste de raio por horário e por dia da semana.' },
+    { titulo: 'Medição de verdade', texto: 'GA4, GTM, pixel, API de conversão e, quando dá, conversão offline para amarrar o anúncio à venda que aconteceu no balcão.' },
+    { titulo: 'Criativo semanal', texto: 'Peça nova toda semana, com o ângulo de venda definido antes da arte e aprovação sua antes de subir.' },
+    { titulo: 'Relatório em reais', texto: 'Quanto entrou, quanto voltou, qual canal se pagou e o que muda no mês seguinte. Um documento para decidir, em uma página.' },
+  ]}
+  metricaTitulo="Quanto precisa ter de verba para começar."
+  metricaTexto="Para e-commerce, pelo menos R$ 2.000 por mês em anúncio. Para loja física, R$ 1.500. Abaixo disso a campanha não reúne dado suficiente para o algoritmo aprender, e o seu dinheiro rende mais em outra frente, normalmente no SEO local. Se for o seu caso, a gente diz isso no diagnóstico em vez de aceitar o trabalho."
+  duvidas={[
+    { p: 'Em quanto tempo o anúncio começa a dar resultado?', r: 'As primeiras semanas já mostram movimento, com o mês inicial servindo para calibrar público e criativo. O que não existe é campanha que nasce otimizada: os primeiros trinta dias são de aprendizado, e é bom que quem contrata saiba disso antes.' },
+    { p: 'Quanto preciso investir para começar?', r: 'R$ 2.000 por mês em anúncio para e-commerce e R$ 1.500 para loja física. Esse é o piso para a campanha reunir dado suficiente para otimizar.' },
+    { p: 'Vocês trabalham com qual meta de retorno?', r: 'Com a que a sua operação precisa, calculada sobre a sua margem depois de comissão, frete e imposto. Meta de retorno copiada de benchmark é o erro mais comum e o mais caro do mercado.' },
+    { p: 'Dá para medir se o anúncio trouxe gente até a loja física?', r: 'Dá, e é uma das coisas que a SAL mais gosta de montar. Usamos campanhas de local, medição de visita à loja quando o volume permite, e recursos simples que funcionam muito bem, como cupom rastreável e QR na vitrine.' },
+    { p: 'Quem faz os criativos?', r: 'A SAL. Peça nova toda semana, com o ângulo de venda definido antes da arte e aprovação sua antes de subir. O criativo entra junto do plano de mídia, não é vendido separado.' },
+    { p: 'Tem fidelidade?', r: 'O contrato é de seis meses, que é o tempo mínimo para o SEO dar resultado quando as duas frentes andam juntas. Mas você pode cancelar quando quiser, sem multa, avisando com trinta dias de antecedência.' },
+  ]}
+  proximos={[
+    { rot: 'SEO local, para não depender só do anúncio', href: '/seo-local/' },
+    { rot: 'SEO para e-commerce e a conta do custo de aquisição', href: '/seo-para-ecommerce/' },
+    { rot: 'Como a SAL trabalha: o método na medida certa', href: '/quem-somos/' },
+  ]}
+  ctaTitulo="Quer que a gente olhe as suas contas de anúncio?"
+  ctaTexto="No diagnóstico a gente abre o que está rodando hoje, refaz a conta com a sua margem e mostra onde a verba está sendo desperdiçada."
+/>

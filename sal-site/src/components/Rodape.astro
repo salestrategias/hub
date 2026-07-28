@@ -1,0 +1,91 @@
+---
+interface Props {
+  /** Página de conversão: só a linha legal, sem colunas de navegação. */
+  curto?: boolean;
+}
+const { curto = false } = Astro.props;
+
+const colunas = [
+  {
+    titulo: 'O que fazemos',
+    itens: [
+      { rot: 'SEO local', href: '/seo-local/' },
+      { rot: 'SEO para e-commerce', href: '/seo-para-ecommerce/' },
+      { rot: 'Tráfego pago', href: '/trafego-pago/' },
+      { rot: 'Diagnóstico de site', href: '/diagnostico-de-site/' },
+    ],
+  },
+  {
+    titulo: 'Para quem',
+    itens: [
+      { rot: 'Varejo local', href: '/varejo-local/' },
+      { rot: 'E-commerce', href: '/e-commerce/' },
+      { rot: 'Rede com várias lojas', href: '/varejo-local/' },
+    ],
+  },
+  {
+    titulo: 'A SAL',
+    itens: [
+      { rot: 'Quem somos', href: '/quem-somos/' },
+      { rot: 'Marcelo Freitas', href: '/marcelo-freitas/' },
+      { rot: 'Blog da SAL', href: '/blog/' },
+      { rot: 'Agendar diagnóstico', href: '/agenda/' },
+    ],
+  },
+];
+
+const redes = [
+  {
+    rot: 'Instagram da SAL',
+    href: 'https://www.instagram.com/salestrategias/',
+    d: '<rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />',
+  },
+  {
+    rot: 'LinkedIn do Marcelo Freitas',
+    href: 'https://www.linkedin.com/in/marcelocfreitas/',
+    d: '<rect x="3" y="3" width="18" height="18" rx="3" /><path d="M7.5 10.5V17M7.5 7.4v.1M11.5 17v-3.6a2.4 2.4 0 0 1 4.8 0V17" />',
+  },
+  {
+    rot: 'Newsletter no Substack',
+    href: 'https://marcelofreitas.substack.com/',
+    d: '<path d="M4.5 4.5h15v2.6h-15zM4.5 9.4h15V12h-15zM4.5 14.3 12 19l7.5-4.7v5.2L12 21.5l-7.5-2z" />',
+  },
+  {
+    rot: 'WhatsApp da SAL',
+    href: 'https://wa.me/5551993380278',
+    d: '<path d="M20.5 11.6a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.6-4.5a8.4 8.4 0 1 1 15.4-4.4Z" /><path d="M9 9.4c.3 2.4 3.2 5.3 5.6 5.6.6.1 1.3-.5 1.4-1.1l-1.8-.9-.9.9c-1-.5-2.2-1.7-2.7-2.7l.9-.9-.9-1.8c-.6.1-1.2.8-1.1 1.4Z" />',
+  },
+];
+---
+
+<footer class={curto ? 'rodape rodape-curto' : 'rodape'}>
+  <div class="wrap">
+    {!curto && (
+      <div class="grade">
+        <div>
+          <img src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="71" height="40" />
+          <p>Assessoria de Tráfego Pago e SEO para lojas físicas e e-commerce. Fazemos marketing na medida certa para você vender mais e melhor.</p>
+          <ul class="redes">
+            {redes.map((r) => (
+              <li>
+                <a href={r.href} rel="noopener" aria-label={r.rot}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true" set:html={r.d} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {colunas.map((c) => (
+          <nav aria-label={c.titulo}>
+            <h4>{c.titulo}</h4>
+            <ul>{c.itens.map((i) => <li><a href={i.href}>{i.rot}</a></li>)}</ul>
+          </nav>
+        ))}
+      </div>
+    )}
+    <div class="legal">
+      <span>SAL ESTRATÉGIAS DE MARKETING LTDA · CNPJ 66.018.951/0001-04 · Porto Alegre, RS</span>
+      <a href="/politica-de-privacidade/">Política de privacidade</a>
+    </div>
+  </div>
+</footer>

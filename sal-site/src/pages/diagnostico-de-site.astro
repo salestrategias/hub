@@ -1,0 +1,67 @@
+---
+import Servico from '../layouts/Servico.astro';
+---
+
+<Servico
+  title="Diagnóstico de Site e Loja Virtual · SAL"
+  description="A SAL analisa o seu site como quem vai comprar e mostra onde a pessoa desiste: página de produto, checkout, frete e velocidade. Com plano de correção."
+  canonical="/diagnostico-de-site/"
+  servicoNome="Diagnóstico de site e loja virtual"
+  rotulo="Análise de conversão"
+  h1="Seu site recebe visita."
+  h1Destaque="A pergunta é onde ela desiste."
+  chamada="A gente percorre a sua loja como quem está com o cartão na mão e mapeia cada ponto em que a pessoa trava. No fim você recebe os gargalos apontados e a ordem de corrigir, do que resolve nesta semana ao que leva mais tempo."
+  chips={[
+    'Jornada de compra',
+    'Página de produto',
+    'Checkout e frete',
+    'Velocidade no celular',
+    'Rastreamento',
+  ]}
+  problemaTitulo="Aumentar a verba é a saída mais cara para um problema que costuma estar na página."
+  problemaTexto={[
+    'Quando a venda não vem, o reflexo é colocar mais dinheiro no anúncio. Só que se a sua página converte metade do que deveria, cada real a mais de verba também rende metade. Você paga dobrado pelo mesmo problema.',
+    'Na maioria das lojas que a gente abre, o gargalo não está no tráfego. Está em coisas que ninguém olha porque quem cuida do site já decorou o caminho e não enxerga mais onde o cliente novo empaca.',
+  ]}
+  problemaLista={[
+    'Frete que só aparece no fim, depois de a pessoa já ter investido tempo',
+    'Página de produto sem foto suficiente, sem medida e sem avaliação',
+    'Checkout pedindo cadastro antes de mostrar o valor final',
+    'Loja lenta no celular, onde acontece a maior parte das visitas',
+    'Busca interna que não encontra o produto quando a pessoa erra uma letra',
+    'Nenhum caminho claro para quem chegou pelo anúncio e não quer navegar',
+  ]}
+  etapasTitulo="Como a análise acontece."
+  etapas={[
+    { n: '01', titulo: 'A jornada', texto: 'Percorremos a loja no celular e no computador, do anúncio ao pedido concluído, anotando cada ponto de atrito com print e descrição.' },
+    { n: '02', titulo: 'Os números', texto: 'Cruzamos o que vimos com o GA4: onde a queda acontece, em qual etapa, em qual aparelho e vindo de qual canal.' },
+    { n: '03', titulo: 'A comparação', texto: 'Olhamos três concorrentes seus fazendo o mesmo percurso, para separar o que é problema seu do que é padrão do seu mercado.' },
+    { n: '04', titulo: 'O plano', texto: 'Cada gargalo vira uma correção com prazo e ordem de prioridade, separando o que dá para resolver na mesma semana do que exige projeto.' },
+  ]}
+  entregasTitulo="O que você recebe."
+  entregas={[
+    { titulo: 'Mapa da jornada', texto: 'O caminho completo do cliente, do anúncio ao pedido, com cada ponto de desistência marcado e explicado.' },
+    { titulo: 'Análise da página de produto', texto: 'Foto, descrição, medida, prazo, avaliação, frete e gatilho de estoque. É a página que mais decide venda e a que menos recebe atenção.' },
+    { titulo: 'Checkout e frete', texto: 'Quantos passos, quantos campos, quando o frete aparece e quais meios de pagamento faltam para o seu público.' },
+    { titulo: 'Velocidade real', texto: 'Core Web Vitals medidos no celular, com a lista do que está pesando e quanto cada correção devolve em segundos.' },
+    { titulo: 'Rastreamento auditado', texto: 'Se o GA4, o pixel e a API de conversão estão medindo certo. Decisão tomada sobre número errado custa mais caro que decisão nenhuma.' },
+    { titulo: 'Plano priorizado', texto: 'Tudo em ordem de impacto sobre esforço, com prazo. Um documento para executar, não para arquivar.' },
+  ]}
+  metricaTitulo="A gente aponta o problema e resolve, se você quiser."
+  metricaTexto="Existe muita consultoria que entrega o documento e deixa a execução com o seu time, que quase sempre não tem tempo para isso. Aqui o plano pode virar implementação, feita pela SAL, nas plataformas que a gente já conhece: Shopify, Nuvemshop e WooCommerce."
+  duvidas={[
+    { p: 'Serve para loja física com site institucional?', r: 'Serve. Muda o que a gente olha: em vez de checkout, o foco vira o caminho até o contato, o WhatsApp, o formulário e a página que sustenta o SEO local. O objetivo continua sendo o mesmo, descobrir onde a pessoa desiste.' },
+    { p: 'Quanto tempo leva?', r: 'De sete a quinze dias, dependendo do tamanho do catálogo e de quantos aparelhos e canais precisam ser testados.' },
+    { p: 'Vocês precisam de acesso ao meu site?', r: 'Para a análise, basta o site no ar e acesso de leitura ao GA4 e ao Search Console. Para a implementação, aí sim precisamos de acesso à plataforma, combinado no contrato.' },
+    { p: 'Isso é o mesmo que teste A/B?', r: 'Não. Teste A/B compara duas versões e exige volume alto de visita para dar resposta confiável. O diagnóstico vem antes: ele encontra o que está claramente errado, que é a maior parte do ganho na maioria das lojas, e é o que faz sentido corrigir antes de testar variação.' },
+    { p: 'Já tenho quem cuide do meu site. Atrapalha?', r: 'Não atrapalha, e costuma ajudar. O plano é escrito para ser executado por qualquer pessoa técnica, com o que precisa ser feito descrito sem jargão desnecessário.' },
+    { p: 'Vem junto do plano mensal ou é separado?', r: 'Faz parte do trabalho da assessoria. As entregas da SAL são feitas dentro do plano contratado, não vendidas soltas.' },
+  ]}
+  proximos={[
+    { rot: 'SEO para e-commerce: o que fazer depois de arrumar a loja', href: '/seo-para-ecommerce/' },
+    { rot: 'Tráfego pago com a conta certa', href: '/trafego-pago/' },
+    { rot: 'Como a SAL trabalha e-commerce', href: '/e-commerce/' },
+  ]}
+  ctaTitulo="Quer saber onde a sua loja perde venda?"
+  ctaTexto="No diagnóstico gratuito a gente já abre o seu site junto com você e aponta os primeiros pontos de atrito. Em trinta minutos você sai sabendo por onde começar."
+/>
