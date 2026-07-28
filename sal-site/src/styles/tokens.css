@@ -1,0 +1,134 @@
+/* =========================================================
+   SAL — Direção visual "Indigo + Champagne" (aprovada 2026-07-28)
+   Evolução do SAL Design System para o público de decisor:
+   o roxo da marca vira profundidade (indigo), o acento vira
+   champagne, e a display passa a ser serifada.
+   O lima #F2FA5A segue vivo no blog e nas redes, fora daqui.
+   ========================================================= */
+
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/fraunces-var.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('/fonts/plus-jakarta-sans-var.woff2') format('woff2');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* -------- Superfícies escuras (a base da marca) -------- */
+  --noite: #14103A;        /* indigo profundo: hero, painéis, rodapé */
+  --noite-2: #1B1650;      /* elevação sobre a noite */
+  --noite-3: #241E63;      /* bordas e divisores no escuro */
+  --indigo: #2D1D7A;       /* âncora oficial da marca */
+  --violeta: #7E30E1;      /* âncora oficial: links e destaques */
+  --violeta-claro: #A78BFA;
+
+  /* -------- Acento champagne (o "caro") -------- */
+  --champagne: #C9A961;
+  --champagne-claro: #E0C88A;
+  --champagne-escuro: #A88940;
+
+  /* -------- Superfícies claras -------- */
+  --papel: #F5F1E8;        /* papel quente, seções claras */
+  --papel-2: #FBF9F4;      /* off-white, alternância */
+  --branco: #FFFFFF;
+
+  /* -------- Tinta -------- */
+  --tinta: #14103A;        /* títulos no claro */
+  --texto: #3A3752;        /* corpo no claro */
+  --texto-suave: #6B6880;
+  --linha: #E2DCCF;        /* divisor no claro */
+  --linha-escura: rgba(245, 241, 232, 0.14);
+  --claro-forte: #F5F1E8;  /* texto no escuro */
+  --claro-suave: rgba(245, 241, 232, 0.72);
+  --claro-fraco: rgba(245, 241, 232, 0.48);
+
+  /* -------- Tipografia -------- */
+  --display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --corpo: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --t-hero: clamp(2.6rem, 1.6rem + 4.4vw, 5rem);
+  --t-h2: clamp(2rem, 1.4rem + 2.4vw, 3.1rem);
+  --t-h3: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  --t-lead: clamp(1.05rem, 1rem + 0.3vw, 1.2rem);
+  --t-corpo: 1rem;
+  --t-peq: 0.875rem;
+  --t-micro: 0.75rem;
+
+  /* -------- Espaço -------- */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px; --s10: 128px;
+  --secao: clamp(4.5rem, 8vw, 8rem);
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --largura: 1200px;
+
+  /* -------- Raio e sombra -------- */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
+  --sombra-sm: 0 2px 8px rgba(20, 16, 58, 0.06);
+  --sombra-md: 0 8px 28px rgba(20, 16, 58, 0.10);
+  --sombra-lg: 0 24px 60px rgba(20, 16, 58, 0.16);
+  --foco: 0 0 0 3px rgba(201, 169, 97, 0.5);
+
+  /* -------- Movimento -------- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rapido: 140ms; --medio: 260ms; --lento: 520ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 96px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  margin: 0;
+  background: var(--papel-2);
+  color: var(--texto);
+  font-family: var(--corpo);
+  font-size: var(--t-corpo);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--tinta);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--s4);
+  text-wrap: balance;
+}
+h1 { font-size: var(--t-hero); }
+h2 { font-size: var(--t-h2); }
+h3 { font-family: var(--sans); font-weight: 700; font-size: var(--t-h3); line-height: 1.25; letter-spacing: -0.01em; }
+h4 { font-family: var(--sans); font-weight: 700; font-size: 1.05rem; }
+
+p { margin: 0 0 var(--s4); }
+img, svg, video { max-width: 100%; height: auto; display: block; }
+
+a { color: var(--violeta); text-decoration: none; }
+a:hover { color: var(--indigo); }
+
+:focus-visible { outline: none; box-shadow: var(--foco); border-radius: var(--r-sm); }
+::selection { background: var(--champagne); color: var(--noite); }
