@@ -25,6 +25,19 @@
 		grifos.forEach(function (el) { el.classList.add('grifado'); });
 	}
 
+	// Dosador: barras crescem quando o painel entra na tela.
+	var dosador = document.querySelector('.dosador');
+	if (dosador && 'IntersectionObserver' in window) {
+		var id = new IntersectionObserver(function (es) {
+			es.forEach(function (e) {
+				if (e.isIntersecting) { e.target.classList.add('medido'); id.unobserve(e.target); }
+			});
+		}, { threshold: 0.35 });
+		id.observe(dosador);
+	} else if (dosador) {
+		dosador.classList.add('medido');
+	}
+
 	var alvos = document.querySelectorAll('.revela');
 	if ('IntersectionObserver' in window) {
 		var io = new IntersectionObserver(function (es) {

@@ -66,6 +66,46 @@
 .hero .garantia { font-size: var(--fs-sm); color: var(--fg-muted); margin-top: var(--space-4); }
 .hero .garantia b { color: var(--fg); font-weight: 600; }
 
+/* -------- Dosador: o gráfico-assinatura da metodologia -------- */
+.dosador {
+  background: var(--sal-white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+  padding: var(--space-6); position: relative; overflow: hidden;
+}
+.dosador::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0 35%, var(--accent-bright) 35% 75%, var(--spark) 75% 100%);
+}
+.dosador-topo { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-5); }
+.dosador-topo b { font-family: var(--font-display); font-weight: 800; font-size: 17px; color: var(--sal-indigo-900); }
+.dosador-topo span { font-size: var(--fs-xs); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--fg-subtle); }
+.dosador-tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-5); }
+.dosador-tabs span {
+  font-size: var(--fs-sm); font-weight: 600; padding: 7px 14px;
+  border-radius: var(--radius-pill); color: var(--fg-muted); background: var(--sal-ink-100);
+}
+.dosador-tabs .tab-ativa { background: var(--accent); color: var(--sal-white); }
+.doses { list-style: none; margin: 0 0 var(--space-5); padding: 0; display: grid; gap: var(--space-4); }
+.doses li { display: grid; grid-template-columns: minmax(0, 1fr) 92px 42px; align-items: center; gap: var(--space-3); }
+.doses .canal { font-size: var(--fs-sm); color: var(--fg); }
+.doses .barra { height: 8px; border-radius: var(--radius-pill); background: var(--sal-ink-180); overflow: hidden; }
+.doses .barra i {
+  display: block; height: 100%; width: var(--n); border-radius: var(--radius-pill);
+  background: var(--accent-bright); transform-origin: left center;
+}
+.doses li:nth-child(2) .barra i { background: var(--accent); }
+.doses li:nth-child(3) .barra i { background: var(--sal-violet-500); }
+.doses li:nth-child(4) .barra i { background: var(--sal-ink-400); }
+.doses b { font-family: var(--font-display); font-weight: 800; font-size: var(--fs-sm); color: var(--sal-indigo-900); text-align: right; font-variant-numeric: tabular-nums; }
+.dosador-rodape { margin: 0; padding-top: var(--space-4); border-top: 1px solid var(--border); font-size: var(--fs-sm); color: var(--fg-muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .js .doses .barra i { transform: scaleX(0); transition: transform 640ms var(--ease-out); }
+  .js .dosador.medido .barra i { transform: scaleX(1); }
+  .js .doses li:nth-child(2) .barra i { transition-delay: 90ms; }
+  .js .doses li:nth-child(3) .barra i { transition-delay: 180ms; }
+  .js .doses li:nth-child(4) .barra i { transition-delay: 270ms; }
+}
+
 .retrato { position: relative; }
 .retrato figure {
   margin: 0; border-radius: var(--radius-lg); overflow: hidden;
@@ -109,7 +149,8 @@
 .problema { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-8); align-items: start; }
 .problema-texto .eyebrow { display: block; margin-bottom: var(--space-3); }
 .problema-texto h2 { margin-bottom: var(--space-4); }
-.problema-texto .lead { margin: 0; }
+.problema-texto .lead { margin: 0 0 var(--space-4); }
+.problema-texto .lead:last-child { margin-bottom: 0; }
 .queixas { list-style: none; margin: 0; padding: 0; }
 .queixas li { padding: var(--space-5) 0; border-top: 1px solid var(--border); }
 .queixas li:last-child { border-bottom: 1px solid var(--border); }
@@ -195,6 +236,7 @@
   border-radius: var(--radius-pill); padding: 6px 14px; margin-bottom: var(--space-4);
 }
 .solucao h3 { font-size: 22px; margin-bottom: var(--space-3); }
+.solucao-intro { font-size: 15px; color: var(--fg-muted); margin-bottom: var(--space-4); }
 .solucao ul { list-style: none; margin: 0 0 var(--space-5); padding: 0; display: grid; gap: var(--space-3); }
 .solucao li { position: relative; padding-left: 22px; font-size: 15px; color: var(--fg); }
 .solucao li::before { content: "→"; position: absolute; left: 0; color: var(--accent-bright); font-weight: 600; }
@@ -224,26 +266,68 @@
 .painel { background: var(--bg-invert); color: var(--fg-invert); }
 .painel .wrap { padding-top: var(--space-9); padding-bottom: var(--space-9); text-align: center; }
 .painel h2 { color: var(--sal-white); font-size: var(--fs-h1); max-width: 20ch; margin: 0 auto var(--space-4); }
-.painel .lead { color: rgba(255, 255, 255, 0.78); max-width: 54ch; margin: 0 auto var(--space-6); }
+.painel .lead { color: rgba(255, 255, 255, 0.78); max-width: 56ch; margin: 0 auto var(--space-6); }
 .painel .micro { color: rgba(255, 255, 255, 0.6); font-size: var(--fs-sm); margin-top: var(--space-4); }
+.acoes-centro { display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap; }
+.btn-contorno-claro { background: transparent; color: var(--sal-white); border-color: rgba(255,255,255,.45); }
+.btn-contorno-claro:hover { background: rgba(255,255,255,.1); border-color: var(--sal-white); color: var(--sal-white); }
 
-/* -------- Portal (blog) -------- */
+/* -------- Blog da SAL (cards com imagem destacada) -------- */
+.cabeca-linha { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-5); margin-bottom: var(--space-6); flex-wrap: wrap; }
+.cabeca-linha h2 { margin: 0; }
+.ver-todos { font-weight: 600; font-size: 15px; text-decoration: none; white-space: nowrap; }
+.ver-todos:hover { text-decoration: underline; }
+
 .portal-lista { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-auto-rows: min-content; gap: var(--space-5); }
 .post {
   background: var(--sal-white); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: var(--space-5);
-  box-shadow: var(--shadow-xs); display: flex; flex-direction: column; gap: var(--space-3);
+  border-radius: var(--radius-md); overflow: hidden;
+  box-shadow: var(--shadow-xs); display: flex; flex-direction: column;
   transition: box-shadow var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
 }
 .post:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+.post-capa {
+  display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 16/9; background: var(--bg-invert); overflow: hidden;
+}
+.post-capa img { width: 100%; height: 100%; object-fit: cover; }
+.post-capa .ph { color: rgba(255,255,255,.6); font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; }
+.post-corpo { padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); flex: 1; }
 .post .cat { font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--accent-bright); }
 .post h3 { font-size: 18px; line-height: var(--lh-snug); margin: 0; }
 .post h3 a { color: var(--sal-indigo-900); text-decoration: none; }
 .post h3 a:hover { color: var(--accent-bright); }
-.post time { font-size: var(--fs-sm); color: var(--fg-subtle); margin-top: auto; }
 .post p { margin: 0; font-size: 15px; color: var(--fg-muted); }
 .post-destaque { grid-row: span 2; }
+.post-destaque .post-capa { aspect-ratio: auto; flex: 1; min-height: 300px; }
+.post-destaque .post-corpo { flex: none; }
 .post-destaque h3 { font-size: 24px; }
+
+/* -------- FAQ -------- */
+.faq-bloco { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-8); align-items: start; }
+.faq-bloco h2 { margin-bottom: var(--space-4); }
+.faq-bloco .lead { margin-bottom: var(--space-5); }
+.faq-lista details {
+  background: var(--sal-white); border: 1px solid var(--border);
+  border-radius: var(--radius-md); margin-bottom: var(--space-3);
+  transition: border-color var(--dur-med) var(--ease-out);
+}
+.faq-lista details[open] { border-color: var(--border-strong); }
+.faq-lista summary {
+  cursor: pointer; list-style: none; padding: var(--space-5);
+  font-family: var(--font-display); font-weight: 700; font-size: 17px;
+  color: var(--sal-indigo-900); position: relative; padding-right: 56px;
+}
+.faq-lista summary::-webkit-details-marker { display: none; }
+.faq-lista summary::after {
+  content: ""; position: absolute; right: var(--space-5); top: 50%;
+  width: 11px; height: 11px; margin-top: -7px;
+  border-right: 2px solid var(--accent-bright); border-bottom: 2px solid var(--accent-bright);
+  transform: rotate(45deg); transition: transform var(--dur-med) var(--ease-out);
+}
+.faq-lista details[open] summary::after { transform: rotate(-135deg); margin-top: -2px; }
+.faq-lista details > div { padding: 0 var(--space-5) var(--space-5); }
+.faq-lista p { margin: 0; color: var(--fg-muted); font-size: 15.5px; }
 
 /* -------- Footer -------- */
 .rodape { background: var(--sal-black); color: rgba(255, 255, 255, 0.72); }
@@ -277,7 +361,7 @@
   .hero .wrap { grid-template-columns: 1fr; gap: var(--space-6); }
   .hero h1 { max-width: none; }
   .retrato figure { aspect-ratio: 16/10; }
-  .problema, .guia, .conta { grid-template-columns: 1fr; gap: var(--space-6); }
+  .problema, .guia, .conta, .faq-bloco { grid-template-columns: 1fr; gap: var(--space-6); }
   .passos, .solucoes { grid-template-columns: 1fr 1fr; }
   .portal-lista { grid-template-columns: 1fr 1fr; }
   .post-destaque { grid-row: auto; grid-column: 1 / -1; }
