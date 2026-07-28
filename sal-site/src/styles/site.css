@@ -157,14 +157,17 @@
 .publico .vai { margin-top: auto; font-weight: 600; font-size: 0.95rem; color: var(--gold); display: inline-flex; align-items: center; gap: 6px; }
 .publico:hover .vai { color: var(--gold-light); }
 
-/* -------- Serviços: 5 cards (assimetria proposital) -------- */
+/* -------- Serviços: 6 cards, os dois de SEO em destaque -------- */
 .servicos { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s5); }
 .servico {
-  grid-column: span 2; background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  grid-column: span 3; background: linear-gradient(180deg, var(--surface-2), var(--surface));
   border: 1px solid var(--line); border-radius: var(--r); padding: var(--s6) var(--s5);
   transition: border-color var(--mid) var(--ease), transform var(--mid) var(--ease);
 }
-.servico:nth-child(4), .servico:nth-child(5) { grid-column: span 3; }
+/* SEO local e SEO para e-commerce ocupam a primeira linha: são o carro-chefe */
+.servico:nth-child(1), .servico:nth-child(2) { border-color: var(--gold-line); }
+.servico:nth-child(1) { background: radial-gradient(120% 100% at 0% 0%, #1A1636 0%, var(--surface) 62%); }
+.servico:nth-child(2) { background: radial-gradient(120% 100% at 100% 0%, #171A3A 0%, var(--surface) 62%); }
 .servico:hover { border-color: var(--gold-line); transform: translateY(-2px); }
 .servico svg { width: 28px; height: 28px; stroke: var(--gold); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; margin-bottom: var(--s4); }
 .servico h3 { font-size: 1.2rem; margin-bottom: var(--s2); }
@@ -177,6 +180,54 @@
 .passo b { display: block; font-family: var(--sans); font-weight: 700; font-size: 0.8rem; color: var(--gold); letter-spacing: 0.08em; margin-bottom: var(--s4); }
 .passo h3 { font-size: 1.15rem; margin-bottom: var(--s3); }
 .passo p { color: var(--muted); font-size: 0.93rem; margin: 0; }
+
+/* -------- Três territórios da venda -------- */
+.territorios { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); }
+.territorio {
+  position: relative; padding: var(--s7) var(--s5) var(--s6);
+  border-top: 1px solid var(--line);
+}
+.territorio b {
+  display: block; font-family: var(--display); font-weight: 600;
+  font-size: clamp(2.5rem, 2rem + 2vw, 3.5rem); line-height: 1;
+  color: transparent; -webkit-text-stroke: 1px var(--gold-line);
+  margin-bottom: var(--s4);
+}
+.territorio h3 { font-size: 1.3rem; margin-bottom: var(--s3); }
+.territorio p { color: var(--muted); font-size: 0.95rem; margin: 0; }
+.territorio::before {
+  content: ""; position: absolute; inset: -1px auto auto 0; height: 1px; width: 0;
+  background: var(--gold); transition: width var(--slow) var(--ease);
+}
+.territorio.on::before { width: 100%; }
+
+/* -------- Oferta de entrada -------- */
+.oferta {
+  display: grid; grid-template-columns: 7fr 5fr; gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start; padding: clamp(2rem, 4vw, 3.5rem);
+  background: radial-gradient(90% 120% at 100% 0%, #1A1636 0%, var(--surface) 60%);
+  border: 1px solid var(--gold-line); border-radius: var(--r-lg);
+}
+.oferta h2 { font-size: var(--t-h2); margin-bottom: var(--s4); }
+.oferta > div > p { color: var(--muted); font-size: var(--t-lead); margin: 0; }
+.entregaveis { list-style: none; margin: var(--s5) 0 0; padding: 0; display: grid; gap: var(--s3); }
+.entregaveis li { position: relative; padding-left: 22px; font-size: 0.95rem; color: var(--muted); }
+.entregaveis li::before {
+  content: ""; position: absolute; left: 0; top: 0.55em;
+  width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg);
+}
+.oferta aside {
+  padding: var(--s6) var(--s5); background: rgba(11, 10, 24, 0.5);
+  border: 1px solid var(--line); border-radius: var(--r); text-align: center;
+}
+.preco b {
+  display: block; font-family: var(--sans); font-weight: 700;
+  font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3rem); color: var(--gold);
+  line-height: 1; letter-spacing: -0.02em;
+}
+.preco span { display: block; font-size: 0.9rem; color: var(--muted-2); margin-top: var(--s3); }
+.oferta .obs { font-size: 0.88rem; color: var(--muted-2); margin: var(--s5) 0; }
+.oferta aside .btn { width: 100%; justify-content: center; }
 
 /* -------- Seção osso: a quebra editorial -------- */
 .bone { background: var(--bone); color: var(--bone-txt); }
@@ -252,7 +303,9 @@
 /* -------- Responsivo -------- */
 @media (max-width: 1000px) {
   .servicos { grid-template-columns: repeat(2, 1fr); }
-  .servico, .servico:nth-child(4), .servico:nth-child(5) { grid-column: span 1; }
+  .servico, .servico:nth-child(1), .servico:nth-child(2) { grid-column: span 1; }
+  .territorios { grid-template-columns: 1fr; }
+  .territorio { padding-top: var(--s5); padding-left: 0; }
   .metodo { grid-template-columns: 1fr 1fr; }
   .passo:nth-child(odd) { padding-left: 0; }
   .passo:nth-child(even) { padding-left: var(--s5); }
@@ -262,7 +315,7 @@
   .retrato { max-width: 420px; }
   .retrato figure { aspect-ratio: 16/11; }
   .selo-1 { left: 12px; } .selo-2 { right: 12px; }
-  .publicos, .selos { grid-template-columns: 1fr; }
+  .publicos, .selos, .oferta { grid-template-columns: 1fr; }
   .bone .fundador, .faq { grid-template-columns: 1fr; }
   .rodape .grade { grid-template-columns: 1fr 1fr; }
 }

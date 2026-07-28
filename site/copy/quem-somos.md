@@ -39,7 +39,7 @@ Na prática, isso significa algumas escolhas. Atendemos varejo e e-commerce, e s
 
 ## H2: De onde a gente veio
 
-Antes de fundar a SAL, Marcelo Freitas passou uma década no marketing, os últimos cinco anos dentro do varejo. Foi gerente de marketing de uma administradora de shopping centers, coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial de mais de 40 marcas (Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top e Grand Cru, entre outras), e participou da reestruturação de dois clássicos de Porto Alegre, o Rua da Praia Shopping e o Lindóia Shopping, além da gestão da Galeria Chaves Barcellos, onde trabalhou no lançamento da primeira Starbucks da cidade.
+Antes de fundar a SAL, Marcelo Freitas passou uma década no marketing, os últimos cinco anos deles em shopping center. Foi gerente de marketing de uma administradora de shopping centers, coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial de mais de 40 marcas (Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top e Grand Cru, entre outras), e participou da reestruturação de dois clássicos de Porto Alegre, o Rua da Praia Shopping e o Lindóia Shopping, além da gestão da Galeria Chaves Barcellos, onde trabalhou no lançamento da primeira Starbucks da cidade.
 
 Três desses empreendimentos, o Rua da Praia Shopping, o Lindóia Shopping e a Galeria Chaves Barcellos, continuam com a gente até hoje, como clientes de consultoria da SAL. Pra gente isso diz mais do que qualquer número: quem viu o trabalho de perto quis continuar.
 
@@ -74,4 +74,4 @@ Não. A gente trabalha com varejo e e-commerce: loja de rua, loja de shopping, n
 Sim. A sede é em Porto Alegre e o atendimento cobre o Brasil todo, com reuniões e acompanhamento remotos.
 
 **Quem cuida do meu projeto?**
-O plano é conduzido pelo Marcelo Freitas, fundador da SAL, que trabalha com marketing desde 2014 e passou os últimos cinco anos antes da SAL dentro do varejo, gerindo o marketing de shopping centers. A trajetória completa dele está em /marcelo-freitas/.
+O plano é conduzido pelo Marcelo Freitas, fundador da SAL, que trabalha com marketing desde 2014 e passou os cinco anos anteriores à SAL gerindo o marketing de shopping centers. A trajetória completa dele está em /marcelo-freitas/.

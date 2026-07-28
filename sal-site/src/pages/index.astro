@@ -1,9 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
 
-const title = 'Agência de Tráfego Pago e SEO para Varejo e E-commerce · SAL';
+const title = 'Agência de SEO e Tráfego Pago para Varejo e E-commerce · SAL';
 const description =
-  'Tráfego pago e SEO na medida certa para loja física e e-commerce, por quem passou dez anos dentro da operação de varejo. Agende um diagnóstico com a SAL.';
+  'SEO e tráfego pago na medida certa para loja física e e-commerce. Agência em Porto Alegre conduzida por quem vem do marketing de shopping center. Agende um diagnóstico.';
 
 const schema = {
   '@context': 'https://schema.org',
@@ -44,10 +44,10 @@ const schema = {
         },
         {
           '@type': 'Question',
-          name: 'Quanto preciso investir em mídia pra começar?',
+          name: 'Quanto preciso investir em anúncios para começar?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Trabalhamos com operações que têm pelo menos R$ 2.000 por mês para investir em mídia, fora o valor da gestão. Abaixo disso a campanha não junta dado suficiente pra otimizar, e o dinheiro rende mais em outras frentes, o que a gente diz com todas as letras no diagnóstico.',
+            text: 'Para e-commerce, trabalhamos com quem tem pelo menos R$ 2.000 por mês para investir em anúncios. Para loja física, R$ 1.500. Abaixo disso a campanha não reúne dado suficiente para otimizar e o dinheiro rende mais em outra frente, normalmente no SEO local. Se for o seu caso, a gente diz isso no diagnóstico.',
           },
         },
         {
@@ -55,7 +55,7 @@ const schema = {
           name: 'Em quanto tempo aparece resultado?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Tráfego pago responde nas primeiras semanas, com o mês inicial servindo pra calibrar público e criativo. SEO local, como o Perfil da Empresa no Google, costuma mostrar movimento em algumas semanas. SEO de e-commerce dá sinais entre 3 e 6 meses e consolida entre 6 e 12.',
+            text: 'Anúncio responde nas primeiras semanas, com o mês inicial servindo para calibrar público e criativo. Em SEO o próprio Google avisa que leva de quatro meses a um ano. Na nossa experiência os primeiros sinais vêm por volta de 90 dias, e é por isso que contrato de SEO na SAL tem prazo mínimo: abaixo disso você paga o esforço e não colhe o resultado.',
           },
         },
         {
@@ -64,6 +64,22 @@ const schema = {
           acceptedAnswer: {
             '@type': 'Answer',
             text: 'As duas. Metade do trabalho é com loja física, quiosque, franquia e operação em shopping, onde o objetivo é fluxo na porta. A outra metade é e-commerce. Quem tem os dois canais recebe um plano que cobre os dois.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Vocês atendem rede com várias lojas?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Sim, e é um trabalho que a SAL organizou como serviço próprio. Cada unidade tem o seu Perfil da Empresa no Google, a sua página de localidade, as suas avaliações e a sua campanha por raio, com um painel que compara as lojas entre si. Rede, franquia e operação de shopping entram por aqui.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Dá para começar com algo menor antes de contratar mensal?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Dá. A Auditoria de Presença Local custa R$ 1.000 e leva até 15 dias. A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa, as suas avaliações e três concorrentes da sua região, e entrega um plano de correções priorizado. É um trabalho fechado, sem contrato mensal e sem obrigação de seguir com a gente depois.',
           },
         },
         {
@@ -91,29 +107,52 @@ const marcas = ['Rua da Praia Shopping', 'Lindóia Shopping', 'Galeria Chaves Ba
 
 const servicos = [
   {
-    titulo: 'Tráfego pago',
-    texto: 'Google Ads e Meta Ads com gestão diária, criativo novo toda semana e meta de retorno calculada sobre a sua margem, não sobre a média do mercado.',
-    icone: 'alvo',
-  },
-  {
     titulo: 'SEO local',
-    texto: 'Perfil da Empresa no Google, mapa e busca de bairro. Quem procura "perto de mim" precisa achar a sua loja antes da loja do vizinho.',
+    texto: 'Perfil da Empresa no Google, mapa e busca de bairro. Quem pesquisa "perto de mim" precisa achar a sua loja antes de achar a do vizinho. Em rede, cada unidade tem o seu.',
     icone: 'pin',
   },
   {
     titulo: 'SEO para e-commerce',
-    texto: 'Categoria, produto e conteúdo ranqueando pra quem já está com o cartão na mão, incluindo as respostas do ChatGPT e do Gemini.',
+    texto: 'Categoria, produto e conteúdo ranqueando para quem já está decidido a comprar. Inclui o trabalho para a sua marca ser citada nas respostas do ChatGPT, do Gemini e do Google.',
     icone: 'busca',
   },
   {
-    titulo: 'Criativo de performance',
-    texto: 'Anúncio pensado por quem sabe o que faz alguém atravessar a rua pra entrar numa loja. Peça nova toda semana, testada no ar.',
-    icone: 'camada',
+    titulo: 'Tráfego pago',
+    texto: 'Google Ads e Meta Ads com gestão diária e meta de retorno calculada sobre a sua margem. Em loja física, anúncio por raio e medição de visita, não só de clique.',
+    icone: 'alvo',
   },
   {
-    titulo: 'Dados e relatório',
-    texto: 'GA4, pixel e API de conversão medindo direito, e um relatório mensal em reais que serve pra decidir, não pra arquivar.',
-    icone: 'grafico',
+    titulo: 'Loja e site que convertem',
+    texto: 'Shopify, Nuvemshop e WooCommerce: setup, catálogo, checkout e frete. Auditoria de conversão com a implementação junto, porque relatório sozinho não muda venda.',
+    icone: 'loja',
+  },
+  {
+    titulo: 'Conteúdo e autoridade',
+    texto: 'Calendário editorial montado por intenção de busca, artigos otimizados e conteúdo para o Perfil da Empresa. É o que faz o SEO andar mês a mês.',
+    icone: 'texto',
+  },
+  {
+    titulo: 'Criativo de performance',
+    texto: 'Peça nova toda semana, com ângulo de venda definido antes da arte e aprovação sua antes de subir. Vendável junto do plano ou separado, para quem já tem time.',
+    icone: 'camada',
+  },
+];
+
+const territorios = [
+  {
+    n: '01',
+    titulo: 'Ser encontrado',
+    texto: 'SEO local, SEO de e-commerce, Perfil da Empresa no Google, presença nas respostas das IAs e anúncio na hora da busca. Antes de convencer alguém, é preciso aparecer para essa pessoa.',
+  },
+  {
+    n: '02',
+    titulo: 'Ser escolhido',
+    texto: 'Página de produto, checkout, oferta, avaliações e criativo. Quem chega até você compara com outros três antes de decidir, e o que decide é o que está na tela nesses segundos.',
+  },
+  {
+    n: '03',
+    titulo: 'Ser lembrado',
+    texto: 'Base de clientes, WhatsApp, recompra e sazonalidade. Cliente que comprou uma vez e nunca mais ouviu falar de você custou caro duas vezes.',
   },
 ];
 ---
@@ -142,12 +181,12 @@ const servicos = [
       <div class="malha"></div>
       <div class="wrap">
         <div>
-          <span class="eyebrow">Tráfego pago e SEO para varejo</span>
-          <h1>Marketing de varejo feito por quem <em>já viveu o balcão</em>.</h1>
+          <span class="eyebrow">SEO e tráfego pago para varejo e e-commerce</span>
+          <h1>Sua loja encontrada por <em>quem já quer comprar</em>.</h1>
           <p class="sub">
-            Tráfego pago e SEO na medida certa para loja física e e-commerce. Antes de gerir mídia,
-            a gente passou dez anos dentro da operação: em shopping center, em lançamento de loja e
-            na alta temporada de Gramado.
+            A SAL cuida da busca e dos anúncios de lojas físicas e e-commerces. Antes de abrir a agência,
+            o Marcelo passou cinco anos no marketing de shopping center, respondendo pelo movimento de
+            dezenas de lojas ao mesmo tempo.
           </p>
           <div class="acoes">
             <a class="btn btn-primary" href="/diagnostico/">Agendar diagnóstico ↗</a>
@@ -160,7 +199,7 @@ const servicos = [
           <figure>
             <span class="ph">Foto · Marcelo Freitas</span>
           </figure>
-          <div class="selo selo-1"><b>10 anos</b><span>dentro do varejo</span></div>
+          <div class="selo selo-1"><b>10 anos</b><span>de marketing</span></div>
           <div class="selo selo-2"><b>3 shoppings</b><span>de Porto Alegre</span></div>
         </div>
       </div>
@@ -180,9 +219,9 @@ const servicos = [
     <!-- NÚMEROS -->
     <section class="wrap">
       <div class="numeros">
-        <div class="numero"><b>10 anos</b><span>de varejo por dentro, antes da mídia</span></div>
+        <div class="numero"><b>10 anos</b><span>de marketing, cinco deles em shopping center</span></div>
         <div class="numero"><b>3 shoppings</b><span>de Porto Alegre atendidos hoje</span></div>
-        <div class="numero"><b>2 frentes</b><span>tráfego pago e tráfego orgânico</span></div>
+        <div class="numero"><b>2 frentes</b><span>tráfego orgânico e tráfego pago</span></div>
       </div>
     </section>
 
@@ -192,17 +231,17 @@ const servicos = [
         <div class="cabeca rev">
           <span class="eyebrow">Para quem</span>
           <h2>Dois negócios, duas engrenagens diferentes.</h2>
-          <p>Loja de rua e loja online não vendem do mesmo jeito, e não deveriam ser anunciadas do mesmo jeito. A SAL trabalha as duas, com a dose que cada uma pede.</p>
+          <p>Loja de rua e loja online não vendem do mesmo jeito, e o marketing das duas não pode ser o mesmo. A SAL trabalha as duas, com a dose que cada uma pede.</p>
         </div>
         <div class="publicos">
           <article class="publico fisico rev">
             <h3>Varejo local</h3>
-            <p>Loja de rua, quiosque, franquia, operação em shopping. O que interessa é gente entrando pela porta.</p>
+            <p>Loja de rua, quiosque, franquia, operação em shopping e rede com várias unidades. O que interessa é gente entrando pela porta.</p>
             <ul>
               <li>Perfil da Empresa no Google no topo do mapa</li>
-              <li>Anúncio por raio, só pra quem consegue chegar</li>
+              <li>Anúncio por raio, só para quem consegue chegar</li>
               <li>Avaliações respondidas e reputação cuidada</li>
-              <li>Campanha de data comemorativa e sazonalidade</li>
+              <li>Rede: cada loja com o seu perfil, sua página e seu painel</li>
             </ul>
             <a class="vai" href="/varejo-local/">Ver a frente de varejo local →</a>
           </article>
@@ -213,7 +252,7 @@ const servicos = [
               <li>Shopping, Performance Max e catálogo bem configurados</li>
               <li>Meta de retorno calculada sobre comissão, frete e imposto</li>
               <li>Produto e categoria ranqueando sem pagar por clique</li>
-              <li>Sua marca citada nas respostas das IAs</li>
+              <li>Sua marca citada nas respostas do ChatGPT e do Gemini</li>
             </ul>
             <a class="vai" href="/e-commerce/">Ver a frente de e-commerce →</a>
           </article>
@@ -236,6 +275,8 @@ const servicos = [
                 {s.icone === 'pin' && <><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></>}
                 {s.icone === 'busca' && <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5M8.5 11h5M11 8.5v5" /></>}
                 {s.icone === 'camada' && <><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></>}
+                {s.icone === 'loja' && <><path d="M4 10v10h16V10" /><path d="M3 10 5 4h14l2 6a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0Z" /><path d="M10 20v-6h4v6" /></>}
+                {s.icone === 'texto' && <><path d="M5 4h14v16H5z" /><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4" /></>}
                 {s.icone === 'grafico' && <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>}
               </svg>
               <h3>{s.titulo}</h3>
@@ -251,19 +292,73 @@ const servicos = [
       <div class="wrap">
         <div class="cabeca rev">
           <span class="eyebrow">Marketing na Medida Certa</span>
-          <h2>O nome é a metodologia.</h2>
+          <h2>O nome não é enfeite.</h2>
           <p>
-            Sal demais estraga o prato, de menos ninguém sente o gosto. Marketing é igual: a diferença entre
-            queimar verba e crescer com margem está na dosagem. Toda loja passa por estes quatro movimentos,
-            e o que muda é a dose de cada um.
+            Sal demais estraga o prato, de menos ninguém sente o gosto. Com verba de marketing acontece a
+            mesma coisa. O que muda de uma loja para outra é a dose de cada coisa, e é isso que a gente
+            define antes de começar a gastar.
           </p>
         </div>
         <div class="metodo">
-          <div class="passo rev"><b>01</b><h3>Descobrir</h3><p>Auditoria das contas, da presença no mapa, do site e da concorrência. Sai um documento com os gargalos, não uma opinião.</p></div>
-          <div class="passo rev"><b>02</b><h3>Desenhar</h3><p>Verba, canais, metas e calendário definidos antes de qualquer campanha ir pro ar, com base no seu ticket e na sua margem.</p></div>
-          <div class="passo rev"><b>03</b><h3>Disparar</h3><p>Gestão diária, criativo novo toda semana e SEO evoluindo mês a mês. Ajuste enquanto roda, porque o mercado não espera.</p></div>
-          <div class="passo rev"><b>04</b><h3>Decodificar</h3><p>Reunião mensal lendo os números juntos. Canal que não se paga sai do plano no mês seguinte, sem drama.</p></div>
+          <div class="passo rev"><b>01</b><h3>Descobrir</h3><p>Auditoria das contas de anúncio, da presença no mapa, do site e de três concorrentes seus. No fim, um documento com os gargalos e a ordem de atacar.</p></div>
+          <div class="passo rev"><b>02</b><h3>Desenhar</h3><p>Verba, canais, metas e calendário definidos antes de qualquer campanha ir para o ar, com base no seu ticket e na sua margem.</p></div>
+          <div class="passo rev"><b>03</b><h3>Disparar</h3><p>Gestão diária das campanhas, criativo novo toda semana e o SEO avançando mês a mês, com ajuste enquanto roda.</p></div>
+          <div class="passo rev"><b>04</b><h3>Decodificar</h3><p>Reunião mensal lendo os números juntos. Canal que não se paga sai do plano no mês seguinte.</p></div>
         </div>
+      </div>
+    </section>
+
+    <!-- 3 TERRITÓRIOS -->
+    <section class="sec" id="territorios">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <span class="eyebrow">Onde a SAL atua</span>
+          <h2>Os três territórios da venda.</h2>
+          <p>
+            Toda venda, na loja de rua ou no e-commerce, passa por três momentos. A maior parte das
+            agências trabalha só o primeiro. É no segundo e no terceiro que costuma estar o dinheiro
+            que a sua operação já poderia estar fazendo.
+          </p>
+        </div>
+        <div class="territorios">
+          {territorios.map((t) => (
+            <article class="territorio rev">
+              <b>{t.n}</b>
+              <h3>{t.titulo}</h3>
+              <p>{t.texto}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUTO DE ENTRADA -->
+    <section class="sec" id="auditoria">
+      <div class="wrap">
+        <article class="oferta rev">
+          <div>
+            <span class="eyebrow">Para começar sem contrato mensal</span>
+            <h2>Auditoria de Presença Local</h2>
+            <p>
+              A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa nas buscas que
+              interessam, as suas avaliações e três concorrentes da sua região. Você recebe um plano de
+              correções em ordem de prioridade, com o que dá para resolver na mesma semana separado do
+              que leva mais tempo.
+            </p>
+            <ul class="entregaveis">
+              <li>Diagnóstico do Perfil da Empresa no Google, item a item</li>
+              <li>Sua posição no mapa em até 10 buscas da sua região</li>
+              <li>Comparação com três concorrentes seus</li>
+              <li>Análise das avaliações e do que fazer com as negativas</li>
+              <li>Plano de correções priorizado, com prazo de cada uma</li>
+            </ul>
+          </div>
+          <aside>
+            <p class="preco"><b>R$ 1.000</b><span>entrega em até 15 dias</span></p>
+            <p class="obs">Trabalho fechado. Sem contrato mensal e sem obrigação de seguir com a SAL depois.</p>
+            <a class="btn btn-primary" href="/auditoria-de-presenca-local/">Quero a auditoria ↗</a>
+          </aside>
+        </article>
       </div>
     </section>
 
@@ -281,17 +376,19 @@ const servicos = [
           </div>
           <div class="rev">
             <span class="eyebrow">Quem está por trás</span>
-            <h2>Dez anos operando varejo antes de anunciar para o varejo.</h2>
-            <p class="destaque">A SAL não é uma agência que aprendeu varejo pela planilha. É varejo que passou a operar mídia.</p>
+            <h2>Antes da agência, cinco anos respondendo pelo movimento de shoppings.</h2>
+            <p class="destaque">Quem trabalha com shopping center convive com uma pergunta só: quanta gente entrou. É a mesma pergunta que a gente faz de toda campanha.</p>
             <p>
-              Marcelo Freitas passou anos como gerente de marketing de shopping center: coordenou o lançamento do
-              Vita Boulevard em Gramado, participou da reestruturação do Rua da Praia e do Lindóia, e da gestão da
-              Galeria Chaves Barcellos, onde acompanhou a chegada da primeira Starbucks de Porto Alegre.
+              Marcelo Freitas foi gerente de marketing de uma administradora de shopping centers. Coordenou o
+              marketing do Vita Boulevard Gramado desde o lançamento, participou da reestruturação do Rua da Praia
+              e do Lindóia, e da gestão da Galeria Chaves Barcellos, onde acompanhou a chegada da primeira
+              Starbucks de Porto Alegre.
             </p>
             <p>
-              Aprendeu no balcão o que faz uma vitrine converter, por que dezembro não se parece com fevereiro e o
-              que de fato muda o movimento de uma loja. A SAL nasceu disso, em 2024. Rua da Praia, Lindóia e Chaves
-              Barcellos seguem com a gente até hoje, em consultoria.
+              Foram anos sentando com lojista toda semana, olhando o que enche uma loja em dezembro e o que a
+              esvazia em fevereiro, em dezenas de operações ao mesmo tempo. A SAL nasceu em 2024 para fazer esse
+              trabalho do outro lado, junto de quem tem a loja. Rua da Praia, Lindóia e Chaves Barcellos seguem
+              com a gente até hoje, em consultoria.
             </p>
             <p><a class="btn btn-ghost" href="/quem-somos/">Conhecer a SAL ↗</a></p>
           </div>
@@ -315,16 +412,24 @@ const servicos = [
               <div><p>Tráfego pago é quando você paga por clique ou impressão, no Google Ads e no Meta Ads: liga hoje, traz visita hoje, e para quando a verba acaba. Tráfego orgânico vem do SEO, das buscas, do mapa e das respostas das IAs: demora mais pra engrenar e não some quando você para de investir. Os dois se completam, e o que muda de loja pra loja é a dose de cada um.</p></div>
             </details>
             <details>
-              <summary>Quanto preciso investir em mídia pra começar?</summary>
-              <div><p>Trabalhamos com operações que têm pelo menos R$ 2.000 por mês para investir em mídia, fora o valor da gestão. Abaixo disso a campanha não junta dado suficiente pra otimizar, e o dinheiro rende mais em outras frentes. Se for o seu caso, a gente diz com todas as letras no diagnóstico.</p></div>
+              <summary>Quanto preciso investir em anúncios para começar?</summary>
+              <div><p>Para e-commerce, trabalhamos com quem tem pelo menos R$ 2.000 por mês para investir em anúncios. Para loja física, R$ 1.500. Abaixo disso a campanha não reúne dado suficiente para otimizar e o dinheiro rende mais em outra frente, normalmente no SEO local. Se for o seu caso, a gente diz isso no diagnóstico.</p></div>
             </details>
             <details>
               <summary>Em quanto tempo aparece resultado?</summary>
-              <div><p>Tráfego pago responde nas primeiras semanas, com o mês inicial servindo pra calibrar público e criativo. SEO local costuma mostrar movimento em algumas semanas. SEO de e-commerce dá os primeiros sinais entre 3 e 6 meses e consolida entre 6 e 12. Quem promete primeira página em 30 dias está vendendo o que não pode entregar.</p></div>
+              <div><p>Anúncio responde nas primeiras semanas, com o mês inicial servindo para calibrar público e criativo. Em SEO o próprio Google avisa que leva de quatro meses a um ano. Na nossa experiência os primeiros sinais vêm por volta de 90 dias, e é por isso que contrato de SEO na SAL tem prazo mínimo: abaixo disso você paga o esforço e não colhe o resultado. Quem promete primeira página em 30 dias está vendendo o que não pode entregar.</p></div>
             </details>
             <details>
               <summary>Vocês atendem loja física ou só e-commerce?</summary>
               <div><p>As duas. Metade do trabalho é com loja física, quiosque, franquia e operação em shopping, onde o objetivo é fluxo na porta. A outra metade é e-commerce. Quem tem os dois canais recebe um plano que cobre os dois.</p></div>
+            </details>
+            <details>
+              <summary>Vocês atendem rede com várias lojas?</summary>
+              <div><p>Sim, e é um trabalho que a SAL organizou como serviço próprio. Cada unidade tem o seu Perfil da Empresa no Google, a sua página de localidade, as suas avaliações e a sua campanha por raio, com um painel que compara as lojas entre si. Rede, franquia e operação de shopping entram por aqui.</p></div>
+            </details>
+            <details>
+              <summary>Dá para começar com algo menor antes de contratar mensal?</summary>
+              <div><p>Dá. A Auditoria de Presença Local custa R$ 1.000 e leva até 15 dias. A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa, as suas avaliações e três concorrentes da sua região, e entrega um plano de correções priorizado. É um trabalho fechado, sem contrato mensal e sem obrigação de seguir com a gente depois.</p></div>
             </details>
             <details>
               <summary>Como funciona o relatório e a reunião mensal?</summary>
@@ -344,9 +449,9 @@ const servicos = [
       <div class="malha"></div>
       <div class="wrap">
         <div class="numeros">
-          <div class="numero"><b>10 anos</b><span>de varejo por dentro</span></div>
+          <div class="numero"><b>10 anos</b><span>de marketing</span></div>
           <div class="numero"><b>3 shoppings</b><span>de Porto Alegre</span></div>
-          <div class="numero"><b>2 frentes</b><span>pago e orgânico</span></div>
+          <div class="numero"><b>2 frentes</b><span>orgânico e pago</span></div>
         </div>
         <h2>Vamos olhar a sua operação?</h2>
         <p class="sub">

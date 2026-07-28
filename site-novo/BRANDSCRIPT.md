@@ -11,11 +11,11 @@ O dono de loja: varejo físico (loja de rua, de shopping, negócio local) ou e-c
 - **Vilão** (nomeado): o marketing de achismo — o pacote de prateleira das agências genéricas e a fórmula milagrosa dos gurus de internet.
 - **Externo**: a loja não aparece pra quem procura; a campanha roda e a venda não vem; o ROAS parece bom mas o caixa não confirma.
 - **Interno**: a sensação de estar queimando dinheiro sem entender o porquê; o medo de ser enganado de novo; o cansaço de relatório que não diz nada.
-- **Filosófico**: quem trabalha duro no balcão merece um marketing honesto, que preste conta em reais.
+- **Filosófico**: quem toca uma loja todo dia merece um marketing honesto, que preste conta em reais.
 
 ## 3. Encontra um guia (a SAL)
 
-- **Empatia**: "A gente passou dez anos do lado de dentro do varejo. Sabemos o que é responder pelo resultado no fim do mês."
+- **Empatia**: "A gente vem do marketing de shopping center. Sabemos o que é responder pelo movimento no fim do mês."
 - **Autoridade** (mostrar, não gabar): década de marketing; gestão de marketing de shoppings (Vita Boulevard Gramado, Rua da Praia, Lindóia, Chaves Barcellos); 40+ marcas na expansão; primeira Starbucks de POA; três empreendimentos seguem clientes hoje.
 
 ## 4. Que tem um plano (mata o risco)

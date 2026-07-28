@@ -45,7 +45,7 @@ Três desses empreendimentos não ficaram no passado: o Rua da Praia Shopping, o
 
 ## H2: Por que fundei a SAL
 
-Depois de dez anos gerindo marketing com equipe, verba e cobrança por resultado, eu conhecia bem o outro lado do balcão: o lojista, o dono de e-commerce, o negócio local. Gente muito boa de operação que não tinha ninguém de confiança pra cuidar do marketing. E o que o mercado oferecia pra essas pessoas era ou agência genérica com pacote de prateleira, ou guru de internet com promessa milagrosa.
+Depois de dez anos gerindo marketing com equipe, verba e cobrança por resultado, eu já tinha sentado com muito lojista. Nos shoppings, essa conversa acontecia toda semana, com gente muito boa de operação que não tinha ninguém de confiança pra cuidar do marketing. E o que o mercado oferecia pra essas pessoas era ou agência genérica com pacote de prateleira, ou guru de internet com promessa milagrosa.
 
 Eu sempre quis ter um negócio meu. E queria que ele fizesse marketing da maneira correta, sem clichê, sem enganação, sem seguir moda de guru. Com pesquisa, método e a conta fechando no fim do mês.
 

@@ -31,11 +31,19 @@ O modelo funciona e deve ser copiado. O que muda é o motor.
 
 ## 2. O posicionamento da SAL
 
-**O eixo:** a Colmeia é gente de internet que aprendeu sobre lojas. A SAL é gente de loja que aprendeu internet.
+> ⚠️ **Base factual, para não errar em nenhuma página.** Marcelo foi **gerente de marketing de
+> shopping centers e de uma administradora de shoppings**. Ele **nunca trabalhou dentro de uma loja**.
+> Não escrever "viveu o balcão", "fechou um caixa", "montou uma vitrine", "passou dez anos dentro da
+> operação" ou qualquer variação. São afirmações falsas, e além disso ninguém fala assim.
+> São **10 anos de marketing** no total (desde 2014), **cinco deles em shopping center**.
+
+**O eixo:** a Colmeia veio da internet e foi aprender sobre loja. A SAL vem do outro lado do varejo — de quem administra o empreendimento e responde pelo movimento de dezenas de lojas ao mesmo tempo.
+
+Esse ângulo é melhor do que o de lojista, e é verdadeiro: quem faz marketing de shopping não olha uma loja, olha o comportamento de muitas ao mesmo tempo, compara categorias, vê o que enche e o que esvazia. É exatamente a leitura que um dono de uma loja só não consegue ter.
 
 **Frase de posicionamento (escolher uma e repetir em tudo):**
-- "Marketing digital feito por quem passou dez anos dentro da loja."
 - "A SAL faz seu cliente te encontrar: no Google e na porta da sua loja."
+- "Marketing de varejo conduzido por quem já respondeu pelo movimento de shoppings inteiros."
 
 **Tagline institucional:** Agência de crescimento para varejo e e-commerce. Fazemos você ser encontrado por quem já quer comprar.
 
@@ -43,12 +51,12 @@ O modelo funciona e deve ser copiado. O que muda é o motor.
 
 A Colmeia elegeu **o achismo**. A SAL deve eleger dois que só ela tem autoridade para atacar:
 
-1. **O aluguel de tráfego.** *"Tráfego pago é aluguel: parou de pagar, parou o fluxo no mesmo dia. SEO é patrimônio: o trabalho de janeiro ainda vende em dezembro. A gente faz os dois, mas nunca deixa você dependente só do aluguel."* Ataca o modelo inteiro da concorrência sem citar ninguém.
-2. **A agência que nunca pisou numa loja.** *"Tem muita gente vendendo marketing para varejo que nunca fechou um caixa, nunca montou uma vitrine, nunca viu um sábado de shopping."*
+1. **O aluguel de tráfego.** *"Anúncio é aluguel: parou de pagar, parou o movimento no mesmo dia. O SEO fica. A gente faz os dois, mas não deixa a sua loja dependendo só do aluguel."* Ataca o modelo inteiro da concorrência sem citar ninguém.
+2. **A agência que só conhece varejo por relatório.** *"Quem nunca acompanhou uma temporada de dezembro de perto acha que a diferença entre dezembro e fevereiro é o orçamento."*
 
 ### A tríade de números (equivalente ao "+100 e-commerces" deles)
 
-**10 anos** dentro do varejo · **3 shoppings** de Porto Alegre atendidos · **SEO + performance** sob o mesmo teto
+**10 anos** de marketing, cinco deles em shopping center · **3 shoppings** de Porto Alegre atendidos hoje · **2 frentes**: tráfego orgânico e tráfego pago
 
 Três shoppings como clientes é a prova social mais forte possível para esse público: shopping é o cliente mais exigente do varejo. Se três confiam, uma loja de rua não hesita.
 
@@ -104,7 +112,7 @@ Briefing estruturado · ângulos de venda · todos os formatos · copy de anúnc
 |---|---|---|
 | Isca fria | **Calculadora de Oportunidade Local** | Captura sem contato humano |
 | Isca quente | **Diagnóstico gratuito, 30 min** | Qualifica entregando valor |
-| **Entrada A** | **Auditoria de Presença Local** — R$ 1,5-3 mil, 15 dias | Prova de competência a baixo risco |
+| **Entrada A** | **Auditoria de Presença Local** — R$ 1.000, até 15 dias ✅ aprovado | Prova de competência a baixo risco |
 | **Entrada B** | **Sprint de SEO Técnico** — 30 dias | Idem, para e-commerce |
 | Entrada C | Criação ou reforma de loja/site | Captura quem ainda não compra retainer |
 | ⭐ **PRINCIPAL** | **Retainer de Crescimento** (SEO + tráfego + conteúdo) | O negócio. 6-12 meses |
@@ -122,9 +130,10 @@ Briefing estruturado · ângulos de venda · todos os formatos · copy de anúnc
 Copiar a opacidade calibrada deles, que funciona:
 
 1. **Nunca publicar o fee.** "Toda proposta é montada depois de olharmos seus números."
-2. **Publicar só o piso, e justificá-lo tecnicamente, nunca comercialmente.**
-   - Tráfego: *"R$ 2.500/mês em mídia para e-commerce, R$ 1.500 para loja física. Abaixo disso o algoritmo não tem informação suficiente para aprender."* [CONFIRMAR os valores da SAL]
-   - SEO: aqui o piso não é verba, é tempo. **"SEO não pede verba de mídia, pede seis meses. Contratos de SEO na SAL têm no mínimo seis meses, porque abaixo disso você paga o esforço e não colhe o resultado."**
+2. **Publicar só o piso, e justificá-lo tecnicamente, nunca comercialmente.** ✅ valores confirmados
+   - Anúncios: **R$ 2.000/mês para e-commerce, R$ 1.500/mês para loja física.** Justificativa: abaixo disso a campanha não reúne dado suficiente para otimizar.
+     ⚠️ Publicar apenas como verba de anúncio. **Não escrever "fora o fee" nem "além do valor da gestão"** — decisão do Marcelo.
+   - SEO: aqui o piso não é verba, é tempo. **90 dias para os primeiros sinais**, e o argumento vem do próprio Google, que fala em quatro meses a um ano. Por isso contrato de SEO tem prazo mínimo: abaixo disso o cliente paga o esforço e não colhe o resultado.
 3. **Mostrar a escada sem mostrar o preço** (diferente deles, que escondem até os nomes dos planos): o cliente se autolocaliza e chega na call sabendo o que quer.
 
 | | **Base** | **Crescimento** | **Domínio** |
@@ -209,11 +218,18 @@ Carro-chefe vira SEO · "3 pilares" vira "3 territórios" · calculadora de lucr
 
 ---
 
-## 9. Decisões pendentes do Marcelo
+## 9. Decisões do Marcelo — fechadas em 28/07/2026
 
-1. **Piso de investimento:** confirmar os valores reais (mídia para e-commerce, mídia para loja física, prazo mínimo de SEO).
-2. **Produto de entrada pago:** aprovar a Auditoria de Presença Local e definir preço.
-3. **Os 3 territórios:** aprovar como camada de comunicação junto ao 4D, ou preferir outra formulação.
-4. **Multi-unidade:** interesse em produtizar e prospectar redes e franquias?
-5. **Depoimento em vídeo:** conseguir um dos shoppings é o ativo isolado mais valioso do site.
-6. **Certificações:** Google Partner / Meta Business Partner, se houver.
+1. **Piso de investimento em anúncios.** ✅ E-commerce R$ 2.000/mês, loja física R$ 1.500/mês. Publicar como verba de anúncio, sem mencionar que o fee é à parte. Em SEO, 90 dias para os primeiros sinais, apoiado no que o próprio Google publica.
+2. **Produto de entrada pago.** ✅ Auditoria de Presença Local aprovada, **R$ 1.000**.
+3. **Os 3 territórios da venda.** ✅ Aprovados como camada de comunicação junto ao método 4D.
+4. **Multi-unidade.** ✅ Aprovado: produtizar e prospectar redes e franquias.
+5. **Depoimento em vídeo.** ⏳ Futuramente. Não bloqueia o site; deixar o espaço previsto no layout.
+6. **Certificações.** ❌ Não exibir no site.
+
+### Regra de linguagem (vale para toda a copy)
+
+Sem clichê de IA e sem expressão que ninguém usa falando. Proibidas em qualquer página:
+"viveu o balcão", "gente de loja", "fechou um caixa", "montou uma vitrine", "dentro da operação",
+"não é X, é Y" como fórmula de frase, "com todas as letras", "sem drama", "de bandeja".
+O teste é simples: se o Marcelo não falaria aquilo numa reunião, não vai para o site.
