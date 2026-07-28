@@ -1,22 +1,24 @@
 # Revisão de copy — Home do novo site da SAL
 
-> **Versão 2**, de 28/07/2026. Refeita depois das suas decisões e da correção da biografia.
+> **Versão 3**, de 28/07/2026. Refeita depois da sua segunda rodada de ajustes.
 > Escreva o seu ajuste na linha **`>> AJUSTE:`** logo abaixo de cada bloco.
 > O que ficar em branco eu mantenho como está.
 
-**O que mudou da versão 1 para esta:**
+**O que mudou nesta versão 3:**
 
-- Tirei tudo que dizia que você trabalhou dentro de loja. Agora a copy fala do que é verdade:
-  marketing de shopping center e de administradora de shoppings, respondendo pelo movimento de
-  dezenas de lojas ao mesmo tempo. Esse ângulo é mais forte do que o anterior, porque é uma leitura
-  que o dono de uma loja só não tem.
-- Tirei as expressões que ninguém fala na vida real e as fórmulas de frase que denunciam texto de IA.
-- O H1 deixou de ser sobre você e passou a ser sobre o cliente. Em três segundos a pessoa entende
-  o que a SAL faz.
-- SEO virou o carro-chefe: os dois serviços de SEO abrem a lista, na frente do tráfego pago.
-- Entraram três blocos novos: os 3 territórios da venda, a Auditoria de Presença Local e as duas
-  perguntas de FAQ sobre rede e sobre começar sem contrato mensal.
-- Os pisos de investimento entraram com os seus números, falando só de verba de anúncio.
+- **Fonte trocada.** A Fraunces era a mesma da Colmeia. Entrou a **Newsreader**, um serifado
+  editorial de alto contraste. A Glook não deu: ela não existe no Google Fonts, e é por isso que
+  no blog da SAL aqueles números grandes aparecem numa fonte manuscrita — o navegador está caindo
+  no `cursive` porque o pedido falha. Vale corrigir o blog à parte.
+- **Rótulos de seção sem pílula.** Saiu a cápsula arredondada de fundo transparente. Ficou só o
+  texto em versalete espaçado, sem borda, sem linha e sem travessão.
+- **Hero sem foto sua.** Entrou a foto das vitrines iluminadas à noite: o cliente e o varejo em
+  destaque, não o fundador.
+- **Subheadline curta.** Duas linhas, direto ao ponto.
+- **Faixa de marcas removida.** Kopenhagen, Hering e Panvel não são clientes da SAL.
+- **"3 shoppings" aparece uma vez só**, no texto sobre você. Saiu da faixa de números e dos selos.
+- Auditoria a **R$ 2.500 em até 6x**, contrato de **6 meses com cancelamento sem multa**.
+- Rodapé com razão social, CNPJ e ícones de Instagram, LinkedIn e WhatsApp.
 
 ---
 
@@ -34,16 +36,16 @@
 
 *A parte mais importante do site. Se só uma coisa for revisada, que seja esta.*
 
-**Etiqueta (pílula pequena acima do título):**
-SEO e tráfego pago para varejo e e-commerce
+**Rótulo (agora sem pílula, só tipografia):**
+Assessoria de SEO e tráfego pago
 `>> AJUSTE:`
 
 **Título** (o trecho "quem já quer comprar" aparece em dourado):
 **Sua loja encontrada por quem já quer comprar.**
 `>> AJUSTE:`
 
-**Subtítulo:**
-A SAL cuida da busca e dos anúncios de lojas físicas e e-commerces. Antes de abrir a agência, o Marcelo passou cinco anos no marketing de shopping center, respondendo pelo movimento de dezenas de lojas ao mesmo tempo.
+**Subtítulo** *(encurtado):*
+Para loja física e e-commerce. Você aparece na hora em que a pessoa procura o que você vende: no Google, no mapa e no anúncio.
 `>> AJUSTE:`
 
 **Botões:**
@@ -52,25 +54,19 @@ A SAL cuida da busca e dos anúncios de lojas físicas e e-commerces. Antes de a
 3. Tem e-commerce? Comece por aqui → *(link discreto)*
 `>> AJUSTE:`
 
-**Selos sobre a foto:**
-- 10 anos — de marketing
-- 3 shoppings — de Porto Alegre
+**Imagem:** foto das vitrines iluminadas à noite. Sem selos por cima, sem foto sua.
+*Se preferir outra das fotos do Drive, me diga qual.*
 `>> AJUSTE:`
 
 ---
 
-## 3. Faixa de marcas e números
+## 3. Os três números
 
-**Chamada:** Operações e marcas com que a SAL trabalha e trabalhou
-`>> AJUSTE:`
+*A faixa de marcas foi removida. Os selos do hero também.*
 
-**Marcas no carrossel:** Rua da Praia Shopping · Lindóia Shopping · Galeria Chaves Barcellos · Vita Boulevard Gramado · Kopenhagen · Hering · Panvel · Starbucks
-`>> AJUSTE:`
-
-**Os três números:**
-- **10 anos** — de marketing, cinco deles em shopping center
-- **3 shoppings** — de Porto Alegre atendidos hoje
+- **12 anos** — de marketing, cinco deles em shopping center
 - **2 frentes** — tráfego orgânico e tráfego pago
+- **90 dias** — para os primeiros sinais de SEO
 `>> AJUSTE:`
 
 ---
@@ -84,7 +80,7 @@ A SAL cuida da busca e dos anúncios de lojas físicas e e-commerces. Antes de a
 `>> AJUSTE:`
 
 **Card 1 — Varejo local**
-Loja de rua, quiosque, franquia, operação em shopping e rede com várias unidades. O que interessa é gente entrando pela porta.
+Loja de rua, quiosque, franquia, operação em shopping e rede com várias unidades. O que importa é o cliente encontrar sua loja, ser bem atendido e virar freguês.
 - Perfil da Empresa no Google no topo do mapa
 - Anúncio por raio, só para quem consegue chegar
 - Avaliações respondidas e reputação cuidada
@@ -117,13 +113,13 @@ Loja virtual que precisa crescer com margem, e não só aumentar o número de pe
 **3. Tráfego pago** — Google Ads e Meta Ads com gestão diária e meta de retorno calculada sobre a sua margem. Em loja física, anúncio por raio e medição de visita, não só de clique.
 `>> AJUSTE:`
 
-**4. Loja e site que convertem** — Shopify, Nuvemshop e WooCommerce: setup, catálogo, checkout e frete. Auditoria de conversão com a implementação junto, porque relatório sozinho não muda venda.
+**4. Diagnóstico de site e loja virtual** *(reformulado)* — A gente analisa o seu site como quem vai comprar: onde a pessoa trava, o que falta na página de produto, o que atrapalha no checkout e o que derruba a velocidade. Você recebe os gargalos apontados e a ordem de corrigir.
 `>> AJUSTE:`
 
 **5. Conteúdo e autoridade** — Calendário editorial montado por intenção de busca, artigos otimizados e conteúdo para o Perfil da Empresa. É o que faz o SEO andar mês a mês.
 `>> AJUSTE:`
 
-**6. Criativo de performance** — Peça nova toda semana, com ângulo de venda definido antes da arte e aprovação sua antes de subir. Vendável junto do plano ou separado, para quem já tem time.
+**6. Criativo de performance** — Peça nova toda semana, com o ângulo de venda definido antes da arte e aprovação sua antes de subir. Entra junto do plano de mídia.
 `>> AJUSTE:`
 
 *Saiu "Dados e relatório" como serviço solto — virou parte do tráfego pago e da reunião mensal. Faz sentido, ou prefere de volta como item próprio?*
@@ -134,10 +130,10 @@ Loja virtual que precisa crescer com margem, e não só aumentar o número de pe
 ## 6. Metodologia — Marketing na Medida Certa
 
 **Etiqueta:** Marketing na Medida Certa
-**Título:** O nome não é enfeite.
+**Título:** Método baseado em dados.
 `>> AJUSTE:`
 
-**Texto:** Sal demais estraga o prato, de menos ninguém sente o gosto. Com verba de marketing acontece a mesma coisa. O que muda de uma loja para outra é a dose de cada coisa, e é isso que a gente define antes de começar a gastar.
+**Texto:** Sal demais estraga o prato, de menos ninguém sente o gosto. Com verba de marketing é igual. A dose certa vem dos seus números: ticket, margem, sazonalidade e o que a concorrência está fazendo. É isso que a gente define antes de começar a gastar.
 `>> AJUSTE:`
 
 **01 Descobrir** — Auditoria das contas de anúncio, da presença no mapa, do site e de três concorrentes seus. No fim, um documento com os gargalos e a ordem de atacar.
@@ -173,7 +169,7 @@ Loja virtual que precisa crescer com margem, e não só aumentar o número de pe
 
 ---
 
-## 8. Auditoria de Presença Local *(bloco novo, R$ 1.000)*
+## 8. Auditoria de Presença Local *(bloco novo, R$ 2.500)*
 
 **Etiqueta:** Para começar sem contrato mensal
 **Título:** Auditoria de Presença Local
@@ -189,10 +185,10 @@ Loja virtual que precisa crescer com margem, e não só aumentar o número de pe
 - Análise das avaliações e do que fazer com as negativas
 - Plano de correções priorizado, com prazo de cada uma
 
-*Confira se o escopo está do tamanho certo para R$ 1.000. Se estiver generoso demais, me diga o que tirar.*
+*Com o preço em R$ 2.500 o escopo ficou bem dimensionado. Se quiser incluir mais alguma coisa, me diga.*
 `>> AJUSTE:`
 
-**Preço:** R$ 1.000 · entrega em até 15 dias
+**Preço:** R$ 2.500 · em até 6x · entrega em até 15 dias
 **Observação:** Trabalho fechado. Sem contrato mensal e sem obrigação de seguir com a SAL depois.
 `>> AJUSTE:`
 
@@ -202,7 +198,7 @@ Loja virtual que precisa crescer com margem, e não só aumentar o número de pe
 
 *Seção em fundo claro, com as suas fotos. É o coração do site — e é a parte que mais mudou.*
 
-**Título:** Antes da agência, cinco anos respondendo pelo movimento de shoppings.
+**Título:** 12 anos como estrategista de marketing, estudando a fundo o comportamento dos clientes.
 `>> AJUSTE:`
 
 **Frase de destaque** *(é a tese do site inteiro, vale revisar com carinho)*:
@@ -234,9 +230,7 @@ Para e-commerce, trabalhamos com quem tem pelo menos R$ 2.000 por mês para inve
 `>> AJUSTE:`
 
 **3. Em quanto tempo aparece resultado?** *(SEO em 90 dias, apoiado no Google)*
-Anúncio responde nas primeiras semanas, com o mês inicial servindo para calibrar público e criativo. Em SEO o próprio Google avisa que leva de quatro meses a um ano. Na nossa experiência os primeiros sinais vêm por volta de 90 dias, e é por isso que contrato de SEO na SAL tem prazo mínimo: abaixo disso você paga o esforço e não colhe o resultado. Quem promete primeira página em 30 dias está vendendo o que não pode entregar.
-
-*Falta definir: o prazo mínimo de contrato de SEO é 6 meses? Preciso do número para escrever a proposta.*
+Anúncio responde nas primeiras semanas, com o mês inicial servindo para calibrar público e criativo. Em SEO o próprio Google avisa que leva de quatro meses a um ano. Na nossa experiência os primeiros sinais vêm por volta de 90 dias, e é por isso que o contrato é de 6 meses: abaixo disso você paga o esforço e não colhe o resultado. Quem promete primeira página em 30 dias está vendendo o que não pode entregar.
 `>> AJUSTE:`
 
 **4. Vocês atendem loja física ou só e-commerce?**
@@ -248,17 +242,15 @@ Sim, e é um trabalho que a SAL organizou como serviço próprio. Cada unidade t
 `>> AJUSTE:`
 
 **6. Dá para começar com algo menor antes de contratar mensal?** *(pergunta nova)*
-Dá. A Auditoria de Presença Local custa R$ 1.000 e leva até 15 dias. A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa, as suas avaliações e três concorrentes da sua região, e entrega um plano de correções priorizado. É um trabalho fechado, sem contrato mensal e sem obrigação de seguir com a gente depois.
+Dá. A Auditoria de Presença Local custa R$ 2.500, parcelável em até 6 vezes, e fica pronta em até 15 dias. A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa, as suas avaliações e três concorrentes da sua região, e entrega um plano de correções priorizado. É um trabalho fechado, sem contrato mensal e sem obrigação de seguir com a gente depois.
 `>> AJUSTE:`
 
 **7. Como funciona o relatório e a reunião mensal?**
 Todo mês você recebe um documento com o que foi investido, o que voltou, o que o orgânico trouxe e o que muda no mês seguinte. Depois sentamos pra ler os números juntos e decidir o próximo passo. Sem PDF de quarenta páginas e sem gráfico que ninguém explica.
 `>> AJUSTE:`
 
-**8. Tem fidelidade no contrato?**
-A relação se sustenta pelo relatório de todo mês, não por multa. As condições ficam claras na proposta, antes de qualquer assinatura.
-
-*Atenção: isso conflita com o prazo mínimo de SEO da pergunta 3. Preciso saber como você quer resolver — SEO tem prazo mínimo e o resto não tem fidelidade, ou nenhum contrato tem prazo?*
+**8. Tem fidelidade no contrato?** *(resolvido com a sua resposta)*
+O contrato é de 6 meses, que é o tempo mínimo para o SEO dar resultado. Mas você pode cancelar quando quiser, sem multa, avisando com 30 dias de antecedência. O prazo existe para proteger o trabalho, não para prender você.
 `>> AJUSTE:`
 
 ---
@@ -279,8 +271,9 @@ A relação se sustenta pelo relatório de todo mês, não por multa. As condiç
 
 ## 12. Rodapé
 
-**Assinatura:** Marketing na Medida Certa
-**Descrição:** Tráfego pago e SEO para varejo local e e-commerce. Porto Alegre, RS, atendendo o Brasil todo.
+**Descrição:** Assessoria de Tráfego Pago e SEO para lojas físicas e e-commerce. Fazemos marketing na medida certa para você vender mais e melhor.
+**Ícones:** Instagram · LinkedIn · WhatsApp
+**Linha legal:** SAL ESTRATÉGIAS DE MARKETING LTDA · CNPJ 66.018.951/0001-04 · Porto Alegre, RS
 `>> AJUSTE:`
 
 **Colunas:**
@@ -293,17 +286,17 @@ A relação se sustenta pelo relatório de todo mês, não por multa. As condiç
 
 # O que eu ainda preciso de você
 
-**1. Prazo mínimo do contrato de SEO.** São 6 meses? O número entra na FAQ e na proposta.
+**1. Escopo da Auditoria de R$ 2.500.** Quer incluir mais alguma coisa agora que o valor subiu?
 `>> RESPOSTA:`
 
-**2. Fidelidade.** Como conciliar "sem fidelidade" com o prazo mínimo de SEO? Sugestão: SEO tem prazo mínimo declarado, tráfego pago não tem.
+**2. Diagnóstico.** O CTA fala em "agendar". Prefere agenda com horário (tipo Calendly) ou manter o formulário de 5 perguntas do site atual?
 `>> RESPOSTA:`
 
-**3. Escopo da Auditoria de R$ 1.000.** Está do tamanho certo, ou tirou trabalho demais por esse valor?
+**3. Blog da SAL.** O blog pede a fonte Glook ao Google Fonts, que responde `400: Font family not found`. Os números grandes das listas estão caindo numa fonte manuscrita. Quer que eu corrija junto?
 `>> RESPOSTA:`
 
-**4. Diagnóstico.** O CTA fala em "agendar". Prefere agenda com horário (tipo Calendly) ou manter o formulário de 5 perguntas do site atual?
+**4. Marcas na sua página.** Kopenhagen, Hering, Panvel, Intimissimi, Calzedonia, Grand Cru e as outras entram na sua página como "marcas com que trabalhei nos shoppings". Confirma essa formulação?
 `>> RESPOSTA:`
 
-**5. Fotos.** As da pasta "Site da SAL" no Drive ainda não chegaram até mim. Se puder baixar e mandar, ou me liberar o acesso, eu troco os espaços reservados pelas imagens de verdade.
+**5. Substack.** Quer o ícone do Substack junto dos outros três no rodapé? Se sim, me passe o endereço.
 `>> RESPOSTA:`

@@ -7,9 +7,9 @@
    ========================================================= */
 
 @font-face {
-  font-family: 'Fraunces';
-  src: url('/fonts/fraunces-var.woff2') format('woff2');
-  font-weight: 400 700;
+  font-family: 'Newsreader';
+  src: url('/fonts/newsreader-var.woff2') format('woff2');
+  font-weight: 200 800;
   font-style: normal;
   font-display: swap;
 }
@@ -62,7 +62,7 @@
   --muted-2: #7B7897;
 
   /* -------- Tipografia -------- */
-  --display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --display: 'Newsreader', Georgia, 'Times New Roman', serif;
   --sans:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --body:    'Inter', system-ui, -apple-system, sans-serif;
 

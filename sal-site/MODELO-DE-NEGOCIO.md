@@ -35,7 +35,12 @@ O modelo funciona e deve ser copiado. O que muda é o motor.
 > shopping centers e de uma administradora de shoppings**. Ele **nunca trabalhou dentro de uma loja**.
 > Não escrever "viveu o balcão", "fechou um caixa", "montou uma vitrine", "passou dez anos dentro da
 > operação" ou qualquer variação. São afirmações falsas, e além disso ninguém fala assim.
-> São **10 anos de marketing** no total (desde 2014), **cinco deles em shopping center**.
+> São **12 anos de marketing** no total (desde 2014), **cinco deles em shopping center**.
+>
+> A faixa de logos de marcas saiu da home: Kopenhagen, Hering, Panvel e afins são marcas com que
+> o Marcelo se relacionou nos shoppings, **não são clientes da SAL**. Elas podem ser citadas na
+> página dele, sem destaque. E "3 shoppings de Porto Alegre" deve aparecer **uma vez só** no site,
+> dentro do texto sobre o Marcelo: repetido, vira ladainha.
 
 **O eixo:** a Colmeia veio da internet e foi aprender sobre loja. A SAL vem do outro lado do varejo — de quem administra o empreendimento e responde pelo movimento de dezenas de lojas ao mesmo tempo.
 
@@ -45,7 +50,7 @@ Esse ângulo é melhor do que o de lojista, e é verdadeiro: quem faz marketing 
 - "A SAL faz seu cliente te encontrar: no Google e na porta da sua loja."
 - "Marketing de varejo conduzido por quem já respondeu pelo movimento de shoppings inteiros."
 
-**Tagline institucional:** Agência de crescimento para varejo e e-commerce. Fazemos você ser encontrado por quem já quer comprar.
+**Tagline institucional:** Assessoria de Tráfego Pago e SEO para lojas físicas e e-commerce. Fazemos marketing na medida certa para você vender mais e melhor.
 
 ### Os dois inimigos declarados
 
@@ -56,9 +61,9 @@ A Colmeia elegeu **o achismo**. A SAL deve eleger dois que só ela tem autoridad
 
 ### A tríade de números (equivalente ao "+100 e-commerces" deles)
 
-**10 anos** de marketing, cinco deles em shopping center · **3 shoppings** de Porto Alegre atendidos hoje · **2 frentes**: tráfego orgânico e tráfego pago
+**12 anos** de marketing, cinco deles em shopping center · **2 frentes**: tráfego orgânico e tráfego pago · **90 dias** para os primeiros sinais de SEO
 
-Três shoppings como clientes é a prova social mais forte possível para esse público: shopping é o cliente mais exigente do varejo. Se três confiam, uma loja de rua não hesita.
+Os três shoppings saíram da faixa de números de propósito. Continuam sendo a prova social mais forte que a SAL tem — shopping é o cliente mais exigente do varejo, e se três confiam, uma loja de rua não hesita — mas aparecem **uma vez só**, dentro do texto sobre o Marcelo. Repetidos em faixa, número e selo, viravam ladainha.
 
 ---
 
@@ -71,9 +76,9 @@ Mantém o número 6 (cobre o funil sem virar supermercado), troca o eixo: **SEO 
 | 1 | **SEO Local** | 🥇 Carro-chefe físico | Lojas de shopping, redes, franquias, restaurantes, clínicas |
 | 2 | **SEO para E-commerce** | 🥇 Carro-chefe digital | Lojas virtuais com CAC subindo |
 | 3 | **Tráfego pago e performance** | 🥈 O que o mercado sabe comprar | Ambos |
-| 4 | **Loja e site que convertem** | 🥈 Implementação + CRO | Quem vai abrir ou destravar |
+| 4 | **Diagnóstico de site e loja virtual** | 🥈 Entrega valor antes da venda | Quem vai abrir ou destravar |
 | 5 | **Conteúdo e autoridade** | 🥉 Combustível do SEO | Retainer de margem alta |
-| 6 | **Criativo de performance** | 🥉 Vendável avulso | Quem tem time interno |
+| 6 | **Criativo de performance** | 🥉 Só dentro do plano | Cliente de assessoria |
 
 ### 1. SEO Local — "Ser encontrado por quem está na sua rua"
 Auditoria de presença local · gestão do Perfil da Empresa no Google (por unidade) · padronização de NAP e citations · operação de avaliações (volume, resposta, recuperação de nota) · páginas de localidade · schema LocalBusiness/Store/OpeningHours · otimização para Maps e "perto de mim" · relatório de visibilidade local.
@@ -91,18 +96,20 @@ Auditoria técnica (Core Web Vitals, indexação, crawl) · arquitetura de categ
 Meta, Google (Pesquisa, **Maps**, Shopping, PMax), TikTok · gestão diária · rastreamento (Pixel, GA4, GTM, conversões offline) · dashboard · **campanhas por raio e por unidade** · planos semanais · reuniões estratégicas.
 **Ângulo próprio:** integração online-to-offline. Medir visita à loja, não só clique.
 
-### 4. Loja e site que convertem
-Plataforma, setup, catálogo, checkout, frete e pagamento · rastreamento validado · **site já nascido otimizado para SEO** · auditoria de conversão com heatmap · roteiro priorizado **e a implementação das melhorias**.
+### 4. Diagnóstico de site e loja virtual
+A SAL analisa o site do cliente como quem vai comprar: onde a pessoa trava, o que falta na página de produto, o que atrapalha no checkout, o que derruba a velocidade e o que impede de ranquear. Sai um documento com os gargalos e a ordem de corrigir · rastreamento validado · plataformas nomeadas (Shopify, Nuvemshop, WooCommerce) · e a implementação das melhorias, quando o cliente quiser.
 
-🔴 **A diferença decisiva:** a Colmeia declara *"a gente só recomenda"*. A SAL implementa. Vira frase de venda: **"Não entregamos um PDF com o que você deveria fazer. Fazemos."**
-Aqui, ao contrário deles, **nomeie as plataformas** (Shopify, Nuvemshop, WooCommerce): especificidade converte quem já pesquisou.
+🔴 **A diferença decisiva:** a Colmeia declara *"a gente só recomenda"*. A SAL aponta o problema e resolve.
+🔑 **Por que virou diagnóstico:** apontar erro no site do cliente entrega valor antes de qualquer venda. Ninguém recusa saber onde está perdendo dinheiro, e quem recebe o documento já entendeu que precisa de ajuda.
 
 ### 5. Conteúdo e autoridade
 Calendário editorial · clusters por intenção de busca · artigos otimizados · conteúdo para o Perfil da Empresa · social integrado à busca · otimização para citação por IAs.
 Se vende sozinho dentro do contrato de SEO: SEO sem conteúdo não anda.
 
 ### 6. Criativo de performance
-Briefing estruturado · ângulos de venda · todos os formatos · copy de anúncio · variações para teste · aprovação antes de subir · ritmo semanal. Vendável avulso.
+Briefing estruturado · ângulos de venda · todos os formatos · copy de anúncio · variações para teste · aprovação antes de subir · ritmo semanal.
+
+⚠️ **Não é vendável avulso.** Decisão do Marcelo: toda entrega da SAL exige contratação da assessoria. Nada de serviço solto.
 
 ---
 
@@ -112,7 +119,7 @@ Briefing estruturado · ângulos de venda · todos os formatos · copy de anúnc
 |---|---|---|
 | Isca fria | **Calculadora de Oportunidade Local** | Captura sem contato humano |
 | Isca quente | **Diagnóstico gratuito, 30 min** | Qualifica entregando valor |
-| **Entrada A** | **Auditoria de Presença Local** — R$ 1.000, até 15 dias ✅ aprovado | Prova de competência a baixo risco |
+| **Entrada A** | **Auditoria de Presença Local** — R$ 2.500 em até 6x, até 15 dias ✅ aprovado | Prova de competência a baixo risco |
 | **Entrada B** | **Sprint de SEO Técnico** — 30 dias | Idem, para e-commerce |
 | Entrada C | Criação ou reforma de loja/site | Captura quem ainda não compra retainer |
 | ⭐ **PRINCIPAL** | **Retainer de Crescimento** (SEO + tráfego + conteúdo) | O negócio. 6-12 meses |
@@ -159,7 +166,9 @@ Copiar a arquitetura inteira e consertar os furos.
 **Formulário de qualificação, adaptado à SAL:**
 nome · e-mail · WhatsApp · empresa · **site e/ou Perfil da Empresa no Google** · tipo de negócio (E-commerce / Loja física 1 unidade / **Rede multi-unidade** / Físico + online / Serviço local) · **quantas unidades** *(qualifica ticket alto na hora)* · faturamento mensal · o que já faz hoje (nada / só pago / só orgânico / tem agência) · verba pretendida · objetivo (**levar gente à loja** / vender mais online / **aparecer no Google** / reduzir CAC) · maior desafio.
 
-**Selo abaixo de todo CTA:** ✓ Resposta em até 24h ✓ Diagnóstico gratuito ✓ Sem compromisso ✓ **Sem fidelidade de 12 meses**
+**Selo abaixo de todo CTA:** ✓ Resposta em até 24h ✓ Diagnóstico gratuito ✓ Sem compromisso
+
+**Contrato:** 6 meses, que é o tempo mínimo do SEO, **com cancelamento sem multa mediante aviso de 30 dias**. É o melhor dos dois mundos e deve ser dito assim, de frente: o prazo protege o trabalho, o aviso protege o cliente.
 
 **Os três consertos:**
 | Furo deles | Correção da SAL |
@@ -221,11 +230,25 @@ Carro-chefe vira SEO · "3 pilares" vira "3 territórios" · calculadora de lucr
 ## 9. Decisões do Marcelo — fechadas em 28/07/2026
 
 1. **Piso de investimento em anúncios.** ✅ E-commerce R$ 2.000/mês, loja física R$ 1.500/mês. Publicar como verba de anúncio, sem mencionar que o fee é à parte. Em SEO, 90 dias para os primeiros sinais, apoiado no que o próprio Google publica.
-2. **Produto de entrada pago.** ✅ Auditoria de Presença Local aprovada, **R$ 1.000**.
+2. **Produto de entrada pago.** ✅ Auditoria de Presença Local aprovada, **R$ 2.500, parcelável em até 6x**.
 3. **Os 3 territórios da venda.** ✅ Aprovados como camada de comunicação junto ao método 4D.
 4. **Multi-unidade.** ✅ Aprovado: produtizar e prospectar redes e franquias.
 5. **Depoimento em vídeo.** ⏳ Futuramente. Não bloqueia o site; deixar o espaço previsto no layout.
 6. **Certificações.** ❌ Não exibir no site.
+
+### Segunda rodada de decisões — 28/07/2026
+
+7. **Auditoria de Presença Local.** ✅ R$ 2.500, parcelável em até 6x.
+8. **Contrato.** ✅ 6 meses, cancelamento sem multa com aviso de 30 dias.
+9. **Hero.** ✅ Sem foto do Marcelo. O destaque é o cliente e o varejo: foto de vitrines de loja.
+10. **Faixa de marcas.** ❌ Removida da home. Kopenhagen, Hering, Panvel e afins não são clientes da SAL; podem ser citadas na página do Marcelo, sem destaque.
+11. **Criativo de performance.** ❌ Não é vendável avulso. Toda entrega exige contratação da assessoria.
+12. **Diagnóstico de site.** ✅ O antigo "Loja e site que convertem" vira um diagnóstico: a SAL analisa o site do cliente e aponta onde ele está perdendo venda. Entrega valor antes de vender.
+13. **Tipografia.** ✅ Fraunces trocada por **Newsreader**. A Fraunces é a fonte da Colmeia.
+    A **Glook não existe no Google Fonts** — o blog da SAL pede `family=Glook` e recebe
+    `400: Font family not found`, então aqueles números grandes estão caindo em `cursive`.
+    Corrigir isso no blog é um item à parte.
+14. **Rodapé.** ✅ Razão social e CNPJ, mais ícones de Instagram, LinkedIn e WhatsApp.
 
 ### Regra de linguagem (vale para toda a copy)
 
