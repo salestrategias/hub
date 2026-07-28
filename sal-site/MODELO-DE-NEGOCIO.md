@@ -239,6 +239,8 @@ Carro-chefe vira SEO · "3 pilares" vira "3 territórios" · calculadora de lucr
 ### Segunda rodada de decisões — 28/07/2026
 
 7. **Auditoria de Presença Local.** ✅ R$ 2.500, parcelável em até 6x.
+    ⚠️ **Fora da home por enquanto.** Decisão de 28/07: o quadro não agregava na página inicial.
+    O produto continua no plano e volta quando for empacotado para valer, com página própria.
 8. **Contrato.** ✅ 6 meses, cancelamento sem multa com aviso de 30 dias.
 9. **Hero.** ✅ Sem foto do Marcelo. O destaque é o cliente e o varejo: foto de vitrines de loja.
 10. **Faixa de marcas.** ❌ Removida da home. Kopenhagen, Hering, Panvel e afins não são clientes da SAL; podem ser citadas na página do Marcelo, sem destaque.
@@ -249,6 +251,21 @@ Carro-chefe vira SEO · "3 pilares" vira "3 territórios" · calculadora de lucr
     `400: Font family not found`, então aqueles números grandes estão caindo em `cursive`.
     Corrigir isso no blog é um item à parte.
 14. **Rodapé.** ✅ Razão social e CNPJ, mais ícones de Instagram, LinkedIn e WhatsApp.
+
+### Terceira rodada — 28/07/2026
+
+15. **Faixa de números.** ❌ Removida. "12 anos / 2 frentes / 90 dias" não agregava.
+    No lugar entrou a barra **"Esta semana no Blog da SAL"**, com o último artigo publicado.
+    O ganho é outro: mostra que o site é vivo, em vez de recitar credencial.
+16. **Blog na home.** ✅ Seção com os 3 artigos seguintes, com imagem destacada, categoria e data.
+    Ambos os blocos leem a API do WordPress em tempo de build, e a barra do topo ainda se
+    atualiza sozinha no navegador — não depende de rebuild a cada post.
+17. **Biografia do Marcelo.** ✅ Passou a ser o texto que ele mesmo escreveu, descritivo e factual:
+    TI e análise de sistemas antes de 2014, instituição de ensino, cinco anos de administradora de
+    shoppings com tenant mix e captação de lojas, Vita Boulevard com 40+ marcas, e "Em 2024, fundou
+    a SAL". Saiu a frase de efeito que eu tinha inventado sobre "quanta gente entrou".
+18. **Hero.** ✅ Foto ao fundo em tela cheia, com véu indigo, e tipografia grande.
+    Saiu o formato de duas colunas com a foto em cartão ao lado.
 
 ### Regra de linguagem (vale para toda a copy)
 

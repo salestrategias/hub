@@ -76,14 +76,6 @@ const schema = {
         },
         {
           '@type': 'Question',
-          name: 'Dá para começar com algo menor antes de contratar mensal?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Dá. A Auditoria de Presença Local custa R$ 2.500, parcelável em até 6 vezes, e fica pronta em até 15 dias. A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa, as suas avaliações e três concorrentes da sua região, e entrega um plano de correções priorizado. É um trabalho fechado, sem contrato mensal e sem obrigação de seguir com a gente depois.',
-          },
-        },
-        {
-          '@type': 'Question',
           name: 'Como funciona o relatório e a reunião mensal?',
           acceptedAnswer: {
             '@type': 'Answer',
@@ -136,6 +128,43 @@ const servicos = [
   },
 ];
 
+/* -------------------------------------------------------------------------
+   Últimos artigos do Blog da SAL, lidos da API do WordPress em tempo de build.
+   Se a API estiver fora do ar na hora do build, a home simplesmente não
+   mostra os blocos de blog — nunca quebra a publicação.
+   O bloco do topo ainda se atualiza sozinho no navegador (ver Base.astro),
+   para não depender de um rebuild a cada post novo.
+------------------------------------------------------------------------- */
+const API_BLOG = 'https://www.salestrategias.com.br/wp-json/wp/v2/posts?per_page=4&_embed=wp:featuredmedia,wp:term';
+
+const semTags = (s = '') => s.replace(/<[^>]*>/g, '').replace(/&hellip;/g, '…').replace(/&#8230;/g, '…').replace(/&nbsp;/g, ' ').replace(/&#8217;/g, '’').replace(/&amp;/g, '&').trim();
+
+let artigos = [];
+try {
+  const r = await fetch(API_BLOG);
+  if (r.ok) {
+    artigos = (await r.json()).map((p) => {
+      const emb = p._embedded ?? {};
+      return {
+        titulo: semTags(p.title?.rendered),
+        resumo: semTags(p.excerpt?.rendered).slice(0, 150),
+        link: p.link,
+        data: p.date,
+        categoria: (emb['wp:term'] ?? []).flat().find((t) => t?.taxonomy === 'category')?.name ?? 'Blog',
+        imagem: (emb['wp:featuredmedia'] ?? [])[0]?.source_url ?? null,
+      };
+    });
+  }
+} catch {
+  artigos = [];
+}
+
+const dataBR = (iso) =>
+  new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Sao_Paulo' }).format(new Date(iso));
+
+const destaque = artigos[0] ?? null;
+const maisArtigos = artigos.slice(1, 4);
+
 const territorios = [
   {
     n: '01',
@@ -176,6 +205,13 @@ const territorios = [
 
     <!-- HERO -->
     <section class="hero">
+      <img
+        class="hero-foto"
+        src="/img/fotos/vitrines-noite.jpg"
+        alt="Vitrines iluminadas de lojas à noite em uma rua de compras"
+        width="1280" height="853" fetchpriority="high" decoding="async"
+      />
+      <div class="hero-veu" aria-hidden="true"></div>
       <div class="malha"></div>
       <div class="wrap">
         <div>
@@ -191,27 +227,27 @@ const territorios = [
           </div>
           <p class="porta"><a class="link-side" href="/e-commerce/">Tem e-commerce? Comece por aqui →</a></p>
         </div>
-
-        <div class="retrato">
-          <figure>
-            <img
-              src="/img/fotos/vitrines-noite.jpg"
-              alt="Vitrines iluminadas de lojas à noite em uma rua de compras"
-              width="1280" height="853" fetchpriority="high" decoding="async"
-            />
-          </figure>
-        </div>
       </div>
     </section>
 
-    <!-- NÚMEROS -->
-    <section class="wrap">
-      <div class="numeros">
-        <div class="numero"><b>12 anos</b><span>de marketing, cinco deles em shopping center</span></div>
-        <div class="numero"><b>2 frentes</b><span>tráfego orgânico e tráfego pago</span></div>
-        <div class="numero"><b>90 dias</b><span>para os primeiros sinais de SEO</span></div>
-      </div>
-    </section>
+    <!-- ESTA SEMANA NO BLOG (atualiza sozinho no navegador) -->
+    {destaque && (
+      <section class="wrap">
+        <a class="agora" href={destaque.link} data-blog-destaque>
+          <span class="agora-rot">
+            <span class="pulso" aria-hidden="true"></span>
+            Esta semana no Blog da SAL
+          </span>
+          <span class="agora-titulo" data-campo="titulo">{destaque.titulo}</span>
+          <span class="agora-meta">
+            <span data-campo="categoria">{destaque.categoria}</span>
+            <span aria-hidden="true">·</span>
+            <time data-campo="data" datetime={destaque.data}>{dataBR(destaque.data)}</time>
+          </span>
+          <span class="agora-vai" aria-hidden="true">Ler o artigo →</span>
+        </a>
+      </section>
+    )}
 
     <!-- PARA QUEM -->
     <section class="sec" id="para-quem">
@@ -320,35 +356,37 @@ const territorios = [
       </div>
     </section>
 
-    <!-- PRODUTO DE ENTRADA -->
-    <section class="sec" id="auditoria">
-      <div class="wrap">
-        <article class="oferta rev">
-          <div>
-            <span class="eyebrow">Para começar sem contrato mensal</span>
-            <h2>Auditoria de Presença Local</h2>
-            <p>
-              A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa nas buscas que
-              interessam, as suas avaliações e três concorrentes da sua região. Você recebe um plano de
-              correções em ordem de prioridade, com o que dá para resolver na mesma semana separado do
-              que leva mais tempo.
-            </p>
-            <ul class="entregaveis">
-              <li>Diagnóstico do Perfil da Empresa no Google, item a item</li>
-              <li>Sua posição no mapa em até 10 buscas da sua região</li>
-              <li>Comparação com três concorrentes seus</li>
-              <li>Análise das avaliações e do que fazer com as negativas</li>
-              <li>Plano de correções priorizado, com prazo de cada uma</li>
-            </ul>
+    <!-- BLOG DA SAL -->
+    {maisArtigos.length > 0 && (
+      <section class="sec" id="blog">
+        <div class="wrap">
+          <div class="cabeca-linha rev">
+            <div>
+              <span class="eyebrow">Blog da SAL</span>
+              <h2>O que a gente anda escrevendo.</h2>
+            </div>
+            <a class="btn btn-ghost" href="/blog/">Ver todos os artigos ↗</a>
           </div>
-          <aside>
-            <p class="preco"><b>R$ 2.500</b><span>em até 6x · entrega em até 15 dias</span></p>
-            <p class="obs">Trabalho fechado. Sem contrato mensal e sem obrigação de seguir com a SAL depois.</p>
-            <a class="btn btn-primary" href="/auditoria-de-presenca-local/">Quero a auditoria ↗</a>
-          </aside>
-        </article>
-      </div>
-    </section>
+          <div class="artigos">
+            {maisArtigos.map((a) => (
+              <article class="artigo rev">
+                <a href={a.link}>
+                  <figure>
+                    {a.imagem
+                      ? <img src={a.imagem} alt={a.titulo} loading="lazy" decoding="async" width="640" height="360" />
+                      : <span class="sem-capa" aria-hidden="true"></span>}
+                  </figure>
+                  <span class="artigo-cat">{a.categoria}</span>
+                  <h3>{a.titulo}</h3>
+                  <p>{a.resumo}…</p>
+                  <time datetime={a.data}>{dataBR(a.data)}</time>
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
 
     <!-- SOBRE (seção osso: a quebra editorial) -->
     <section class="sec bone" id="sobre">
@@ -367,19 +405,25 @@ const territorios = [
           <div class="rev">
             <span class="eyebrow">Quem está por trás</span>
             <h2>12 anos como estrategista de marketing, estudando a fundo o comportamento dos clientes.</h2>
-            <p class="destaque">Quem trabalha com shopping center convive com uma pergunta só: quanta gente entrou. É a mesma pergunta que a gente faz de toda campanha.</p>
             <p>
-              Marcelo Freitas foi gerente de marketing de uma administradora de shopping centers. Coordenou o
-              marketing do Vita Boulevard Gramado desde o lançamento, participou da reestruturação do Rua da Praia
-              e do Lindóia, e da gestão da Galeria Chaves Barcellos, onde acompanhou a chegada da primeira
-              Starbucks de Porto Alegre.
+              Marcelo Freitas atua com marketing e comunicação desde 2014. Antes disso, trabalhou com TI,
+              análise de sistemas e criação de sites, base técnica que ainda hoje se reflete no trabalho
+              da SAL.
             </p>
             <p>
-              Foram anos sentando com lojista toda semana, olhando o que enche uma loja em dezembro e o que a
-              esvazia em fevereiro, em dezenas de operações ao mesmo tempo. A SAL nasceu em 2024 para fazer esse
-              trabalho do outro lado, junto de quem tem a loja. Rua da Praia, Lindóia e Chaves Barcellos seguem
-              com a gente até hoje, em consultoria.
+              Foi gestor de marketing de uma instituição de ensino, responsável por tráfego pago, produção
+              de aulas, gestão de portais e tecnologia. Por cinco anos, atuou como gerente de marketing de
+              uma administradora de shopping centers, conduzindo tenant mix, captação de lojas, produção de
+              eventos e gestão de marcas.
             </p>
+            <p>
+              Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial de
+              mais de 40 marcas (Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top,
+              Grand Cru, entre outras) e ações em parceria com o Festival de Cinema de Gramado, Páscoa,
+              Natal Luz e programação musical. Pela administradora, atendeu também marcas como Unimed,
+              Cacau Show, Natura, Beagle e McDonald&rsquo;s.
+            </p>
+            <p class="destaque">Em 2024, fundou a SAL.</p>
             <p><a class="btn btn-ghost" href="/quem-somos/">Conhecer a SAL ↗</a></p>
           </div>
         </div>
@@ -416,10 +460,6 @@ const territorios = [
             <details>
               <summary>Vocês atendem rede com várias lojas?</summary>
               <div><p>Sim, e é um trabalho que a SAL organizou como serviço próprio. Cada unidade tem o seu Perfil da Empresa no Google, a sua página de localidade, as suas avaliações e a sua campanha por raio, com um painel que compara as lojas entre si. Rede, franquia e operação de shopping entram por aqui.</p></div>
-            </details>
-            <details>
-              <summary>Dá para começar com algo menor antes de contratar mensal?</summary>
-              <div><p>Dá. A Auditoria de Presença Local custa R$ 2.500, parcelável em até 6 vezes, e fica pronta em até 15 dias. A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa, as suas avaliações e três concorrentes da sua região, e entrega um plano de correções priorizado. É um trabalho fechado, sem contrato mensal e sem obrigação de seguir com a gente depois.</p></div>
             </details>
             <details>
               <summary>Como funciona o relatório e a reunião mensal?</summary>

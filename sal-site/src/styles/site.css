@@ -79,35 +79,90 @@
 .nav .btn { padding: 11px 20px; font-size: 0.9rem; }
 .menu-btn { display: none; background: none; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 14px; color: var(--text); font: 600 0.9rem var(--body); cursor: pointer; }
 
-/* -------- Hero -------- */
-.hero { position: relative; overflow: hidden; padding-block: clamp(3.5rem, 7vw, 6rem) clamp(3.5rem, 6vw, 5.5rem); }
-.hero::before {
-  content: ""; position: absolute; top: -220px; right: -160px; width: 620px; height: 620px;
-  background: radial-gradient(circle, rgba(201,169,97,.14), transparent 62%);
-  filter: blur(20px); pointer-events: none;
+/* -------- Hero: foto ao fundo, tipografia grande --------
+   A foto entra como <img> (e não background-image) para o navegador
+   priorizar o download e o alt continuar valendo. O véu é o que garante
+   contraste de texto sobre qualquer região da imagem. */
+.hero {
+  position: relative; overflow: hidden; isolation: isolate;
+  min-height: clamp(34rem, 76vh, 46rem); display: flex; align-items: center;
+  padding-block: clamp(4rem, 9vw, 7rem);
+  background: var(--indigo-deep);
 }
-.hero .wrap { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
-.hero h1 { margin-bottom: var(--s5); text-wrap: balance; }
+.hero-foto {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%;
+}
+.hero-veu {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(11, 10, 24, 0.94) 0%, rgba(11, 10, 24, 0.80) 42%, rgba(20, 16, 58, 0.42) 78%, rgba(20, 16, 58, 0.30) 100%),
+    linear-gradient(0deg, var(--bg) 0%, rgba(11, 10, 24, 0.15) 34%, rgba(11, 10, 24, 0) 62%);
+}
+.hero .malha { z-index: -1; }
+/* width: 100% é obrigatório — como item de um flex container, o .wrap
+   encolheria para a largura do conteúdo e o auto-margin o centralizaria. */
+.hero .wrap { position: relative; width: 100%; }
+.hero .wrap > div { max-width: 40rem; }
+.hero h1 {
+  font-size: clamp(2.6rem, 1.5rem + 4.6vw, 4.75rem);
+  line-height: 1.02; letter-spacing: -0.022em;
+  margin-bottom: var(--s5); text-wrap: balance;
+  text-shadow: 0 2px 40px rgba(11, 10, 24, 0.55);
+}
 .hero h1 em { font-style: normal; color: var(--gold); }
-.hero .sub { font-size: var(--t-lead); color: var(--muted); max-width: 34rem; margin-bottom: var(--s6); }
+.hero .sub { font-size: clamp(1.05rem, 1rem + 0.4vw, 1.25rem); color: #D6D4E6; max-width: 34rem; margin-bottom: var(--s6); }
 .hero .acoes { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
 .hero .porta { margin-top: var(--s5); }
+.hero .porta .link-side { color: #C3C0D8; }
 
-/* -------- Imagem do hero: o varejo do cliente, não o retrato do fundador -------- */
-.retrato { position: relative; }
-.retrato figure {
-  margin: 0; aspect-ratio: 4/5; border-radius: var(--r-lg); overflow: hidden;
-  background: var(--indigo-deep);
-  border: 1px solid var(--gold-line); box-shadow: var(--shadow);
+/* -------- "Esta semana no Blog da SAL": a barra que mostra que o site é vivo -------- */
+.agora {
+  position: relative; z-index: 5; margin-top: calc(var(--s7) * -1);
+  display: grid; grid-template-columns: auto 1fr auto auto; align-items: center;
+  gap: var(--s5); padding: var(--s5) var(--s6);
+  background: linear-gradient(90deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--line); border-top-color: var(--gold-line); border-radius: var(--r);
+  transition: border-color var(--mid) var(--ease), transform var(--mid) var(--ease);
 }
-.retrato figure img { display: block; width: 100%; height: 100%; object-fit: cover; }
-/* véu indigo por cima: costura a foto na paleta em vez de deixá-la solta */
-.retrato figure::after {
-  content: ""; position: absolute; inset: 0; border-radius: var(--r-lg); pointer-events: none;
-  background:
-    linear-gradient(200deg, rgba(20, 16, 58, 0.42) 0%, rgba(11, 10, 24, 0) 45%),
-    linear-gradient(0deg, rgba(11, 10, 24, 0.55) 0%, rgba(11, 10, 24, 0) 42%);
+.agora:hover { border-color: var(--gold-line); transform: translateY(-2px); }
+.agora-rot {
+  display: inline-flex; align-items: center; gap: 9px; white-space: nowrap;
+  font-family: var(--sans); font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold);
 }
+.pulso { width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); flex: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .pulso { animation: pulsar 2.4s var(--ease) infinite; }
+  @keyframes pulsar { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+}
+.agora-titulo { font-family: var(--sans); font-weight: 700; font-size: 1.02rem; color: var(--text); }
+.agora-meta { display: flex; gap: 8px; white-space: nowrap; font-size: var(--t-sm); color: var(--muted-2); }
+.agora-vai { white-space: nowrap; font-size: var(--t-sm); font-weight: 600; color: var(--gold); }
+.agora:hover .agora-vai { color: var(--gold-light); }
+
+/* -------- Blog da SAL: 3 artigos com capa -------- */
+.cabeca-linha { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s5); margin-bottom: var(--s7); }
+.cabeca-linha h2 { margin: 0; }
+.artigos { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); }
+.artigo {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden;
+  transition: border-color var(--mid) var(--ease), transform var(--mid) var(--ease);
+}
+.artigo:hover { border-color: var(--gold-line); transform: translateY(-2px); }
+.artigo > a { display: block; }
+.artigo figure { margin: 0 0 var(--s5); aspect-ratio: 16/9; overflow: hidden; background: var(--indigo-deep); border-bottom: 1px solid var(--line); }
+.artigo img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform var(--slow) var(--ease); }
+.artigo:hover img { transform: scale(1.03); }
+.artigo-cat, .artigo h3, .artigo p, .artigo time { padding-inline: var(--s5); }
+.artigo-cat {
+  display: block; font-family: var(--sans); font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: var(--s3);
+}
+.artigo h3 { font-size: 1.12rem; line-height: 1.3; margin-bottom: var(--s3); }
+.artigo:hover h3 { color: var(--gold-light); }
+.artigo p { color: var(--muted); font-size: 0.92rem; margin: 0 0 var(--s4); }
+.artigo time { display: block; font-size: var(--t-xs); color: var(--muted-2); padding-bottom: var(--s5); }
 
 /* -------- Números (3, sempre em sans) -------- */
 .numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); border-bottom: 1px solid var(--line); }
@@ -294,7 +349,12 @@
 
 /* -------- Responsivo -------- */
 @media (max-width: 1000px) {
-  .servicos { grid-template-columns: repeat(2, 1fr); }
+  .servicos, .artigos { grid-template-columns: repeat(2, 1fr); }
+  .artigo:nth-child(3) { grid-column: span 2; }
+  .agora { grid-template-columns: 1fr auto; row-gap: var(--s3); }
+  .agora-titulo { grid-column: 1 / -1; order: 3; }
+  .agora-meta { order: 2; justify-content: flex-end; }
+  .agora-vai { grid-column: 1 / -1; order: 4; }
   .servico, .servico:nth-child(1), .servico:nth-child(2) { grid-column: span 1; }
   .territorios { grid-template-columns: 1fr; }
   .territorio { padding-top: var(--s5); padding-left: 0; }
@@ -303,9 +363,6 @@
   .passo:nth-child(even) { padding-left: var(--s5); }
 }
 @media (max-width: 860px) {
-  .hero .wrap { grid-template-columns: 1fr; }
-  .retrato { max-width: 480px; }
-  .retrato figure { aspect-ratio: 16/11; }
   .publicos, .selos, .oferta { grid-template-columns: 1fr; }
   .bone .fundador, .faq { grid-template-columns: 1fr; }
   .rodape .grade { grid-template-columns: 1fr 1fr; }
@@ -321,7 +378,14 @@
   .menu-btn { display: inline-flex; }
   .numeros { grid-template-columns: 1fr; }
   .numero + .numero { border-left: 0; border-top: 1px solid var(--line); }
-  .servicos, .metodo { grid-template-columns: 1fr; }
+  .servicos, .metodo, .artigos { grid-template-columns: 1fr; }
+  /* a barra do blog empilha: rótulo e meta em nowrap não cabem lado a lado */
+  .agora { grid-template-columns: 1fr; gap: var(--s3); padding: var(--s5); }
+  .agora-rot, .agora-titulo, .agora-meta, .agora-vai { grid-column: 1; order: initial; }
+  .agora-meta { justify-content: flex-start; flex-wrap: wrap; white-space: normal; }
+  .agora-vai { margin-top: var(--s2); }
+  .artigo:nth-child(3) { grid-column: span 1; }
+  .cabeca-linha { flex-direction: column; align-items: flex-start; }
   .passo, .passo + .passo { padding-left: 0; }
   .rodape .grade { grid-template-columns: 1fr; }
   .garantias { gap: var(--s4); flex-direction: column; align-items: center; }

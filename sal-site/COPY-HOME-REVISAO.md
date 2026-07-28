@@ -1,10 +1,10 @@
 # Revisão de copy — Home do novo site da SAL
 
-> **Versão 3**, de 28/07/2026. Refeita depois da sua segunda rodada de ajustes.
+> **Versão 4**, de 28/07/2026. Refeita depois da sua terceira rodada de ajustes.
 > Escreva o seu ajuste na linha **`>> AJUSTE:`** logo abaixo de cada bloco.
 > O que ficar em branco eu mantenho como está.
 
-**O que mudou nesta versão 3:**
+**O que mudou nesta versão 4:**
 
 - **Fonte trocada.** A Fraunces era a mesma da Colmeia. Entrou a **Newsreader**, um serifado
   editorial de alto contraste. A Glook não deu: ela não existe no Google Fonts, e é por isso que
@@ -19,6 +19,16 @@
 - **"3 shoppings" aparece uma vez só**, no texto sobre você. Saiu da faixa de números e dos selos.
 - Auditoria a **R$ 2.500 em até 6x**, contrato de **6 meses com cancelamento sem multa**.
 - Rodapé com razão social, CNPJ e ícones de Instagram, LinkedIn e WhatsApp.
+
+**E nesta versão 4:**
+
+- **Hero com a foto ao fundo** em tela cheia e o título bem maior, no lugar do formato de duas
+  colunas com a foto em cartão ao lado.
+- **A faixa de números saiu.** No lugar entrou a barra **"Esta semana no Blog da SAL"**, com o
+  último artigo publicado, puxado direto do WordPress.
+- **Seção do blog na home**, com os 3 artigos seguintes e as imagens destacadas.
+- **Quadro da auditoria removido** da home. O produto fica guardado para depois.
+- **A sua biografia** substituiu a que eu tinha escrito.
 
 ---
 
@@ -54,19 +64,20 @@ Para loja física e e-commerce. Você aparece na hora em que a pessoa procura o 
 3. Tem e-commerce? Comece por aqui → *(link discreto)*
 `>> AJUSTE:`
 
-**Imagem:** foto das vitrines iluminadas à noite. Sem selos por cima, sem foto sua.
+**Imagem:** a foto das vitrines iluminadas à noite, agora ocupando o fundo inteiro do hero, com
+um véu indigo por cima para o texto ficar legível.
 *Se preferir outra das fotos do Drive, me diga qual.*
 `>> AJUSTE:`
 
 ---
 
-## 3. Os três números
+## 3. Esta semana no Blog da SAL *(no lugar da faixa de números)*
 
-*A faixa de marcas foi removida. Os selos do hero também.*
+Barra logo abaixo do hero, com o último artigo publicado. Puxa do WordPress em tempo de build e
+ainda confere sozinha, no navegador, se saiu post novo depois disso.
 
-- **12 anos** — de marketing, cinco deles em shopping center
-- **2 frentes** — tráfego orgânico e tráfego pago
-- **90 dias** — para os primeiros sinais de SEO
+**Rótulo:** Esta semana no Blog da SAL
+**Conteúdo:** título do artigo · categoria · data · "Ler o artigo →"
 `>> AJUSTE:`
 
 ---
@@ -169,27 +180,16 @@ Loja virtual que precisa crescer com margem, e não só aumentar o número de pe
 
 ---
 
-## 8. Auditoria de Presença Local *(bloco novo, R$ 2.500)*
+## 8. Blog da SAL *(seção nova)*
 
-**Etiqueta:** Para começar sem contrato mensal
-**Título:** Auditoria de Presença Local
+*O quadro da Auditoria de Presença Local saiu da home, como você pediu.*
+
+**Rótulo:** Blog da SAL
+**Título:** O que a gente anda escrevendo.
 `>> AJUSTE:`
 
-**Texto:** A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa nas buscas que interessam, as suas avaliações e três concorrentes da sua região. Você recebe um plano de correções em ordem de prioridade, com o que dá para resolver na mesma semana separado do que leva mais tempo.
-`>> AJUSTE:`
-
-**O que entra:**
-- Diagnóstico do Perfil da Empresa no Google, item a item
-- Sua posição no mapa em até 10 buscas da sua região
-- Comparação com três concorrentes seus
-- Análise das avaliações e do que fazer com as negativas
-- Plano de correções priorizado, com prazo de cada uma
-
-*Com o preço em R$ 2.500 o escopo ficou bem dimensionado. Se quiser incluir mais alguma coisa, me diga.*
-`>> AJUSTE:`
-
-**Preço:** R$ 2.500 · em até 6x · entrega em até 15 dias
-**Observação:** Trabalho fechado. Sem contrato mensal e sem obrigação de seguir com a SAL depois.
+**Conteúdo:** os 3 artigos seguintes ao do destaque, cada um com imagem destacada, categoria,
+título, resumo e data. Botão "Ver todos os artigos ↗" ao lado do título.
 `>> AJUSTE:`
 
 ---
@@ -201,14 +201,18 @@ Loja virtual que precisa crescer com margem, e não só aumentar o número de pe
 **Título:** 12 anos como estrategista de marketing, estudando a fundo o comportamento dos clientes.
 `>> AJUSTE:`
 
-**Frase de destaque** *(é a tese do site inteiro, vale revisar com carinho)*:
-**Quem trabalha com shopping center convive com uma pergunta só: quanta gente entrou. É a mesma pergunta que a gente faz de toda campanha.**
+*Agora é o seu texto, como você mandou.*
+
+**Parágrafo 1:** Marcelo Freitas atua com marketing e comunicação desde 2014. Antes disso, trabalhou com TI, análise de sistemas e criação de sites, base técnica que ainda hoje se reflete no trabalho da SAL.
 `>> AJUSTE:`
 
-**Parágrafo 1:** Marcelo Freitas foi gerente de marketing de uma administradora de shopping centers. Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, participou da reestruturação do Rua da Praia e do Lindóia, e da gestão da Galeria Chaves Barcellos, onde acompanhou a chegada da primeira Starbucks de Porto Alegre.
+**Parágrafo 2:** Foi gestor de marketing de uma instituição de ensino, responsável por tráfego pago, produção de aulas, gestão de portais e tecnologia. Por cinco anos, atuou como gerente de marketing de uma administradora de shopping centers, conduzindo tenant mix, captação de lojas, produção de eventos e gestão de marcas.
 `>> AJUSTE:`
 
-**Parágrafo 2:** Foram anos sentando com lojista toda semana, olhando o que enche uma loja em dezembro e o que a esvazia em fevereiro, em dezenas de operações ao mesmo tempo. A SAL nasceu em 2024 para fazer esse trabalho do outro lado, junto de quem tem a loja. Rua da Praia, Lindóia e Chaves Barcellos seguem com a gente até hoje, em consultoria.
+**Parágrafo 3:** Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial de mais de 40 marcas (Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top, Grand Cru, entre outras) e ações em parceria com o Festival de Cinema de Gramado, Páscoa, Natal Luz e programação musical. Pela administradora, atendeu também marcas como Unimed, Cacau Show, Natura, Beagle e McDonald's.
+`>> AJUSTE:`
+
+**Fecho, em destaque:** Em 2024, fundou a SAL.
 `>> AJUSTE:`
 
 **Botão:** Conhecer a SAL ↗
@@ -241,15 +245,11 @@ As duas. Metade do trabalho é com loja física, quiosque, franquia e operação
 Sim, e é um trabalho que a SAL organizou como serviço próprio. Cada unidade tem o seu Perfil da Empresa no Google, a sua página de localidade, as suas avaliações e a sua campanha por raio, com um painel que compara as lojas entre si. Rede, franquia e operação de shopping entram por aqui.
 `>> AJUSTE:`
 
-**6. Dá para começar com algo menor antes de contratar mensal?** *(pergunta nova)*
-Dá. A Auditoria de Presença Local custa R$ 2.500, parcelável em até 6 vezes, e fica pronta em até 15 dias. A gente analisa o seu Perfil da Empresa no Google, a sua posição no mapa, as suas avaliações e três concorrentes da sua região, e entrega um plano de correções priorizado. É um trabalho fechado, sem contrato mensal e sem obrigação de seguir com a gente depois.
-`>> AJUSTE:`
-
-**7. Como funciona o relatório e a reunião mensal?**
+**6. Como funciona o relatório e a reunião mensal?**
 Todo mês você recebe um documento com o que foi investido, o que voltou, o que o orgânico trouxe e o que muda no mês seguinte. Depois sentamos pra ler os números juntos e decidir o próximo passo. Sem PDF de quarenta páginas e sem gráfico que ninguém explica.
 `>> AJUSTE:`
 
-**8. Tem fidelidade no contrato?** *(resolvido com a sua resposta)*
+**7. Tem fidelidade no contrato?** *(resolvido com a sua resposta)*
 O contrato é de 6 meses, que é o tempo mínimo para o SEO dar resultado. Mas você pode cancelar quando quiser, sem multa, avisando com 30 dias de antecedência. O prazo existe para proteger o trabalho, não para prender você.
 `>> AJUSTE:`
 
@@ -286,17 +286,14 @@ O contrato é de 6 meses, que é o tempo mínimo para o SEO dar resultado. Mas v
 
 # O que eu ainda preciso de você
 
-**1. Escopo da Auditoria de R$ 2.500.** Quer incluir mais alguma coisa agora que o valor subiu?
+**1. Diagnóstico.** O CTA fala em "agendar". Prefere agenda com horário (tipo Calendly) ou manter o formulário de 5 perguntas do site atual?
 `>> RESPOSTA:`
 
-**2. Diagnóstico.** O CTA fala em "agendar". Prefere agenda com horário (tipo Calendly) ou manter o formulário de 5 perguntas do site atual?
+**2. Blog da SAL.** O blog pede a fonte Glook ao Google Fonts, que responde `400: Font family not found`. Os números grandes das listas estão caindo numa fonte manuscrita. Quer que eu corrija junto?
 `>> RESPOSTA:`
 
-**3. Blog da SAL.** O blog pede a fonte Glook ao Google Fonts, que responde `400: Font family not found`. Os números grandes das listas estão caindo numa fonte manuscrita. Quer que eu corrija junto?
+**3. Marcas na sua página.** Kopenhagen, Hering, Panvel, Intimissimi, Calzedonia, Grand Cru e as outras entram na sua página como "marcas com que trabalhei nos shoppings". Confirma essa formulação?
 `>> RESPOSTA:`
 
-**4. Marcas na sua página.** Kopenhagen, Hering, Panvel, Intimissimi, Calzedonia, Grand Cru e as outras entram na sua página como "marcas com que trabalhei nos shoppings". Confirma essa formulação?
-`>> RESPOSTA:`
-
-**5. Substack.** Quer o ícone do Substack junto dos outros três no rodapé? Se sim, me passe o endereço.
+**4. Substack.** Quer o ícone do Substack junto dos outros três no rodapé? Se sim, me passe o endereço.
 `>> RESPOSTA:`
