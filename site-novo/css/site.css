@@ -1,0 +1,297 @@
+/* =========================================================
+   SAL — Componentes do site (sobre tokens.css)
+   Regras do design system: indigo dominante, lima pontual,
+   cards brancos radius 12, sombras tingidas, motion mínimo.
+   ========================================================= */
+
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+@media (min-width: 1024px) { .wrap { padding: 0 32px; } }
+
+/* -------- Botões -------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-body); font-weight: 600; font-size: 15px;
+  padding: 14px 26px; border-radius: var(--radius-md);
+  text-decoration: none; cursor: pointer; border: 1px solid transparent;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.btn-primario { background: var(--accent-bright); color: var(--sal-white); }
+.btn-primario:hover { background: var(--accent-bright-hover); color: var(--sal-white); }
+.btn-secundario { background: transparent; color: var(--accent); border-color: var(--border-strong); }
+.btn-secundario:hover { border-color: var(--accent); color: var(--accent-hover); }
+.btn-spark { background: var(--spark); color: var(--sal-black); }
+.btn-spark:hover { background: var(--sal-lime-600); color: var(--sal-black); }
+.btn .seta { transition: transform var(--dur-fast) var(--ease-out); }
+.btn:hover .seta { transform: translateX(3px); }
+
+/* -------- Header -------- */
+.topo {
+  position: sticky; top: 0; z-index: 50; height: 72px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topo .wrap { height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.topo .logo img { height: 40px; width: auto; aspect-ratio: 16/9; object-fit: contain; }
+.menu { display: flex; align-items: center; gap: 28px; }
+.menu a:not(.btn) { font-size: 15px; font-weight: 500; color: var(--fg); text-decoration: none; }
+.menu a:not(.btn):hover { color: var(--accent-bright); }
+.menu .btn-primario { color: var(--sal-white); }
+.menu-btn { display: none; background: none; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 8px 14px; font: 600 14px var(--font-body); color: var(--fg); cursor: pointer; }
+
+/* -------- Hero -------- */
+.hero { background: var(--bg-alt); border-bottom: 1px solid var(--border); }
+.hero .wrap {
+  display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--space-8); align-items: center;
+  padding-top: var(--space-9); padding-bottom: var(--space-9);
+}
+.hero .eyebrow { display: block; margin-bottom: var(--space-4); }
+.hero h1 { font-size: clamp(38px, 4.8vw, 62px); margin-bottom: var(--space-5); max-width: 15ch; }
+
+/* Grifo lima: o único gesto animado da marca. Desenha da esquerda ao entrar. */
+.grifo { position: relative; z-index: 0; white-space: nowrap; }
+.grifo::after {
+  content: ""; position: absolute; left: -0.06em; right: -0.06em; bottom: 4%;
+  height: 28%; background: var(--spark); z-index: -1;
+  transform-origin: left center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .js .grifo::after { transform: scaleX(0); transition: transform 520ms var(--ease-out) 120ms; }
+  .js .grifo.grifado::after { transform: scaleX(1); }
+}
+.grifo-escuro::after { opacity: .92; }
+.hero .lead { max-width: 46ch; margin-bottom: var(--space-6); }
+.hero .acoes { display: flex; gap: var(--space-4); flex-wrap: wrap; align-items: center; }
+.hero .garantia { font-size: var(--fs-sm); color: var(--fg-muted); margin-top: var(--space-4); }
+.hero .garantia b { color: var(--fg); font-weight: 600; }
+
+.retrato { position: relative; }
+.retrato figure {
+  margin: 0; border-radius: var(--radius-lg); overflow: hidden;
+  aspect-ratio: 4/5; background: var(--bg-invert);
+  box-shadow: var(--shadow-lg);
+  display: flex; align-items: flex-end;
+}
+.retrato img { width: 100%; height: 100%; object-fit: cover; }
+.retrato .ph { color: rgba(255,255,255,.75); font-size: var(--fs-xs); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; padding: var(--space-4); }
+.retrato figcaption {
+  position: absolute; left: var(--space-4); bottom: var(--space-4);
+  background: var(--sal-white); border: 1px solid var(--border);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-sm); color: var(--fg);
+}
+.retrato figcaption b { display: block; font-family: var(--font-display); font-weight: 700; color: var(--sal-indigo-900); }
+
+/* -------- Seções -------- */
+.secao { padding-top: var(--space-9); padding-bottom: var(--space-9); }
+.secao-alt { background: var(--sal-white); border-block: 1px solid var(--border); }
+.secao-cool { background: var(--bg-cool); }
+.cabeca { max-width: 720px; margin-bottom: var(--space-7); }
+.cabeca .eyebrow { display: block; margin-bottom: var(--space-3); }
+.cabeca p { color: var(--fg-muted); font-size: var(--fs-lead); margin: 0; }
+
+/* -------- Faixa viva (sinal de operação real) -------- */
+.faixa-viva { background: var(--sal-indigo-900); color: rgba(255,255,255,.82); }
+.faixa-viva .wrap { display: flex; align-items: center; gap: var(--space-5); padding-block: var(--space-4); flex-wrap: wrap; }
+.faixa-viva .rotulo {
+  font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase; color: var(--spark); white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.faixa-viva .rotulo::before { content: ""; width: 7px; height: 7px; background: var(--spark); border-radius: var(--radius-pill); }
+.faixa-viva p { margin: 0; font-size: 15px; flex: 1; min-width: 260px; }
+.faixa-viva a { color: var(--sal-white); font-weight: 600; font-size: var(--fs-sm); text-decoration: none; white-space: nowrap; }
+.faixa-viva a:hover { color: var(--spark); }
+
+/* -------- Problema (editorial assimétrico, sem grid de cards) -------- */
+.problema { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-8); align-items: start; }
+.problema-texto .eyebrow { display: block; margin-bottom: var(--space-3); }
+.problema-texto h2 { margin-bottom: var(--space-4); }
+.problema-texto .lead { margin: 0; }
+.queixas { list-style: none; margin: 0; padding: 0; }
+.queixas li { padding: var(--space-5) 0; border-top: 1px solid var(--border); }
+.queixas li:last-child { border-bottom: 1px solid var(--border); }
+.queixas q {
+  display: block; font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(19px, 2vw, 24px); line-height: var(--lh-snug);
+  color: var(--sal-indigo-900); letter-spacing: var(--tracking-tight);
+}
+.queixas q::before { content: "“"; color: var(--accent-bright); }
+.queixas q::after { content: "”"; color: var(--accent-bright); }
+.queixas span { display: block; margin-top: var(--space-2); color: var(--fg-muted); font-size: 15px; }
+
+/* -------- Guia -------- */
+.assinatura { font-size: 15px; color: var(--fg); margin-bottom: var(--space-5); }
+.assinatura a { font-weight: 600; text-decoration: none; }
+.assinatura a:hover { text-decoration: underline; }
+
+/* -------- Método 4D -------- */
+.quatro-d { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); counter-reset: d; }
+.quatro-d li {
+  counter-increment: d; padding: var(--space-6) var(--space-5) var(--space-6) 0;
+  border-top: 3px solid var(--accent); position: relative;
+}
+.quatro-d li + li { padding-left: var(--space-5); }
+.quatro-d li::before {
+  content: "0" counter(d);
+  font-family: var(--font-display); font-weight: 800; font-size: var(--fs-sm);
+  color: var(--accent-bright); letter-spacing: 0.06em;
+  display: block; margin-bottom: var(--space-3);
+}
+.quatro-d b { font-family: var(--font-display); font-weight: 800; font-size: 21px; color: var(--sal-indigo-900); display: block; margin-bottom: var(--space-3); letter-spacing: var(--tracking-tight); }
+.quatro-d p { margin: 0; font-size: 15px; color: var(--fg-muted); }
+
+/* -------- Guia (autoridade) -------- */
+.guia { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-8); align-items: center; }
+.guia-fotos { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+.guia-fotos figure {
+  margin: 0; border-radius: var(--radius-md); overflow: hidden;
+  background: var(--bg-invert); aspect-ratio: 1;
+  display: flex; align-items: flex-end;
+}
+.guia-fotos figure:first-child { grid-row: span 2; aspect-ratio: auto; }
+.guia-fotos img { width: 100%; height: 100%; object-fit: cover; }
+.guia-fotos .ph { color: rgba(255,255,255,.7); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding: var(--space-3); }
+.guia h2 { margin-bottom: var(--space-4); }
+.guia .lead { margin-bottom: var(--space-5); }
+.marcas { border-top: 1px solid var(--border); padding-top: var(--space-5); }
+.marcas span { font-size: var(--fs-xs); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--fg-subtle); display: block; margin-bottom: var(--space-3); }
+.marcas ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); }
+.marcas li { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-sm); color: var(--fg-muted); letter-spacing: 0.04em; }
+
+/* -------- Plano em 3 passos -------- */
+.passos { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); counter-reset: passo; }
+.passo {
+  background: var(--sal-white); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: var(--space-6) var(--space-5);
+  counter-increment: passo; position: relative;
+}
+.passo::before {
+  content: counter(passo);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: var(--radius-pill);
+  background: var(--accent); color: var(--sal-white);
+  font-family: var(--font-display); font-weight: 800; font-size: 18px;
+  margin-bottom: var(--space-4);
+}
+.passo h3 { font-size: var(--fs-h4); margin-bottom: var(--space-2); }
+.passo p { margin: 0; color: var(--fg-muted); font-size: 15px; }
+
+/* -------- Soluções -------- */
+.solucoes { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
+.solucao {
+  background: var(--sal-white); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: var(--space-6) var(--space-5);
+  box-shadow: var(--shadow-xs); display: flex; flex-direction: column;
+  transition: box-shadow var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
+}
+.solucao:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+.solucao .tag {
+  align-self: flex-start; font-size: var(--fs-xs); font-weight: 700;
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase;
+  background: var(--accent-soft); color: var(--accent);
+  border-radius: var(--radius-pill); padding: 6px 14px; margin-bottom: var(--space-4);
+}
+.solucao h3 { font-size: 22px; margin-bottom: var(--space-3); }
+.solucao ul { list-style: none; margin: 0 0 var(--space-5); padding: 0; display: grid; gap: var(--space-3); }
+.solucao li { position: relative; padding-left: 22px; font-size: 15px; color: var(--fg); }
+.solucao li::before { content: "→"; position: absolute; left: 0; color: var(--accent-bright); font-weight: 600; }
+.solucao a { margin-top: auto; font-weight: 600; font-size: 15px; text-decoration: none; }
+.solucao a:hover { text-decoration: underline; }
+
+/* -------- Relatório (sucesso tangível) -------- */
+.conta { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: var(--space-8); align-items: center; }
+.relatorio {
+  background: var(--sal-white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+  padding: var(--space-6); max-width: 460px; justify-self: center; width: 100%;
+}
+.relatorio .cab { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--border); padding-bottom: var(--space-3); margin-bottom: var(--space-4); }
+.relatorio .cab b { font-family: var(--font-display); font-weight: 800; color: var(--sal-indigo-900); }
+.relatorio .cab span { font-size: var(--fs-xs); color: var(--fg-subtle); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
+.relatorio dl { margin: 0; display: grid; gap: var(--space-3); }
+.relatorio .linha { display: flex; justify-content: space-between; font-size: 15px; }
+.relatorio dt { color: var(--fg-muted); }
+.relatorio dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.relatorio .total { border-top: 1px solid var(--border); padding-top: var(--space-3); }
+.relatorio .total dt { color: var(--fg); font-weight: 600; }
+.relatorio .total dd { color: var(--sal-green-500); font-weight: 700; }
+.relatorio .nota { margin: var(--space-4) 0 0; font-size: var(--fs-xs); color: var(--fg-subtle); }
+
+/* -------- Painel indigo (CTA final) -------- */
+.painel { background: var(--bg-invert); color: var(--fg-invert); }
+.painel .wrap { padding-top: var(--space-9); padding-bottom: var(--space-9); text-align: center; }
+.painel h2 { color: var(--sal-white); font-size: var(--fs-h1); max-width: 20ch; margin: 0 auto var(--space-4); }
+.painel .lead { color: rgba(255, 255, 255, 0.78); max-width: 54ch; margin: 0 auto var(--space-6); }
+.painel .micro { color: rgba(255, 255, 255, 0.6); font-size: var(--fs-sm); margin-top: var(--space-4); }
+
+/* -------- Portal (blog) -------- */
+.portal-lista { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-auto-rows: min-content; gap: var(--space-5); }
+.post {
+  background: var(--sal-white); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: var(--space-5);
+  box-shadow: var(--shadow-xs); display: flex; flex-direction: column; gap: var(--space-3);
+  transition: box-shadow var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
+}
+.post:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+.post .cat { font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--accent-bright); }
+.post h3 { font-size: 18px; line-height: var(--lh-snug); margin: 0; }
+.post h3 a { color: var(--sal-indigo-900); text-decoration: none; }
+.post h3 a:hover { color: var(--accent-bright); }
+.post time { font-size: var(--fs-sm); color: var(--fg-subtle); margin-top: auto; }
+.post p { margin: 0; font-size: 15px; color: var(--fg-muted); }
+.post-destaque { grid-row: span 2; }
+.post-destaque h3 { font-size: 24px; }
+
+/* -------- Footer -------- */
+.rodape { background: var(--sal-black); color: rgba(255, 255, 255, 0.72); }
+.rodape a { color: rgba(255, 255, 255, 0.72); text-decoration: none; }
+.rodape a:hover { color: var(--spark); }
+.rodape .grade {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--space-7);
+  padding: var(--space-8) 0 var(--space-7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.rodape img { height: 44px; width: auto; aspect-ratio: 16/9; object-fit: contain; }
+.rodape .slogan { color: var(--spark); font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; margin: var(--space-4) 0 var(--space-3); }
+.rodape p { font-size: var(--fs-sm); max-width: 34ch; }
+.rodape h4 { color: rgba(255, 255, 255, 0.5); font-size: var(--fs-xs); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; margin-bottom: var(--space-4); }
+.rodape ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); font-size: var(--fs-sm); }
+.rodape .legal { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4); padding: var(--space-5) 0; font-size: var(--fs-xs); color: rgba(255, 255, 255, 0.45); }
+
+/* -------- Revelação (fade + 8px, regra do sistema) -------- */
+@media (prefers-reduced-motion: no-preference) {
+  .js .revela { opacity: 0; transform: translateY(8px); transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
+  .js .revela.visto { opacity: 1; transform: none; }
+}
+
+/* -------- Responsivo -------- */
+@media (max-width: 1000px) {
+  .quatro-d { grid-template-columns: 1fr 1fr; }
+  .quatro-d li + li { padding-left: 0; }
+  .quatro-d li:nth-child(even) { padding-left: var(--space-5); }
+}
+@media (max-width: 960px) {
+  .hero .wrap { grid-template-columns: 1fr; gap: var(--space-6); }
+  .hero h1 { max-width: none; }
+  .retrato figure { aspect-ratio: 16/10; }
+  .problema, .guia, .conta { grid-template-columns: 1fr; gap: var(--space-6); }
+  .passos, .solucoes { grid-template-columns: 1fr 1fr; }
+  .portal-lista { grid-template-columns: 1fr 1fr; }
+  .post-destaque { grid-row: auto; grid-column: 1 / -1; }
+  .rodape .grade { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .menu { display: none; position: absolute; top: 72px; left: 0; right: 0; background: var(--sal-white); border-bottom: 1px solid var(--border); padding: var(--space-4) var(--space-5) var(--space-6); flex-direction: column; align-items: flex-start; gap: var(--space-4); box-shadow: var(--shadow-md); }
+  .menu.aberto { display: flex; }
+  .menu .btn { width: 100%; justify-content: center; }
+  .menu-btn { display: inline-flex; }
+  .quatro-d { grid-template-columns: 1fr; }
+  .quatro-d li:nth-child(even) { padding-left: 0; }
+  .passos, .solucoes, .portal-lista { grid-template-columns: 1fr; }
+  .post-destaque { grid-column: auto; }
+  .rodape .grade { grid-template-columns: 1fr; }
+  .faixa-viva .wrap { gap: var(--space-3); }
+}
