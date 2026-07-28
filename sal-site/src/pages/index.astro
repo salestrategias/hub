@@ -17,11 +17,17 @@ const schema = {
       slogan: 'Marketing na Medida Certa',
       description: 'Agência de tráfego pago e SEO (tráfego orgânico) para varejo local e e-commerce.',
       foundingDate: '2024',
-      founder: { '@type': 'Person', name: 'Marcelo Freitas', url: 'https://salestrategias.com.br/marcelo-freitas/' },
+      founder: {
+        '@type': 'Person',
+        name: 'Marcelo Freitas',
+        jobTitle: 'Estrategista de marketing',
+        url: 'https://salestrategias.com.br/marcelo-freitas/',
+        sameAs: ['https://www.linkedin.com/in/marcelocfreitas/', 'https://marcelofreitas.substack.com/'],
+      },
       address: { '@type': 'PostalAddress', addressLocality: 'Porto Alegre', addressRegion: 'RS', addressCountry: 'BR' },
       areaServed: { '@type': 'Country', name: 'Brasil' },
       knowsAbout: ['Tráfego pago', 'Google Ads', 'Meta Ads', 'SEO', 'Tráfego orgânico', 'SEO local', 'Google Meu Negócio', 'E-commerce', 'Varejo'],
-      sameAs: ['https://www.instagram.com/salestrategias/', 'https://www.linkedin.com/company/sal-estrategias-de-marketing/'],
+      sameAs: ['https://www.instagram.com/salestrategias/', 'https://marcelofreitas.substack.com/'],
     },
     {
       '@type': 'WebSite',
@@ -196,7 +202,7 @@ const territorios = [
         <a href="#metodo">Método</a>
         <a href="#sobre">A SAL</a>
         <a href="/blog/">Blog</a>
-        <a class="btn btn-primary" href="/diagnostico/">Agendar diagnóstico ↗</a>
+        <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
       </nav>
     </div>
   </header>
@@ -222,7 +228,7 @@ const territorios = [
             vende: no Google, no mapa e no anúncio.
           </p>
           <div class="acoes">
-            <a class="btn btn-primary" href="/diagnostico/">Agendar diagnóstico ↗</a>
+            <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
             <a class="btn btn-ghost" href="#metodo">Ver como trabalhamos</a>
           </div>
           <p class="porta"><a class="link-side" href="/e-commerce/">Tem e-commerce? Comece por aqui →</a></p>
@@ -483,7 +489,7 @@ const territorios = [
           Escolha um horário e a gente analisa suas contas de anúncio, sua presença no mapa e a sua concorrência.
           Você sai com as prioridades na mão, com ou sem proposta depois.
         </p>
-        <a class="btn btn-primary" href="/diagnostico/">Agendar diagnóstico ↗</a>
+        <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
         <div class="garantias">
           <span>Resposta em até 1 dia útil</span>
           <span>Diagnóstico sem custo</span>
@@ -507,8 +513,13 @@ const territorios = [
               </a>
             </li>
             <li>
-              <a href="https://www.linkedin.com/company/sal-estrategias-de-marketing/" rel="noopener" aria-label="LinkedIn da SAL">
+              <a href="https://www.linkedin.com/in/marcelocfreitas/" rel="noopener" aria-label="LinkedIn do Marcelo Freitas">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M7.5 10.5V17M7.5 7.4v.1M11.5 17v-3.6a2.4 2.4 0 0 1 4.8 0V17" /></svg>
+              </a>
+            </li>
+            <li>
+              <a href="https://marcelofreitas.substack.com/" rel="noopener" aria-label="Newsletter no Substack">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 4.5h15v2.6h-15zM4.5 9.4h15V12h-15zM4.5 14.3 12 19l7.5-4.7v5.2L12 21.5l-7.5-2z" /></svg>
               </a>
             </li>
             <li>
@@ -539,7 +550,7 @@ const territorios = [
         <nav aria-label="Começar">
           <h4>Começar</h4>
           <ul>
-            <li><a href="/diagnostico/">Agendar diagnóstico</a></li>
+            <li><a href="/agenda/">Agendar diagnóstico</a></li>
             <li><a href="/contato/">Contratar a SAL</a></li>
             <li><a href="https://wa.me/5551993380278" rel="noopener">WhatsApp</a></li>
             <li><a href="https://www.instagram.com/salestrategias/" rel="noopener">Instagram</a></li>

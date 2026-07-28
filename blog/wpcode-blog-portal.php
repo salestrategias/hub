@@ -100,7 +100,7 @@ add_action( 'template_redirect', function () {
 	<?php if ( $view_editoria ) : ?><meta name="robots" content="noindex,follow"><?php endif; ?>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Glook&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 	<?php if ( $favicon_32 ) : ?><link rel="icon" type="image/png" sizes="32x32" href="<?php echo esc_url( $favicon_32 ); ?>"><?php endif; ?>
 	<?php if ( $favicon_192 ) : ?><link rel="icon" type="image/png" sizes="192x192" href="<?php echo esc_url( $favicon_192 ); ?>"><link rel="apple-touch-icon" href="<?php echo esc_url( $favicon_192 ); ?>"><?php endif; ?>
 	<?php wp_head(); ?>
@@ -177,7 +177,7 @@ add_action( 'template_redirect', function () {
 	.sb-ed-lista{display:flex;flex-direction:column}
 	.sb-ed-lista li{display:flex;gap:18px;padding:16px 0;border-bottom:1px solid #E9E7E1;align-items:baseline}
 	.sb-ed-lista li:last-child{border-bottom:none}
-	.sb-ed-lista .sb-num{font-family:'Glook',cursive;font-size:26px;color:#7E30E1;min-width:34px}
+	.sb-ed-lista .sb-num{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:26px;color:#7E30E1;min-width:34px}
 	.sb-ed-lista h4{font-size:16.5px;font-weight:700;line-height:1.35;color:#0A0A0F}
 	.sb-ed-lista h4:hover{color:#7E30E1}
 	.sb-guias{background:#0A0A0F;color:#fff;padding:78px 0}
@@ -187,7 +187,7 @@ add_action( 'template_redirect', function () {
 	.sb-guias p.sb-sub{color:rgba(255,255,255,.65);font-size:17px;margin-bottom:44px;max-width:60ch}
 	.sb-guias .sb-lista{display:grid;grid-template-columns:repeat(2,1fr);gap:0 60px}
 	.sb-guias .sb-lista li{display:flex;gap:24px;align-items:baseline;padding:24px 0;border-bottom:1px solid rgba(255,255,255,.12)}
-	.sb-guias .sb-num{font-family:'Glook',cursive;font-size:44px;color:#A76BF2;min-width:64px}
+	.sb-guias .sb-num{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:44px;color:#A76BF2;min-width:64px}
 	.sb-guias h3{font-size:19px;font-weight:700;line-height:1.35;color:#fff}
 	.sb-guias h3:hover{color:#A76BF2}
 	.sb-guias .sb-dot{display:inline-block;width:6px;height:6px;background:#F6FF74;transform:rotate(45deg);margin-left:10px}
@@ -199,7 +199,7 @@ add_action( 'template_redirect', function () {
 	.sb-rc{padding:76px 0}
 	.sb-rc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:70px}
 	.sb-maislidos li{display:flex;gap:22px;align-items:baseline;padding:17px 0;border-bottom:1px solid #E9E7E1}
-	.sb-maislidos .sb-num{font-family:'Glook',cursive;font-size:38px;color:#7E30E1;min-width:50px}
+	.sb-maislidos .sb-num{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:38px;color:#7E30E1;min-width:50px}
 	.sb-maislidos h4{font-size:17.5px;font-weight:700;line-height:1.35;color:#0A0A0F}
 	.sb-news{background:#F4F7F7;border-radius:24px;padding:44px;height:fit-content}
 	.sb-news h3{font-size:24px;font-weight:800;margin-bottom:10px;color:#0A0A0F}
