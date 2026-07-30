@@ -16,7 +16,7 @@ add_action( 'template_redirect', function () {
 	$LOGO_ROXO   = 'https://www.salestrategias.com.br/wp-content/uploads/2025/11/logotipo-sal-estrategias-marketing-2.svg';
 	$LOGO_BRANCO = 'https://www.salestrategias.com.br/wp-content/uploads/2025/11/logo-sal-branco.png';
 	$WHATS       = 'https://wa.me/5551993380278';
-	$DIAG        = 'https://salestrategias.com.br/diagnostico/';
+	$DIAG        = 'https://www.salestrategias.com.br/agenda/';
 	$SUBSTACK    = 'https://marcelofreitas.substack.com/subscribe';
 
 	$EDITORIAS = [
@@ -150,7 +150,7 @@ add_action( 'template_redirect', function () {
 	.sbp-bio-links a{color:#7E30E1}
 	/* relacionados */
 	.sbp-rel{padding:64px 0 76px}
-	.sb-sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:#2D1D7A;text-transform:uppercase;margin-bottom:34px}
+	.sb-sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:#2D1D7A;text-transform:uppercase;margin:0 0 34px}
 	.sb-sec-label::after{content:"";height:1px;background:#E9E7E1;flex:1}
 	.sb-grid-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
 	.sb-card{border-radius:20px;overflow:hidden;background:#fff;border:1px solid #E9E7E1;transition:transform .15s ease,box-shadow .15s ease;display:flex;flex-direction:column}
@@ -246,9 +246,9 @@ add_action( 'template_redirect', function () {
 	// ao card roxo legado (injetado via wp_footer), que fica oculto via CSS .sal-post-cta-wrap.
 	?>
 	<div class="sbp-cta">
-		<h2>Esse conteúdo fez sentido pro seu negócio? Então vem <em>fechar a conta</em> com a gente.</h2>
-		<p>Diagnóstico gratuito · 15 minutos · direto com quem faz</p>
-		<a class="sb-pill" href="<?php echo esc_url( $DIAG ); ?>">Fazer diagnóstico gratuito →</a>
+		<h2>Quer marketing <em>na medida certa</em> para a sua loja?</h2>
+		<p>Diagnóstico sem custo · 30 minutos, online · direto com quem faz</p>
+		<a class="sb-pill" href="<?php echo esc_url( $DIAG ); ?>">Agendar diagnóstico →</a>
 	</div>
 
 	<div class="sbp-bio sb-wrap" style="max-width:760px">
@@ -264,7 +264,7 @@ add_action( 'template_redirect', function () {
 	<?php if ( $rel ) : ?>
 	<section class="sbp-rel">
 		<div class="sb-wrap">
-			<div class="sb-sec-label">Continue lendo</div>
+			<h2 class="sb-sec-label">Continue lendo</h2>
 			<div class="sb-grid-cards">
 				<?php foreach ( $rel as $r ) :
 					$rimg = get_the_post_thumbnail_url( $r, 'large' );

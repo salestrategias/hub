@@ -67,8 +67,14 @@ Options -Indexes
   RewriteBase /
 
   # ---- HTTPS e www ----------------------------------------------------------
-  RewriteCond %{HTTPS} !=on
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+  # O endereço oficial do site é COM www: é o que o WordPress usa como canonical
+  # desde sempre e é onde está todo o histórico no Google. As duas regras abaixo
+  # levam qualquer variação para lá em um único salto — sem elas, um endereço
+  # antigo em http:// e sem www daria dois 301 encadeados.
+  RewriteCond %{HTTPS} !=on [OR]
+  RewriteCond %{HTTP_HOST} !^www\. [NC]
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?(.+)$ [NC]
+  RewriteRule ^(.*)$ https://www.%1/$1 [R=301,L]
 
   # ---- 301 das páginas antigas do WordPress --------------------------------
   # Cada uma aponta para a página nova que cobre o mesmo assunto. Sem isto,

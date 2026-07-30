@@ -13,7 +13,7 @@ interface Props {
 }
 
 const { title, description, canonical = Astro.url.pathname, schema, semIndice = false } = Astro.props;
-const site = 'https://salestrategias.com.br';
+const site = 'https://www.salestrategias.com.br';
 const url = new URL(canonical, site).href;
 const capa = site + '/img/og-sal.jpg';
 ---

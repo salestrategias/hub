@@ -35,7 +35,7 @@ function limpaComentarios() {
 }
 
 export default defineConfig({
-  site: 'https://salestrategias.com.br',
+  site: 'https://www.salestrategias.com.br',
   build: { inlineStylesheets: 'auto' },
   compressHTML: true,
   integrations: [limpaComentarios()],

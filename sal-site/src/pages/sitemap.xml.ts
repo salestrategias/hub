@@ -5,7 +5,7 @@
  */
 import type { APIRoute } from 'astro';
 
-const site = 'https://salestrategias.com.br';
+const site = 'https://www.salestrategias.com.br';
 
 const paginas: { url: string; prioridade: string; freq: string }[] = [
   { url: '/', prioridade: '1.0', freq: 'weekly' },

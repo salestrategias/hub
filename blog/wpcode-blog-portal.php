@@ -15,7 +15,7 @@ add_action( 'template_redirect', function () {
 	$LOGO_ROXO   = 'https://www.salestrategias.com.br/wp-content/uploads/2025/11/logotipo-sal-estrategias-marketing-2.svg';
 	$LOGO_BRANCO = 'https://www.salestrategias.com.br/wp-content/uploads/2025/11/logo-sal-branco.png';
 	$WHATS       = 'https://wa.me/5551993380278';
-	$DIAG        = 'https://salestrategias.com.br/diagnostico/';
+	$DIAG        = 'https://www.salestrategias.com.br/agenda/';
 
 	$EDITORIAS = [
 		'trafego-pago' => [ 'id' => 15, 'nome' => 'Tráfego Pago' ],
@@ -116,7 +116,7 @@ add_action( 'template_redirect', function () {
 	.sb-cat{color:#7E30E1}
 	.sb-grain{display:inline-block;width:7px;height:7px;background:#2D1D7A;transform:rotate(45deg);flex:none}
 	.sb-grain.sb-roxo{background:#7E30E1}.sb-grain.sb-neon{background:#F6FF74}
-	.sb-sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:#2D1D7A;text-transform:uppercase;margin-bottom:34px}
+	.sb-sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:#2D1D7A;text-transform:uppercase;margin:0 0 34px}
 	.sb-sec-label::after{content:"";height:1px;background:#E9E7E1;flex:1}
 	.sb-pill{display:inline-flex;align-items:center;gap:10px;background:#7E30E1;color:#fff !important;border-radius:40px;padding:18px 44px;font-weight:600;font-size:16px;transition:transform .15s ease,box-shadow .15s ease;cursor:pointer;border:none}
 	.sb-pill:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(126,48,225,.28);color:#fff}
@@ -138,7 +138,9 @@ add_action( 'template_redirect', function () {
 	.sb-hero{padding:64px 0 56px}
 	.sb-hero .sb-wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
 	.sb-hero .sb-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:22px}
-	.sb-hero h1{font-size:clamp(38px,4.6vw,60px);font-weight:800;line-height:1.06;letter-spacing:-1.5px;margin-bottom:22px;color:#0A0A0F}
+	.sb-hero h2{font-size:clamp(38px,4.6vw,60px);font-weight:800;line-height:1.06;letter-spacing:-1.5px;margin:0 0 22px;color:#0A0A0F}
+	.sb-blog-h1{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#2D1D7A;margin:0 0 10px}
+	.sb-blog-h1 span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:500;letter-spacing:-.2px;text-transform:none;color:#5A5A66;margin-top:8px}
 	.sb-hero p.sb-dek{font-size:19px;line-height:1.55;color:#5A5A66;max-width:56ch;margin-bottom:26px}
 	.sb-hero .sb-meta{font-family:'Inter',sans-serif;font-size:14px;color:#5A5A66;display:flex;align-items:center;gap:10px;margin-bottom:34px}
 	.sb-hero .sb-cta-row{display:flex;gap:16px;flex-wrap:wrap}
@@ -165,14 +167,14 @@ add_action( 'template_redirect', function () {
 	.sb-editoria{padding:46px 0;border-top:1px solid #E9E7E1}
 	.sb-editoria:nth-of-type(even){background:#F8F6F2}
 	.sb-ed-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px}
-	.sb-ed-head h2{font-size:30px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:16px;color:#0A0A0F}
-	.sb-ed-head h2 .sb-grain{width:9px;height:9px}
+	.sb-ed-head h3{font-size:30px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:16px;color:#0A0A0F}
+	.sb-ed-head h3 .sb-grain{width:9px;height:9px}
 	.sb-ed-head a{font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;color:#7E30E1}
 	.sb-ed-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:44px;align-items:center}
 	.sb-ed-destaque{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}
 	.sb-ed-destaque figure{border-radius:18px;overflow:hidden;aspect-ratio:4/3;background:#F4F7F7}
 	.sb-ed-destaque figure img{width:100%;height:100%;object-fit:cover}
-	.sb-ed-destaque h3{font-size:21px;font-weight:800;line-height:1.25;margin:10px 0;color:#0A0A0F}
+	.sb-ed-destaque h4{font-size:21px;font-weight:800;line-height:1.25;margin:10px 0;color:#0A0A0F}
 	.sb-ed-destaque p{font-size:14.5px;line-height:1.55;color:#5A5A66}
 	.sb-ed-lista{display:flex;flex-direction:column}
 	.sb-ed-lista li{display:flex;gap:18px;padding:16px 0;border-bottom:1px solid #E9E7E1;align-items:baseline}
@@ -200,7 +202,7 @@ add_action( 'template_redirect', function () {
 	.sb-rc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:70px}
 	.sb-maislidos li{display:flex;gap:22px;align-items:baseline;padding:17px 0;border-bottom:1px solid #E9E7E1}
 	.sb-maislidos .sb-num{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:38px;color:#7E30E1;min-width:50px}
-	.sb-maislidos h4{font-size:17.5px;font-weight:700;line-height:1.35;color:#0A0A0F}
+	.sb-maislidos h3{font-size:17.5px;font-weight:700;line-height:1.35;color:#0A0A0F}
 	.sb-news{background:#F4F7F7;border-radius:24px;padding:44px;height:fit-content}
 	.sb-news h3{font-size:24px;font-weight:800;margin-bottom:10px;color:#0A0A0F}
 	.sb-news p{font-size:15px;color:#5A5A66;line-height:1.55;margin-bottom:24px}
@@ -286,8 +288,9 @@ add_action( 'template_redirect', function () {
 	<section class="sb-hero">
 		<div class="sb-wrap">
 			<div>
+				<h1 class="sb-blog-h1">Blog da SAL<span>Marketing para varejo local e e-commerce, sem enrolação.</span></h1>
 				<div class="sb-eyebrow"><span>01 · Manchete</span><span class="sb-grain sb-roxo"></span><span class="sb-cat"><?php echo esc_html( $rotulo( $manchete ) ); ?></span></div>
-				<h1><a href="<?php echo esc_url( get_permalink( $manchete ) ); ?>"><?php echo esc_html( get_the_title( $manchete ) ); ?></a></h1>
+				<h2><a href="<?php echo esc_url( get_permalink( $manchete ) ); ?>"><?php echo esc_html( get_the_title( $manchete ) ); ?></a></h2>
 				<p class="sb-dek"><?php echo $resumo( $manchete, 34 ); ?></p>
 				<div class="sb-meta">Marcelo Freitas <span class="sb-grain" style="width:5px;height:5px"></span> <?php echo $dataf( $manchete ); ?></div>
 				<div class="sb-cta-row">
@@ -313,7 +316,7 @@ add_action( 'template_redirect', function () {
 
 	<section class="sb-ultimas" id="sb-ultimas">
 		<div class="sb-wrap">
-			<div class="sb-sec-label">02 · Últimas</div>
+			<h2 class="sb-sec-label">02 · Últimas</h2>
 			<div class="sb-grid-cards">
 				<?php foreach ( $ultimas as $p ) { $card( $p ); } ?>
 			</div>
@@ -321,7 +324,7 @@ add_action( 'template_redirect', function () {
 	</section>
 
 	<section class="sb-editorias">
-		<div class="sb-wrap"><div class="sb-sec-label">03 · Editorias</div></div>
+		<div class="sb-wrap"><h2 class="sb-sec-label">03 · Editorias</h2></div>
 		<?php foreach ( $EDITORIAS as $slug => $ed ) :
 			$lote = $por_ed[ $slug ];
 			if ( ! $lote ) continue;
@@ -331,7 +334,7 @@ add_action( 'template_redirect', function () {
 		<div class="sb-editoria">
 			<div class="sb-wrap">
 				<div class="sb-ed-head">
-					<h2><span class="sb-grain sb-roxo"></span><?php echo esc_html( $ed['nome'] ); ?></h2>
+					<h3><span class="sb-grain sb-roxo"></span><?php echo esc_html( $ed['nome'] ); ?></h3>
 					<a href="<?php echo $ed_url( $slug ); ?>">Ver editoria →</a>
 				</div>
 				<div class="sb-ed-grid">
@@ -339,7 +342,7 @@ add_action( 'template_redirect', function () {
 						<figure><?php if ( $timg ) : ?><img src="<?php echo esc_url( $timg ); ?>" alt="<?php echo esc_attr( get_the_title( $top ) ); ?>" loading="lazy"><?php endif; ?></figure>
 						<div>
 							<span class="sb-eyebrow sb-cat">Destaque</span>
-							<h3><?php echo esc_html( get_the_title( $top ) ); ?></h3>
+							<h4><?php echo esc_html( get_the_title( $top ) ); ?></h4>
 							<p><?php echo $resumo( $top, 20 ); ?></p>
 						</div>
 					</a>
@@ -375,23 +378,23 @@ add_action( 'template_redirect', function () {
 		<div class="sb-wrap">
 			<div class="sb-grains"><span class="sb-grain sb-roxo"></span><span class="sb-grain"></span><span class="sb-grain sb-roxo"></span></div>
 			<h2>Sua loja merece marketing <em>na medida certa</em>.</h2>
-			<p>Diagnóstico gratuito · 15 minutos · direto com quem faz</p>
-			<a class="sb-pill" href="<?php echo esc_url( $DIAG ); ?>">Fazer diagnóstico gratuito →</a>
+			<p>Diagnóstico sem custo · 30 minutos, online · direto com quem faz</p>
+			<a class="sb-pill" href="<?php echo esc_url( $DIAG ); ?>">Agendar diagnóstico →</a>
 		</div>
 	</section>
 
 	<section class="sb-rc">
 		<div class="sb-wrap sb-rc-grid">
 			<div class="sb-maislidos">
-				<div class="sb-sec-label">05 · Mais lidos</div>
+				<h2 class="sb-sec-label">05 · Mais lidos</h2>
 				<ol>
 					<?php $i = 1; foreach ( $mais_lidos as $p ) : ?>
-					<li><span class="sb-num"><?php echo $i++; ?></span><a href="<?php echo esc_url( get_permalink( $p ) ); ?>"><h4><?php echo esc_html( get_the_title( $p ) ); ?></h4></a></li>
+					<li><span class="sb-num"><?php echo $i++; ?></span><a href="<?php echo esc_url( get_permalink( $p ) ); ?>"><h3><?php echo esc_html( get_the_title( $p ) ); ?></h3></a></li>
 					<?php endforeach; ?>
 				</ol>
 			</div>
 			<div class="sb-news">
-				<h3>O varejo muda toda semana.<br>A gente resume pra você.</h3>
+				<h3>O varejo muda toda semana.<br>Resumimos pra você.</h3>
 				<p>Receba o essencial de tráfego, SEO e e-commerce, na medida certa. Sem spam, sem enrolação.</p>
 				<a class="sb-pill js-sal-lead-cta" data-sal-lead href="<?php echo esc_url( $WHATS ); ?>">Quero receber →</a>
 			</div>
