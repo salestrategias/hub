@@ -5,7 +5,7 @@ import Rodape from '../components/Rodape.astro';
 
 const title = 'Marcelo Freitas, fundador da SAL Estratégias de Marketing';
 const description =
-  'Estrategista de marketing desde 2014, com cinco anos como gerente de marketing de uma administradora de shopping centers. Em 2024, fundou a SAL.';
+  'Marcelo Freitas é estrategista de marketing desde 2014, com 5 anos como gerente de marketing de shopping centers. Em 2024, fundou a SAL Estratégias.';
 
 const site = 'https://salestrategias.com.br';
 
@@ -22,7 +22,7 @@ const schema = {
       nationality: { '@type': 'Country', name: 'Brasil' },
       homeLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: 'Porto Alegre', addressRegion: 'RS', addressCountry: 'BR' } },
       knowsAbout: ['Marketing de varejo', 'Shopping center', 'Tráfego pago', 'SEO local', 'E-commerce', 'Tenant mix'],
-      sameAs: ['https://www.linkedin.com/in/marcelocfreitas/', 'https://marcelofreitas.substack.com/', 'https://www.instagram.com/marcelo.c.freitas/'],
+      sameAs: ['https://www.linkedin.com/in/mcfreitas/', 'https://marcelofreitas.substack.com/', 'https://www.instagram.com/marcelo.c.freitas/'],
       worksFor: { '@type': 'Organization', name: 'SAL Estratégias de Marketing', url: site + '/' },
     },
     {
@@ -36,9 +36,21 @@ const schema = {
 };
 
 const redes = [
-  { rot: 'LinkedIn', href: 'https://www.linkedin.com/in/marcelocfreitas/' },
-  { rot: 'Substack', href: 'https://marcelofreitas.substack.com/' },
-  { rot: 'Instagram', href: 'https://www.instagram.com/marcelo.c.freitas/' },
+  {
+    rot: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/mcfreitas/',
+    d: '<rect x="3" y="3" width="18" height="18" rx="3" /><path d="M7.5 10.5V17M7.5 7.4v.1M11.5 17v-3.6a2.4 2.4 0 0 1 4.8 0V17" />',
+  },
+  {
+    rot: 'Instagram',
+    href: 'https://www.instagram.com/marcelo.c.freitas/',
+    d: '<rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />',
+  },
+  {
+    rot: 'Substack',
+    href: 'https://marcelofreitas.substack.com/',
+    d: '<path d="M4.5 4.5h15v2.6h-15zM4.5 9.4h15V12h-15zM4.5 14.3 12 19l7.5-4.7v5.2L12 21.5l-7.5-2z" />',
+  },
 ];
 ---
 
@@ -61,7 +73,14 @@ const redes = [
               respondendo pelo movimento de dezenas de lojas ao mesmo tempo.
             </p>
             <ul class="redes-lista">
-              {redes.map((r) => <li><a class="link-side" href={r.href} rel="noopener">{r.rot} ↗</a></li>)}
+              {redes.map((r) => (
+                <li>
+                  <a class="btn-rede" href={r.href} rel="noopener">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" set:html={r.d} />
+                    {r.rot}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
           <figure class="perfil-foto">
@@ -75,21 +94,19 @@ const redes = [
       <div class="wrap">
         <article class="texto-longo rev">
           <p class="corpo">
-            Atua com marketing e comunicação desde 2014. Antes disso, trabalhou com TI, análise de
+            Marcelo atua com marketing e comunicação desde 2014. Antes disso, trabalhou com TI, análise de
             sistemas e criação de sites, base técnica que ainda hoje se reflete no trabalho da SAL.
           </p>
           <p class="corpo">
-            Foi gestor de marketing de uma instituição de ensino, responsável por tráfego pago,
-            produção de aulas, gestão de portais e tecnologia. Por cinco anos, atuou como gerente de
-            marketing de uma administradora de shopping centers, conduzindo tenant mix, captação de
-            lojas, produção de eventos e gestão de marcas.
+            Foi gestor de marketing de uma instituição de ensino superior. Por cinco anos, atuou como
+            gerente de marketing de uma administradora de shopping centers, conduzindo tenant mix,
+            captação de lojas, produção de eventos e gestão de marcas.
           </p>
           <p class="corpo">
             Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial
             de mais de 40 marcas (Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top,
-            Grand Cru, entre outras) e ações em parceria com o Festival de Cinema de Gramado, Páscoa,
-            Natal Luz e programação musical. Pela administradora, atendeu também marcas como Unimed,
-            Cacau Show, Natura, Beagle e McDonald&rsquo;s.
+            Grand Cru, entre outras). Pela administradora, atendeu também marcas como Starbucks,
+            Unimed, Cacau Show, Natura, Beagle e McDonald&rsquo;s.
           </p>
           <p class="corpo destaque-linha">Em 2024, fundou a SAL.</p>
         </article>
@@ -97,15 +114,14 @@ const redes = [
         <div class="galeria rev">
           <figure>
             <img src="/img/fotos/starbucks-inauguracao.jpg" alt="Corte de fita na inauguração da primeira Starbucks de Porto Alegre" width="800" height="533" loading="lazy" decoding="async" />
-            <figcaption>Inauguração da primeira Starbucks de Porto Alegre, na Galeria Chaves Barcellos.</figcaption>
+            <figcaption>Inauguração da loja ícone da Starbucks em Porto Alegre, na Galeria Chaves Barcellos.</figcaption>
           </figure>
           <figure>
-            <img src="/img/fotos/natal-luz-gramado.jpg" alt="Natal Luz de Gramado, com personagens em frente ao letreiro da cidade" width="800" height="600" loading="lazy" decoding="async" />
-            <figcaption>Natal Luz, em Gramado: alta temporada é onde o varejo mostra o que sabe.</figcaption>
+            <img src="/img/fotos/pascoa-gramado.jpg" alt="Páscoa em Gramado, no Vita Boulevard, com personagens em frente ao letreiro da cidade" width="800" height="600" loading="lazy" decoding="async" />
+            <figcaption>Páscoa em Gramado, no Vita Boulevard.</figcaption>
           </figure>
           <figure>
             <img src="/img/fotos/marcelo-evento-1.jpg" alt="Marcelo Freitas em um evento do setor de shopping centers" width="800" height="533" loading="lazy" decoding="async" />
-            <figcaption>Evento do setor de shopping centers.</figcaption>
           </figure>
         </div>
       </div>
@@ -121,7 +137,7 @@ const redes = [
           <div class="rev">
             <p class="corpo">
               Apaixonado por cinema e audiovisual, o que ajuda mais do que parece em marketing: contar
-              história, entender ritmo e saber o que prende alguém nos primeiros segundos é o mesmo
+              histórias, entender ritmo e saber o que prende alguém nos primeiros segundos é o mesmo
               ofício, em escalas diferentes.
             </p>
           </div>
@@ -129,8 +145,7 @@ const redes = [
             <p class="corpo">
               Escreve sobre varejo, marketing e comportamento de consumo no
               <a class="link-texto" href="https://marcelofreitas.substack.com/" rel="noopener">Substack</a>
-              e no <a class="link-texto" href="/blog/">Blog da SAL</a>, que publica um artigo por dia sobre
-              tráfego pago, SEO e operação de loja.
+              e no <a class="link-texto" href="/blog/">Blog da SAL</a>.
             </p>
           </div>
         </div>
@@ -142,7 +157,7 @@ const redes = [
       <div class="wrap">
         <h2>Quer conversar sobre a sua operação?</h2>
         <p class="sub">
-          O diagnóstico é conduzido pelo Marcelo. Trinta minutos, online, olhando as suas contas de
+          O diagnóstico é conduzido pelo Marcelo. Trinta minutos, online, analisando as suas contas de
           anúncio, a sua presença no Google e a sua concorrência.
         </p>
         <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>

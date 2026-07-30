@@ -138,7 +138,7 @@ Copiar a opacidade calibrada deles, que funciona:
 
 1. **Nunca publicar o fee.** "Toda proposta é montada depois de olharmos seus números."
 2. **Publicar só o piso, e justificá-lo tecnicamente, nunca comercialmente.** ✅ valores confirmados
-   - Anúncios: **R$ 2.000/mês para e-commerce, R$ 1.500/mês para loja física.** Justificativa: abaixo disso a campanha não reúne dado suficiente para otimizar.
+   - Anúncios: **R$ 2.500/mês para e-commerce, a partir de R$ 1.500/mês para loja física.** Justificativa: abaixo disso a campanha não reúne dado suficiente para otimizar.
      ⚠️ Publicar apenas como verba de anúncio. **Não escrever "fora o fee" nem "além do valor da gestão"** — decisão do Marcelo.
    - SEO: aqui o piso não é verba, é tempo. **90 dias para os primeiros sinais**, e o argumento vem do próprio Google, que fala em quatro meses a um ano. Por isso contrato de SEO tem prazo mínimo: abaixo disso o cliente paga o esforço e não colhe o resultado.
 3. **Mostrar a escada sem mostrar o preço** (diferente deles, que escondem até os nomes dos planos): o cliente se autolocaliza e chega na call sabendo o que quer.
@@ -229,12 +229,24 @@ Carro-chefe vira SEO · "3 pilares" vira "3 territórios" · calculadora de lucr
 
 ## 9. Decisões do Marcelo — fechadas em 28/07/2026
 
-1. **Piso de investimento em anúncios.** ✅ E-commerce R$ 2.000/mês, loja física R$ 1.500/mês. Publicar como verba de anúncio, sem mencionar que o fee é à parte. Em SEO, 90 dias para os primeiros sinais, apoiado no que o próprio Google publica.
+1. **Piso de investimento em anúncios.** ✅ E-commerce R$ 2.500/mês, loja física a partir de R$ 1.500/mês. *(revisado de R$ 2.000 em 30/07)* Publicar como verba de anúncio, sem mencionar que o fee é à parte. Em SEO, 90 dias para os primeiros sinais, apoiado no que o próprio Google publica.
 2. **Produto de entrada pago.** ✅ Auditoria de Presença Local aprovada, **R$ 2.500, parcelável em até 6x**.
 3. **Os 3 territórios da venda.** ✅ Aprovados como camada de comunicação junto ao método 4D.
 4. **Multi-unidade.** ✅ Aprovado: produtizar e prospectar redes e franquias.
 5. **Depoimento em vídeo.** ⏳ Futuramente. Não bloqueia o site; deixar o espaço previsto no layout.
 6. **Certificações.** ❌ Não exibir no site.
+
+### Quarta rodada — 30/07/2026, na revisão da copy das internas
+
+19. **Piso de anúncio para e-commerce sobe para R$ 2.500.** Loja física fica "a partir de R$ 1.500".
+20. **Plataformas de e-commerce:** Shopify, Tray, Nuvemshop, Wix e WooCommerce. Não escrever
+    "conhecemos por dentro" — é clichê.
+21. **Os três shoppings saem do site.** O bloco de prova social do /varejo-local/ foi removido, e a
+    história em /quem-somos/ passou a ser a do nome da marca. Fica registrado que essa era a prova
+    social mais forte disponível, caso ele queira retomar depois.
+22. **Separador dos títulos:** `|` no lugar de `·`.
+23. **IAs citadas:** ChatGPT, Gemini, Claude e Perplexity.
+24. **Linguagem:** primeira pessoa do plural ("analisamos", "implementamos") no lugar de "a gente faz".
 
 ### Segunda rodada de decisões — 28/07/2026
 

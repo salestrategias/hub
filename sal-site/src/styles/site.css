@@ -595,3 +595,14 @@
 .legal-texto h2 { font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.55rem); margin: var(--s8) 0 var(--s4); }
 .legal-texto h2:first-child { margin-top: 0; }
 .legal-texto .lista-grao { margin-bottom: var(--s5); }
+
+/* botões de rede social na página do Marcelo */
+.btn-rede {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 10px 18px; border-radius: var(--r-pill);
+  border: 1px solid var(--line); color: var(--text);
+  font-family: var(--body); font-weight: 600; font-size: 0.92rem;
+  transition: border-color var(--fast) var(--ease), color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.btn-rede:hover { border-color: var(--gold-line); color: var(--gold); transform: translateY(-2px); }
+.btn-rede svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
