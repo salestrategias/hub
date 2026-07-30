@@ -1,0 +1,137 @@
+# =============================================================================
+# SAL Estratégias de Marketing — configuração do servidor (Apache / Hostinger)
+#
+# Este arquivo faz três coisas:
+#   1. deixa o site novo e o WordPress conviverem no mesmo domínio
+#   2. redireciona as URLs antigas para as novas, com 301
+#   3. aplica as regras de segurança e de cache
+#
+# Ordem importa: as regras de segurança vêm antes das de reescrita.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Segurança
+# -----------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  # impede que a página seja embutida em iframe de terceiros (clickjacking)
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # impede o navegador de "adivinhar" o tipo do arquivo
+  Header always set X-Content-Type-Options "nosniff"
+
+  # não vaza a URL completa para sites externos
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # nenhuma página precisa de câmera, microfone ou localização
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+
+  # força HTTPS por dois anos, inclusive nos subdomínios
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" env=HTTPS
+
+  # Content Security Policy.
+  # O 'unsafe-inline' em script-src é necessário porque o Astro embute scripts
+  # pequenos direto na página. Os domínios liberados são apenas os que o site
+  # realmente usa: Google Analytics, Apps Script (agenda) e as capas do blog.
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https://script.google.com; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://www.salestrategias.com.br https://salestrategias.com.br https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://www.salestrategias.com.br https://salestrategias.com.br https://script.google.com https://script.googleusercontent.com https://www.google-analytics.com https://region1.google-analytics.com; upgrade-insecure-requests"
+
+  # não guarda em cache as páginas HTML, para publicação refletir na hora
+  <FilesMatch "\.(html|xml|txt)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# esconde a versão do servidor
+ServerSignature Off
+
+# desliga a listagem de diretórios
+Options -Indexes
+
+# bloqueia acesso a arquivos que nunca deveriam ser públicos
+<FilesMatch "(^\.|\.(env|ini|log|sh|sql|bak|old|orig|swp|yml|yaml|json|lock|md)$)">
+  Require all denied
+</FilesMatch>
+<FilesMatch "^(package(-lock)?\.json|astro\.config\.mjs|tsconfig\.json|README\.md)$">
+  Require all denied
+</FilesMatch>
+
+# libera o que precisa ser público mesmo tendo extensão bloqueada acima
+<FilesMatch "^(robots\.txt|sitemap\.xml)$">
+  Require all granted
+</FilesMatch>
+
+# -----------------------------------------------------------------------------
+# 2. Reescrita
+# -----------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # ---- HTTPS e www ----------------------------------------------------------
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+  # ---- 301 das páginas antigas do WordPress --------------------------------
+  # Cada uma aponta para a página nova que cobre o mesmo assunto. Sem isto,
+  # o histórico dessas URLs no Google seria perdido.
+  RedirectMatch 301 ^/servicos/gestao-de-trafego-pago/?$                 /trafego-pago/
+  RedirectMatch 301 ^/servicos/anunciar-no-google-ads-e-instagram/?$     /trafego-pago/
+  RedirectMatch 301 ^/servicos/aparecer-no-google-meu-negocio/?$         /seo-local/
+  RedirectMatch 301 ^/servicos/assessoria-de-google-meu-negocio/?$       /seo-local/
+  RedirectMatch 301 ^/servicos/como-melhorar-o-posicionamento-no-google/?$ /seo-local/
+  RedirectMatch 301 ^/servicos/agencia-de-seo/?$                         /seo-para-ecommerce/
+  RedirectMatch 301 ^/servicos/seo-para-ecommerce/?$                     /seo-para-ecommerce/
+  RedirectMatch 301 ^/servicos/como-aumentar-vendas-no-e-commerce/?$     /e-commerce/
+  RedirectMatch 301 ^/servicos/estruturacao-de-ecommerce/?$              /e-commerce/
+  RedirectMatch 301 ^/servicos/criacao-de-sites/?$                       /diagnostico-de-site/
+  RedirectMatch 301 ^/servicos/agencia-de-producao-de-conteudo/?$        /seo-para-ecommerce/
+  RedirectMatch 301 ^/servicos/consultoria/?$                            /quem-somos/
+  RedirectMatch 301 ^/servicos/?$                                        /quem-somos/
+  RedirectMatch 301 ^/diagnostico/?$                                     /agenda/
+  RedirectMatch 301 ^/contato/?$                                         /agenda/
+  RedirectMatch 301 ^/newsletter/?$                                      /blog/
+  RedirectMatch 301 ^/home-v6/?$                                         /
+  RedirectMatch 301 ^/home-v7/?$                                         /
+
+  # ---- Site estático primeiro, WordPress como reserva ----------------------
+  # Não é preciso regra nenhuma aqui: o bloco padrão do WordPress, mais
+  # abaixo, já testa !-f e !-d. Ou seja, arquivo ou pasta que existir em
+  # disco é servido direto, e só o que não existir cai no index.php.
+  #
+  # Na prática:
+  #   /                        → index.html do site novo
+  #   /seo-local/              → pasta com index.html, servida direto
+  #   /drive-to-store-.../     → não existe em disco, vai para o WordPress
+  #   /wp-admin/, /blog/       → WordPress, intactos
+  #
+  # ATENÇÃO NA HORA DE SUBIR: o bloco "# BEGIN WordPress" precisa continuar
+  # existindo e ficar DEPOIS de tudo que está acima. É só colar o conteúdo
+  # deste arquivo antes dele, no .htaccess da raiz.
+</IfModule>
+
+# página de erro do site novo
+ErrorDocument 404 /404.html
+
+# -----------------------------------------------------------------------------
+# 3. Desempenho
+# -----------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json image/svg+xml
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # os arquivos de /_astro/ têm hash no nome: podem ser guardados para sempre
+  ExpiresByType text/css                  "access plus 1 year"
+  ExpiresByType application/javascript    "access plus 1 year"
+  ExpiresByType font/woff2                "access plus 1 year"
+  ExpiresByType image/jpeg                "access plus 6 months"
+  ExpiresByType image/png                 "access plus 6 months"
+  ExpiresByType image/svg+xml             "access plus 6 months"
+  ExpiresByType text/html                 "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(woff2|css|js)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>

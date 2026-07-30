@@ -606,3 +606,51 @@
 }
 .btn-rede:hover { border-color: var(--gold-line); color: var(--gold); transform: translateY(-2px); }
 .btn-rede svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* WhatsApp flutuante */
+.zap {
+  position: fixed; right: clamp(1rem, 3vw, 1.75rem); bottom: clamp(1rem, 3vw, 1.75rem); z-index: 70;
+  display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%;
+  background: var(--gold); color: var(--bg); box-shadow: var(--shadow);
+  transition: transform var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.zap:hover { background: var(--gold-light); transform: translateY(-3px); }
+.zap svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Barra de consentimento */
+.cookies {
+  position: fixed; left: 50%; bottom: 0; z-index: 80;
+  width: min(64rem, calc(100% - 2rem));
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--s5);
+  margin-bottom: clamp(0.75rem, 2vw, 1.25rem); padding: var(--s5) var(--s6);
+  background: rgba(22, 20, 46, 0.97);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--gold-line); border-radius: var(--r);
+  box-shadow: var(--shadow);
+  transform: translate(-50%, calc(100% + 2rem)); opacity: 0;
+  transition: transform var(--slow) var(--ease), opacity var(--slow) var(--ease);
+}
+.cookies.visivel { transform: translate(-50%, 0); opacity: 1; }
+.cookies p { margin: 0; font-size: 0.92rem; color: var(--muted); line-height: 1.55; }
+.cookies a { color: var(--gold); border-bottom: 1px solid var(--gold-line); }
+.cookies-acoes { display: flex; gap: var(--s3); flex-wrap: wrap; }
+.cookies-acoes .btn { padding: 11px 20px; font-size: 0.88rem; }
+@media (prefers-reduced-motion: reduce) { .cookies { transition: none; } }
+@media (max-width: 720px) {
+  .cookies { grid-template-columns: 1fr; }
+  .cookies-acoes .btn { flex: 1 1 auto; justify-content: center; }
+  .zap { width: 48px; height: 48px; bottom: 5.5rem; }
+}
+
+/* contato no rodapé */
+.rodape .contato { margin-top: var(--s4); line-height: 1.7; }
+.rodape .contato a { color: var(--muted); border-bottom: 1px solid var(--line); }
+.rodape .contato a:hover { color: var(--gold); border-color: var(--gold-line); }
+.legal-links { display: flex; gap: var(--s5); flex-wrap: wrap; align-items: center; }
+.link-legal {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font: inherit; color: var(--muted-2); border-bottom: 1px solid transparent;
+  transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.link-legal:hover { color: var(--gold); border-color: var(--gold-line); }
+.botao-texto { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }

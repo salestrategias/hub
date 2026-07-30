@@ -112,8 +112,5 @@ const schema = {
     </div>
   </footer>
 
-  <script is:inline define:vars={{ endpoint: import.meta.env.PUBLIC_AGENDA_ENDPOINT ?? '' }}>
-    window.SAL_AGENDA_ENDPOINT = endpoint;
-  </script>
-  <script is:inline src="/js/agenda.js" defer></script>
+  <script>import '../scripts/agenda.js';</script>
 </Base>

@@ -65,6 +65,11 @@ const redes = [
         <div>
           <img src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="71" height="40" />
           <p>Assessoria de Tráfego Pago e SEO para lojas físicas e e-commerce. Fazemos marketing na medida certa para você vender mais e melhor.</p>
+          <p class="contato">
+            Atendimento 100% online, de Porto Alegre para o Brasil todo.<br />
+            <a href="https://wa.me/5551993380278" rel="noopener">(51) 99338-0278</a> ·
+            <a href="mailto:contato@salestrategias.com.br">contato@salestrategias.com.br</a>
+          </p>
           <ul class="redes">
             {redes.map((r) => (
               <li>
@@ -85,7 +90,10 @@ const redes = [
     )}
     <div class="legal">
       <span>SAL ESTRATÉGIAS DE MARKETING LTDA · CNPJ 66.018.951/0001-04 · Porto Alegre, RS</span>
-      <a href="/politica-de-privacidade/">Política de privacidade</a>
+      <span class="legal-links">
+        <a href="/politica-de-privacidade/">Política de privacidade</a>
+        <button type="button" class="link-legal" data-rever-cookies>Preferências de cookies</button>
+      </span>
     </div>
   </div>
 </footer>

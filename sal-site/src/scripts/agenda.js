@@ -13,7 +13,7 @@
   'use strict';
 
   // Troque pela URL /exec da implantação do Apps Script (veja apps-script/README.md).
-  var APPS_SCRIPT = window.SAL_AGENDA_ENDPOINT || '';
+  var APPS_SCRIPT = import.meta.env.PUBLIC_AGENDA_ENDPOINT || '';
   var WHATSAPP = '5551993380278';
 
   var DIAS_UTEIS = 10;      // quantos dias úteis mostrar
