@@ -150,8 +150,8 @@ add_action( 'template_redirect', function () {
 	.sbp-bio-links a{color:#7E30E1}
 	/* relacionados */
 	.sbp-rel{padding:64px 0 76px}
-	.sb-sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:#2D1D7A;text-transform:uppercase;margin:0 0 34px}
-	.sb-sec-label::after{content:"";height:1px;background:#E9E7E1;flex:1}
+	.sb-body .sb-sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:#2D1D7A;text-transform:uppercase;margin:0 0 34px}
+	.sb-body .sb-sec-label::after{content:"";height:1px;background:#E9E7E1;flex:1}
 	.sb-grid-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
 	.sb-card{border-radius:20px;overflow:hidden;background:#fff;border:1px solid #E9E7E1;transition:transform .15s ease,box-shadow .15s ease;display:flex;flex-direction:column}
 	.sb-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(10,10,15,.1)}
