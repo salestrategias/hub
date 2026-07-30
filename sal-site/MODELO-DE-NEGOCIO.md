@@ -254,7 +254,7 @@ Carro-chefe vira SEO · "3 pilares" vira "3 territórios" · calculadora de lucr
     ⚠️ **Fora da home por enquanto.** Decisão de 28/07: o quadro não agregava na página inicial.
     O produto continua no plano e volta quando for empacotado para valer, com página própria.
 8. **Contrato.** ✅ 6 meses, cancelamento sem multa com aviso de 30 dias.
-9. **Hero.** ✅ Sem foto do Marcelo. O destaque é o cliente e o varejo: foto de vitrines de loja.
+9. **Hero.** ✅ Sem foto do Marcelo. O destaque é o que o cliente compra da SAL. (Ver item 19.)
 10. **Faixa de marcas.** ❌ Removida da home. Kopenhagen, Hering, Panvel e afins não são clientes da SAL; podem ser citadas na página do Marcelo, sem destaque.
 11. **Criativo de performance.** ❌ Não é vendável avulso. Toda entrega exige contratação da assessoria.
 12. **Diagnóstico de site.** ✅ O antigo "Loja e site que convertem" vira um diagnóstico: a SAL analisa o site do cliente e aponta onde ele está perdendo venda. Entrega valor antes de vender.
@@ -285,3 +285,28 @@ Sem clichê de IA e sem expressão que ninguém usa falando. Proibidas em qualqu
 "viveu o balcão", "gente de loja", "fechou um caixa", "montou uma vitrine", "dentro da operação",
 "não é X, é Y" como fórmula de frase, "com todas as letras", "sem drama", "de bandeja".
 O teste é simples: se o Marcelo não falaria aquilo numa reunião, não vai para o site.
+
+### Quarta rodada — 30/07/2026 (revisão da copy da home e da agenda)
+
+19. **Hero sem foto.** ✅ Saiu a foto de vitrines. Entrou uma ilustração autoral em SVG:
+    a busca com o anúncio marcado, a vitrine de produtos com um item em destaque, a curva de
+    escala e o alcance no mapa. Motivo: não depender de imagem com marca de terceiro, e
+    desenhar exatamente o que a SAL vende em vez de sugerir por analogia.
+20. **Selo "Diagnóstico sem custo".** ❌ Saiu de todas as páginas. Fica só em `/agenda/`.
+    Repetido embaixo de cada botão, competia com a venda em vez de ajudá-la.
+21. **FAQ da home.** ❌ Saíram "Vocês atendem rede com várias lojas?" e "Como funciona o
+    relatório e a reunião mensal?". Ficaram cinco perguntas, as que realmente travam a decisão.
+22. **"A gente" está proibido.** ✅ Toda a copy passou para primeira pessoa do plural:
+    "dizemos", "olhamos", "analisamos". Vale para o site inteiro, inclusive textos de apoio
+    do formulário e mensagens de erro.
+23. **Quantidade de concorrentes.** ❌ Nunca citar número. "Comparamos com concorrentes da sua
+    região", sem dizer quantos.
+24. **Agenda com filtro por tipo de negócio.** ✅ O tipo é perguntado logo no começo e define o
+    resto do roteiro:
+    - **E-commerce** — não pergunta unidades físicas; pergunta plataforma; piso de verba em R$ 2.500.
+    - **Loja física (uma unidade)** — não pergunta plataforma nem unidades; piso em R$ 1.500.
+    - **Rede / serviço local** — pergunta unidades; piso em R$ 1.500.
+    - **Loja física e e-commerce** — pergunta tudo; piso em R$ 2.500.
+
+    As opções de objetivo também mudam por caminho. São 11 a 13 perguntas conforme o tipo,
+    contra 12 fixas antes.

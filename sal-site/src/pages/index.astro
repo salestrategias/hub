@@ -2,10 +2,11 @@
 import Base from '../layouts/Base.astro';
 import Cabecalho from '../components/Cabecalho.astro';
 import Rodape from '../components/Rodape.astro';
+import HeroGrafico from '../components/HeroGrafico.astro';
 
 const title = 'Agência de SEO e Tráfego Pago para Varejo e E-commerce | SAL';
 const description =
-  'SEO e tráfego pago na medida certa para loja física e e-commerce. Assessoria em Porto Alegre, atendendo o Brasil todo. Agende um diagnóstico gratuito.';
+  'A SAL Estratégias de Marketing faz SEO e tráfego pago na medida certa para lojas físicas e e-commerces venderem mais. Simplificar, Atrair e Libertar.';
 
 const schema = {
   '@context': 'https://schema.org',
@@ -58,7 +59,7 @@ const schema = {
           name: 'Qual a diferença entre tráfego pago e tráfego orgânico?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Tráfego pago é quando você paga por clique ou impressão, no Google Ads e no Meta Ads: liga hoje, traz visita hoje, e para quando a verba acaba. Tráfego orgânico vem do SEO, das buscas, do mapa e das respostas das IAs: demora mais pra engrenar e não some quando você para de investir. Os dois se completam, e o que muda de loja pra loja é a dose de cada um.',
+            text: 'Tráfego pago é quando você paga por clique ou impressão, no Google Ads e no Meta Ads: acelera os resultados, mas para de vender quando não tem verba investida. Tráfego orgânico vem do SEO, das buscas, do mapa e das respostas das IAs: demora mais pra engrenar e não some quando você para de investir. Os dois se completam e são extremamente necessários.',
           },
         },
         {
@@ -82,23 +83,7 @@ const schema = {
           name: 'Vocês atendem loja física ou só e-commerce?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'As duas. Metade do trabalho é com loja física, quiosque, franquia e operação em shopping, onde o objetivo é fluxo na porta. A outra metade é e-commerce. Quem tem os dois canais recebe um plano que cobre os dois.',
-          },
-        },
-        {
-          '@type': 'Question',
-          name: 'Vocês atendem rede com várias lojas?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Sim, e é um trabalho que a SAL organizou como serviço próprio. Cada unidade tem o seu Perfil da Empresa no Google, a sua página de localidade, as suas avaliações e a sua campanha por raio, com um painel que compara as lojas entre si. Rede, franquia e operação de shopping entram por aqui.',
-          },
-        },
-        {
-          '@type': 'Question',
-          name: 'Como funciona o relatório e a reunião mensal?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Todo mês você recebe um documento com o que foi investido, o que voltou, o que o orgânico trouxe e o que muda no mês seguinte. Depois sentamos pra ler os números juntos e decidir o próximo passo. Sem PDF de quarenta páginas e sem gráfico que ninguém explica.',
+            text: 'Atendemos os dois modelos de negócios, com estratégias específicas para cada um. Quem tem os dois canais recebe um plano que cobre ambos.',
           },
         },
         {
@@ -106,7 +91,7 @@ const schema = {
           name: 'Tem fidelidade no contrato?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'O contrato é de 6 meses, que é o tempo mínimo para o SEO dar resultado. Mas você pode cancelar quando quiser, sem multa, avisando com 30 dias de antecedência. O prazo existe para proteger o trabalho, não para prender você.',
+            text: 'O contrato tem validade inicial de 6 meses, que é o tempo mínimo para estratégias de performance em tráfego pago e orgânico trazerem resultado consistente. Mas você pode cancelar quando quiser, sem multa, avisando com 30 dias de antecedência. O prazo existe para proteger o trabalho, não para prender você.',
           },
         },
       ],
@@ -211,21 +196,16 @@ const territorios = [
 
     <!-- HERO -->
     <section class="hero">
-      <img
-        class="hero-foto"
-        src="/img/fotos/vitrines-noite.jpg"
-        alt="Vitrines iluminadas de lojas à noite em uma rua de compras"
-        width="1280" height="853" fetchpriority="high" decoding="async"
-      />
+      <HeroGrafico />
       <div class="hero-veu" aria-hidden="true"></div>
       <div class="malha"></div>
       <div class="wrap">
         <div>
           <span class="eyebrow">Assessoria de SEO e tráfego pago</span>
-          <h1>Sua loja encontrada por <em>quem já quer comprar</em>.</h1>
+          <h1>Marketing na medida certa para sua loja <em>vender mais e aumentar o lucro</em>.</h1>
           <p class="sub">
-            Para loja física e e-commerce. Você aparece na hora em que a pessoa procura o que você
-            vende: no Google, no mapa e no anúncio.
+            Para negócios locais e e-commerces. Você aparece na hora em que o cliente procura o que
+            você vende: no Google, no mapa e no anúncio.
           </p>
           <div class="acoes">
             <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
@@ -261,7 +241,7 @@ const territorios = [
         <div class="cabeca rev">
           <span class="eyebrow">Para quem</span>
           <h2>Dois negócios, duas engrenagens diferentes.</h2>
-          <p>Loja de rua e loja online não vendem do mesmo jeito, e o marketing das duas não pode ser o mesmo. A SAL trabalha as duas, com a dose que cada uma pede.</p>
+          <p>Loja de rua e loja online não vendem do mesmo jeito, e o marketing das duas não pode ser o mesmo. A SAL trabalha as duas, com a estratégia que cada uma pede.</p>
         </div>
         <div class="publicos">
           <article class="publico fisico rev">
@@ -326,13 +306,13 @@ const territorios = [
           <p>
             Sal demais estraga o prato, de menos ninguém sente o gosto. Com verba de marketing é igual.
             A dose certa vem dos seus números: ticket, margem, sazonalidade e o que a concorrência está
-            fazendo. É isso que a gente define antes de começar a gastar.
+            fazendo. É isso que definimos antes de começar a gastar.
           </p>
         </div>
         <div class="metodo">
-          <div class="passo rev"><b>01</b><h3>Descobrir</h3><p>Auditoria das contas de anúncio, da presença no mapa, do site e de três concorrentes seus. No fim, um documento com os gargalos e a ordem de atacar.</p></div>
+          <div class="passo rev"><b>01</b><h3>Descobrir</h3><p>Auditoria das contas de anúncio, da presença no mapa, do site e da concorrência. No fim, um documento com os gargalos e a ordem de atacar.</p></div>
           <div class="passo rev"><b>02</b><h3>Desenhar</h3><p>Verba, canais, metas e calendário definidos antes de qualquer campanha ir para o ar, com base no seu ticket e na sua margem.</p></div>
-          <div class="passo rev"><b>03</b><h3>Disparar</h3><p>Gestão diária das campanhas, criativo novo toda semana e o SEO avançando mês a mês, com ajuste enquanto roda.</p></div>
+          <div class="passo rev"><b>03</b><h3>Disparar</h3><p>Gestão diária das campanhas, criativos estratégicos e o SEO avançando mês a mês.</p></div>
           <div class="passo rev"><b>04</b><h3>Decodificar</h3><p>Reunião mensal lendo os números juntos. Canal que não se paga sai do plano no mês seguinte.</p></div>
         </div>
       </div>
@@ -369,7 +349,7 @@ const territorios = [
           <div class="cabeca-linha rev">
             <div>
               <span class="eyebrow">Blog da SAL</span>
-              <h2>O que a gente anda escrevendo.</h2>
+              <h2>Conteúdos sobre marketing, tecnologia e materiais gratuitos.</h2>
             </div>
             <a class="btn btn-ghost" href="/blog/">Ver todos os artigos ↗</a>
           </div>
@@ -404,7 +384,7 @@ const territorios = [
             </figure>
             <div class="mini-fotos">
               <figure><img src="/img/fotos/starbucks-inauguracao.jpg" alt="Corte de fita na inauguração da primeira Starbucks de Porto Alegre" width="800" height="533" loading="lazy" decoding="async" /></figure>
-              <figure><img src="/img/fotos/pascoa-gramado.jpg" alt="Natal Luz de Gramado, com personagens em frente ao letreiro da cidade" width="800" height="600" loading="lazy" decoding="async" /></figure>
+              <figure><img src="/img/fotos/pascoa-gramado.jpg" alt="Páscoa em Gramado, no Vita Boulevard, com personagens em frente ao letreiro da cidade" width="800" height="600" loading="lazy" decoding="async" /></figure>
               <figure><img src="/img/fotos/marcelo-evento-1.jpg" alt="Marcelo Freitas em um evento do setor de shopping centers" width="800" height="533" loading="lazy" decoding="async" /></figure>
             </div>
           </div>
@@ -412,22 +392,19 @@ const territorios = [
             <span class="eyebrow">Quem está por trás</span>
             <h2>12 anos como estrategista de marketing, estudando a fundo o comportamento dos clientes.</h2>
             <p>
-              Marcelo Freitas atua com marketing e comunicação desde 2014. Antes disso, trabalhou com TI,
-              análise de sistemas e criação de sites, base técnica que ainda hoje se reflete no trabalho
-              da SAL.
+              Marcelo atua com marketing e comunicação desde 2014. Antes disso, trabalhou com TI, análise
+              de sistemas e criação de sites, base técnica que ainda hoje se reflete no trabalho da SAL.
             </p>
             <p>
-              Foi gestor de marketing de uma instituição de ensino, responsável por tráfego pago, produção
-              de aulas, gestão de portais e tecnologia. Por cinco anos, atuou como gerente de marketing de
-              uma administradora de shopping centers, conduzindo tenant mix, captação de lojas, produção de
-              eventos e gestão de marcas.
+              Foi gestor de marketing de uma instituição de ensino superior. Por cinco anos, atuou como
+              gerente de marketing de uma administradora de shopping centers, conduzindo tenant mix,
+              captação de lojas, produção de eventos e gestão de marcas.
             </p>
             <p>
-              Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial de
-              mais de 40 marcas (Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top,
-              Grand Cru, entre outras) e ações em parceria com o Festival de Cinema de Gramado, Páscoa,
-              Natal Luz e programação musical. Pela administradora, atendeu também marcas como Unimed,
-              Cacau Show, Natura, Beagle e McDonald&rsquo;s.
+              Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial
+              de mais de 40 marcas (Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top,
+              Grand Cru, entre outras). Pela administradora, atendeu também marcas como Starbucks,
+              Unimed, Cacau Show, Natura, Beagle e McDonald&rsquo;s.
             </p>
             <p class="destaque">Em 2024, fundou a SAL.</p>
             <p><a class="btn btn-ghost" href="/quem-somos/">Conhecer a SAL ↗</a></p>
@@ -449,11 +426,11 @@ const territorios = [
           <div class="rev">
             <details>
               <summary>Qual a diferença entre tráfego pago e tráfego orgânico?</summary>
-              <div><p>Tráfego pago é quando você paga por clique ou impressão, no Google Ads e no Meta Ads: liga hoje, traz visita hoje, e para quando a verba acaba. Tráfego orgânico vem do SEO, das buscas, do mapa e das respostas das IAs: demora mais pra engrenar e não some quando você para de investir. Os dois se completam, e o que muda de loja pra loja é a dose de cada um.</p></div>
+              <div><p>Tráfego pago é quando você paga por clique ou impressão, no Google Ads e no Meta Ads: acelera os resultados, mas para de vender quando não tem verba investida. Tráfego orgânico vem do SEO, das buscas, do mapa e das respostas das IAs: demora mais pra engrenar e não some quando você para de investir. Os dois se completam e são extremamente necessários.</p></div>
             </details>
             <details>
               <summary>Quanto preciso investir em anúncios para começar?</summary>
-              <div><p>Para e-commerce, trabalhamos com quem tem pelo menos R$ 2.500 por mês para investir em anúncios. Para loja física, a partir de R$ 1.500. Abaixo disso a campanha não reúne dado suficiente para otimizar e o dinheiro rende mais em outra frente, normalmente no SEO local. Se for o seu caso, a gente diz isso no diagnóstico.</p></div>
+              <div><p>Para e-commerce, trabalhamos com quem tem pelo menos R$ 2.500 por mês para investir em anúncios. Para loja física, a partir de R$ 1.500. Abaixo disso a campanha não reúne dado suficiente para otimizar e o dinheiro rende mais em outra frente, normalmente no SEO local. Se for o seu caso, dizemos isso no diagnóstico.</p></div>
             </details>
             <details>
               <summary>Em quanto tempo aparece resultado?</summary>
@@ -461,19 +438,11 @@ const territorios = [
             </details>
             <details>
               <summary>Vocês atendem loja física ou só e-commerce?</summary>
-              <div><p>As duas. Metade do trabalho é com loja física, quiosque, franquia e operação em shopping, onde o objetivo é fluxo na porta. A outra metade é e-commerce. Quem tem os dois canais recebe um plano que cobre os dois.</p></div>
-            </details>
-            <details>
-              <summary>Vocês atendem rede com várias lojas?</summary>
-              <div><p>Sim, e é um trabalho que a SAL organizou como serviço próprio. Cada unidade tem o seu Perfil da Empresa no Google, a sua página de localidade, as suas avaliações e a sua campanha por raio, com um painel que compara as lojas entre si. Rede, franquia e operação de shopping entram por aqui.</p></div>
-            </details>
-            <details>
-              <summary>Como funciona o relatório e a reunião mensal?</summary>
-              <div><p>Todo mês você recebe um documento com o que foi investido, o que voltou, o que o orgânico trouxe e o que muda no mês seguinte. Depois sentamos pra ler os números juntos e decidir o próximo passo. Sem PDF de quarenta páginas e sem gráfico que ninguém explica.</p></div>
+              <div><p>Atendemos os dois modelos de negócios, com estratégias específicas para cada um. Quem tem os dois canais recebe um plano que cobre ambos.</p></div>
             </details>
             <details>
               <summary>Tem fidelidade no contrato?</summary>
-              <div><p>O contrato é de 6 meses, que é o tempo mínimo para o SEO dar resultado. Mas você pode cancelar quando quiser, sem multa, avisando com 30 dias de antecedência. O prazo existe para proteger o trabalho, não para prender você.</p></div>
+              <div><p>O contrato tem validade inicial de 6 meses, que é o tempo mínimo para estratégias de performance em tráfego pago e orgânico trazerem resultado consistente. Mas você pode cancelar quando quiser, sem multa, avisando com 30 dias de antecedência. O prazo existe para proteger o trabalho, não para prender você.</p></div>
             </details>
           </div>
         </div>
@@ -484,17 +453,12 @@ const territorios = [
     <section class="band">
       <div class="malha"></div>
       <div class="wrap">
-        <h2>Vamos olhar a sua operação?</h2>
+        <h2>Vamos agendar uma reunião e analisar a sua operação?</h2>
         <p class="sub">
           Escolha um horário e analisamos as suas contas de anúncio, a sua presença no mapa e a sua
           concorrência. Você sai com as prioridades na mão.
         </p>
         <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
-        <div class="garantias">
-          <span>Resposta em até 1 dia útil</span>
-          <span>Diagnóstico sem custo</span>
-          <span>Sem compromisso</span>
-        </div>
       </div>
     </section>
 

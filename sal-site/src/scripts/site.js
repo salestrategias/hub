@@ -16,7 +16,7 @@
   }
 
   /* O destaque do blog vem pronto do build (bom para SEO e para quem
-     navega sem JS). Aqui a gente só confere se saiu post novo depois
+     navega sem JS). Aqui só conferimos se saiu post novo depois
      do último build, para o bloco não envelhecer entre publicações. */
   var caixa = document.querySelector('[data-blog-destaque]');
   if (caixa && 'fetch' in window) {

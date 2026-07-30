@@ -24,11 +24,13 @@ var CONFIG = {
   ]
 };
 
+// A ordem aqui é a ordem das colunas da planilha. Nem todo campo vem em toda
+// solicitação: o formulário pergunta só o que vale para o tipo de negócio.
 var ROTULOS = {
   nome: 'Nome', email: 'E-mail', whatsapp: 'WhatsApp', empresa: 'Empresa',
-  site: 'Site / Perfil', tipo: 'Tipo de negócio', unidades: 'Unidades',
-  faturamento: 'Faturamento', hoje: 'Faz hoje', verba: 'Verba de anúncio',
-  objetivo: 'Objetivo', desafio: 'Desafio'
+  tipo: 'Tipo de negócio', site: 'Site / Perfil', plataforma: 'Plataforma',
+  unidades: 'Unidades', faturamento: 'Faturamento', hoje: 'Faz hoje',
+  verba: 'Verba de anúncio', objetivo: 'Objetivo', desafio: 'Desafio'
 };
 
 // ----------------------------------------------------------------- leitura

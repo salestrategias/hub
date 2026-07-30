@@ -14,7 +14,7 @@ RewriteRule . /index.php [L]
 ```
 
 Ou seja: **arquivo ou pasta que existir em disco é servido direto; só o que não
-existir cai no WordPress.** É exatamente o que a gente precisa. Na prática:
+existir cai no WordPress.** É exatamente o que precisamos. Na prática:
 
 | Endereço | Quem responde |
 |---|---|

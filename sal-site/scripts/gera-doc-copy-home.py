@@ -60,7 +60,7 @@ partes.append(campo('Título', um(r'<h1>(.*?)</h1>', hero), '*(o trecho final ap
 partes.append(campo('Chamada', um(r'class="sub">(.*?)</p>', hero)))
 botoes = todos(r'<a class="btn[^"]*" href="[^"]*">(.*?)</a>', hero) + todos(r'class="link-side" href="[^"]*">(.*?)</a>', hero)
 partes.append(campo('Botões', ' · '.join(botoes)))
-partes.append('**Imagem de fundo:** a foto das vitrines iluminadas à noite.\n`>> AJUSTE:`\n\n')
+partes.append('**Ilustração:** desenho em SVG da busca, do anúncio, da vitrine de produtos e da curva de escala.\n`>> AJUSTE:`\n\n')
 
 # ---- barra do blog
 partes.append('---\n\n## 2. Barra "Esta semana no Blog da SAL"\n')

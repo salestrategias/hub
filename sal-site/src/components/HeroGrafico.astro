@@ -1,0 +1,119 @@
+---
+/* Ilustração do hero: a busca, o anúncio, a vitrine de produtos e a escala.
+   Desenho próprio, sem marca de terceiros. O losango é o grão de sal da marca. */
+---
+
+<svg class="hero-arte" viewBox="0 0 720 640" fill="none" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="ha-glow" cx="50%" cy="42%" r="58%">
+      <stop offset="0%" stop-color="#2D1D7A" stop-opacity=".72" />
+      <stop offset="58%" stop-color="#2D1D7A" stop-opacity=".18" />
+      <stop offset="100%" stop-color="#2D1D7A" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="ha-prod" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#241C63" />
+      <stop offset="100%" stop-color="#171340" />
+    </linearGradient>
+    <linearGradient id="ha-barra" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#2D1D7A" stop-opacity=".25" />
+      <stop offset="100%" stop-color="#4A31B8" stop-opacity=".85" />
+    </linearGradient>
+    <linearGradient id="ha-alta" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#A88940" stop-opacity=".35" />
+      <stop offset="100%" stop-color="#C9A961" stop-opacity=".95" />
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="392" cy="286" rx="330" ry="300" fill="url(#ha-glow)" />
+
+  <g class="ha-escala">
+    <rect x="52" y="452" width="30" height="86" rx="6" fill="url(#ha-barra)" />
+    <rect x="98" y="418" width="30" height="120" rx="6" fill="url(#ha-barra)" />
+    <rect x="144" y="372" width="30" height="166" rx="6" fill="url(#ha-barra)" />
+    <rect x="190" y="322" width="30" height="216" rx="6" fill="url(#ha-barra)" />
+    <rect x="236" y="262" width="30" height="276" rx="6" fill="url(#ha-alta)" />
+    <path d="M67 466 L113 432 L159 386 L205 336 L251 276" stroke="#C9A961" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round" opacity=".9" />
+    <circle cx="67" cy="466" r="4" fill="#C9A961" opacity=".55" />
+    <circle cx="159" cy="386" r="4" fill="#C9A961" opacity=".75" />
+    <circle cx="251" cy="276" r="5.5" fill="#C9A961" />
+  </g>
+
+  <g class="ha-serp">
+    <rect x="286" y="54" width="392" height="188" rx="20" fill="#16142E" stroke="#2A2652" stroke-width="1.5" />
+
+    <rect x="312" y="80" width="340" height="42" rx="21" fill="#0B0A18" stroke="#2A2652" stroke-width="1.5" />
+    <circle cx="338" cy="101" r="7.5" stroke="#C9A961" stroke-width="2" />
+    <path d="M343.5 106.5 L350 113" stroke="#C9A961" stroke-width="2" stroke-linecap="round" />
+    <rect x="362" y="96" width="132" height="10" rx="5" fill="#7B7897" opacity=".55" />
+
+    <rect x="312" y="146" width="58" height="19" rx="9.5" fill="#C9A961" fill-opacity=".14" stroke="#C9A961" stroke-opacity=".45" />
+    <rect x="322" y="153" width="38" height="5" rx="2.5" fill="#C9A961" opacity=".8" />
+    <rect x="380" y="149" width="196" height="12" rx="6" fill="#FFFFFF" opacity=".82" />
+    <rect x="312" y="180" width="300" height="8" rx="4" fill="#B8B6CE" opacity=".3" />
+    <rect x="312" y="198" width="228" height="8" rx="4" fill="#B8B6CE" opacity=".22" />
+    <rect x="312" y="216" width="164" height="8" rx="4" fill="#B8B6CE" opacity=".16" />
+  </g>
+
+  <g class="ha-vitrine">
+    <g>
+      <rect x="286" y="292" width="132" height="182" rx="16" fill="#16142E" stroke="#2A2652" stroke-width="1.5" />
+      <rect x="300" y="306" width="104" height="92" rx="10" fill="url(#ha-prod)" />
+      <path d="M328 378 L352 340 L376 378 Z" fill="#4A31B8" opacity=".5" />
+      <circle cx="322" cy="332" r="9" fill="#4A31B8" opacity=".45" />
+      <rect x="300" y="412" width="58" height="9" rx="4.5" fill="#C9A961" />
+      <rect x="300" y="431" width="88" height="7" rx="3.5" fill="#B8B6CE" opacity=".26" />
+      <g fill="#C9A961" opacity=".62">
+        <rect x="300" y="451" width="7" height="7" rx="1.4" transform="rotate(45 303.5 454.5)" />
+        <rect x="313" y="451" width="7" height="7" rx="1.4" transform="rotate(45 316.5 454.5)" />
+        <rect x="326" y="451" width="7" height="7" rx="1.4" transform="rotate(45 329.5 454.5)" />
+        <rect x="339" y="451" width="7" height="7" rx="1.4" transform="rotate(45 342.5 454.5)" />
+      </g>
+    </g>
+
+    <g class="ha-destaque">
+      <rect x="434" y="276" width="132" height="198" rx="16" fill="#1D1A3A" stroke="#C9A961" stroke-opacity=".5" stroke-width="1.5" />
+      <rect x="448" y="290" width="104" height="104" rx="10" fill="url(#ha-prod)" />
+      <rect x="470" y="316" width="60" height="56" rx="8" fill="#4A31B8" opacity=".5" />
+      <rect x="484" y="302" width="32" height="18" rx="6" fill="#4A31B8" opacity=".35" />
+      <rect x="448" y="410" width="70" height="10" rx="5" fill="#C9A961" />
+      <rect x="448" y="431" width="88" height="7" rx="3.5" fill="#B8B6CE" opacity=".3" />
+      <g fill="#C9A961">
+        <rect x="448" y="453" width="8" height="8" rx="1.6" transform="rotate(45 452 457)" />
+        <rect x="462" y="453" width="8" height="8" rx="1.6" transform="rotate(45 466 457)" />
+        <rect x="476" y="453" width="8" height="8" rx="1.6" transform="rotate(45 480 457)" />
+        <rect x="490" y="453" width="8" height="8" rx="1.6" transform="rotate(45 494 457)" />
+        <rect x="504" y="453" width="8" height="8" rx="1.6" transform="rotate(45 508 457)" />
+      </g>
+    </g>
+
+    <g>
+      <rect x="582" y="292" width="132" height="182" rx="16" fill="#16142E" stroke="#2A2652" stroke-width="1.5" />
+      <rect x="596" y="306" width="104" height="92" rx="10" fill="url(#ha-prod)" />
+      <circle cx="648" cy="352" r="26" fill="#4A31B8" opacity=".42" />
+      <rect x="596" y="412" width="48" height="9" rx="4.5" fill="#C9A961" opacity=".85" />
+      <rect x="596" y="431" width="76" height="7" rx="3.5" fill="#B8B6CE" opacity=".26" />
+      <g fill="#C9A961" opacity=".62">
+        <rect x="596" y="451" width="7" height="7" rx="1.4" transform="rotate(45 599.5 454.5)" />
+        <rect x="609" y="451" width="7" height="7" rx="1.4" transform="rotate(45 612.5 454.5)" />
+        <rect x="622" y="451" width="7" height="7" rx="1.4" transform="rotate(45 625.5 454.5)" />
+      </g>
+    </g>
+  </g>
+
+  <g class="ha-mapa">
+    <circle cx="128" cy="182" r="66" stroke="#C9A961" stroke-opacity=".10" stroke-width="1.5" />
+    <circle cx="128" cy="182" r="44" stroke="#C9A961" stroke-opacity=".18" stroke-width="1.5" />
+    <circle cx="128" cy="182" r="24" stroke="#C9A961" stroke-opacity=".3" stroke-width="1.5" />
+    <path d="M128 152c-10.5 0-19 8.5-19 19 0 13.6 19 29 19 29s19-15.4 19-29c0-10.5-8.5-19-19-19z"
+          fill="#C9A961" />
+    <circle cx="128" cy="171" r="6.5" fill="#0B0A18" />
+  </g>
+
+  <g fill="#C9A961">
+    <rect x="238" y="126" width="9" height="9" rx="1.8" transform="rotate(45 242.5 130.5)" opacity=".55" />
+    <rect x="676" y="252" width="7" height="7" rx="1.4" transform="rotate(45 679.5 255.5)" opacity=".4" />
+    <rect x="60" y="300" width="6" height="6" rx="1.2" transform="rotate(45 63 303)" opacity=".35" />
+    <rect x="656" y="524" width="8" height="8" rx="1.6" transform="rotate(45 660 528)" opacity=".3" />
+  </g>
+</svg>
