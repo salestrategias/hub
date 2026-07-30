@@ -72,7 +72,7 @@ O site foi escrito para nunca travar o lead:
 
 ## Alterar horários de atendimento
 
-As regras de horário ficam no site, em `public/js/agenda.js`:
+As regras de horário ficam no site, em `src/scripts/agenda.js`:
 
 ```js
 var DIAS_UTEIS = 10;   // quantos dias úteis mostrar
