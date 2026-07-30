@@ -233,3 +233,69 @@ precisam estar enviados. O `robots.txt` do site novo já aponta para os dois.
 **Canibalização.** A `estrategia-seo.md` já registrava três artigos disputando "Google Meu
 Negócio" e quatro disputando "SEO local". Continua valendo: consolidar num artigo forte
 por tema e 301 do resto.
+
+---
+
+## Adendo — as editorias do blog (30/07, à tarde)
+
+Pergunta do Marcelo: `/blog/?editoria=seo-geo` não é o jeito comum de mostrar
+categoria no WordPress. Isso atrapalha o SEO?
+
+**Atrapalha — não por punição, mas por desperdício.** Levantamento:
+
+| | |
+|---|---|
+| `/blog/?editoria=seo-geo` | `noindex,follow` + canonical para `/blog/` |
+| `/category/seo-geo/` | **301 para a home** (é o mesmo defeito do item 2) |
+| `/blog/seo/`, `/blog/ecommerce/`, `/blog/trafego-pago/`, `/blog/seo/seo-local/`, `/blog/marketing-digital/` | **200, existem, estão no sitemap** |
+
+Ou seja: os arquivos de categoria de verdade **já funcionam** e já são entregues
+ao Google pelo `category-sitemap.xml`. Mas o portal nunca linkava para eles —
+linkava para o `?editoria=`, que o próprio snippet marcava como `noindex`.
+
+O resultado eram cinco arquivos de categoria **órfãos**: no sitemap, sem um único
+link interno vindo da navegação do blog. Somados, cobrem 43 artigos. Link interno
+é um dos sinais mais fortes de importância dentro do site, e essas páginas não
+tinham nenhum.
+
+E o `?editoria=` nunca poderia ranquear: `noindex` mais canonical apontando para
+`/blog/`. Então as quatro editorias não rendiam nada organicamente — eram só um
+filtro visual.
+
+Havia ainda um detalhe: os slugs do snippet eram rótulos editoriais inventados,
+não os slugs reais das categorias.
+
+| No snippet | Categoria real no WordPress |
+|---|---|
+| `seo-geo` | `seo` (id 13) |
+| `e-commerce` | `ecommerce` (id 14) |
+| `varejo-local` | `seo-local` (id 17), em `/blog/seo/seo-local/` |
+| `trafego-pago` | `trafego-pago` (id 15) — o único que batia |
+
+### O que mudou
+
+- O snippet passou a interceptar `is_category()`. As editorias agora moram em
+  `/blog/seo/`, `/blog/trafego-pago/`, `/blog/ecommerce/` e `/blog/seo/seo-local/`,
+  com o mesmo desenho de antes.
+- Saiu o `noindex`. São arquivos legítimos, com endereço próprio.
+- Os links do menu, do rodapé e dos botões "Ver editoria" apontam para o arquivo real.
+- `/blog/?editoria=slug` passou a redirecionar com 301 para o arquivo, inclusive
+  a partir dos slugs antigos — link já publicado não quebra.
+- Categoria fora das quatro editorias (Marketing Digital, com 10 artigos, a maior
+  de todas) também ganhou o desenho do portal. Antes cairia no template antigo
+  do Elementor.
+
+Treze cenários de rota conferidos num simulador antes de subir: portal, as quatro
+editorias, a categoria extra, os três slugs antigos, um slug inexistente, post e
+página comuns. Todos caem onde devem.
+
+### Fica para você decidir
+
+Os nomes das categorias no WordPress não batem com os rótulos do portal: o portal
+chama de "SEO & GEO" o que o WordPress chama de "SEO", e de "Varejo Local" o que
+o WordPress chama de "SEO Local". Como o `<title>` do Google vem do Rank Math e o
+`<h1>` vem do nosso template, os dois vão divergir.
+
+Dá para resolver renomeando a categoria no WordPress — **só o nome, sem tocar no
+slug**, senão a URL muda e precisa de 301. Em `Posts → Categorias`, editar o campo
+"Nome" e deixar o "Slug" como está.

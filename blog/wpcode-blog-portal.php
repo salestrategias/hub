@@ -9,7 +9,7 @@
 // CSS 100% prefixado .sb- (tema hello-biz continua carregando via wp_head).
 // ─────────────────────────────────────────────────────────────────
 add_action( 'template_redirect', function () {
-	if ( ! is_home() && ! is_page( 'blog' ) ) return;
+	if ( ! is_home() && ! is_page( 'blog' ) && ! is_category() ) return;
 
 	// ─── Config ─────────────────────────────────────────────────
 	$LOGO_ROXO   = 'https://www.salestrategias.com.br/wp-content/uploads/2025/11/logotipo-sal-estrategias-marketing-2.svg';
@@ -17,12 +17,16 @@ add_action( 'template_redirect', function () {
 	$WHATS       = 'https://wa.me/5551993380278';
 	$DIAG        = 'https://www.salestrategias.com.br/agenda/';
 
+	// A chave é o slug REAL da categoria no WordPress, para a editoria morar no
+	// arquivo de categoria de verdade (/blog/<slug>/) em vez de um ?editoria=.
 	$EDITORIAS = [
 		'trafego-pago' => [ 'id' => 15, 'nome' => 'Tráfego Pago' ],
-		'seo-geo'      => [ 'id' => 13, 'nome' => 'SEO & GEO' ],
-		'e-commerce'   => [ 'id' => 14, 'nome' => 'E-commerce' ],
-		'varejo-local' => [ 'id' => 17, 'nome' => 'Varejo Local' ],
+		'seo'          => [ 'id' => 13, 'nome' => 'SEO & GEO' ],
+		'ecommerce'    => [ 'id' => 14, 'nome' => 'E-commerce' ],
+		'seo-local'    => [ 'id' => 17, 'nome' => 'Varejo Local' ],
 	];
+	// slugs antigos do ?editoria=, mantidos só para não quebrar link já publicado
+	$EDITORIAS_ANTIGAS = [ 'seo-geo' => 'seo', 'e-commerce' => 'ecommerce', 'varejo-local' => 'seo-local' ];
 	$ROTULOS = [ 15 => 'Tráfego Pago', 13 => 'SEO & GEO', 14 => 'E-commerce', 17 => 'Varejo Local', 29 => 'Estratégia' ];
 
 	$GUIAS_SLUGS = [
@@ -32,8 +36,29 @@ add_action( 'template_redirect', function () {
 		'cac-e-ltv-como-calcular-metricas-negocio',
 	];
 
-	$ed_param = isset( $_GET['editoria'] ) ? sanitize_title( wp_unslash( $_GET['editoria'] ) ) : '';
-	$view_editoria = ( $ed_param && isset( $EDITORIAS[ $ed_param ] ) ) ? $EDITORIAS[ $ed_param ] : null;
+	$view_editoria = null;
+	$view_ed_slug  = '';
+
+	if ( is_category() ) {
+		$termo = get_queried_object();
+		if ( ! $termo || empty( $termo->term_id ) ) return;
+		// Categoria que não é uma das quatro editorias (Marketing Digital, por
+		// exemplo) também é desenhada aqui, com o nome que ela tem no WordPress.
+		// Sem isso ela cairia no template antigo do Elementor.
+		$view_editoria = $EDITORIAS[ $termo->slug ] ?? [ 'id' => $termo->term_id, 'nome' => $termo->name ];
+		$view_ed_slug  = $termo->slug;
+	} else {
+		// /blog/?editoria=slug é o endereço antigo. Manda para o arquivo de
+		// categoria com 301, para o histórico não ficar preso na query string.
+		$ed_param = isset( $_GET['editoria'] ) ? sanitize_title( wp_unslash( $_GET['editoria'] ) ) : '';
+		if ( $ed_param ) {
+			$destino = $EDITORIAS_ANTIGAS[ $ed_param ] ?? $ed_param;
+			if ( isset( $EDITORIAS[ $destino ] ) ) {
+				wp_safe_redirect( get_category_link( $EDITORIAS[ $destino ]['id'] ), 301 );
+				exit;
+			}
+		}
+	}
 
 	// ─── Helpers ────────────────────────────────────────────────
 	$rotulo = function ( $post ) use ( $ROTULOS ) {
@@ -52,8 +77,8 @@ add_action( 'template_redirect', function () {
 	$dataf = function ( $post ) {
 		return esc_html( date_i18n( 'j \d\e F \d\e Y', strtotime( $post->post_date ) ) );
 	};
-	$ed_url = function ( $slug ) {
-		return esc_url( add_query_arg( 'editoria', $slug, get_permalink( get_option( 'page_for_posts' ) ?: null ) ?: home_url( '/blog/' ) ) );
+	$ed_url = function ( $slug ) use ( $EDITORIAS ) {
+		return isset( $EDITORIAS[ $slug ] ) ? esc_url( get_category_link( $EDITORIAS[ $slug ]['id'] ) ) : esc_url( home_url( '/blog/' ) );
 	};
 	$card = function ( $post ) use ( $rotulo, $thumb, $dataf ) {
 		$img = $thumb( $post );
@@ -97,7 +122,6 @@ add_action( 'template_redirect', function () {
 	<head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<?php if ( $view_editoria ) : ?><meta name="robots" content="noindex,follow"><?php endif; ?>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -148,11 +172,25 @@ add_action( 'template_redirect', function () {
 	.sb-hero figure img{width:100%;height:100%;object-fit:cover}
 	.sb-hero .sb-badge{position:absolute;top:18px;left:18px;background:#F6FF74;color:#0A0A0F;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;padding:7px 14px;border-radius:40px;z-index:2}
 	.sb-ticker{background:#F4F7F7;border-top:1px solid #E9E7E1;border-bottom:1px solid #E9E7E1}
-	.sb-ticker .sb-wrap{display:flex;align-items:center;gap:22px;height:52px;overflow:hidden}
-	.sb-ticker .sb-lbl{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:3px;color:#7E30E1;white-space:nowrap;display:flex;gap:9px;align-items:center}
-	.sb-ticker ul{display:flex;gap:34px;white-space:nowrap;font-size:14px;font-weight:500;color:#2D1D7A;overflow:hidden}
-	.sb-ticker li{display:flex;align-items:center;gap:12px}
+	.sb-ticker .sb-wrap{display:flex;align-items:center;gap:22px;height:52px;position:relative;overflow:hidden}
+	.sb-ticker .sb-lbl{flex:none;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:3px;color:#7E30E1;white-space:nowrap;display:flex;gap:9px;align-items:center}
+	.sb-ticker ul{flex:1;min-width:0;display:flex;gap:34px;white-space:nowrap;font-size:14px;font-weight:500;color:#2D1D7A;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;scroll-padding-inline:12px}
+	.sb-ticker ul::-webkit-scrollbar{display:none}
+	/* no toque a barra nativa já aparece sozinha ao rolar. No mouse não aparece
+	   nada, então ali vale mostrar uma barra fina — senão ninguém descobre. */
+	@media (hover:hover) and (pointer:fine){
+		.sb-ticker ul{padding-bottom:7px;scrollbar-width:thin;scrollbar-color:#CFCBDD transparent}
+		.sb-ticker ul::-webkit-scrollbar{display:block;height:5px}
+		.sb-ticker ul::-webkit-scrollbar-track{background:transparent}
+		.sb-ticker ul::-webkit-scrollbar-thumb{background:#CFCBDD;border-radius:3px}
+		.sb-ticker ul:hover::-webkit-scrollbar-thumb{background:#A9A4C0}
+	}
+	.sb-ticker ul:focus-visible{outline:2px solid #7E30E1;outline-offset:3px;border-radius:4px}
+	.sb-ticker li{flex:none;display:flex;align-items:center;gap:12px;scroll-snap-align:start}
 	.sb-ticker li .sb-grain{width:5px;height:5px}
+	/* véu no fim da faixa: mostra que a lista continua. Se tudo couber, ele cai
+	   sobre o próprio fundo e não aparece. */
+	.sb-ticker .sb-wrap::after{content:"";position:absolute;top:0;right:0;width:64px;height:100%;pointer-events:none;background:linear-gradient(90deg,rgba(244,247,247,0),#F4F7F7 72%)}
 	.sb-ultimas{padding:72px 0}
 	.sb-grid-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
 	.sb-card{border-radius:20px;overflow:hidden;background:#fff;border:1px solid #E9E7E1;transition:transform .15s ease,box-shadow .15s ease;display:flex;flex-direction:column}
@@ -306,7 +344,7 @@ add_action( 'template_redirect', function () {
 	<div class="sb-ticker">
 		<div class="sb-wrap">
 			<span class="sb-lbl"><span class="sb-grain sb-roxo"></span> AGORA NO VAREJO</span>
-			<ul>
+			<ul tabindex="0" role="list" aria-label="Últimas publicações">
 				<?php foreach ( array_slice( $ultimas, 0, 3 ) as $p ) : ?>
 					<li><span class="sb-grain sb-roxo"></span><a href="<?php echo esc_url( get_permalink( $p ) ); ?>"><?php echo esc_html( get_the_title( $p ) ); ?></a></li>
 				<?php endforeach; ?>
