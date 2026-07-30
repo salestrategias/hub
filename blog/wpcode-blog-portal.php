@@ -314,6 +314,7 @@ add_action( 'template_redirect', function () {
 	</section>
 	<section class="sb-ultimas">
 		<div class="sb-wrap">
+			<h2 class="sb-sec-label">Todos os artigos</h2>
 			<div class="sb-grid-cards">
 				<?php foreach ( $posts_ed as $p ) { $card( $p ); } ?>
 			</div>

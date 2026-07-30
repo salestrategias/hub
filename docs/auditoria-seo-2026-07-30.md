@@ -299,3 +299,31 @@ o WordPress chama de "SEO Local". Como o `<title>` do Google vem do Rank Math e 
 Dá para resolver renomeando a categoria no WordPress — **só o nome, sem tocar no
 slug**, senão a URL muda e precisa de 301. Em `Posts → Categorias`, editar o campo
 "Nome" e deixar o "Slug" como está.
+
+### Conferido no ar em 30/07, depois da colagem
+
+| Endereço | Resposta |
+|---|---|
+| `/blog/seo/`, `/blog/trafego-pago/`, `/blog/ecommerce/`, `/blog/seo/seo-local/`, `/blog/marketing-digital/` | 200, com o desenho do portal |
+| `/blog/?editoria=seo-geo` | 301 → `/blog/seo/` |
+| `/blog/?editoria=e-commerce` | 301 → `/blog/ecommerce/` |
+| `/blog/?editoria=varejo-local` | 301 → `/blog/seo/seo-local/` |
+
+A `/blog/seo/` responde `index, follow`, com canonical para ela mesma, um único
+`<h1>` e os 16 artigos da editoria. Sem estouro horizontal em 1440 nem em 390 px.
+O índice de títulos fecha em `h1 → h2 → h3`.
+
+### 🟡 Sobrou: links velhos de categoria na busca do blog
+
+O overlay de busca do blog (o "Ctrl K") traz um bloco "Categorias populares" com
+três endereços desatualizados. Ele vem de **outro snippet**, que não está neste
+repositório:
+
+| Link no overlay | Situação | Deveria ser |
+|---|---|---|
+| `/blog/e-commerce/` | **301 para a home** — link quebrado | `/blog/ecommerce/` |
+| `/blog/seo-local/` | 200, mas com canonical para o endereço aninhado | `/blog/seo/seo-local/` |
+| `/blog/insights/` | 200, porém a categoria tem **0 artigos** | remover o link |
+
+São três links internos apontando para lugar errado, um deles quebrado. É procurar
+esses três endereços no snippet da busca e trocar.
