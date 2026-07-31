@@ -29,7 +29,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 20 | Como fazer sua loja ser recomendada pelo ChatGPT e pelo AI Overviews | loja recomendada chatgpt ai overviews | SEO | 13 | MOFU | PUBLICADO 2026-07-28 https://www.salestrategias.com.br/loja-recomendada-chatgpt-ai-overviews/ |
 | 21 | Drive-to-store: como usar o digital para encher a loja física | drive to store como funciona | LOC | 17 | TOFU | PUBLICADO 2026-07-29 https://www.salestrategias.com.br/drive-to-store-como-funciona/ |
 | 22 | Taxa de recompra: como calcular e fazer o cliente voltar | taxa de recompra como calcular | CRM | 14 | MOFU | PUBLICADO 2026-07-30 https://www.salestrategias.com.br/taxa-de-recompra-como-calcular/ |
-| 23 | Produto reprovado no Merchant Center: erros mais comuns e correções | produto reprovado merchant center | TP | 15 | MOFU | PENDENTE |
+| 23 | Produto reprovado no Merchant Center: erros mais comuns e correções | produto reprovado merchant center | TP | 15 | MOFU | PUBLICADO 2026-07-31 https://www.salestrategias.com.br/produto-reprovado-merchant-center/ |
 | 24 | Taxa de conversão boa para e-commerce no Brasil: benchmarks com fonte | taxa de conversão boa e-commerce brasil | CRO | 14 | TOFU | PENDENTE |
 | 25 | Funil de conversão no GA4: do view_item ao purchase | funil de conversão ga4 e-commerce | DAD | 29 | MOFU | PENDENTE |
 | 26 | Shopee ou Mercado Livre: onde vale mais a pena vender | shopee ou mercado livre qual o melhor | MKT | 14 | MOFU | PENDENTE |
