@@ -1,0 +1,148 @@
+<p>O funil de conversão no GA4 mostra, etapa por etapa, quantos visitantes avançam do <code>view_item</code> (visualização do produto) até o <code>purchase</code> (compra), passando por <code>add_to_cart</code>, <code>begin_checkout</code>, <code>add_shipping_info</code> e <code>add_payment_info</code>. Para montar, acesse Explorar &gt; Análise de Funil, adicione esses eventos na ordem certa e o relatório calcula sozinho a taxa de abandono entre cada etapa, revelando exatamente onde a loja perde mais cliente.</p>
+
+<!-- wp:rank-math/toc-block {"headings":[{"key":"a1b2c3d4-0001","content":"O Que É o Funil de Conversão no GA4","level":2,"link":"#o-que-e-o-funil-de-conversao-no-ga4","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0002","content":"Os Eventos que Formam o Funil: de view_item a purchase","level":3,"link":"#eventos-que-formam-o-funil-de-view-item-a-purchase","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0003","content":"Como Configurar o Funil de Conversão no GA4 Passo a Passo","level":2,"link":"#como-configurar-o-funil-de-conversao-no-ga4-passo-a-passo","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0004","content":"Funil Aberto ou Fechado: Qual Escolher","level":3,"link":"#funil-aberto-ou-fechado-qual-escolher","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0005","content":"Etapa Direta ou Indireta: o Que Muda no Resultado","level":3,"link":"#etapa-direta-ou-indireta-o-que-muda-no-resultado","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0006","content":"Como Ler a Taxa de Abandono em Cada Etapa do Funil","level":2,"link":"#como-ler-a-taxa-de-abandono-em-cada-etapa-do-funil","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0007","content":"Onde a Maioria das Lojas Perde Cliente no Funil (Exemplos Práticos)","level":2,"link":"#onde-a-maioria-das-lojas-perde-cliente-no-funil-exemplos-praticos","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0008","content":"Erros Comuns que Quebram o Funil no GA4","level":2,"link":"#erros-comuns-que-quebram-o-funil-no-ga4","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0009","content":"O Que Fazer com os Dados do Funil: da Leitura à Ação","level":2,"link":"#o-que-fazer-com-os-dados-do-funil-da-leitura-a-acao","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0010","content":"Perguntas Frequentes sobre Funil de Conversão no GA4","level":2,"link":"#perguntas-frequentes-sobre-funil-de-conversao-no-ga4","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0011","content":"O Funil de Conversão do GA4 É Gratuito?","level":3,"link":"#o-funil-de-conversao-do-ga4-e-gratuito","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0012","content":"Preciso de Programador para Configurar o Funil no GA4?","level":3,"link":"#preciso-de-programador-para-configurar-o-funil-no-ga4","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0013","content":"Qual Taxa de Conversão de Funil É Considerada Boa?","level":3,"link":"#qual-taxa-de-conversao-de-funil-e-considerada-boa","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0014","content":"O Funil do GA4 Mostra Por Que o Cliente Abandonou?","level":3,"link":"#o-funil-do-ga4-mostra-por-que-o-cliente-abandonou","disable":false,"isUpdated":false,"isGeneratedLink":true},{"key":"a1b2c3d4-0015","content":"Dá para Salvar o Funil e Comparar Mês a Mês?","level":3,"link":"#da-para-salvar-o-funil-e-comparar-mes-a-mes","disable":false,"isUpdated":false,"isGeneratedLink":true}]} -->
+<div class="wp-block-rank-math-toc-block" id="rank-math-toc"><nav><ol><li class=""><a href="#o-que-e-o-funil-de-conversao-no-ga4">O Que É o Funil de Conversão no GA4</a><ol><li class=""><a href="#eventos-que-formam-o-funil-de-view-item-a-purchase">Os Eventos que Formam o Funil: de view_item a purchase</a></li></ol></li><li class=""><a href="#como-configurar-o-funil-de-conversao-no-ga4-passo-a-passo">Como Configurar o Funil de Conversão no GA4 Passo a Passo</a><ol><li class=""><a href="#funil-aberto-ou-fechado-qual-escolher">Funil Aberto ou Fechado: Qual Escolher</a></li><li class=""><a href="#etapa-direta-ou-indireta-o-que-muda-no-resultado">Etapa Direta ou Indireta: o Que Muda no Resultado</a></li></ol></li><li class=""><a href="#como-ler-a-taxa-de-abandono-em-cada-etapa-do-funil">Como Ler a Taxa de Abandono em Cada Etapa do Funil</a></li><li class=""><a href="#onde-a-maioria-das-lojas-perde-cliente-no-funil-exemplos-praticos">Onde a Maioria das Lojas Perde Cliente no Funil (Exemplos Práticos)</a></li><li class=""><a href="#erros-comuns-que-quebram-o-funil-no-ga4">Erros Comuns que Quebram o Funil no GA4</a></li><li class=""><a href="#o-que-fazer-com-os-dados-do-funil-da-leitura-a-acao">O Que Fazer com os Dados do Funil: da Leitura à Ação</a></li><li class=""><a href="#perguntas-frequentes-sobre-funil-de-conversao-no-ga4">Perguntas Frequentes sobre Funil de Conversão no GA4</a><ol><li class=""><a href="#o-funil-de-conversao-do-ga4-e-gratuito">O Funil de Conversão do GA4 É Gratuito?</a></li><li class=""><a href="#preciso-de-programador-para-configurar-o-funil-no-ga4">Preciso de Programador para Configurar o Funil no GA4?</a></li><li class=""><a href="#qual-taxa-de-conversao-de-funil-e-considerada-boa">Qual Taxa de Conversão de Funil É Considerada Boa?</a></li><li class=""><a href="#o-funil-do-ga4-mostra-por-que-o-cliente-abandonou">O Funil do GA4 Mostra Por Que o Cliente Abandonou?</a></li><li class=""><a href="#da-para-salvar-o-funil-e-comparar-mes-a-mes">Dá para Salvar o Funil e Comparar Mês a Mês?</a></li></ol></li></ol></nav></div>
+<!-- /wp:rank-math/toc-block -->
+
+<h2 id="o-que-e-o-funil-de-conversao-no-ga4">O Que É o Funil de Conversão no GA4</h2>
+<p>O funil de conversão é um relatório do GA4 que organiza uma sequência de eventos e mostra quantas sessões chegaram em cada um. Em vez de olhar só a taxa de conversão final (sessões que compraram dividido por sessões totais), o funil quebra o caminho em etapas e aponta exatamente onde o visitante para de avançar.</p>
+<p>É diferente de olhar a <a href="https://www.salestrategias.com.br/taxa-de-conversao-boa-ecommerce-brasil/">taxa de conversão geral da loja</a>. Duas lojas podem ter a mesma taxa final de 1% e problemas completamente diferentes: uma perde gente na página de produto, a outra perde no checkout por falta de opção de pagamento. Sem o funil, os dois casos parecem idênticos no relatório principal.</p>
+
+<h3 id="eventos-que-formam-o-funil-de-view-item-a-purchase">Os Eventos que Formam o Funil: de view_item a purchase</h3>
+<p>O GA4 reconhece um conjunto padrão de eventos de e-commerce. Os que formam o funil completo, na ordem em que o cliente normalmente passa por eles, são:</p>
+<ul>
+<li><strong>view_item</strong>: o visitante abriu a página de um produto.</li>
+<li><strong>add_to_cart</strong>: o produto foi adicionado ao carrinho.</li>
+<li><strong>begin_checkout</strong>: o cliente iniciou o processo de finalização de compra.</li>
+<li><strong>add_shipping_info</strong>: o frete foi calculado e a informação de entrega, preenchida.</li>
+<li><strong>add_payment_info</strong>: a forma de pagamento foi escolhida.</li>
+<li><strong>purchase</strong>: o pedido foi concluído.</li>
+</ul>
+<p>Se a loja usa Nuvemshop, Shopify ou VTEX com a integração nativa de GA4 ou um pixel de e-commerce aprovado, esses eventos costumam disparar automaticamente, com os parâmetros certos (<code>value</code>, <code>currency</code>, <code>items</code>). Se o disparo é manual via Google Tag Manager, vale conferir cada evento no relatório de tempo real antes de montar o funil, porque nome de evento fora do padrão simplesmente não aparece nos relatórios de e-commerce do GA4.</p>
+
+<h2 id="como-configurar-o-funil-de-conversao-no-ga4-passo-a-passo">Como Configurar o Funil de Conversão no GA4 Passo a Passo</h2>
+<p>O caminho é: no menu lateral, abra <strong>Explorar</strong>, clique em <strong>Criar nova exploração</strong> e escolha o modelo <strong>Análise de Funil</strong>. A partir daí:</p>
+<ol>
+<li>Em "Etapas", adicione os eventos na ordem: view_item, add_to_cart, begin_checkout, add_shipping_info, add_payment_info, purchase.</li>
+<li>Nomeie cada etapa de forma legível (ex.: "1. Viu o produto", "2. Colocou no carrinho").</li>
+<li>Defina o período de análise (o GA4 aceita até 10 etapas por exploração, então dá para incluir sub-eventos se precisar).</li>
+<li>Use as dimensões "Canal padrão" ou "Dispositivo" para segmentar o funil e comparar, por exemplo, mobile contra desktop.</li>
+<li>Salve a exploração com um nome fixo, como "Funil view_item a purchase", para reabrir e comparar depois.</li>
+</ol>
+<p>A documentação oficial do <a href="https://support.google.com/analytics/answer/9327974?hl=pt-br">Google sobre Análise de Funil no GA4</a> detalha cada campo da tela, incluindo filtros e comparações lado a lado.</p>
+
+<h3 id="funil-aberto-ou-fechado-qual-escolher">Funil Aberto ou Fechado: Qual Escolher</h3>
+<p>No funil <strong>fechado</strong> (padrão), só entra na contagem quem passou pela primeira etapa definida. No funil <strong>aberto</strong>, o usuário pode entrar em qualquer ponto: alguém que clicou num anúncio de remarketing e caiu direto no checkout, por exemplo, é contado a partir dali.</p>
+<p>Para diagnosticar o funil de e-commerce completo, o fechado costuma ser mais útil: ele responde "de quem viu o produto, quantos compraram", que é a pergunta que interessa para priorizar correção. O aberto serve melhor para entender o volume real de tráfego que entra em cada etapa, sem exigir o caminho completo.</p>
+
+<h3 id="etapa-direta-ou-indireta-o-que-muda-no-resultado">Etapa Direta ou Indireta: o Que Muda no Resultado</h3>
+<p>Ao configurar cada etapa, o GA4 pergunta se ela segue a anterior de forma <strong>direta</strong> (o evento seguinte precisa ser o próximo na sessão) ou <strong>indireta</strong> (pode haver outras ações no meio). Para o funil de e-commerce, indireta é quase sempre a escolha certa: entre ver o produto e adicionar ao carrinho, o cliente pode abrir outras páginas, comparar tamanho ou cor, voltar à listagem. Usar "direta" nessa etapa costuma subestimar o volume real e exagerar a taxa de abandono.</p>
+
+<h2 id="como-ler-a-taxa-de-abandono-em-cada-etapa-do-funil">Como Ler a Taxa de Abandono em Cada Etapa do Funil</h2>
+<p>Cada etapa do relatório mostra dois números: a taxa de conclusão (quem avançou) e a taxa de abandono (quem não avançou). Não existe uma taxa "boa" universal por etapa, mas a tabela abaixo resume o que cada uma mede e onde a queda costuma ser maior, segundo o comportamento típico observado em lojas de e-commerce:</p>
+<table>
+<thead>
+<tr><th>Etapa</th><th>Evento GA4</th><th>O que mede</th><th>Ponto comum de queda</th></tr>
+</thead>
+<tbody>
+<tr><td>1. Visualização do produto</td><td>view_item</td><td>Interesse inicial no item</td><td>Descrição incompleta, foto ruim, preço alto</td></tr>
+<tr><td>2. Adição ao carrinho</td><td>add_to_cart</td><td>Intenção de compra</td><td>Frete não visível, falta de tamanho/cor</td></tr>
+<tr><td>3. Início do checkout</td><td>begin_checkout</td><td>Decisão de finalizar</td><td>Cadastro obrigatório, poucas formas de pagamento</td></tr>
+<tr><td>4. Dados de entrega</td><td>add_shipping_info</td><td>Frete calculado</td><td>Custo de frete acima do esperado, prazo longo</td></tr>
+<tr><td>5. Dados de pagamento</td><td>add_payment_info</td><td>Forma de pagamento escolhida</td><td>Parcelamento limitado, cartão recusado</td></tr>
+<tr><td>6. Compra</td><td>purchase</td><td>Conversão efetiva</td><td>Erro no gateway, timeout no pagamento</td></tr>
+</tbody>
+</table>
+<p>O abandono de carrinho é, historicamente, o ponto de maior perda em qualquer funil de e-commerce. O Baymard Institute, em compilação de 49 pesquisas atualizada em 2025, aponta taxa média global de abandono de carrinho em torno de 70%. No Brasil, o cenário é pior: reportagem da <a href="https://www.ecommercebrasil.com.br/noticias/taxa-de-abandono-de-carrinhos-ultrapassa-80-e-destaca-desafios-no-e-commerce-brasileiro">E-Commerce Brasil publicada em abril de 2025</a>, com base em dados do E-commerce Radar, aponta abandono acima de 80%, entre os mais altos da América Latina. Isso reforça por que olhar só a taxa final de conversão esconde o problema: a maior perda geralmente já aconteceu antes do checkout começar.</p>
+
+<h2 id="onde-a-maioria-das-lojas-perde-cliente-no-funil-exemplos-praticos">Onde a Maioria das Lojas Perde Cliente no Funil (Exemplos Práticos)</h2>
+<p>Cada segmento tende a ter um ponto de perda característico. Alguns cenários hipotéticos, mas representativos do que aparece com frequência em funis reais:</p>
+<ul>
+<li><strong>Loja de roupa:</strong> alta taxa de view_item para add_to_cart (o produto atrai), mas queda forte de add_to_cart para begin_checkout. Causa comum: o frete só aparece no checkout, e o valor surpreende o cliente.</li>
+<li><strong>Pet shop:</strong> bom volume até add_payment_info, mas queda ali. Causa comum: poucas opções de parcelamento para tickets mais altos, como ração de porte grande.</li>
+<li><strong>Loja de suplementos:</strong> muitas visualizações de produto, mas baixa adição ao carrinho. Causa comum: falta de informação técnica (dosagem, selo, procedência) que o comprador de suplemento pesquisa antes de decidir.</li>
+</ul>
+<p>Um exemplo numérico ajuda a mostrar por que vale a pena investigar cada etapa. Imagine uma loja de roupa com 10.000 sessões de view_item no mês, 12% de conversão para add_to_cart (1.200), 40% de add_to_cart para begin_checkout (480) e 50% de begin_checkout para purchase (240 pedidos). Com ticket médio de R$ 150, isso equivale a R$ 36 mil no mês. Se uma correção pontual (mostrar o frete estimado antes do checkout, por exemplo) elevar a conversão de begin_checkout para purchase de 50% para 65%, o mesmo funil passa a gerar 312 pedidos, ou R$ 46,8 mil: R$ 10,8 mil a mais sem gastar um real a mais em mídia. Esse é o tipo de conta que separa ajuste tático de suposição. Para estimar o retorno de cada correção, vale cruzar com o <a href="https://www.salestrategias.com.br/lucro-por-venda-loja-virtual/">cálculo de lucro por venda da loja</a>, já que nem todo pedido a mais sobra margem igual.</p>
+
+<h2 id="erros-comuns-que-quebram-o-funil-no-ga4">Erros Comuns que Quebram o Funil no GA4</h2>
+<p>Antes de tirar conclusão de um funil com números estranhos, vale checar esses pontos:</p>
+<ul>
+<li><strong>Nome de evento fora do padrão:</strong> eventos como "view_product" ou "add_cart" (em vez de view_item e add_to_cart) não são reconhecidos pelos relatórios de e-commerce do GA4, mesmo aparecendo no relatório de eventos em geral.</li>
+<li><strong>Falta de parâmetros obrigatórios:</strong> o evento purchase sem <code>value</code> e <code>currency</code> não gera receita nos relatórios, o que distorce a leitura de qual etapa realmente converte em dinheiro.</li>
+<li><strong>Tráfego interno contaminando os dados:</strong> acessos da própria equipe e de QA sem filtro de IP inflam etapas iniciais e derrubam artificialmente a taxa de conversão do funil.</li>
+<li><strong>Comparação de períodos não equivalentes:</strong> comparar um mês com campanha sazonal ativa contra um mês comum gera diferença de funil que não tem relação com problema técnico.</li>
+<li><strong>Ignorar o aviso de limite de dados:</strong> contas com volume alto podem receber amostragem em explorações; o próprio relatório sinaliza quando isso acontece, e o número deixa de ser exato.</li>
+</ul>
+
+<h2 id="o-que-fazer-com-os-dados-do-funil-da-leitura-a-acao">O Que Fazer com os Dados do Funil: da Leitura à Ação</h2>
+<p>Depois de identificar a etapa com maior perda, a ordem de prioridade é: primeiro a etapa com maior volume de sessões perdidas (não a de maior taxa percentual), depois a etapa mais barata de corrigir. Uma queda de 5% em begin_checkout com 480 sessões pesa mais que uma queda de 60% em uma etapa que só recebe 20 sessões por mês.</p>
+<p>Vale também cruzar o funil com o <a href="https://www.salestrategias.com.br/como-calcular-cac-ecommerce/">CAC por canal</a>: se o canal que mais gasta em mídia é também o que mais abandona no checkout, o problema pode não ser criativo nem palavra-chave, e sim a experiência de compra que esse tráfego encontra ao chegar na loja. E se a maior perda está em add_to_cart, recuperar parte dela com uma <a href="https://www.salestrategias.com.br/mensagem-carrinho-abandonado-whatsapp/">mensagem de carrinho abandonado no WhatsApp</a> costuma trazer retorno mais rápido do que qualquer mudança estrutural no site.</p>
+<p>Depois de qualquer ajuste, o funil precisa ser revisado nas semanas seguintes: uma correção pode destravar uma etapa e, ao mesmo tempo, deslocar o gargalo para a próxima.</p>
+
+<h2 id="perguntas-frequentes-sobre-funil-de-conversao-no-ga4">Perguntas Frequentes sobre Funil de Conversão no GA4</h2>
+
+<h3 id="o-funil-de-conversao-do-ga4-e-gratuito">O Funil de Conversão do GA4 É Gratuito?</h3>
+<p>Sim. O recurso Explorar, com o modelo Análise de Funil, está disponível na versão gratuita do GA4, sem custo adicional. O limite prático vem do volume de dados e da eventual amostragem em contas com tráfego muito alto, não de um paywall.</p>
+
+<h3 id="preciso-de-programador-para-configurar-o-funil-no-ga4">Preciso de Programador para Configurar o Funil no GA4?</h3>
+<p>Se a loja usa plataformas como Nuvemshop, Shopify ou VTEX com a integração nativa de GA4, os eventos de e-commerce já chegam prontos, e montar o funil é só configuração dentro do próprio GA4. Desenvolvedor só entra em cena para checkout customizado ou catálogo fora do padrão.</p>
+
+<h3 id="qual-taxa-de-conversao-de-funil-e-considerada-boa">Qual Taxa de Conversão de Funil É Considerada Boa?</h3>
+<p>Não existe número único: cada etapa tem uma taxa esperada diferente, e a passagem de add_to_cart para begin_checkout costuma cair mais que a de begin_checkout para purchase. O benchmark mais útil é o histórico da própria loja, comparado mês a mês, e não uma média genérica de mercado.</p>
+
+<h3 id="o-funil-do-ga4-mostra-por-que-o-cliente-abandonou">O Funil do GA4 Mostra Por Que o Cliente Abandonou?</h3>
+<p>Não diretamente. O funil mostra onde (a etapa) e quanto (a taxa de queda), mas não o motivo. Para entender o porquê, é preciso cruzar com gravação de sessão, pesquisa pós-compra ou teste A/B na etapa identificada como gargalo.</p>
+
+<h3 id="da-para-salvar-o-funil-e-comparar-mes-a-mes">Dá para Salvar o Funil e Comparar Mês a Mês?</h3>
+<p>Sim. Toda exploração pode ser salva e reaberta com o intervalo de datas atualizado. Vale manter uma exploração fixa, com nome como "Funil view_item a purchase", e revisá-la junto com CAC e taxa de conversão geral.</p>
+
+<p>Montar o funil é o primeiro passo; interpretar os números certos, priorizar a etapa que mais custa receita e testar a correção é o que realmente muda o resultado. Se sua loja já tem o GA4 configurado mas não sabe transformar esses dados em plano de ação, o <a href="https://www.salestrategias.com.br/diagnostico/">diagnóstico gratuito da SAL</a> analisa o funil completo, do tráfego até a compra, e aponta onde priorizar o esforço.</p>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "O Funil de Conversão do GA4 É Gratuito?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim. O recurso Explorar, com o modelo Análise de Funil, está disponível na versão gratuita do GA4, sem custo adicional. O limite prático vem do volume de dados e da eventual amostragem em contas com tráfego muito alto, não de um paywall."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Preciso de Programador para Configurar o Funil no GA4?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Se a loja usa plataformas como Nuvemshop, Shopify ou VTEX com a integração nativa de GA4, os eventos de e-commerce já chegam prontos, e montar o funil é só configuração dentro do próprio GA4. Desenvolvedor só entra em cena para checkout customizado ou catálogo fora do padrão."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Qual Taxa de Conversão de Funil É Considerada Boa?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não existe número único: cada etapa tem uma taxa esperada diferente, e a passagem de add_to_cart para begin_checkout costuma cair mais que a de begin_checkout para purchase. O benchmark mais útil é o histórico da própria loja, comparado mês a mês."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "O Funil do GA4 Mostra Por Que o Cliente Abandonou?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não diretamente. O funil mostra onde e quanto, mas não o motivo. Para entender o porquê, é preciso cruzar com gravação de sessão, pesquisa pós-compra ou teste A/B na etapa identificada como gargalo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Dá para Salvar o Funil e Comparar Mês a Mês?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim. Toda exploração pode ser salva e reaberta com o intervalo de datas atualizado. Vale manter uma exploração fixa e revisá-la junto com CAC e taxa de conversão geral."
+      }
+    }
+  ]
+}
+</script>
