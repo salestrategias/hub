@@ -82,7 +82,7 @@ const redes = [
         </div>
         {colunas.map((c) => (
           <nav aria-label={c.titulo}>
-            <h4>{c.titulo}</h4>
+            <h3>{c.titulo}</h3>
             <ul>{c.itens.map((i) => <li><a href={i.href}>{i.rot}</a></li>)}</ul>
           </nav>
         ))}

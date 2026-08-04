@@ -3,7 +3,7 @@ Theme Name: SAL Blog
 Theme URI: https://www.salestrategias.com.br/blog/
 Author: SAL Estratégias de Marketing
 Description: Portal de conteúdo da SAL — marketing, SEO, varejo e e-commerce. Mesmo desenho do site institucional: cromo escuro, leitura sobre folha clara.
-Version: 2.0.5
+Version: 2.0.6
 Requires PHP: 7.4
 Text Domain: sal-blog
 */
@@ -11,8 +11,8 @@ Text Domain: sal-blog
 /* ---------- fontes (as mesmas do site, servidas daqui) ---------- */
 @font-face {
   font-family: 'Newsreader';
-  src: url('fonts/newsreader-var.woff2') format('woff2-variations');
-  font-weight: 200 800; font-style: normal; font-display: swap;
+  src: url('fonts/newsreader-600.woff2') format('woff2');
+  font-weight: 600; font-style: normal; font-display: swap;
 }
 @font-face {
   font-family: 'Inter';

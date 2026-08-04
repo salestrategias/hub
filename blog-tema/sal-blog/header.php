@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 	<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 	<meta name="theme-color" content="#0B0A18">
-	<link rel="preload" href="<?php echo esc_url( get_template_directory_uri() ); ?>/fonts/newsreader-var.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="<?php echo esc_url( get_template_directory_uri() ); ?>/fonts/newsreader-600.woff2" as="font" type="font/woff2" crossorigin>
 	<link rel="preload" href="<?php echo esc_url( get_template_directory_uri() ); ?>/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
 	<?php wp_head(); ?>
 </head>

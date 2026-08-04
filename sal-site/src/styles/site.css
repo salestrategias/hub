@@ -52,20 +52,26 @@
 /* -------- Cristal de sal: o motivo gráfico da marca -------- */
 .grao { display: inline-block; width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); }
 /* Grãos de sal: pontos minúsculos em grade dupla, quase imperceptíveis.
-   É textura, não padrão: só se nota quando a pessoa procura. */
+   É textura, não padrão: só se nota quando a pessoa procura.
+   A camada que se move é um ::before maior que a área, animado por
+   transform — animar background-position repintava a tela inteira na
+   thread principal o tempo todo; transform vai para a GPU. */
 .malha {
-  position: absolute; inset: 0; pointer-events: none;
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  -webkit-mask-image: radial-gradient(ellipse 66% 58% at 72% 22%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(ellipse 66% 58% at 72% 22%, #000 0%, transparent 72%);
+}
+.malha::before {
+  content: ""; position: absolute; inset: -38px 0 0 -38px;
   background-image:
     radial-gradient(rgba(201, 169, 97, 0.16) 1px, transparent 1.4px),
     radial-gradient(rgba(184, 182, 206, 0.10) 1px, transparent 1.4px);
   background-size: 38px 38px, 38px 38px;
   background-position: 0 0, 19px 19px;
-  -webkit-mask-image: radial-gradient(ellipse 66% 58% at 72% 22%, #000 0%, transparent 72%);
-  mask-image: radial-gradient(ellipse 66% 58% at 72% 22%, #000 0%, transparent 72%);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .malha { animation: deriva 34s linear infinite; }
-  @keyframes deriva { to { background-position: 38px 38px, 57px 57px; } }
+  .malha::before { animation: deriva 34s linear infinite; will-change: transform; }
+  @keyframes deriva { to { transform: translate(38px, 38px); } }
 }
 
 /* -------- Header -------- */
@@ -340,7 +346,7 @@
 }
 .rodape .redes a:hover { border-color: var(--gold-line); color: var(--gold); transform: translateY(-2px); }
 .rodape .redes svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.rodape h4 { color: var(--muted-2); font-size: var(--t-xs); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: var(--s4); }
+.rodape h3 { color: var(--muted-2); font-size: var(--t-xs); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: var(--s4); }
 .rodape ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); font-size: var(--t-sm); }
 .rodape ul a { color: var(--muted); }
 .rodape ul a:hover { color: var(--gold); }
