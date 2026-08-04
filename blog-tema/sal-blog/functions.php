@@ -47,7 +47,7 @@ add_action( 'wp_enqueue_scripts', function () {
 function sal_limpar_filas() {
 	$descartar = array(
 		'/plugins/elementor', '/plugins/elementskit', '/plugins/gum-elementor-addon',
-		'/uploads/elementor', 'font-awesome', 'owl.carousel', 'ekiticons',
+		'/uploads/elementor', 'font-awesome', 'owl.carousel', 'ekiticons', '/plugins/metform',
 		'/cache/fonts/',   // Google Fonts locais do kit antigo (Gloock e afins)
 	);
 	foreach ( array( wp_styles(), wp_scripts() ) as $fila ) {
@@ -72,9 +72,15 @@ add_action( 'wp_print_footer_scripts', 'sal_limpar_filas', 1 );
 
 // O Elementor Pro tem templates de Theme Builder (arquivo, single, header,
 // footer) com condições sobre o blog, e eles passam por cima do tema ativo.
-// Este filtro desliga a sobreposição por inteiro: hoje o WordPress só serve
-// o blog, e quem desenha o blog é este tema.
+// Duas defesas, porque os caminhos são diferentes:
+//   1. o filtro corta a sobreposição de templates de página (arquivo/single)
+//   2. registrar uma lista VAZIA de locations tira do header e do footer do
+//      Theme Builder qualquer lugar onde desenhar — é o mecanismo documentado
+//      pelo próprio Elementor para temas que não os querem
 add_filter( 'elementor/theme/need_override_location', '__return_false' );
+add_action( 'elementor/theme/register_locations', function ( $manager ) {
+	// de propósito: nenhum local registrado
+} );
 
 // ---------------------------------------------------------------- limpeza
 add_action( 'init', function () {
