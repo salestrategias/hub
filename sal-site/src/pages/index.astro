@@ -139,7 +139,9 @@ const servicos = [
    O bloco do topo ainda se atualiza sozinho no navegador (ver Base.astro),
    para não depender de um rebuild a cada post novo.
 ------------------------------------------------------------------------- */
-const API_BLOG = 'https://www.salestrategias.com.br/wp-json/wp/v2/posts?per_page=4&_embed=wp:featuredmedia,wp:term';
+// O cb= fura qualquer camada de cache entre o build e a API: sem ele, o
+// WordPress chegou a devolver uma lista de posts com uma semana de atraso.
+const API_BLOG = `https://www.salestrategias.com.br/wp-json/wp/v2/posts?per_page=4&_embed=wp:featuredmedia,wp:term&cb=${Date.now()}`;
 
 const semTags = (s = '') => s.replace(/<[^>]*>/g, '').replace(/&hellip;/g, '…').replace(/&#8230;/g, '…').replace(/&nbsp;/g, ' ').replace(/&#8217;/g, '’').replace(/&amp;/g, '&').trim();
 
@@ -353,7 +355,7 @@ const territorios = [
             </div>
             <a class="btn btn-ghost" href="/blog/">Ver todos os artigos ↗</a>
           </div>
-          <div class="artigos">
+          <div class="artigos" data-blog-cards>
             {maisArtigos.map((a) => (
               <article class="artigo rev">
                 <a href={a.link}>
@@ -392,8 +394,9 @@ const territorios = [
             <span class="eyebrow">Quem está por trás</span>
             <h2>12 anos como estrategista de marketing, estudando a fundo o comportamento dos clientes.</h2>
             <p>
-              Marcelo atua com marketing e comunicação desde 2014. Antes disso, trabalhou com TI, análise
-              de sistemas e criação de sites, base técnica que ainda hoje se reflete no trabalho da SAL.
+              Marcelo Freitas atua com marketing e comunicação desde 2014. Antes disso, trabalhou com TI,
+              análise de sistemas e criação de sites, base técnica que ainda hoje se reflete no trabalho
+              da SAL.
             </p>
             <p>
               Foi gestor de marketing de uma instituição de ensino superior. Por cinco anos, atuou como

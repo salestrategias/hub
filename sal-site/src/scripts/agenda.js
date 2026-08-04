@@ -16,6 +16,10 @@
   var APPS_SCRIPT = import.meta.env.PUBLIC_AGENDA_ENDPOINT || '';
   var WHATSAPP = '5551993380278';
 
+  // Funil do SAL Hub: todo agendamento vira um lead no pipeline.
+  var HUB = 'https://hub.salestrategias.com.br/api/leads/capture';
+  var HUB_TOKEN = import.meta.env.PUBLIC_HUB_FORM_TOKEN || '';
+
   var DIAS_UTEIS = 10;      // quantos dias úteis mostrar
   var HORA_INI = 9;         // 09:00
   var HORA_FIM = 17;        // último slot às 17:00
@@ -309,10 +313,40 @@
     return f(ini) + '/' + f(fim);
   }
 
+  // O lead entra no pipeline do Hub independente do que acontecer com o
+  // Calendar: keepalive garante o envio mesmo se a pessoa fechar a aba.
+  function registrarNoHub() {
+    if (!HUB_TOKEN) return;
+    var resumo = ['Reunião de diagnóstico: ' + diaLongo(diaSel) + ', às ' + horaSel];
+    roteiro().forEach(function (p) {
+      if (respostas[p.id] && ['nome', 'email', 'whatsapp', 'site', 'tipo'].indexOf(p.id) === -1) {
+        resumo.push((ROTULOS[p.id] || p.id) + ': ' + respostas[p.id]);
+      }
+    });
+    try {
+      fetch(HUB, {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + HUB_TOKEN },
+        body: JSON.stringify({
+          nome: respostas.nome,
+          telefone: respostas.whatsapp,
+          email: respostas.email,
+          tipoNegocio: respostas.tipo || '',
+          siteOuInsta: respostas.site || '',
+          origem: 'site-agenda',
+          mensagem: resumo.join('\n')
+        })
+      }).catch(function () { /* o funil falhou, o agendamento não */ });
+    } catch (e) { /* idem */ }
+  }
+
   function enviar() {
     var btn = $('#avancar');
     btn.disabled = true;
     btn.textContent = 'Confirmando…';
+
+    registrarNoHub();
 
     var dados = Object.assign({}, respostas, {
       data: iso(diaSel),

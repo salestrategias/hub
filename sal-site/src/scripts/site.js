@@ -15,26 +15,60 @@
     alvos.forEach(function (el) { el.classList.add('on'); });
   }
 
-  /* O destaque do blog vem pronto do build (bom para SEO e para quem
-     navega sem JS). Aqui só conferimos se saiu post novo depois
-     do último build, para o bloco não envelhecer entre publicações. */
+  /* O blog vem pronto do build (bom para SEO e para quem navega sem JS).
+     Aqui a barra do topo E os três cards são atualizados com o que a API
+     tiver de mais novo, para a home nunca envelhecer entre publicações.
+     O cb= fura o cache que chegou a servir uma lista com uma semana de
+     atraso no próprio build. */
   var caixa = document.querySelector('[data-blog-destaque]');
-  if (caixa && 'fetch' in window) {
-    fetch('https://www.salestrategias.com.br/wp-json/wp/v2/posts?per_page=1&_embed=wp:term')
+  var grade = document.querySelector('[data-blog-cards]');
+  if ((caixa || grade) && 'fetch' in window) {
+    fetch('https://www.salestrategias.com.br/wp-json/wp/v2/posts?per_page=4&_embed=wp:featuredmedia,wp:term&cb=' + Date.now())
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
-        var p = d && d[0];
-        if (!p || p.link === caixa.getAttribute('href')) return;
+        if (!d || !d.length) return;
         var limpo = function (s) { var t = document.createElement('textarea'); t.innerHTML = String(s || '').replace(/<[^>]*>/g, ''); return t.value.trim(); };
-        var cat = ((((p._embedded || {})['wp:term'] || []).flat()).filter(function (t) { return t && t.taxonomy === 'category'; })[0] || {}).name || 'Blog';
-        var campo = function (n) { return caixa.querySelector('[data-campo="' + n + '"]'); };
-        caixa.setAttribute('href', p.link);
-        if (campo('titulo')) campo('titulo').textContent = limpo(p.title && p.title.rendered);
-        if (campo('categoria')) campo('categoria').textContent = cat;
-        var t = campo('data');
-        if (t) {
-          t.setAttribute('datetime', p.date);
-          t.textContent = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(p.date));
+        var catDe = function (p) { return ((((p._embedded || {})['wp:term'] || []).flat()).filter(function (t) { return t && t.taxonomy === 'category'; })[0] || {}).name || 'Blog'; };
+        var dataBR = function (iso) { return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(iso)); };
+
+        // barra do topo: o mais novo
+        var p0 = d[0];
+        if (caixa && p0.link !== caixa.getAttribute('href')) {
+          var campo = function (n) { return caixa.querySelector('[data-campo="' + n + '"]'); };
+          caixa.setAttribute('href', p0.link);
+          if (campo('titulo')) campo('titulo').textContent = limpo(p0.title && p0.title.rendered);
+          if (campo('categoria')) campo('categoria').textContent = catDe(p0);
+          var t = campo('data');
+          if (t) { t.setAttribute('datetime', p0.date); t.textContent = dataBR(p0.date); }
+        }
+
+        // os três cards: 2º ao 4º mais novos
+        if (grade) {
+          var cards = grade.querySelectorAll('.artigo');
+          d.slice(1, 4).forEach(function (p, i) {
+            var c = cards[i];
+            if (!c) return;
+            var a = c.querySelector('a');
+            if (!a || a.getAttribute('href') === p.link) return;
+            a.setAttribute('href', p.link);
+            var capa = (((p._embedded || {})['wp:featuredmedia'] || [])[0] || {}).source_url;
+            var fig = c.querySelector('figure');
+            if (fig) {
+              fig.innerHTML = capa
+                ? '<img src="' + capa + '" alt="" loading="lazy" decoding="async" width="640" height="360">'
+                : '<span class="sem-capa" aria-hidden="true"></span>';
+              var im = fig.querySelector('img');
+              if (im) im.alt = limpo(p.title && p.title.rendered);
+            }
+            var cat = c.querySelector('.artigo-cat');
+            if (cat) cat.textContent = catDe(p);
+            var h3 = c.querySelector('h3');
+            if (h3) h3.textContent = limpo(p.title && p.title.rendered);
+            var res = c.querySelector('p');
+            if (res) res.textContent = limpo(p.excerpt && p.excerpt.rendered).slice(0, 150) + '…';
+            var tm = c.querySelector('time');
+            if (tm) { tm.setAttribute('datetime', p.date); tm.textContent = dataBR(p.date); }
+          });
         }
       })
       .catch(function () { /* offline ou API fora: fica o do build */ });
