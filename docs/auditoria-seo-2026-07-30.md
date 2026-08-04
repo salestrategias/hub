@@ -327,3 +327,29 @@ repositório:
 
 São três links internos apontando para lugar errado, um deles quebrado. É procurar
 esses três endereços no snippet da busca e trocar.
+
+---
+
+## Desfecho do item 1 — o congelador era o Varnish (04/08)
+
+O culpado do sitemap parado nunca foi só o Rank Math nem o WP Rocket: era o
+**Varnish do CloudPanel**, com vida de cache de 7 dias, rodando desde 08/07 —
+inclusive com o toggle do painel desligado, porque o vhost editado à mão
+continuava apontando para ele (proxy_pass 127.0.0.1:6081) e o controlador
+(`~/.varnish-cache/controller.php`) seguia injetado no PHP.
+
+Tentativa de removê-lo do encanamento derrubou o WordPress inteiro em 502
+(rollback imediato, site de volta em minutos). Decisão final: **manter o
+Varnish, domesticado** —
+
+- toggle religado, para o painel voltar a mandar de verdade
+- vida de cache de 604800s → **3600s**: teto de 1 hora para qualquer defasagem
+- exclusões: os cinco sitemaps + `/wp-json` atravessam sem cache
+
+Prova colhida no ar: páginas do blog com `x-cache-lifetime: 3600`; sitemaps e
+API com idade travada em 0s entre chamadas espaçadas (passagem direta).
+De quebra, saiu o `endurance-page-cache.php` dos mu-plugins — cache órfão da
+hospedagem antiga.
+
+Arquitetura final de cache: Cloudflare (estáticos) → Varnish (páginas, 1h,
+com exclusões) → WP Rocket (HTML em disco) → WordPress.
