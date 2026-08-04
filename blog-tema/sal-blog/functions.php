@@ -42,10 +42,16 @@ add_action( 'wp_enqueue_scripts', function () {
 
 // O blog não usa Elementor, ElementsKit, Font Awesome nem o CSS de blocos.
 // Medido antes do tema: 1,3 MB de CSS bloqueando a primeira pintura.
-add_action( 'wp_enqueue_scripts', function () {
-	$descartar = array( '/plugins/elementor', '/plugins/elementskit', '/plugins/gum-elementor-addon', '/uploads/elementor', 'font-awesome' );
+// A limpeza roda duas vezes — no enfileiramento normal e de novo na hora de
+// imprimir — porque o Elementor enfileira coisas tarde, ao renderizar.
+function sal_limpar_filas() {
+	$descartar = array(
+		'/plugins/elementor', '/plugins/elementskit', '/plugins/gum-elementor-addon',
+		'/uploads/elementor', 'font-awesome', 'owl.carousel', 'ekiticons',
+		'/cache/fonts/',   // Google Fonts locais do kit antigo (Gloock e afins)
+	);
 	foreach ( array( wp_styles(), wp_scripts() ) as $fila ) {
-		foreach ( $fila->queue as $handle ) {
+		foreach ( (array) $fila->queue as $handle ) {
 			$src = isset( $fila->registered[ $handle ] ) ? (string) $fila->registered[ $handle ]->src : '';
 			foreach ( $descartar as $trecho ) {
 				if ( $src && strpos( $src, $trecho ) !== false ) {
@@ -59,7 +65,10 @@ add_action( 'wp_enqueue_scripts', function () {
 	wp_dequeue_style( 'wp-block-library-theme' );
 	wp_dequeue_style( 'classic-theme-styles' );
 	wp_dequeue_style( 'global-styles' );
-}, 100 );
+}
+add_action( 'wp_enqueue_scripts', 'sal_limpar_filas', 100 );
+add_action( 'wp_print_styles', 'sal_limpar_filas', 99 );
+add_action( 'wp_print_footer_scripts', 'sal_limpar_filas', 1 );
 
 // O Elementor Pro tem templates de Theme Builder (arquivo, single, header,
 // footer) com condições sobre o blog, e eles passam por cima do tema ativo.
