@@ -77,6 +77,8 @@ while ( have_posts() ) : the_post();
 
 	</article>
 
+	<?php get_template_part( 'parts/news' ); ?>
+
 	<?php
 	$rel = $cat ? get_posts( array( 'numberposts' => 3, 'category' => $cat->term_id, 'post__not_in' => array( get_the_ID() ) ) ) : array();
 	if ( $rel ) :
