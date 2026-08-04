@@ -61,6 +61,12 @@ add_action( 'wp_enqueue_scripts', function () {
 	wp_dequeue_style( 'global-styles' );
 }, 100 );
 
+// O Elementor Pro tem templates de Theme Builder (arquivo, single, header,
+// footer) com condições sobre o blog, e eles passam por cima do tema ativo.
+// Este filtro desliga a sobreposição por inteiro: hoje o WordPress só serve
+// o blog, e quem desenha o blog é este tema.
+add_filter( 'elementor/theme/need_override_location', '__return_false' );
+
 // ---------------------------------------------------------------- limpeza
 add_action( 'init', function () {
 	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
