@@ -1,0 +1,194 @@
+---
+import Base from '../layouts/Base.astro';
+import Cabecalho from '../components/Cabecalho.astro';
+import Rodape from '../components/Rodape.astro';
+
+const title = 'Quem somos: agência de SEO e tráfego pago em Porto Alegre';
+const description =
+  'A SAL Estratégias de Marketing é uma assessoria de tráfego pago e SEO para lojas físicas e e-commerce. Marketing na medida certa.';
+
+const site = 'https://www.salestrategias.com.br';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'AboutPage',
+      name: title,
+      description,
+      url: site + '/quem-somos/',
+      inLanguage: 'pt-BR',
+      mainEntity: { '@id': site + '/#org' },
+    },
+    {
+      '@type': ['Organization', 'ProfessionalService'],
+      '@id': site + '/#org',
+      name: 'SAL Estratégias de Marketing',
+      alternateName: 'SAL',
+      legalName: 'SAL ESTRATÉGIAS DE MARKETING LTDA',
+      taxID: '66.018.951/0001-04',
+      url: site + '/',
+      slogan: 'Marketing na Medida Certa',
+      description,
+      foundingDate: '2024-03-28',
+      founder: { '@type': 'Person', name: 'Marcelo Freitas', url: site + '/marcelo-freitas/' },
+      address: { '@type': 'PostalAddress', addressLocality: 'Porto Alegre', addressRegion: 'RS', addressCountry: 'BR' },
+      telephone: '+55-51-99338-0278',
+      email: 'contato@salestrategias.com.br',
+      areaServed: { '@type': 'Country', name: 'Brasil' },
+      availableLanguage: 'pt-BR',
+      sameAs: ['https://www.instagram.com/salestrategias/', 'https://marcelofreitas.substack.com/'],
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: site + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Quem somos', item: site + '/quem-somos/' },
+      ],
+    },
+  ],
+};
+
+const pilares = [
+  { n: '01', titulo: 'Simplificar', texto: 'Simplificar é tornar o marketing compreensível, executável e mensurável, pra que cada ação tenha propósito e cada decisão tenha dados.' },
+  { n: '02', titulo: 'Atrair', texto: 'Atrair é combinar estratégia, conteúdo e experiência pra gerar interesse qualificado, confiança e desejo de avançar.' },
+  { n: '03', titulo: 'Libertar', texto: 'Libertar é entregar autonomia, clareza e resultados consistentes, pra que o negócio cresça com previsibilidade e escolha.' },
+];
+
+const territorios = [
+  { n: '01', titulo: 'Ser encontrado', texto: 'SEO local, SEO de e-commerce, Perfil da Empresa no Google, presença nas respostas das IAs e anúncio na hora da busca.' },
+  { n: '02', titulo: 'Ser escolhido', texto: 'Página de produto, checkout, oferta, avaliações e criativo. Quem chega até você compara com outros três antes de decidir.' },
+  { n: '03', titulo: 'Ser lembrado', texto: 'Base de clientes, WhatsApp, recompra e sazonalidade. Cliente que comprou uma vez e nunca mais ouviu falar de você custou caro duas vezes.' },
+];
+---
+
+<Base title={title} description={description} canonical="/quem-somos/" schema={schema}>
+  <Cabecalho />
+
+  <main>
+    <section class="capa">
+      <div class="malha"></div>
+      <div class="wrap">
+        <nav class="migalhas" aria-label="Você está aqui">
+          <a href="/">Início</a> <span aria-hidden="true">/</span> <span>Quem somos</span>
+        </nav>
+        <span class="eyebrow">A SAL</span>
+        <h1>Marketing na medida certa. <em>Literalmente.</em></h1>
+        <p class="sub">
+          A SAL Estratégias de Marketing é uma assessoria de marketing digital fundada por Marcelo C.
+          Freitas, especialista em SEO, performance e estratégias de crescimento. Trabalhamos com varejo
+          e e-commerce: negócios locais e digitais que precisam de algo diferente das agências
+          tradicionais, com atenção personalizada, estratégia sob medida e resultado que dá pra medir.
+        </p>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <div class="dupla">
+          <div class="rev"><h2>Uma conversa de bar em 28 de março de 2024.</h2></div>
+          <div class="rev">
+            <p class="corpo">
+              A SAL foi concebida em 28 de março de 2024, durante uma conversa de bar entre três amigos,
+              todos com anos de carreira em marketing e publicidade. Ali, procurando um nome pro negócio
+              que estava nascendo, a metáfora apareceu pronta na mesa.
+            </p>
+            <p class="corpo">
+              O sal é um elemento essencial. Está presente em todo lugar, e todo mundo percebe quando
+              falta. Usado na medida certa, realça sabores. Em excesso, estraga. De menos, passa
+              despercebido.
+            </p>
+            <p class="corpo">
+              Marketing funciona exatamente assim. Verba demais no canal errado queima caixa; investimento
+              de menos, ninguém fica sabendo que a sua loja existe. E o mesmo vale pra mensagem: promessa
+              exagerada espanta o cliente, e se a comunicação for tímida demais, ninguém aparece. O
+              trabalho de verdade está na dose: qual canal, quanta verba e qual mensagem fazem sentido pro
+              seu negócio, no momento em que ele está.
+            </p>
+            <p class="corpo destaque-linha">
+              Foi com esse espírito de temperar estratégias na medida certa que a SAL começou. E daí veio
+              o slogan: Marketing na Medida Certa.
+            </p>
+            <p><a class="btn btn-ghost" href="/marcelo-freitas/">Conhecer a trajetória do Marcelo ↗</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <span class="eyebrow">O que sustenta o trabalho</span>
+          <h2>Três pilares, escritos antes do primeiro cliente.</h2>
+        </div>
+        <div class="metodo">
+          {pilares.map((p) => (
+            <div class="passo rev"><b>{p.n}</b><h3>{p.titulo}</h3><p>{p.texto}</p></div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <span class="eyebrow">Onde a SAL atua</span>
+          <h2>Os três territórios da venda.</h2>
+          <p>
+            Toda venda, na loja de rua ou no e-commerce, passa por três momentos. A maior parte das
+            agências trabalha só o primeiro. É no segundo e no terceiro que costuma estar o dinheiro que
+            a sua operação já poderia estar fazendo.
+          </p>
+        </div>
+        <div class="territorios">
+          {territorios.map((t) => (
+            <article class="territorio rev"><b>{t.n}</b><h3>{t.titulo}</h3><p>{t.texto}</p></article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="sec bone">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <span class="eyebrow">Como trabalhamos</span>
+          <h2>Método baseado em dados, em quatro movimentos.</h2>
+        </div>
+        <div class="metodo">
+          <div class="passo rev"><b>01</b><h3>Descobrir</h3><p>Auditoria das contas de anúncio, da presença no mapa, do site e de concorrentes seus.</p></div>
+          <div class="passo rev"><b>02</b><h3>Desenhar</h3><p>Verba, canais, metas e calendário definidos antes de qualquer campanha ir para o ar, com base no seu ticket e na sua margem.</p></div>
+          <div class="passo rev"><b>03</b><h3>Disparar</h3><p>Gestão diária das campanhas, criativos estratégicos e o SEO avançando mês a mês.</p></div>
+          <div class="passo rev"><b>04</b><h3>Decodificar</h3><p>Reunião mensal lendo os números juntos. Canal que não se paga sai do plano no mês seguinte.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec sec-sm">
+      <div class="wrap">
+        <div class="cabeca rev"><h2 class="h2-menor">O que a SAL entrega</h2></div>
+        <ul class="proximos">
+          <li><a href="/seo-local/">SEO local <span aria-hidden="true">→</span></a></li>
+          <li><a href="/seo-para-ecommerce/">SEO para e-commerce <span aria-hidden="true">→</span></a></li>
+          <li><a href="/trafego-pago/">Tráfego pago <span aria-hidden="true">→</span></a></li>
+          <li><a href="/diagnostico-de-site/">Diagnóstico de site <span aria-hidden="true">→</span></a></li>
+          <li><a href="/varejo-local/">Varejo local <span aria-hidden="true">→</span></a></li>
+          <li><a href="/e-commerce/">E-commerce <span aria-hidden="true">→</span></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="malha"></div>
+      <div class="wrap">
+        <h2>Vamos agendar uma reunião?</h2>
+        <p class="sub">
+          Escolha um horário e analisamos as suas contas de anúncio, sua presença no mapa e a sua
+          concorrência. Você sai com as prioridades na mão.
+        </p>
+        <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <Rodape />
+</Base>

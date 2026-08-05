@@ -1,0 +1,35 @@
+---
+interface Props {
+  /** Página de conversão: cabeçalho sem menu, só logo e volta. */
+  limpo?: boolean;
+}
+const { limpo = false } = Astro.props;
+
+const menu = [
+  { rot: 'SEO local', href: '/seo-local/' },
+  { rot: 'SEO para e-commerce', href: '/seo-para-ecommerce/' },
+  { rot: 'Tráfego pago', href: '/trafego-pago/' },
+  { rot: 'A SAL', href: '/quem-somos/' },
+  { rot: 'Blog', href: '/blog/' },
+];
+---
+
+<header class={limpo ? 'topo topo-limpo' : 'topo'}>
+  <div class="wrap">
+    <a href="/" aria-label="SAL Estratégias de Marketing">
+      <img src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="60" height="34" />
+    </a>
+
+    {limpo ? (
+      <a class="link-side" href="/">← Voltar para o site</a>
+    ) : (
+      <>
+        <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+        <nav class="nav" id="nav" aria-label="Menu principal">
+          {menu.map((m) => <a href={m.href}>{m.rot}</a>)}
+          <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
+        </nav>
+      </>
+    )}
+  </div>
+</header>
