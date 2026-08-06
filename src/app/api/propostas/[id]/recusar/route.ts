@@ -1,6 +1,7 @@
 import { apiHandler } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { propostaRecusarSchema } from "@/lib/schemas";
+import { checarRateLimit, ipDoRequest } from "@/lib/rate-limit";
 
 /**
  * Recusa de proposta — endpoint PÚBLICO (sem auth, autenticado por token).
@@ -8,6 +9,13 @@ import { propostaRecusarSchema } from "@/lib/schemas";
  */
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
+    // Público → mesmo rate limit do aceite (padrão do portal)
+    checarRateLimit(`proposta-recusa:${params.id}:${ipDoRequest(req)}`, {
+      max: 10,
+      janelaMs: 15 * 60_000,
+      mensagem: "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
+    });
+
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
     if (!token) throw new Error("Token obrigatório");

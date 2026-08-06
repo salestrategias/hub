@@ -1,6 +1,7 @@
 import { apiHandler } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { validarCpfCnpj, apenasDigitos } from "@/lib/validar-cpf-cnpj";
+import { checarRateLimit, ipDoRequest } from "@/lib/rate-limit";
 
 /**
  * Aceite digital de proposta — endpoint PÚBLICO (sem auth).
@@ -19,6 +20,14 @@ import { validarCpfCnpj, apenasDigitos } from "@/lib/validar-cpf-cnpj";
  */
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
+    // Endpoint público: freia tentativas repetidas por IP (mesmo padrão do
+    // portal). Cliente legítimo aceita 1x — 10/15min é folga suficiente.
+    checarRateLimit(`proposta-aceite:${params.id}:${ipDoRequest(req)}`, {
+      max: 10,
+      janelaMs: 15 * 60_000,
+      mensagem: "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
+    });
+
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
     if (!token) throw new Error("Token obrigatório");
