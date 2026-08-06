@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { PageShell } from "@/components/page-shell";
 import { PropostasList } from "@/components/propostas-list";
+import { ComercialSubnav } from "@/components/comercial-subnav";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ export default async function PropostasPage() {
       title="Propostas comerciais"
       subtitle={`${propostas.length} ${propostas.length === 1 ? "proposta" : "propostas"} cadastradas`}
     >
+      <ComercialSubnav />
       <PropostasList
         initial={propostas.map((p) => ({
           id: p.id,

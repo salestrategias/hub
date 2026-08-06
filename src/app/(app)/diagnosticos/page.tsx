@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { PageShell } from "@/components/page-shell";
 import { DiagnosticosList } from "@/components/diagnosticos-list";
+import { ComercialSubnav } from "@/components/comercial-subnav";
 import { normalizarSecoes } from "@/lib/diagnostico-secoes";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,7 @@ export default async function DiagnosticosPage() {
       title="Diagnósticos estratégicos"
       subtitle={`${diagnosticos.length} ${diagnosticos.length === 1 ? "diagnóstico" : "diagnósticos"}`}
     >
+      <ComercialSubnav />
       <DiagnosticosList
         initial={diagnosticos.map((d) => {
           const secoes = normalizarSecoes(d.secoes);

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { PageShell } from "@/components/page-shell";
 import { ContratosClient } from "@/components/contratos-client";
+import { ComercialSubnav } from "@/components/comercial-subnav";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export default async function ContratosPage() {
 
   return (
     <PageShell title="Contratos" subtitle={`${contratos.length} contratos`}>
+      <ComercialSubnav />
       <ContratosClient
         contratos={contratos.map((c) => ({
           id: c.id,

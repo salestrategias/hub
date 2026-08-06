@@ -1,31 +1,11 @@
-import { prisma } from "@/lib/db";
-import { PageShell } from "@/components/page-shell";
-import { TarefasClient } from "@/components/tarefas-client";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function TarefasPage() {
-  const [tarefas, clientes, projetos] = await Promise.all([
-    prisma.tarefa.findMany({
-      include: { cliente: true, projeto: true, checklist: { orderBy: { ordem: "asc" } } },
-      orderBy: [{ concluida: "asc" }, { dataEntrega: "asc" }],
-    }),
-    prisma.cliente.findMany({ select: { id: true, nome: true }, orderBy: { nome: "asc" } }),
-    prisma.projeto.findMany({ select: { id: true, nome: true }, orderBy: { nome: "asc" } }),
-  ]);
-
-  return (
-    <PageShell title="Tarefas" subtitle={`${tarefas.length} tarefas no total`}>
-      <TarefasClient
-        tarefas={tarefas.map((t) => ({
-          ...t,
-          dataEntrega: t.dataEntrega?.toISOString() ?? null,
-          createdAt: t.createdAt.toISOString(),
-          updatedAt: t.updatedAt.toISOString(),
-        }))}
-        clientes={clientes}
-        projetos={projetos}
-      />
-    </PageShell>
-  );
+/**
+ * Hub 2.0 F2 — /tarefas foi absorvida pelo quadro "Hoje" (home).
+ * A lista antiga virou o kanban; bookmarks continuam funcionando via
+ * este redirect. O detalhe da tarefa segue acessível de qualquer tela
+ * pela TarefaSheet (?tarefa=id).
+ */
+export default function TarefasPage() {
+  redirect("/");
 }

@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
-  LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
-  Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
-  Mic, FileText, GitBranch, Cpu, Database, Send, TrendingUp, Settings, Calendar, BookOpen,
+  LayoutDashboard, Users, CalendarDays, KanbanSquare,
+  Wallet, FolderOpen, BarChart3, Megaphone,
+  Mic, FileText, GitBranch, TrendingUp, Calendar, BookOpen,
   ChevronLeft, ChevronRight, ChevronDown, Zap,
-  Palette, Target, LayoutTemplate, Stethoscope, NotebookPen, ClipboardList,
+  Palette, LayoutTemplate, NotebookPen,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,88 +19,54 @@ import { useSidebarCollapsed } from "@/components/sidebar-collapsed-provider";
 type NavItem = { label: string; href: string; icon: LucideIcon };
 type NavGroup = { label: string; items: NavItem[]; defaultOpen?: boolean };
 
-// Atalhos fixos no topo (sem grupo) — acesso instantâneo.
-// Hub 2.0 F1: "Hoje" (quadro kanban) é a home; dashboard virou "Visão geral".
+// ── Hub 2.0 F2 — navegação de 6 áreas ────────────────────────────
+// Regra: se você precisa procurar no menu, o menu falhou.
+// 2 pinned + 4 áreas visíveis = as 6 do dia a dia. O resto vive em
+// grupos recolhidos ("Produção" e "Mais") + busca global (Ctrl+K).
+// Admin saiu da sidebar → menu do avatar no Header.
+// Telas que sumiram daqui: Tarefas (redirect → quadro Hoje), Briefings/
+// Diagnósticos/Propostas/Contratos (subnav dentro de Comercial),
+// Agenda (camada do Calendário), Relatórios 3 telas (entrada única).
 const pinned: NavItem[] = [
   { label: "Hoje", href: "/", icon: Zap },
-  { label: "Visão geral", href: "/visao-geral", icon: LayoutDashboard },
   { label: "Calendário", href: "/calendario", icon: Calendar },
 ];
 
-// Grupos recolhíveis, em ordem de prioridade do dia a dia.
-// defaultOpen=false → começa recolhido (menos scroll).
 const groups: NavGroup[] = [
   {
-    label: "Comercial",
+    label: "Áreas",
     defaultOpen: true,
     items: [
-      { label: "Leads", href: "/leads", icon: TrendingUp },
-      { label: "Diagnósticos", href: "/diagnosticos", icon: Stethoscope },
-      { label: "Propostas", href: "/propostas", icon: Send },
-      { label: "Contratos", href: "/contratos", icon: FileSignature },
       { label: "Clientes", href: "/clientes", icon: Users },
+      // Comercial = esteira lead → diagnóstico → proposta → contrato (subnav interna)
+      { label: "Comercial", href: "/leads", icon: TrendingUp },
       { label: "Financeiro", href: "/financeiro", icon: Wallet },
+      // NotebookPen: páginas livres estilo Notion (árvore + editor de blocos)
+      { label: "Páginas", href: "/workspace", icon: NotebookPen },
     ],
   },
   {
     label: "Produção",
-    defaultOpen: true,
+    defaultOpen: false,
     items: [
       { label: "Editorial", href: "/editorial", icon: CalendarDays },
-      // Palette: assets visuais (imagens/videos) pra ads
       { label: "Criativos Ads", href: "/criativos", icon: Palette },
-      // ClipboardList: formulários nativos que o cliente preenche (substitui Google Forms)
-      { label: "Briefings", href: "/briefings", icon: ClipboardList },
       { label: "Projetos", href: "/projetos", icon: KanbanSquare },
-      { label: "Tarefas", href: "/tarefas", icon: ListChecks },
-    ],
-  },
-  {
-    label: "Relatórios",
-    defaultOpen: true,
-    items: [
-      { label: "Redes Sociais", href: "/relatorios/redes-sociais", icon: BarChart3 },
-      { label: "SEO", href: "/relatorios/seo", icon: Search },
-      // Target: trafego pago = segmentacao + conversao (alvo)
-      { label: "Tráfego Pago", href: "/relatorios/trafego-pago", icon: Target },
-    ],
-  },
-  {
-    label: "Workspace",
-    defaultOpen: true,
-    items: [
-      // NotebookPen: páginas livres estilo Notion (árvore + editor de blocos)
-      { label: "Páginas", href: "/workspace", icon: NotebookPen },
       { label: "Reuniões", href: "/reunioes", icon: Mic },
+    ],
+  },
+  {
+    label: "Mais",
+    defaultOpen: false,
+    items: [
+      { label: "Visão geral", href: "/visao-geral", icon: LayoutDashboard },
+      { label: "Relatórios", href: "/relatorios", icon: BarChart3 },
       { label: "Notas", href: "/notas", icon: FileText },
       { label: "Mapas mentais", href: "/mapas", icon: GitBranch },
       { label: "Templates", href: "/templates", icon: LayoutTemplate },
-    ],
-  },
-  {
-    label: "Marketing SAL",
-    defaultOpen: false,
-    items: [
-      // Megaphone — agencia "anunciando" conteudo proprio
-      { label: "Conteúdo SAL", href: "/conteudo-sal", icon: Megaphone },
       { label: "Manual SAL", href: "/manual", icon: BookOpen },
-    ],
-  },
-  {
-    label: "Integrações",
-    defaultOpen: false,
-    items: [
+      { label: "Conteúdo SAL", href: "/conteudo-sal", icon: Megaphone },
       { label: "Drive", href: "/drive", icon: FolderOpen },
-      { label: "Agenda", href: "/agenda", icon: CalendarRange },
-    ],
-  },
-  {
-    label: "Admin",
-    defaultOpen: false,
-    items: [
-      { label: "Configurações", href: "/admin/configuracoes", icon: Settings },
-      { label: "Claude / MCP", href: "/admin/mcp", icon: Cpu },
-      { label: "Backups", href: "/admin/backups", icon: Database },
     ],
   },
 ];

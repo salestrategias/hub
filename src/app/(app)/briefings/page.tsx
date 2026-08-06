@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { PageShell } from "@/components/page-shell";
 import { BriefingsList } from "@/components/briefings-list";
+import { ComercialSubnav } from "@/components/comercial-subnav";
 import { normalizarPerguntas } from "@/lib/briefing";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export default async function BriefingsPage() {
       title="Briefings"
       subtitle={`${briefings.length} ${briefings.length === 1 ? "briefing" : "briefings"}`}
     >
+      <ComercialSubnav />
       <BriefingsList
         initial={briefings.map((b) => ({
           id: b.id,

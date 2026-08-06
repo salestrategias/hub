@@ -72,27 +72,18 @@ export async function Header({ title, subtitle, parent }: { title?: string; subt
         <span className="hidden sm:inline-flex"><ThemeToggle /></span>
         {session?.user && (
           <>
-            <Link
-              href="/perfil"
-              className="hidden sm:flex items-center gap-2 ml-2 pl-3 border-l border-border hover:bg-secondary/40 -my-1.5 py-1.5 -mr-1 pr-2 rounded-md transition"
-              aria-label="Meu perfil"
-            >
-              <div
-                className="h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-semibold text-white overflow-hidden shrink-0"
-                style={{ background: "linear-gradient(135deg,#7E30E1 0%,#54199F 100%)" }}
-              >
-                {image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={image} alt={session.user.name ?? session.user.email ?? "perfil"} className="h-full w-full object-cover" />
-                ) : (
-                  initial
-                )}
-              </div>
-              <div className="text-right">
-                <div className="text-[12.5px] font-medium leading-tight">{session.user.name ?? session.user.email}</div>
-                <div className="text-[10px] text-muted-foreground">{session.user.role}</div>
-              </div>
-            </Link>
+            {/* Desktop: dropdown do avatar — perfil, admin (se ADMIN) e sair.
+                Hub 2.0 F2: Admin saiu da sidebar e mora aqui. */}
+            <HeaderAvatarMenu
+              nome={session.user.name ?? ""}
+              email={session.user.email ?? ""}
+              role={session.user.role ?? "MEMBER"}
+              image={image}
+              signOutAction={async () => {
+                "use server";
+                await signOut({ redirectTo: "/login" });
+              }}
+            />
             {/* Mobile: só avatar compacto, vai pra /perfil onde fica logout + configs */}
             <Link
               href="/perfil"
@@ -111,17 +102,6 @@ export async function Header({ title, subtitle, parent }: { title?: string; subt
                 )}
               </div>
             </Link>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/login" });
-              }}
-              className="hidden sm:block"
-            >
-              <Button variant="ghost" size="icon" type="submit" aria-label="Sair">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </form>
           </>
         )}
       </div>

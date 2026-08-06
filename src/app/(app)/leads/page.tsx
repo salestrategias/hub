@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { PageShell } from "@/components/page-shell";
 import { LeadsKanban } from "@/components/leads-kanban";
+import { ComercialSubnav } from "@/components/comercial-subnav";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,7 @@ export default async function LeadsPage() {
       title="Pipeline de leads"
       subtitle={`${total} ${total === 1 ? "oportunidade ativa" : "oportunidades ativas"} no funil`}
     >
+      <ComercialSubnav />
       <LeadsKanban
         initial={leads.map((l) => ({
           id: l.id,
