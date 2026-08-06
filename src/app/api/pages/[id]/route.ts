@@ -36,6 +36,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         ...(data.conteudo !== undefined ? { conteudo: data.conteudo } : {}),
         ...(data.ordem !== undefined ? { ordem: data.ordem } : {}),
         ...(data.parentId !== undefined ? { parentId: data.parentId || null } : {}),
+        ...(data.fixada !== undefined ? { fixada: data.fixada } : {}),
       },
     });
   });

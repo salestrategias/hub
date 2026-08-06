@@ -696,6 +696,8 @@ export const pageSchema = z.object({
   conteudo: z.string().default(""),
   parentId: z.string().optional().nullable(),
   ordem: z.coerce.number().int().default(0),
+  // Hub 2.0 F4 — fixar página na sidebar
+  fixada: z.boolean().optional(),
 });
 export type PageInput = z.infer<typeof pageSchema>;
 

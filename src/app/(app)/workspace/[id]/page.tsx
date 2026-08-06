@@ -41,6 +41,7 @@ export default async function WorkspacePaginaPage({
           capaUrl: atual.capaUrl,
           conteudo: atual.conteudo,
           parentId: atual.parentId,
+          fixada: atual.fixada,
           atualizadoEm: atual.updatedAt.toISOString(),
         }}
       />

@@ -22,6 +22,7 @@ export async function GET() {
         icone: true,
         ordem: true,
         parentId: true,
+        fixada: true,
         updatedAt: true,
       },
     });

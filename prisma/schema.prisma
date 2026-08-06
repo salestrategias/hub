@@ -1691,6 +1691,8 @@ model Page {
   capaUrl   String?  @db.Text
   conteudo  String   @default("") @db.Text // BlockNote JSON
   ordem     Int      @default(0)
+  // Hub 2.0 F4 — página fixada aparece na sidebar (estilo favoritos Notion)
+  fixada    Boolean  @default(false)
 
   parentId  String?
   parent    Page?    @relation("PageHierarquia", fields: [parentId], references: [id], onDelete: Cascade)

@@ -77,6 +77,91 @@ function rotaAtiva(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 
+/** Evento global disparado pelo botão de fixar do workspace — sidebar refetcha. */
+export const PAGINAS_FIXADAS_EVENT = "sal-hub:paginas-fixadas-mudou";
+
+type PaginaFixada = { id: string; titulo: string; icone: string | null };
+
+/**
+ * Hub 2.0 F4 — páginas fixadas na sidebar (estilo favoritos do Notion).
+ * Busca GET /api/pages e filtra `fixada`. Refetch quando o workspace
+ * dispara o evento global (fixar/desafixar) — sem estado compartilhado.
+ */
+function PaginasFixadas({
+  collapsed,
+  pathname,
+  onNavigate,
+}: {
+  collapsed: boolean;
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  const [paginas, setPaginas] = useState<PaginaFixada[]>([]);
+
+  useEffect(() => {
+    let vivo = true;
+    async function buscar() {
+      try {
+        const res = await fetch("/api/pages");
+        if (!res.ok) return;
+        const data = (await res.json()) as Array<PaginaFixada & { fixada?: boolean }>;
+        if (vivo && Array.isArray(data)) {
+          setPaginas(data.filter((p) => p.fixada).map((p) => ({ id: p.id, titulo: p.titulo, icone: p.icone })));
+        }
+      } catch {
+        /* sidebar segue sem fixadas */
+      }
+    }
+    void buscar();
+    window.addEventListener(PAGINAS_FIXADAS_EVENT, buscar);
+    return () => {
+      vivo = false;
+      window.removeEventListener(PAGINAS_FIXADAS_EVENT, buscar);
+    };
+  }, []);
+
+  if (paginas.length === 0) return null;
+
+  return (
+    <div className={collapsed ? "" : "mt-1 mb-1"}>
+      {collapsed ? (
+        <div className="mx-2 my-1 border-t border-border/60" />
+      ) : (
+        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.07em] text-muted-foreground/60">
+          Fixadas
+        </div>
+      )}
+      <ul className="space-y-px">
+        {paginas.map((p) => {
+          const href = `/workspace/${p.id}`;
+          const active = pathname.startsWith(href);
+          return (
+            <li key={p.id}>
+              <Link
+                href={href}
+                onClick={onNavigate}
+                title={collapsed ? p.titulo : undefined}
+                className={cn(
+                  "group relative flex items-center rounded-lg text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/40",
+                  collapsed ? "justify-center px-2 py-2" : "gap-2.5 px-2.5 py-2 md:py-[7px]",
+                  active
+                    ? "bg-primary/15 text-sal-400 font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                )}
+              >
+                <span className="w-4 text-center text-[13px] leading-none shrink-0">
+                  {p.icone || "📄"}
+                </span>
+                {!collapsed && <span className="truncate">{p.titulo}</span>}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 /** Item de navegação (ícone + label). Reusado no topo fixo e nos grupos. */
 function NavLink({
   item,
@@ -213,7 +298,7 @@ function SidebarConteudo({
           collapsed ? "px-1.5 space-y-1" : "px-2.5"
         )}
       >
-        {/* Atalhos fixos (Dashboard / Calendário) */}
+        {/* Atalhos fixos (Hoje / Calendário) */}
         <ul className={cn("space-y-px", !collapsed && "mb-1")}>
           {pinned.map((item) => (
             <li key={item.href}>
@@ -221,6 +306,9 @@ function SidebarConteudo({
             </li>
           ))}
         </ul>
+
+        {/* Hub 2.0 F4 — páginas fixadas do workspace (estilo Notion) */}
+        <PaginasFixadas collapsed={collapsed} pathname={pathname} onNavigate={onNavigate} />
 
         {/* Grupos recolhíveis */}
         {groups.map((g) => {

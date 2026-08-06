@@ -28,7 +28,7 @@ import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import {
   Plus, Trash2, Loader2, FileText, ChevronRight, ChevronDown,
-  ArrowUp, ArrowDown, NotebookPen, ImagePlus, X, Table as TableIcon,
+  ArrowUp, ArrowDown, NotebookPen, ImagePlus, X, Table as TableIcon, Pin,
 } from "lucide-react";
 
 export type PageFlat = {
@@ -55,6 +55,7 @@ export type PageFull = {
   capaUrl: string | null;
   conteudo: string;
   parentId: string | null;
+  fixada: boolean;
   atualizadoEm: string;
 };
 
@@ -155,6 +156,62 @@ export function WorkspaceClient({
     }
     const novo = await res.json();
     toast.success("Database criado");
+    router.push(`/workspace/db/${novo.id}`);
+    router.refresh();
+  }
+
+  /**
+   * Hub 2.0 F4 — criar database já configurado pra uma view específica.
+   * BOARD: semeia propriedade SELECT "Status" e view Board agrupada nela.
+   * CALENDARIO: semeia propriedade DATA "Data" e view Calendário nela.
+   * Se qualquer passo de config falhar, o database ainda nasce usável
+   * (a view mostra o aviso de configuração — fallback seguro).
+   */
+  async function criarDatabaseComView(parentPageId: string | null, view: "TABELA" | "BOARD" | "CALENDARIO") {
+    const res = await fetch("/api/databases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ parentPageId }),
+    });
+    if (!res.ok) {
+      toast.error("Falha ao criar database");
+      return;
+    }
+    const novo = await res.json();
+
+    if (view !== "TABELA") {
+      try {
+        const propRes = await fetch(`/api/databases/${novo.id}/properties`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            view === "BOARD" ? { nome: "Status", tipo: "SELECT" } : { nome: "Data", tipo: "DATA" }
+          ),
+        });
+        const prop = propRes.ok ? await propRes.json() : null;
+
+        const viewRes = await fetch(`/api/databases/${novo.id}/views`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tipo: view }),
+        });
+        const novaView = viewRes.ok ? await viewRes.json() : null;
+
+        if (prop?.id && novaView?.id) {
+          await fetch(`/api/databases/${novo.id}/views/${novaView.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              config: view === "BOARD" ? { groupByPropertyId: prop.id } : { datePropertyId: prop.id },
+            }),
+          });
+        }
+      } catch {
+        // segue — database nasce com a view Tabela default
+      }
+    }
+
+    toast.success(view === "BOARD" ? "Board criado" : view === "CALENDARIO" ? "Calendário criado" : "Tabela criada");
     router.push(`/workspace/db/${novo.id}`);
     router.refresh();
   }
@@ -320,6 +377,8 @@ export function WorkspaceClient({
             key={activePage.id}
             page={activePage}
             ancestrais={ancestrais}
+            databasesFilhos={databases.filter((d) => d.parentPageId === activePage.id)}
+            onCriarDatabaseView={(view) => criarDatabaseComView(activePage.id, view)}
             onTituloSalvo={() => router.refresh()}
           />
         ) : (
@@ -529,18 +588,38 @@ function ItemPagina({
 function PaginaEditor({
   page,
   ancestrais,
+  databasesFilhos = [],
+  onCriarDatabaseView,
   onTituloSalvo,
 }: {
   page: PageFull;
   ancestrais: PageFlat[];
+  databasesFilhos?: DatabaseFlat[];
+  onCriarDatabaseView?: (view: "TABELA" | "BOARD" | "CALENDARIO") => void;
   onTituloSalvo: () => void;
 }) {
   const router = useRouter();
   const [salvando, setSalvando] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [capaUrl, setCapaUrl] = useState<string | null>(page.capaUrl);
+  const [fixada, setFixada] = useState(page.fixada);
   const saving = useRef<NodeJS.Timeout | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+
+  // Hub 2.0 F4 — fixar/desafixar na sidebar. Evento global avisa a
+  // sidebar pra refetchar a lista de fixadas.
+  async function toggleFixada() {
+    const novo = !fixada;
+    setFixada(novo);
+    const ok = await patch({ fixada: novo });
+    if (!ok) {
+      setFixada(!novo);
+      toast.error("Falha ao fixar");
+      return;
+    }
+    toast.success(novo ? "Página fixada na sidebar" : "Página desafixada");
+    window.dispatchEvent(new Event("sal-hub:paginas-fixadas-mudou"));
+  }
 
   // Auto-save do conteúdo (debounce 700ms — padrão dos outros editores).
   function handleEditorChange(blocks: EditorBlock[]) {
@@ -678,12 +757,22 @@ function PaginaEditor({
               ) : null}
             </div>
           </div>
-          <div className="flex items-center gap-2 pt-1 border-t border-border/40">
+          <div className="flex items-center gap-2 pt-1 border-t border-border/40 flex-wrap">
             {!capaUrl && (
               <Button size="sm" variant="ghost" onClick={escolherCapa}>
                 <ImagePlus className="h-3.5 w-3.5" /> Adicionar capa
               </Button>
             )}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={toggleFixada}
+              className={fixada ? "text-primary" : undefined}
+              title={fixada ? "Remover da sidebar" : "Fixar na sidebar (estilo favoritos)"}
+            >
+              <Pin className={`h-3.5 w-3.5 ${fixada ? "fill-current" : ""}`} />
+              {fixada ? "Fixada" : "Fixar na sidebar"}
+            </Button>
           </div>
           <input
             ref={fileRef}
@@ -704,6 +793,51 @@ function PaginaEditor({
             placeholder="Comece a escrever... Use / pra menu de blocos · @ pra mencionar entidades"
             minHeight="60vh"
           />
+        </CardContent>
+      </Card>
+
+      {/* Hub 2.0 F4 — databases da página no corpo (antes só na árvore).
+          Estilo Notion: a página lista seus boards/tabelas + criação rápida. */}
+      <Card>
+        <CardContent className="p-5 space-y-3">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Databases desta página {databasesFilhos.length > 0 && `(${databasesFilhos.length})`}
+            </div>
+            {onCriarDatabaseView && (
+              <div className="flex items-center gap-1.5">
+                <Button size="sm" variant="outline" className="h-7 text-[11.5px]" onClick={() => onCriarDatabaseView("BOARD")}>
+                  <Plus className="h-3 w-3" /> Board
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 text-[11.5px]" onClick={() => onCriarDatabaseView("TABELA")}>
+                  <Plus className="h-3 w-3" /> Tabela
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 text-[11.5px]" onClick={() => onCriarDatabaseView("CALENDARIO")}>
+                  <Plus className="h-3 w-3" /> Calendário
+                </Button>
+              </div>
+            )}
+          </div>
+          {databasesFilhos.length === 0 ? (
+            <p className="text-[12px] text-muted-foreground italic">
+              Nenhum database aqui ainda — crie um Board (kanban), Tabela ou Calendário e monte sua própria tela.
+            </p>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {databasesFilhos.map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => router.push(`/workspace/db/${d.id}`)}
+                  className="flex items-center gap-2.5 rounded-lg border border-border bg-secondary/40 px-3 py-2.5 text-left hover:border-primary/40 hover:bg-secondary/70 transition"
+                >
+                  <span className="text-[16px] leading-none">{d.icone || "🗃️"}</span>
+                  <span className="text-[13px] font-medium truncate">{d.nome}</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto shrink-0" />
+                </button>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </>
