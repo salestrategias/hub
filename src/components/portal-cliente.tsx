@@ -29,6 +29,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
 import { EVENTO_SESSAO_EXPIRADA } from "@/lib/portal-fetch";
 import { PortalInicio } from "@/components/portal-inicio";
+import { PortalAprovar } from "@/components/portal-aprovar";
 import { PortalConteudo } from "@/components/portal-conteudo";
 import { PortalEnviarTab } from "@/components/portal-enviar-tab";
 import { PortalResultados } from "@/components/portal-resultados";
@@ -67,7 +68,8 @@ type EstadoInicial =
   | { tipo: "erro"; mensagem: string }
   | { tipo: "ok"; clienteId: string; clienteNome: string; permissoes: Permissoes; marca: Marca };
 
-export type Tab = "inicio" | "conteudo" | "resultados" | "mais";
+// Hub 2.0 F5 — "aprovar" é aba de 1ª classe (a ação nº 1 do cliente)
+export type Tab = "inicio" | "aprovar" | "conteudo" | "resultados" | "mais";
 
 type BriefingsResumo = { total: number; pendentes: number };
 
@@ -84,9 +86,9 @@ function sanitizarHex(cor: string | null | undefined): string | null {
 function tabDoHash(): { tab: Tab; revisar: boolean; enviar: boolean } {
   if (typeof window === "undefined") return { tab: "inicio", revisar: false, enviar: false };
   const h = window.location.hash.replace("#", "");
-  if (h === "revisar") return { tab: "inicio", revisar: true, enviar: false };
+  if (h === "revisar") return { tab: "aprovar", revisar: true, enviar: false };
   if (h === "enviar") return { tab: "inicio", revisar: false, enviar: true };
-  if (h === "conteudo" || h === "resultados" || h === "mais")
+  if (h === "aprovar" || h === "conteudo" || h === "resultados" || h === "mais")
     return { tab: h, revisar: false, enviar: false };
   return { tab: "inicio", revisar: false, enviar: false };
 }
@@ -305,9 +307,12 @@ export function PortalCliente({ token }: { token: string }) {
   const podeRevisar = verConteudo && (permissoes.podeAprovarPosts || permissoes.podeAprovarCriativos);
   const totalPendencias = podeRevisar ? pendencias.posts + pendencias.criativos : 0;
 
+  // Hub 2.0 F5 — as 3 ações do cliente em 1ª classe:
+  // Aprovar (aba própria + badge) · Acompanhar (ex-"Conteúdo") · Pedir (FAB)
   const tabsVisiveis: { id: Tab; label: string; icon: typeof Sparkles; visivel: boolean; badge: number }[] = [
     { id: "inicio", label: "Início", icon: Sparkles, visivel: true, badge: 0 },
-    { id: "conteudo", label: "Conteúdo", icon: LayoutGrid, visivel: verConteudo, badge: totalPendencias },
+    { id: "aprovar", label: "Aprovar", icon: ClipboardCheck, visivel: podeRevisar, badge: totalPendencias },
+    { id: "conteudo", label: "Acompanhar", icon: LayoutGrid, visivel: verConteudo, badge: 0 },
     { id: "resultados", label: "Resultados", icon: BarChart3, visivel: permissoes.verRelatorios, badge: 0 },
     { id: "mais", label: "Mais", icon: Menu, visivel: true, badge: briefingsResumo.pendentes },
   ];
@@ -421,6 +426,13 @@ export function PortalCliente({ token }: { token: string }) {
             podeRevisar={podeRevisar}
             onRevisar={() => setRevisando(true)}
             onIrParaTab={(t) => setTab(t)}
+          />
+        )}
+        {tab === "aprovar" && podeRevisar && (
+          <PortalAprovar
+            corMarca={corMarca}
+            pendencias={pendencias}
+            onRevisar={() => setRevisando(true)}
           />
         )}
         {tab === "conteudo" && verConteudo && (
