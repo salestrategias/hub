@@ -27,6 +27,7 @@ const ORIGENS_VALIDAS: CalendarioOrigem[] = [
   "REUNIAO",
   "CONTRATO_VENCENDO",
   "PROPOSTA_EXPIRA",
+  "GOOGLE",
 ];
 
 export async function GET(req: Request) {

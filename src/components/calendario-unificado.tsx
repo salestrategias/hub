@@ -52,6 +52,7 @@ const TIPO_LABELS: Record<CalendarioOrigem, string> = {
   REUNIAO: "Reuniões",
   CONTRATO_VENCENDO: "Contratos",
   PROPOSTA_EXPIRA: "Propostas",
+  GOOGLE: "Google Agenda",
 };
 
 const TODOS_TIPOS: CalendarioOrigem[] = [
@@ -61,7 +62,13 @@ const TODOS_TIPOS: CalendarioOrigem[] = [
   "REUNIAO",
   "CONTRATO_VENCENDO",
   "PROPOSTA_EXPIRA",
+  "GOOGLE",
 ];
+
+// Hub 2.0 F3 — a camada Google nasce DESLIGADA: entidades já sincronizadas
+// com o Google (googleEventId) apareceriam 2x com ela ligada. Opt-in
+// consciente via chip de filtro.
+const TIPOS_INICIAIS: CalendarioOrigem[] = TODOS_TIPOS.filter((t) => t !== "GOOGLE");
 
 // HOC do react-big-calendar pra habilitar drag-drop
 const DnDCalendar = withDragAndDrop<RbcEvent>(Calendar as never);
@@ -89,7 +96,7 @@ export function CalendarioUnificado({
 
   const [data, setData] = useState(new Date());
   const [tiposAtivos, setTiposAtivos] = useState<Set<CalendarioOrigem>>(
-    new Set(TODOS_TIPOS)
+    new Set(TIPOS_INICIAIS)
   );
   const [clienteFiltro, setClienteFiltro] = useState<string>("todos");
 
@@ -272,7 +279,13 @@ export function CalendarioUnificado({
                 },
               })}
               onSelectEvent={(event) => {
-                router.push(event.resource.href);
+                // Eventos da camada Google linkam pro Google Calendar web
+                // (href externo) — abre em nova aba em vez de router.push
+                if (event.resource.href.startsWith("http")) {
+                  window.open(event.resource.href, "_blank", "noopener,noreferrer");
+                } else {
+                  router.push(event.resource.href);
+                }
               }}
               onEventDrop={handleEventDrop}
               resizable={false}
@@ -317,5 +330,6 @@ function corDoTipo(t: CalendarioOrigem): string {
     REUNIAO: "#F59E0B",
     CONTRATO_VENCENDO: "#EF4444",
     PROPOSTA_EXPIRA: "#EC4899",
+    GOOGLE: "#4285F4",
   }[t];
 }

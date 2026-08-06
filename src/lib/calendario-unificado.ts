@@ -22,6 +22,7 @@
  *    PATCH no endpoint correto durante reagendamento.
  */
 import { prisma } from "@/lib/db";
+import { listEvents } from "@/lib/google-calendar";
 
 export type CalendarioOrigem =
   | "TAREFA"
@@ -29,7 +30,8 @@ export type CalendarioOrigem =
   | "CONTEUDO_SAL"
   | "REUNIAO"
   | "CONTRATO_VENCENDO"
-  | "PROPOSTA_EXPIRA";
+  | "PROPOSTA_EXPIRA"
+  | "GOOGLE";
 
 export type CalendarioEvento = {
   id: string;                  // único por linha (origem + entidadeId)
@@ -57,6 +59,7 @@ const CORES: Record<CalendarioOrigem, string> = {
   REUNIAO: "#F59E0B",           // âmbar
   CONTRATO_VENCENDO: "#EF4444", // vermelho
   PROPOSTA_EXPIRA: "#EC4899",   // rosa
+  GOOGLE: "#4285F4",            // azul Google
 };
 
 export async function montarCalendarioUnificado(opts: {
@@ -161,7 +164,8 @@ export async function montarCalendarioUnificado(opts: {
       fim: t.dataEntrega.toISOString(),
       clienteId: t.cliente?.id ?? null,
       clienteNome: t.cliente?.nome ?? null,
-      href: `/tarefas?tarefa=${t.id}`,
+      // Home (quadro) abre a TarefaSheet via ?tarefa= — F2 aposentou /tarefas
+      href: `/?tarefa=${t.id}`,
       reagendavel: !t.concluida,
       estado: t.concluida ? "concluido" : atrasada ? "atrasado" : "futuro",
       cor: t.concluida ? "#9CA3AF" : atrasada ? "#EF4444" : CORES.TAREFA,
@@ -262,6 +266,43 @@ export async function montarCalendarioUnificado(opts: {
       estado: "marco",
       cor: CORES.PROPOSTA_EXPIRA,
     });
+  }
+
+  // ── Hub 2.0 F3 — camada Google Agenda (opt-in via filtro) ──────
+  // Absorve a antiga tela /agenda como camada do calendário unificado.
+  // Fora do Promise.all de propósito: usa outra lib (googleapis) e o
+  // try/catch garante que falha de auth/rede não derruba o calendário.
+  //
+  // Nota sobre duplicatas: entidades sincronizadas com o Google
+  // (googleEventId) podem aparecer 2x quando a camada está ligada —
+  // por isso a camada nasce DESLIGADA no client (opt-in consciente).
+  if (incluir("GOOGLE") && !opts.clienteId) {
+    try {
+      const googleEventos = await listEvents({ timeMin: inicio, timeMax: fim, maxResults: 250 });
+      for (const g of googleEventos) {
+        if (!g.inicio) continue;
+        const inicioDt = new Date(g.inicio);
+        eventos.push({
+          id: `GOOGLE:${g.id}`,
+          origem: "GOOGLE",
+          entidadeId: g.id,
+          titulo: `🗓️ ${g.titulo}`,
+          descricao: g.descricao ?? null,
+          inicio: g.inicio,
+          fim: g.fim || g.inicio,
+          clienteId: null,
+          clienteNome: null,
+          // htmlLink abre o evento no Google Calendar web (client trata
+          // href externo com window.open). Fallback: tela /agenda.
+          href: g.htmlLink ?? "/agenda",
+          reagendavel: false,
+          estado: inicioDt < hoje ? "concluido" : "futuro",
+          cor: inicioDt < hoje ? "#9CA3AF" : CORES.GOOGLE,
+        });
+      }
+    } catch {
+      // Sem tokens Google ou API fora — calendário segue sem a camada
+    }
   }
 
   return eventos;

@@ -82,6 +82,28 @@ export type QuadroResumo = {
   totalCards: number;
 };
 
+// Hub 2.0 F3 — camadas: outras entidades aparecem como colunas virtuais
+// (somente leitura) no fim do quadro Agência. Toggle persiste local.
+export type CamadaPost = {
+  id: string;
+  titulo: string;
+  status: string;
+  formato: string;
+  dataPublicacao: string;
+  cliente: { id: string; nome: string } | null;
+};
+
+export type CamadaAction = {
+  id: string;
+  texto: string;
+  responsavel: string | null;
+  prazo: string | null;
+  reuniaoId: string;
+  reuniaoTitulo: string;
+};
+
+const CAMADAS_STORAGE_KEY = "sal-hub-quadro-camadas";
+
 const TIPO_META: Record<TipoDemanda, { label: string; cor: string }> = {
   TRAFEGO: { label: "tráfego", cor: "#3B82F6" },
   SEO: { label: "seo", cor: "#10B981" },
@@ -99,13 +121,35 @@ export function QuadroKanban({
   quadros: quadrosIniciais,
   clientes,
   projetos,
+  camadaPosts = [],
+  camadaActions = [],
 }: {
   quadroInicial: QuadroFull;
   quadros: QuadroResumo[];
   clientes: { id: string; nome: string }[];
   projetos: { id: string; nome: string }[];
+  camadaPosts?: CamadaPost[];
+  camadaActions?: CamadaAction[];
 }) {
   const [quadro, setQuadro] = useState<QuadroFull>(quadroInicial);
+  // Camadas visíveis (posts / actions) — persistidas em localStorage
+  const [camadasAtivas, setCamadasAtivas] = useState<{ posts: boolean; actions: boolean }>({
+    posts: false,
+    actions: false,
+  });
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CAMADAS_STORAGE_KEY);
+      if (raw) setCamadasAtivas(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, []);
+  function toggleCamada(k: "posts" | "actions") {
+    setCamadasAtivas((prev) => {
+      const novo = { ...prev, [k]: !prev[k] };
+      try { localStorage.setItem(CAMADAS_STORAGE_KEY, JSON.stringify(novo)); } catch { /* ignore */ }
+      return novo;
+    });
+  }
   const [quadros, setQuadros] = useState<QuadroResumo[]>(quadrosIniciais);
   const [carregandoQuadro, setCarregandoQuadro] = useState(false);
   const [busca, setBusca] = useState("");
@@ -402,6 +446,41 @@ export function QuadroKanban({
           {temFiltro && (
             <span className="text-[11px] text-muted-foreground ml-1">{totalVisivel} card{totalVisivel === 1 ? "" : "s"}</span>
           )}
+
+          {/* Camadas — só no quadro Agência (F3) */}
+          {quadro.tipo === "AGENCIA" && (camadaPosts.length > 0 || camadaActions.length > 0) && (
+            <span className="ml-auto flex items-center gap-1.5">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">Camadas:</span>
+              {camadaPosts.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => toggleCamada("posts")}
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-colors",
+                    camadasAtivas.posts
+                      ? "bg-[#7E30E1] text-white border-transparent"
+                      : "text-muted-foreground border-border hover:border-foreground/30"
+                  )}
+                >
+                  Conteúdo ({camadaPosts.length})
+                </button>
+              )}
+              {camadaActions.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => toggleCamada("actions")}
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-colors",
+                    camadasAtivas.actions
+                      ? "bg-amber-500 text-white border-transparent"
+                      : "text-muted-foreground border-border hover:border-foreground/30"
+                  )}
+                >
+                  Actions ({camadaActions.length})
+                </button>
+              )}
+            </span>
+          )}
         </div>
       </div>
 
@@ -475,6 +554,51 @@ export function QuadroKanban({
                   </Draggable>
                 ))}
                 {boardProv.placeholder}
+
+                {/* Camadas — colunas virtuais somente leitura (F3) */}
+                {quadro.tipo === "AGENCIA" && camadasAtivas.posts && camadaPosts.length > 0 && (
+                  <ColunaVirtual titulo="Conteúdo em produção" cor="#7E30E1" qtd={camadaPosts.length}>
+                    {camadaPosts.map((p) => (
+                      <a
+                        key={p.id}
+                        href={`/editorial?post=${p.id}`}
+                        className="block rounded-lg border border-border/80 bg-card px-3 py-2.5 shadow-[0_1px_2px_rgba(20,20,30,0.06)] hover:shadow-md hover:-translate-y-px transition-[box-shadow,transform]"
+                      >
+                        <div className="h-1 w-8 rounded-full mb-1.5 bg-[#7E30E1]/60" />
+                        <div className="text-[13px] font-medium leading-snug">{p.titulo}</div>
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          {p.cliente && (
+                            <span className="text-[10.5px] font-semibold text-primary/90 bg-primary/10 px-1.5 py-px rounded">
+                              {p.cliente.nome}
+                            </span>
+                          )}
+                          <span className="text-[10px] uppercase font-bold text-muted-foreground">{p.formato}</span>
+                          <span className="text-[10.5px] font-mono text-muted-foreground ml-auto">
+                            {new Date(p.dataPublicacao).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+                          </span>
+                        </div>
+                      </a>
+                    ))}
+                  </ColunaVirtual>
+                )}
+                {quadro.tipo === "AGENCIA" && camadasAtivas.actions && camadaActions.length > 0 && (
+                  <ColunaVirtual titulo="Actions de reuniões" cor="#F59E0B" qtd={camadaActions.length}>
+                    {camadaActions.map((a) => (
+                      <a
+                        key={a.id}
+                        href={`/reunioes/${a.reuniaoId}`}
+                        className="block rounded-lg border border-border/80 bg-card px-3 py-2.5 shadow-[0_1px_2px_rgba(20,20,30,0.06)] hover:shadow-md hover:-translate-y-px transition-[box-shadow,transform]"
+                      >
+                        <div className="text-[13px] font-medium leading-snug">{a.texto}</div>
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap text-[10.5px] text-muted-foreground">
+                          <span className="truncate">🎙 {a.reuniaoTitulo}</span>
+                          {a.prazo && <span className="font-mono ml-auto">{a.prazo}</span>}
+                        </div>
+                      </a>
+                    ))}
+                  </ColunaVirtual>
+                )}
+
                 <AddColunaInline onCriar={criarColuna} />
               </div>
             </div>
@@ -697,6 +821,41 @@ function AddCardInline({ onCriar }: { onCriar: (titulo: string) => void }) {
         <Button size="sm" variant="ghost" className="h-7 text-[12px]" onClick={() => { setAberto(false); setTitulo(""); }}>
           Cancelar
         </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Coluna virtual (camadas F3 — somente leitura) ─────────────────
+
+function ColunaVirtual({
+  titulo,
+  cor,
+  qtd,
+  children,
+}: {
+  titulo: string;
+  cor: string;
+  qtd: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="w-[278px] shrink-0 flex flex-col max-h-full rounded-xl border border-dashed bg-secondary/35"
+      style={{ borderColor: `${cor}55` }}
+    >
+      <div className="flex items-center gap-2 px-3 pt-2.5 pb-2">
+        <span className="h-2 w-2 rounded-full shrink-0" style={{ background: cor }} />
+        <span className="flex-1 text-[12.5px] font-bold truncate">{titulo}</span>
+        <span className="text-[10.5px] font-mono text-muted-foreground bg-card border border-border/70 rounded-full px-1.5 shrink-0">
+          {qtd}
+        </span>
+      </div>
+      <div className="flex-1 min-h-[8px] overflow-y-auto px-2 pb-2 space-y-2">
+        {children}
+      </div>
+      <div className="px-3 pb-2 text-[10px] text-muted-foreground/60 italic">
+        Camada informativa — clique abre o item na origem
       </div>
     </div>
   );

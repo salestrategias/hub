@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export default async function HojePage() {
   const agencia = await garantirQuadroAgencia();
 
-  const [quadrosRaw, quadroRaw, clientes, projetos] = await Promise.all([
+  const [quadrosRaw, quadroRaw, clientes, projetos, postsProducao, actionsAbertas] = await Promise.all([
     prisma.quadro.findMany({
       orderBy: [{ tipo: "asc" }, { ordem: "asc" }, { createdAt: "asc" }],
       include: {
@@ -56,6 +56,35 @@ export default async function HojePage() {
     prisma.projeto.findMany({
       select: { id: true, nome: true },
       orderBy: { nome: "asc" },
+    }),
+    // Hub 2.0 F3 — camada "Conteúdo em produção" do quadro Agência:
+    // posts que ainda não saíram (fluxo editorial em andamento)
+    prisma.post.findMany({
+      where: { status: { in: ["RASCUNHO", "COPY_PRONTA", "DESIGN_PRONTO"] } },
+      orderBy: { dataPublicacao: "asc" },
+      take: 50,
+      select: {
+        id: true,
+        titulo: true,
+        status: true,
+        formato: true,
+        dataPublicacao: true,
+        cliente: { select: { id: true, nome: true } },
+      },
+    }),
+    // Camada "Actions de reuniões" — combinados ainda abertos que não
+    // viraram tarefa (os que viraram já estão no board como cards reais)
+    prisma.reuniaoAction.findMany({
+      where: { concluido: false, tarefaId: null },
+      orderBy: { ordem: "asc" },
+      take: 50,
+      select: {
+        id: true,
+        texto: true,
+        responsavel: true,
+        prazo: true,
+        reuniao: { select: { id: true, titulo: true, data: true } },
+      },
     }),
   ]);
 
@@ -100,6 +129,22 @@ export default async function HojePage() {
           }))}
           clientes={clientes}
           projetos={projetos}
+          camadaPosts={postsProducao.map((p) => ({
+            id: p.id,
+            titulo: p.titulo,
+            status: p.status,
+            formato: p.formato,
+            dataPublicacao: p.dataPublicacao.toISOString(),
+            cliente: p.cliente,
+          }))}
+          camadaActions={actionsAbertas.map((a) => ({
+            id: a.id,
+            texto: a.texto,
+            responsavel: a.responsavel,
+            prazo: a.prazo,
+            reuniaoId: a.reuniao.id,
+            reuniaoTitulo: a.reuniao.titulo,
+          }))}
         />
       </div>
     </div>
