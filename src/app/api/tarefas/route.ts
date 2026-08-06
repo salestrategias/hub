@@ -32,7 +32,32 @@ export async function POST(req: Request) {
     await requireAuth();
     const body = await req.json();
     const data = tarefaSchema.parse(body);
-    const tarefa = await prisma.tarefa.create({ data });
+
+    // Hub 2.0 F1 — criação direto numa coluna do kanban (add inline do
+    // board). colunaId chega fora do tarefaSchema; validamos na mão e o
+    // card entra no fim da coluna, com concluida sincronizada.
+    let colunaExtra: { colunaId: string; ordemColuna: number; concluida: boolean } | null = null;
+    if (typeof body.colunaId === "string" && body.colunaId) {
+      const coluna = await prisma.coluna.findUnique({
+        where: { id: body.colunaId },
+        select: { id: true, isConcluido: true },
+      });
+      if (coluna) {
+        const max = await prisma.tarefa.aggregate({
+          where: { colunaId: coluna.id },
+          _max: { ordemColuna: true },
+        });
+        colunaExtra = {
+          colunaId: coluna.id,
+          ordemColuna: (max._max.ordemColuna ?? -1) + 1,
+          concluida: coluna.isConcluido,
+        };
+      }
+    }
+
+    const tarefa = await prisma.tarefa.create({
+      data: { ...data, ...(colunaExtra ?? {}) },
+    });
     void syncMentionsFromValue({ sourceType: "TAREFA", sourceId: tarefa.id }, tarefa.descricao);
     return tarefa;
   });

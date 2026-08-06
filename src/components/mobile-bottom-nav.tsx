@@ -30,7 +30,8 @@ import {
 type Item = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
 
 const ITEMS: Item[] = [
-  { label: "Início", href: "/", icon: Home },
+  // Hub 2.0 F1: home é o quadro de demandas
+  { label: "Hoje", href: "/", icon: Home },
   { label: "Comercial", href: "/leads", icon: TrendingUp },
   { label: "Editorial", href: "/editorial", icon: CalendarDays },
 ];

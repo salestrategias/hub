@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare, ListChecks,
   Wallet, FileSignature, FolderOpen, CalendarRange, BarChart3, Search, Megaphone,
   Mic, FileText, GitBranch, Cpu, Database, Send, TrendingUp, Settings, Calendar, BookOpen,
-  ChevronLeft, ChevronRight, ChevronDown,
+  ChevronLeft, ChevronRight, ChevronDown, Zap,
   Palette, Target, LayoutTemplate, Stethoscope, NotebookPen, ClipboardList,
   type LucideIcon,
 } from "lucide-react";
@@ -20,8 +20,10 @@ type NavItem = { label: string; href: string; icon: LucideIcon };
 type NavGroup = { label: string; items: NavItem[]; defaultOpen?: boolean };
 
 // Atalhos fixos no topo (sem grupo) — acesso instantâneo.
+// Hub 2.0 F1: "Hoje" (quadro kanban) é a home; dashboard virou "Visão geral".
 const pinned: NavItem[] = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Hoje", href: "/", icon: Zap },
+  { label: "Visão geral", href: "/visao-geral", icon: LayoutDashboard },
   { label: "Calendário", href: "/calendario", icon: Calendar },
 ];
 

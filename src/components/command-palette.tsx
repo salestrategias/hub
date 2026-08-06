@@ -39,7 +39,8 @@ const STATIC_COMMANDS: StaticCommand[] = [
     keywords: ["quick", "capture", "anotar", "nota rapida", "inbox", "ideia"],
   },
   // Ir para
-  { id: "go-dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/", group: "Ir para", keywords: ["home", "inicio", "kpi"] },
+  { id: "go-hoje", label: "Hoje (quadro)", icon: LayoutDashboard, href: "/", group: "Ir para", keywords: ["home", "inicio", "kanban", "board", "demandas", "tarefas"] },
+  { id: "go-visao-geral", label: "Visão geral", icon: LayoutDashboard, href: "/visao-geral", group: "Ir para", keywords: ["dashboard", "kpi", "mrr", "widgets"] },
   { id: "go-clientes", label: "Clientes", icon: Users, href: "/clientes", group: "Ir para", keywords: ["crm"] },
   { id: "go-editorial", label: "Editorial", icon: CalendarDays, href: "/editorial", group: "Ir para", keywords: ["posts", "calendario", "social"] },
   { id: "go-projetos", label: "Projetos", icon: FolderKanban, href: "/projetos", group: "Ir para", keywords: ["kanban"] },

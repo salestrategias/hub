@@ -22,6 +22,7 @@ type TarefaFull = {
   prioridade: "URGENTE" | "ALTA" | "NORMAL" | "BAIXA";
   dataEntrega: string | null;
   concluida: boolean;
+  tipoDemanda: "TRAFEGO" | "SEO" | "CONTEUDO" | "RELATORIO" | "ADMIN" | null;
   cliente: { id: string; nome: string } | null;
   projeto: { id: string; nome: string } | null;
   checklist: CheckItem[];
@@ -32,6 +33,16 @@ const PRIORIDADE_OPTIONS = [
   { value: "ALTA", label: "Alta" },
   { value: "NORMAL", label: "Normal" },
   { value: "BAIXA", label: "Baixa" },
+];
+
+// Hub 2.0 F1 — etiqueta de tipo de demanda (operação de agência)
+const TIPO_DEMANDA_OPTIONS = [
+  { value: "", label: "—" },
+  { value: "TRAFEGO", label: "Tráfego pago" },
+  { value: "SEO", label: "SEO" },
+  { value: "CONTEUDO", label: "Conteúdo" },
+  { value: "RELATORIO", label: "Relatório" },
+  { value: "ADMIN", label: "Admin / interno" },
 ];
 
 const PRIORIDADE_COR: Record<TarefaFull["prioridade"], string> = {
@@ -186,6 +197,14 @@ export function TarefaSheet({
               label="Entrega"
               value={dataEntregaInput}
               onSave={(v) => patchTarefa({ dataEntrega: v ? new Date(v).toISOString() : null })}
+              size="sm"
+            />
+            <InlineField
+              type="select"
+              label="Tipo de demanda"
+              value={tarefa.tipoDemanda ?? ""}
+              options={TIPO_DEMANDA_OPTIONS}
+              onSave={(v) => patchTarefa({ tipoDemanda: v || null })}
               size="sm"
             />
             {clientes && clientes.length > 0 && (

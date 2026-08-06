@@ -595,6 +595,9 @@ model Projeto {
 
   tarefas Tarefa[]
 
+  // Hub 2.0 F1 — board próprio do projeto (1:1, criado sob demanda)
+  quadro  Quadro?
+
   // Ordem manual dentro da coluna do kanban (drag pra priorizar)
   ordem     Int      @default(0)
 
@@ -620,6 +623,64 @@ enum Prioridade {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// Hub 2.0 F1 — Quadros kanban estilo Trello
+//
+// - Quadro "AGENCIA": o board padrão do dia a dia (home do Hub)
+// - Quadro "PROJETO": um board por projeto (decisão Marcelo 06/08/2026)
+// - Colunas 100% redefiníveis por quadro. O fluxo "Entrada → Em produção
+//   → Revisão → Aguardando cliente → Concluído" é só a SEMENTE inicial.
+// - Coluna.isConcluido: cards que entram nela marcam Tarefa.concluida=true
+//   (sincronia com dashboard/calendário/notificações que dependem do bool)
+// ─────────────────────────────────────────────────────────────────────
+model Quadro {
+  id     String     @id @default(cuid())
+  nome   String
+  icone  String?    // emoji opcional exibido no switcher
+  tipo   QuadroTipo @default(AGENCIA)
+  ordem  Int        @default(0)
+
+  // Quando é board de projeto (1:1)
+  projetoId String?  @unique
+  projeto   Projeto? @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+
+  colunas Coluna[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tipo, ordem])
+}
+
+enum QuadroTipo {
+  AGENCIA
+  PROJETO
+}
+
+model Coluna {
+  id          String  @id @default(cuid())
+  quadroId    String
+  quadro      Quadro  @relation(fields: [quadroId], references: [id], onDelete: Cascade)
+  nome        String
+  cor         String? // hex opcional pra realce no header da coluna
+  ordem       Int     @default(0)
+  isConcluido Boolean @default(false)
+
+  tarefas Tarefa[]
+
+  @@index([quadroId, ordem])
+}
+
+// Tipo de demanda — etiqueta de 1ª classe pensada pra operação de
+// agência de performance (tráfego pago + SEO pra e-commerce/varejo).
+enum TipoDemanda {
+  TRAFEGO
+  SEO
+  CONTEUDO
+  RELATORIO
+  ADMIN
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // Tarefas
 // ─────────────────────────────────────────────────────────────────────
 model Tarefa {
@@ -630,6 +691,13 @@ model Tarefa {
   dataEntrega     DateTime?
   concluida       Boolean     @default(false)
   googleEventId   String?
+
+  // Hub 2.0 F1 — posição no kanban. Null = ainda não distribuída num
+  // quadro (o lazy seed do quadro Agência adota tarefas órfãs).
+  colunaId    String?
+  coluna      Coluna?      @relation(fields: [colunaId], references: [id], onDelete: SetNull)
+  ordemColuna Int          @default(0)
+  tipoDemanda TipoDemanda?
 
   clienteId String?
   cliente   Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
@@ -649,6 +717,7 @@ model Tarefa {
 
   @@index([dataEntrega])
   @@index([reuniaoId])
+  @@index([colunaId, ordemColuna])
   // Postgres não indexa FK sozinho — telas quentes filtram por estes:
   @@index([clienteId])
   @@index([projetoId])

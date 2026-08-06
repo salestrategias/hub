@@ -215,6 +215,8 @@ export const tarefaSchema = z.object({
   clienteId: z.string().optional().nullable(),
   projetoId: z.string().optional().nullable(),
   concluida: z.boolean().optional().default(false),
+  // Hub 2.0 F1 — etiqueta de tipo de demanda da agência
+  tipoDemanda: z.enum(["TRAFEGO", "SEO", "CONTEUDO", "RELATORIO", "ADMIN"]).optional().nullable(),
 });
 export type TarefaInput = z.infer<typeof tarefaSchema>;
 
