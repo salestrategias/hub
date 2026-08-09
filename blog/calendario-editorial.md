@@ -38,7 +38,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 29 | Checkout transparente ou redirect: qual converte mais | checkout transparente ou redirect | CRO | 14 | MOFU | PUBLICADO 2026-08-06 https://www.salestrategias.com.br/checkout-transparente-ou-redirect/ |
 | 30 | WhatsApp marketing sem bloqueio: regras e boas práticas para lojas | whatsapp marketing sem ser bloqueado | CRM | 14 | MOFU | PUBLICADO 2026-08-07 https://www.salestrategias.com.br/whatsapp-marketing-sem-ser-bloqueado/ |
 | 31 | Produto esgotado ou descontinuado: apagar, redirecionar ou manter a página? | produto esgotado seo o que fazer | SEO | 13 | MOFU | PUBLICADO 2026-08-08 https://www.salestrategias.com.br/produto-esgotado-seo/ |
-| 32 | Instagram para negócio local: como aparecer para o bairro | instagram para negócio local | LOC | 29 | MOFU | PENDENTE |
+| 32 | Instagram para negócio local: como aparecer para o bairro | instagram para negócio local | LOC | 29 | MOFU | PUBLICADO 2026-08-09 https://www.salestrategias.com.br/instagram-para-negocio-local/ |
 | 33 | Remarketing dinâmico: como mostrar exatamente o produto que o cliente viu | remarketing dinâmico loja virtual | TP | 15 | TOFU | PENDENTE |
 | 34 | Margem de contribuição: o número que decide se a campanha pode escalar | margem de contribuição e-commerce | DAD | 29 | MOFU | PENDENTE |
 | 35 | Mídia no 2º semestre de 2026: eleições, CPM caro e onde anunciar | planejamento de mídia segundo semestre 2026 | SAZ | 29 | MOFU | PENDENTE |
