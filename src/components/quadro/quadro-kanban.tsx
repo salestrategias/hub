@@ -156,6 +156,7 @@ export function QuadroKanban({
   const [filtroCliente, setFiltroCliente] = useState("");
   const [filtroTipo, setFiltroTipo] = useState<TipoDemanda | "">("");
   const [novoQuadroOpen, setNovoQuadroOpen] = useState(false);
+  const [renomearQuadroOpen, setRenomearQuadroOpen] = useState(false);
   const sheet = useEntitySheet("tarefa");
 
   const temFiltro = Boolean(busca.trim() || filtroCliente || filtroTipo);
@@ -255,6 +256,54 @@ export function QuadroKanban({
       body: JSON.stringify({ tarefaId: draggableId, colunaId: destino.id, ordem: destination.index }),
     });
     if (!res.ok) { toast.error("Falha ao mover — desfazendo"); void refetch(); }
+  }
+
+  // ─── Mutações do quadro (renomear / apagar) ──────────────────────
+
+  async function renomearQuadro(nome: string, icone: string) {
+    const nomeFinal = nome.trim();
+    if (!nomeFinal) return;
+    const res = await fetch(`/api/quadros/${quadro.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome: nomeFinal, icone: icone.trim() || null }),
+    });
+    if (!res.ok) {
+      toast.error("Falha ao renomear o quadro");
+      return;
+    }
+    // Atualiza board aberto + pill do switcher sem refetch
+    setQuadro((q) => ({ ...q, nome: nomeFinal, icone: icone.trim() || null }));
+    setQuadros((prev) =>
+      prev.map((q) => (q.id === quadro.id ? { ...q, nome: nomeFinal, icone: icone.trim() || null } : q))
+    );
+    toast.success("Quadro renomeado");
+    setRenomearQuadroOpen(false);
+  }
+
+  async function apagarQuadro() {
+    const totalCards = quadro.colunas.reduce((s, c) => s + c.tarefas.length, 0);
+    const msg =
+      totalCards > 0
+        ? `Apagar o quadro "${quadro.nome}"? Os ${totalCards} cards NÃO são perdidos — voltam pro quadro Agência automaticamente.`
+        : `Apagar o quadro "${quadro.nome}"?`;
+    if (!confirm(msg)) return;
+
+    const res = await fetch(`/api/quadros/${quadro.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      toast.error(err?.error ?? "Falha ao apagar o quadro");
+      return;
+    }
+    toast.success(`Quadro "${quadro.nome}" apagado`);
+    try { localStorage.removeItem("sal-hub-quadro-ativo"); } catch { /* ignore */ }
+    // Vai pro primeiro quadro restante (Agência vem primeiro na ordenação)
+    const restantes = quadros.filter((q) => q.id !== quadro.id);
+    setQuadros(restantes);
+    if (restantes.length > 0) {
+      await trocarQuadro(restantes[0].id);
+    }
+    await refetchQuadros();
   }
 
   // ─── Mutações de coluna ──────────────────────────────────────────
@@ -379,6 +428,32 @@ export function QuadroKanban({
                 <span className="text-[10px] font-mono opacity-60">{q.totalCards}</span>
               </button>
             ))}
+            {/* Ações do quadro ativo: renomear / apagar */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center rounded-lg p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                  title={`Ações do quadro "${quadro.nome}"`}
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-52">
+                <DropdownMenuLabel className="text-[11px]">Quadro "{quadro.nome}"</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setRenomearQuadroOpen(true)} className="text-[12.5px] gap-2">
+                  <Pencil className="h-3.5 w-3.5" /> Renomear / trocar ícone
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={apagarQuadro}
+                  className="text-[12.5px] gap-2 text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Apagar quadro
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <button
               type="button"
               onClick={() => setNovoQuadroOpen(true)}
@@ -614,6 +689,15 @@ export function QuadroKanban({
         clientes={clientes}
         projetos={projetos}
       />
+
+      {renomearQuadroOpen && (
+        <RenomearQuadroDialog
+          nomeAtual={quadro.nome}
+          iconeAtual={quadro.icone ?? ""}
+          onClose={() => setRenomearQuadroOpen(false)}
+          onSalvar={renomearQuadro}
+        />
+      )}
 
       {novoQuadroOpen && (
         <NovoQuadroDialog
@@ -905,6 +989,79 @@ function AddColunaInline({ onCriar }: { onCriar: (nome: string) => void }) {
         <Button size="sm" variant="ghost" className="h-7 text-[12px]" onClick={() => { setAberto(false); setNome(""); }}>Cancelar</Button>
       </div>
     </div>
+  );
+}
+
+// ─── Renomear quadro ───────────────────────────────────────────────
+
+function RenomearQuadroDialog({
+  nomeAtual,
+  iconeAtual,
+  onClose,
+  onSalvar,
+}: {
+  nomeAtual: string;
+  iconeAtual: string;
+  onClose: () => void;
+  onSalvar: (nome: string, icone: string) => Promise<void>;
+}) {
+  const [nome, setNome] = useState(nomeAtual);
+  const [icone, setIcone] = useState(iconeAtual);
+  const [salvando, setSalvando] = useState(false);
+
+  async function salvar() {
+    if (!nome.trim()) {
+      toast.error("Dá um nome pro quadro");
+      return;
+    }
+    setSalvando(true);
+    await onSalvar(nome, icone);
+    setSalvando(false);
+  }
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Pencil className="h-4 w-4 text-primary" /> Renomear quadro
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <div className="space-y-1.5 w-16">
+              <Label>Ícone</Label>
+              <Input
+                value={icone}
+                onChange={(e) => setIcone(e.target.value)}
+                placeholder="⚡"
+                maxLength={4}
+                className="text-center"
+              />
+            </div>
+            <div className="space-y-1.5 flex-1">
+              <Label>Nome</Label>
+              <Input
+                autoFocus
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") void salvar(); }}
+              />
+            </div>
+          </div>
+          <p className="text-[10.5px] text-muted-foreground/70">
+            Ícone é um emoji (opcional) — aparece no seletor de quadros.
+          </p>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+          <Button onClick={salvar} disabled={salvando}>
+            {salvando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Pencil className="h-3.5 w-3.5" />}
+            Salvar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
