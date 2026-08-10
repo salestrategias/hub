@@ -25,6 +25,10 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# Typecheck ligado (10/08/2026) precisa de mais heap que o default (~2GB)
+# do V8 — sem isso o "Checking validity of types" morre de OOM no VPS.
+# ENV deste estágio não vaza pro runner (imagem final fica intacta).
+ENV NODE_OPTIONS="--max-old-space-size=3072"
 RUN npx prisma generate && npm run build
 
 # ───── Stage 3: runner (imagem final mínima) ─────────────────────
