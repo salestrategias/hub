@@ -5,6 +5,7 @@
  */
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
+import { apagarComLixeira } from "@/lib/lixeira";
 import { pageSchema } from "@/lib/schemas";
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
@@ -45,7 +46,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
     await requireAuth();
-    await prisma.page.delete({ where: { id: params.id } });
+    await apagarComLixeira("PAGE", params.id);
     return { ok: true };
   });
 }

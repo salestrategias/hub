@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ListChecks, Trash2, Plus } from "lucide-react";
+import { ListChecks, Trash2, Plus, Archive } from "lucide-react";
 import { EntitySheet } from "@/components/entity-sheet";
 import { InlineField } from "@/components/inline-field";
 import { Button } from "@/components/ui/button";
@@ -118,7 +118,23 @@ export function TarefaSheet({
       toast.error("Falha ao excluir");
       return;
     }
-    toast.success("Tarefa excluída");
+    toast.success("Tarefa excluída — recuperável na Lixeira por 30 dias");
+    onOpenChange(false);
+    router.refresh();
+  }
+
+  async function arquivar() {
+    if (!tarefaId || !tarefa) return;
+    const res = await fetch(`/api/tarefas/${tarefaId}/arquivar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ arquivar: true }),
+    });
+    if (!res.ok) {
+      toast.error("Falha ao arquivar");
+      return;
+    }
+    toast.success("Tarefa arquivada — desarquive em Lixeira → Arquivados");
     onOpenChange(false);
     router.refresh();
   }
@@ -168,6 +184,14 @@ export function TarefaSheet({
         <>
           <Button variant="ghost" size="sm" onClick={excluir} className="text-destructive hover:text-destructive">
             <Trash2 className="h-3.5 w-3.5" /> Excluir
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={arquivar}
+            title="Some do quadro e das listas sem apagar — recuperável em Lixeira → Arquivados"
+          >
+            <Archive className="h-3.5 w-3.5" /> Arquivar
           </Button>
           <span className="text-[10.5px] text-muted-foreground/70">Edição salva automaticamente</span>
         </>

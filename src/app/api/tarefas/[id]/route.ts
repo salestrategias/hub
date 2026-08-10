@@ -1,5 +1,6 @@
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
+import { apagarComLixeira } from "@/lib/lixeira";
 import { tarefaSchema } from "@/lib/schemas";
 import { tryDeleteEvent } from "@/lib/google-calendar";
 import { syncMentionsFromValue, deleteMentionsOf } from "@/lib/mentions";
@@ -66,7 +67,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
     await requireAuth();
     const t = await prisma.tarefa.findUnique({ where: { id: params.id } });
     if (t?.googleEventId) await tryDeleteEvent({ eventId: t.googleEventId });
-    await prisma.tarefa.delete({ where: { id: params.id } });
+    await apagarComLixeira("TAREFA", params.id);
     void deleteMentionsOf({ sourceType: "TAREFA", sourceId: params.id });
     return { ok: true };
   });

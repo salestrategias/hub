@@ -15,6 +15,7 @@ export async function GET() {
   return apiHandler(async () => {
     await requireAuth();
     return prisma.page.findMany({
+      where: { arquivadaEm: null },
       orderBy: [{ parentId: "asc" }, { ordem: "asc" }, { titulo: "asc" }],
       select: {
         id: true,

@@ -12,6 +12,7 @@ export default async function WorkspacePaginaPage({
 }) {
   const [pages, databases, atual] = await Promise.all([
     prisma.page.findMany({
+      where: { arquivadaEm: null },
       orderBy: [{ parentId: "asc" }, { ordem: "asc" }, { titulo: "asc" }],
       select: { id: true, titulo: true, icone: true, ordem: true, parentId: true },
     }),

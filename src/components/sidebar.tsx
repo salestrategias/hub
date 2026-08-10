@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   LayoutDashboard, Users, CalendarDays, KanbanSquare,
-  Wallet, FolderOpen, BarChart3, Megaphone,
+  Wallet, FolderOpen, BarChart3, Megaphone, Trash2,
   Mic, FileText, GitBranch, TrendingUp, Calendar, BookOpen,
   ChevronLeft, ChevronRight, ChevronDown, Zap,
   Palette, LayoutTemplate, NotebookPen,
@@ -67,6 +67,7 @@ const groups: NavGroup[] = [
       { label: "Manual SAL", href: "/manual", icon: BookOpen },
       { label: "Conteúdo SAL", href: "/conteudo-sal", icon: Megaphone },
       { label: "Drive", href: "/drive", icon: FolderOpen },
+      { label: "Lixeira", href: "/lixeira", icon: Trash2 },
     ],
   },
 ];

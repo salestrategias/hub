@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     const filtro = searchParams.get("filtro");
     const clienteId = searchParams.get("clienteId");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { arquivadaEm: null };
     const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
     const fim = new Date(hoje); fim.setDate(fim.getDate() + 1);
     const fimSemana = new Date(hoje); fimSemana.setDate(fimSemana.getDate() + 7);

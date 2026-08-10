@@ -73,7 +73,7 @@ export async function garantirQuadroAgencia() {
  */
 export async function adotarTarefasOrfas(quadroAgenciaId: string) {
   const orfas = await prisma.tarefa.findMany({
-    where: { colunaId: null },
+    where: { colunaId: null, arquivadaEm: null },
     select: { id: true, concluida: true, projetoId: true, createdAt: true },
     orderBy: { createdAt: "asc" },
   });

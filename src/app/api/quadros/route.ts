@@ -20,7 +20,7 @@ export async function GET() {
         projeto: { select: { id: true, nome: true } },
         colunas: {
           orderBy: { ordem: "asc" },
-          select: { id: true, _count: { select: { tarefas: true } } },
+          select: { id: true, _count: { select: { tarefas: { where: { arquivadaEm: null } } } } },
         },
       },
     });

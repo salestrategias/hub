@@ -1,5 +1,6 @@
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
+import { apagarComLixeira } from "@/lib/lixeira";
 import { leadSchema } from "@/lib/schemas";
 import { calcularLeadScore } from "@/lib/lead-score";
 
@@ -62,7 +63,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
     await requireAuth();
-    await prisma.lead.delete({ where: { id: params.id } });
+    await apagarComLixeira("LEAD", params.id);
     return { ok: true };
   });
 }

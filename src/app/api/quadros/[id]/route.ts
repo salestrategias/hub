@@ -20,6 +20,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
           orderBy: { ordem: "asc" },
           include: {
             tarefas: {
+              where: { arquivadaEm: null },
               orderBy: { ordemColuna: "asc" },
               include: {
                 cliente: { select: { id: true, nome: true } },

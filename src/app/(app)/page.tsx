@@ -25,7 +25,7 @@ export default async function HojePage() {
         projeto: { select: { id: true, nome: true } },
         colunas: {
           orderBy: { ordem: "asc" },
-          select: { id: true, _count: { select: { tarefas: true } } },
+          select: { id: true, _count: { select: { tarefas: { where: { arquivadaEm: null } } } } },
         },
       },
     }),
@@ -37,6 +37,7 @@ export default async function HojePage() {
           orderBy: { ordem: "asc" },
           include: {
             tarefas: {
+              where: { arquivadaEm: null },
               orderBy: { ordemColuna: "asc" },
               include: {
                 cliente: { select: { id: true, nome: true } },

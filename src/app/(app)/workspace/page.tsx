@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function WorkspaceIndexPage() {
   const [pages, databases] = await Promise.all([
     prisma.page.findMany({
+      where: { arquivadaEm: null },
       orderBy: [{ parentId: "asc" }, { ordem: "asc" }, { titulo: "asc" }],
       select: { id: true, titulo: true, icone: true, ordem: true, parentId: true },
     }),

@@ -83,6 +83,7 @@ export async function montarCalendarioUnificado(opts: {
           where: {
             ...baseWhereCliente,
             dataEntrega: { gte: inicio, lte: fim, not: null },
+            arquivadaEm: null,
           },
           include: { cliente: { select: { id: true, nome: true } } },
           take: 500,

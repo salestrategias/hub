@@ -1,5 +1,6 @@
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
+import { apagarComLixeira } from "@/lib/lixeira";
 import { notaSchema } from "@/lib/schemas";
 import { syncMentionsFromValue, deleteMentionsOf } from "@/lib/mentions";
 
@@ -25,7 +26,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
   return apiHandler(async () => {
     await requireAuth();
-    await prisma.nota.delete({ where: { id: params.id } });
+    await apagarComLixeira("NOTA", params.id);
     void deleteMentionsOf({ sourceType: "NOTA", sourceId: params.id });
     return { ok: true };
   });

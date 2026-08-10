@@ -623,6 +623,27 @@ enum Prioridade {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// Hub 2.0 — Lixeira universal (soft delete com snapshot)
+//
+// Em vez de deletedAt em cada tabela (invasivo — todo query precisaria
+// filtrar), o DELETE das entidades suportadas tira um snapshot JSON
+// completo aqui e só então apaga de verdade. Restaurar = recriar a
+// entidade a partir do snapshot (mesmo id; FKs revalidadas).
+// Retenção: 30 dias (purge lazy no GET /api/lixeira).
+// ─────────────────────────────────────────────────────────────────────
+model LixeiraItem {
+  id         String   @id @default(cuid())
+  tipo       String   // TAREFA | NOTA | POST | LEAD | PROJETO | PAGE | PROPOSTA
+  titulo     String   // exibição na tela da lixeira
+  dados      Json     // snapshot completo pra restauração
+  apagadoPor String?  // user.id de quem apagou
+  createdAt  DateTime @default(now())
+
+  @@index([tipo, createdAt])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // Hub 2.0 F1 — Quadros kanban estilo Trello
 //
 // - Quadro "AGENCIA": o board padrão do dia a dia (home do Hub)
@@ -698,6 +719,9 @@ model Tarefa {
   coluna      Coluna?      @relation(fields: [colunaId], references: [id], onDelete: SetNull)
   ordemColuna Int          @default(0)
   tipoDemanda TipoDemanda?
+  // Arquivada: some do quadro/listas/calendário sem perder dados.
+  // Mantém colunaId pra desarquivar voltar pro mesmo lugar.
+  arquivadaEm DateTime?
 
   clienteId String?
   cliente   Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
@@ -1693,6 +1717,8 @@ model Page {
   ordem     Int      @default(0)
   // Hub 2.0 F4 — página fixada aparece na sidebar (estilo favoritos Notion)
   fixada    Boolean  @default(false)
+  // Arquivada: some da árvore/fixadas; recuperável em /lixeira → Arquivados
+  arquivadaEm DateTime?
 
   parentId  String?
   parent    Page?    @relation("PageHierarquia", fields: [parentId], references: [id], onDelete: Cascade)

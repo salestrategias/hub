@@ -28,7 +28,7 @@ import { toast } from "@/components/ui/toast";
 import { BlockEditor } from "@/components/editor";
 import {
   Plus, Trash2, Loader2, FileText, ChevronRight, ChevronDown,
-  ArrowUp, ArrowDown, NotebookPen, ImagePlus, X, Table as TableIcon, Pin,
+  ArrowUp, ArrowDown, NotebookPen, ImagePlus, X, Table as TableIcon, Pin, Archive,
 } from "lucide-react";
 
 export type PageFlat = {
@@ -621,6 +621,23 @@ function PaginaEditor({
     window.dispatchEvent(new Event("sal-hub:paginas-fixadas-mudou"));
   }
 
+  // Arquivar: some da árvore/fixadas sem apagar. Volta em Lixeira → Arquivados.
+  async function arquivarPagina() {
+    const res = await fetch(`/api/pages/${page.id}/arquivar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ arquivar: true }),
+    });
+    if (!res.ok) {
+      toast.error("Falha ao arquivar");
+      return;
+    }
+    toast.success("Página arquivada — desarquive em Lixeira → Arquivados");
+    window.dispatchEvent(new Event("sal-hub:paginas-fixadas-mudou"));
+    router.push("/workspace");
+    router.refresh();
+  }
+
   // Auto-save do conteúdo (debounce 700ms — padrão dos outros editores).
   function handleEditorChange(blocks: EditorBlock[]) {
     const json = JSON.stringify(blocks);
@@ -772,6 +789,14 @@ function PaginaEditor({
             >
               <Pin className={`h-3.5 w-3.5 ${fixada ? "fill-current" : ""}`} />
               {fixada ? "Fixada" : "Fixar na sidebar"}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={arquivarPagina}
+              title="Some da árvore sem apagar — recuperável em Lixeira → Arquivados"
+            >
+              <Archive className="h-3.5 w-3.5" /> Arquivar
             </Button>
           </div>
           <input
