@@ -74,7 +74,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     // ── Engine legacy (@react-pdf) sob demanda ───────────────────
     if (engine === "legacy") {
       const buffer = await renderLegacyPdf(diagnostico);
-      return new Response(buffer, {
+      return new Response(new Uint8Array(buffer), {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `inline; filename="diagnostico-${diagnostico.numero}.pdf"`,

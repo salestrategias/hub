@@ -22,6 +22,6 @@ export async function POST(req: Request) {
   return apiHandler(async () => {
     await requireAuth();
     const data = eventoSchema.parse(await req.json());
-    return createEvent(data);
+    return createEvent({ ...data, descricao: data.descricao ?? undefined });
   });
 }

@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { slugify } from "@/lib/manual-helpers";
 
-type Tipo = "PLAYBOOK" | "MARCA";
+type Tipo = "PLAYBOOK" | "MARCA" | "HUB";
 
 type SecaoBasica = {
   id: string;

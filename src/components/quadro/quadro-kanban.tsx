@@ -17,7 +17,7 @@
  * primeiro e chama a API depois; rollback via refetch em caso de erro.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, Draggable, type DropResult, type DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -778,7 +778,7 @@ function ColunaHeader({
   onApagar,
 }: {
   coluna: ColunaBoard;
-  dragHandleProps: Record<string, unknown> | null | undefined;
+  dragHandleProps: DraggableProvidedDragHandleProps | null | undefined;
   onRenomear: (nome: string) => void;
   onCor: (cor: string) => void;
   onToggleConclui: () => void;

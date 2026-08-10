@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { apagarComLixeira } from "@/lib/lixeira";
@@ -32,7 +33,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       }
     }
 
-    return prisma.proposta.update({ where: { id: params.id }, data });
+    // extras/tema/blocos sao z.unknown() — validados em runtime; cast pro Prisma
+    return prisma.proposta.update({
+      where: { id: params.id },
+      data: data as Prisma.PropostaUncheckedUpdateInput,
+    });
   });
 }
 

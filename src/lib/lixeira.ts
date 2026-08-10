@@ -142,7 +142,7 @@ async function seExiste(
   id: string | null | undefined
 ): Promise<string | null> {
   if (!id) return null;
-  const found = await (prisma[tabela] as { findUnique: (a: { where: { id: string }; select: { id: true } }) => Promise<{ id: string } | null> })
+  const found = await (prisma[tabela] as unknown as { findUnique: (a: { where: { id: string }; select: { id: true } }) => Promise<{ id: string } | null> })
     .findUnique({ where: { id }, select: { id: true } });
   return found ? id : null;
 }

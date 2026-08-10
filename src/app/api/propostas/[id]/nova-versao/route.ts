@@ -14,6 +14,7 @@
  *
  * Body opcional: { motivo: string } — anotação interna da revisão.
  */
+import { Prisma } from "@prisma/client";
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 
@@ -75,7 +76,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         logoUrl: atual.logoUrl,
         corPrimaria: atual.corPrimaria,
         capaImagemUrl: atual.capaImagemUrl,
-        extras: atual.extras as object | null,
+        extras: atual.extras === null ? Prisma.JsonNull : (atual.extras as Prisma.InputJsonValue),
 
         // Status reseta — começa como RASCUNHO até reenviar
         status: "RASCUNHO",

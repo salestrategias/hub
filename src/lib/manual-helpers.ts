@@ -20,8 +20,8 @@ export function slugify(s: string): string {
  * Garante slug único dentro do tipo. Se já existe, anexa -2, -3, etc.
  */
 export async function slugUnico(
-  prismaClient: { docSecao: { findUnique: (args: { where: { tipo_slug: { tipo: "PLAYBOOK" | "MARCA"; slug: string } } }) => Promise<{ id: string } | null> } },
-  tipo: "PLAYBOOK" | "MARCA",
+  prismaClient: { docSecao: { findUnique: (args: { where: { tipo_slug: { tipo: "PLAYBOOK" | "MARCA" | "HUB"; slug: string } } }) => Promise<{ id: string } | null> } },
+  tipo: "PLAYBOOK" | "MARCA" | "HUB",
   base: string,
   excluirId?: string
 ): Promise<string> {

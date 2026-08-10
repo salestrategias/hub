@@ -9,7 +9,7 @@ export function zodToJsonSchema(schema: z.ZodType): Record<string, unknown> {
   const def = (schema as unknown as { _def: { typeName: string; [k: string]: unknown } })._def;
   switch (def.typeName) {
     case "ZodString": {
-      const checks = (def as { checks?: { kind: string; value?: unknown }[] }).checks ?? [];
+      const checks = (def as unknown as { checks?: { kind: string; value?: unknown }[] }).checks ?? [];
       const out: Record<string, unknown> = { type: "string" };
       for (const c of checks) {
         if (c.kind === "min" && typeof c.value === "number") out.minLength = c.value;
@@ -27,18 +27,18 @@ export function zodToJsonSchema(schema: z.ZodType): Record<string, unknown> {
     case "ZodDate":
       return { type: "string", format: "date-time" };
     case "ZodLiteral":
-      return { const: (def as { value: unknown }).value };
+      return { const: (def as unknown as { value: unknown }).value };
     case "ZodEnum":
-      return { type: "string", enum: (def as { values: string[] }).values };
+      return { type: "string", enum: (def as unknown as { values: string[] }).values };
     case "ZodNativeEnum":
-      return { type: "string", enum: Object.values((def as { values: Record<string, string> }).values) };
+      return { type: "string", enum: Object.values((def as unknown as { values: Record<string, string> }).values) };
     case "ZodArray":
       return {
         type: "array",
-        items: zodToJsonSchema((def as { type: z.ZodType }).type),
+        items: zodToJsonSchema((def as unknown as { type: z.ZodType }).type),
       };
     case "ZodObject": {
-      const shape = (def as { shape: () => Record<string, z.ZodType> }).shape();
+      const shape = (def as unknown as { shape: () => Record<string, z.ZodType> }).shape();
       const properties: Record<string, unknown> = {};
       const required: string[] = [];
       for (const [k, v] of Object.entries(shape)) {
@@ -53,11 +53,11 @@ export function zodToJsonSchema(schema: z.ZodType): Record<string, unknown> {
     case "ZodOptional":
     case "ZodNullable":
     case "ZodDefault":
-      return zodToJsonSchema((def as { innerType: z.ZodType }).innerType);
+      return zodToJsonSchema((def as unknown as { innerType: z.ZodType }).innerType);
     case "ZodEffects":
-      return zodToJsonSchema((def as { schema: z.ZodType }).schema);
+      return zodToJsonSchema((def as unknown as { schema: z.ZodType }).schema);
     case "ZodUnion": {
-      const opts = (def as { options: z.ZodType[] }).options;
+      const opts = (def as unknown as { options: z.ZodType[] }).options;
       return { anyOf: opts.map(zodToJsonSchema) };
     }
     case "ZodAny":

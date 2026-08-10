@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { apiHandler, requireAuth } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { propostaSchema } from "@/lib/schemas";
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
         clienteEmail,
         numero,
         criadoPor: user.id,
-      },
+      } as Prisma.PropostaUncheckedCreateInput,
     });
   });
 }

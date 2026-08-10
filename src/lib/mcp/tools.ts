@@ -46,7 +46,11 @@ const ClienteAtualizarInput = z.object({
   notas: z.string().optional(),
 });
 
-const TOOLS: ToolDefinition<unknown>[] = [
+// Registry heterogêneo: cada tool tem input próprio (validado em runtime
+// pelo zod no dispatch). A variance do handler impede unknown aqui — any
+// é o padrão pra registries deste tipo.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const TOOLS: ToolDefinition<any>[] = [
   tool({
     name: "cliente_listar",
     description: "Lista clientes com filtros opcionais. Retorna nome, status, tags, valor mensal e contadores.",
@@ -944,7 +948,8 @@ const TOOLS: ToolDefinition<unknown>[] = [
   }),
 ];
 
-export const toolRegistry: Map<string, ToolDefinition<unknown>> = new Map(TOOLS.map((t) => [t.name, t]));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const toolRegistry: Map<string, ToolDefinition<any>> = new Map(TOOLS.map((t) => [t.name, t]));
 
 /** Lista de tools filtradas pelos escopos do token. */
 export function listToolsForScopes(scopes: string[]) {

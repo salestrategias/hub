@@ -81,7 +81,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     // ── Engine legacy (@react-pdf) sob demanda ───────────────────
     if (engine === "legacy") {
       const buffer = await renderLegacyPdf(proposta);
-      return new Response(buffer, {
+      return new Response(new Uint8Array(buffer), {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `inline; filename="proposta-${proposta.numero}.pdf"`,
@@ -506,11 +506,9 @@ async function renderLegacyPdf(proposta: PropostaLegacy): Promise<Buffer> {
                 key={p.id}
                 style={[
                   styles.pacoteBoxPdf,
-                  p.destaque && {
-                    borderColor: corPrim,
-                    borderWidth: 1.5,
-                    backgroundColor: hexAlpha(corPrim, 0.05),
-                  },
+                  ...(p.destaque
+                    ? [{ borderColor: corPrim, borderWidth: 1.5, backgroundColor: hexAlpha(corPrim, 0.05) }]
+                    : []),
                 ]}
               >
                 {p.destaque ? (
@@ -541,8 +539,10 @@ async function renderLegacyPdf(proposta: PropostaLegacy): Promise<Buffer> {
                       <Text
                         style={[
                           styles.pacoteFeaturePdf,
-                          f.destaque && { fontWeight: 700, color: "#1F1F2D" },
-                          !f.incluso && { color: "#A8A8B8", textDecoration: "line-through" },
+                          ...(f.destaque ? [{ fontWeight: 700 as const, color: "#1F1F2D" }] : []),
+                          ...(!f.incluso
+                            ? [{ color: "#A8A8B8", textDecoration: "line-through" as const }]
+                            : []),
                         ]}
                       >
                         {f.texto}

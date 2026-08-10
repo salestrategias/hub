@@ -275,7 +275,7 @@ export function ClienteSheet({
                 <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
                   Tags
                 </div>
-                <TagsBadges tags={cliente.tags} />
+                <TagsBadges tags={cliente.tags.map((t) => ({ ...t, cor: t.cor ?? "#7E30E1" }))} />
               </div>
             )}
 

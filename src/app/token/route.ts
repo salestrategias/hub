@@ -62,7 +62,6 @@ export async function POST(req: Request) {
     // Busca o code
     const oauthCode = await prisma.oAuthCode.findUnique({
       where: { code },
-      include: { /* nada */ },
     });
 
     if (!oauthCode) throw new Error("invalid_grant: code não encontrado");

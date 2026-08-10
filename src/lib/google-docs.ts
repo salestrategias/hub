@@ -26,7 +26,11 @@ export async function getDocText(docId: string): Promise<string> {
   const auth = await getGoogleClient();
   const drive = google.drive({ version: "v3", auth });
 
-  const res = await drive.files.export(
+  // Overloads do googleapis nao cobrem responseType custom — cast pontual
+  const res = await (drive.files.export as unknown as (
+    p: unknown,
+    o: unknown
+  ) => Promise<{ data: unknown }>)(
     {
       fileId: docId,
       mimeType: "text/plain",

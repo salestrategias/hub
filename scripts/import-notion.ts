@@ -122,7 +122,10 @@ async function importarClientes(mapaTag: Map<string, string>): Promise<Map<strin
       id = upd.id;
       log(`~ Cliente "${c.nome}" atualizado`);
     } else {
-      const nv = await prisma.cliente.create({ data });
+      // create nao aceita tags.set (so update) — em create e connect
+      const nv = await prisma.cliente.create({
+        data: { ...data, tags: { connect: tagIds.map((tid) => ({ id: tid })) } },
+      });
       id = nv.id;
       log(`+ Cliente "${c.nome}" criado`);
     }
