@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -229,6 +230,14 @@ function SidebarConteudo({
   onToggleCollapse?: () => void;
 }) {
   const pathname = usePathname();
+  // Financeiro é ADMIN-only (10/08/2026): esconde o item pra MEMBER.
+  // Enquanto a sessão carrega, mantém visível (evita flash pro admin) —
+  // a página redireciona de qualquer forma (defesa real é no server).
+  const { data: session } = useSession();
+  const escondeFinanceiro = Boolean(session) && session?.user?.role !== "ADMIN";
+  const gruposVisiveis = escondeFinanceiro
+    ? groups.map((g) => ({ ...g, items: g.items.filter((it) => it.href !== "/financeiro") }))
+    : groups;
 
   // Recolher/expandir por grupo. Inicia vazio (= usa defaultOpen). O que
   // o user alterna fica salvo no localStorage. Server e 1º render do
@@ -312,7 +321,7 @@ function SidebarConteudo({
         <PaginasFixadas collapsed={collapsed} pathname={pathname} onNavigate={onNavigate} />
 
         {/* Grupos recolhíveis */}
-        {groups.map((g) => {
+        {gruposVisiveis.map((g) => {
           const temAtiva = g.items.some((it) => rotaAtiva(pathname, it.href));
           const explicito = openMap[g.label];
           const aberto = collapsed

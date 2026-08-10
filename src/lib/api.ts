@@ -46,3 +46,15 @@ export async function requireAuth() {
   if (!session?.user?.id) throw new Error("Não autenticado");
   return session.user;
 }
+
+/**
+ * Sessão + papel ADMIN obrigatórios. Use em áreas sensíveis (financeiro,
+ * admin). Responde 403 via ApiError — não o 500 genérico.
+ */
+export async function requireAdmin() {
+  const user = await requireAuth();
+  if (user.role !== "ADMIN") {
+    throw new ApiError(403, "Apenas administradores acessam esta área");
+  }
+  return user;
+}

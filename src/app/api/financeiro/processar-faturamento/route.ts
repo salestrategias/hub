@@ -9,7 +9,7 @@
  * Resposta: ResultadoFaturamento com criados/jaExistiam/ignorados +
  * detalhes por cliente pra UI mostrar "X mensalidades criadas".
  */
-import { apiHandler, requireAuth } from "@/lib/api";
+import { apiHandler, requireAdmin } from "@/lib/api";
 import { processarFaturamentoMensal } from "@/lib/faturamento-recorrente";
 import { z } from "zod";
 
@@ -20,7 +20,7 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   return apiHandler(async () => {
-    await requireAuth();
+    await requireAdmin();
     const body = await req.json().catch(() => ({}));
     const { ano, mes } = schema.parse(body);
     return processarFaturamentoMensal({ ano, mes });
