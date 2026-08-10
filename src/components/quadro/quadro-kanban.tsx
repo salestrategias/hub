@@ -35,7 +35,7 @@ import { useEntitySheet } from "@/components/entity-sheet";
 import { cn } from "@/lib/utils";
 import {
   Plus, MoreHorizontal, Search, X, Flag, CheckSquare, CalendarDays,
-  Loader2, Trash2, CircleCheckBig, LayoutGrid, Sparkles,
+  Loader2, Trash2, CircleCheckBig, LayoutGrid, Sparkles, Pencil,
 } from "lucide-react";
 
 // ─── Tipos ─────────────────────────────────────────────────────────
