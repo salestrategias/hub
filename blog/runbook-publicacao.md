@@ -27,25 +27,30 @@ Seguir `guia-de-redacao.md` à risca (estrutura, tom, SEO on-page, schema, check
 ### 5. Links internos
 `GET {WP_URL}/wp-json/wp/v2/posts?per_page=100&_fields=slug,title,link` para listar posts existentes. Escolher 3-6 realmente relacionados e linkar no corpo com anchor text natural. Nunca inventar URL.
 
-### 6. Imagens (destacada limpa + arte social)
+### 6. Imagens (gráfico de marca — decisão do Marcelo em 2026-08-10)
+
+**NÃO usar foto de banco.** O Pexels devolvia cena estrangeira, com placa em outro idioma ou sem relação com o texto. As capas agora são 100% desenhadas na identidade v10, com custo zero e sem dependência externa. `--busca`/`--foto` continuam no gerador, mas só para uso manual quando o Marcelo aprovar uma foto específica.
+
 Gerar DUAS imagens com o pipeline em `blog/capa/`:
 
-**a) Imagem destacada (featured) — SEM texto** (os layouts do blog cortam a imagem em várias proporções; texto na arte quebra):
+**a) Imagem destacada (featured) — composição geométrica, SEM texto** (os layouts do blog cortam a imagem em várias proporções; texto na arte quebra):
 ```
-node blog/capa/gerar.js --titulo "Título" --modo limpo --busca "search query" --out destacada-<slug>.png
+node blog/capa/gerar.js --titulo "Título do artigo" --categoria "Nome da Categoria" \
+  --modo grafico --out destacada-<slug>.png
 ```
 
-**b) Arte social (og:image) — tipográfica/split com título** (proporção fixa nos compartilhamentos):
+**b) Arte social (og:image) — data card com o número da matéria** (proporção fixa nos compartilhamentos):
 ```
 node blog/capa/gerar.js --titulo "Título do artigo" --destaque "trecho em roxo" \
-  --categoria "Nome da Categoria" --busca "search query" --out social-<slug>.png
+  --categoria "Nome da Categoria" --modo grafico \
+  --dado "61,3%" --dadoLabel "dos porto-alegrenses preferem lojas de rua" \
+  --out social-<slug>.png
 ```
-Usar a MESMA `--busca` nas duas (o gerador escolhe a mesma foto — determinístico por título).
-- `--busca`: query pro banco de fotos (Pexels) em INGLÊS, 2-4 palavras, concreta e visual, coerente com o tema do artigo (ex.: "clothing store owner", "online shopping boxes", "small shop counter"). Preferir cenas de comércio/varejo com gente real; evitar termos abstratos ("marketing", "strategy" rendem stock genérico ruim).
-- `--busca`: query pro Pexels em INGLÊS, 2-4 palavras, cena concreta de comércio/varejo. `--destaque`: o trecho do título com mais carga (2-4 palavras).
-- O script imprime `FOTO: Pexels #id por <fotógrafo>` — registrar no log (rastreabilidade da licença).
-- Upload das DUAS via `POST /wp-json/wp/v2/media` (alt_text = título). `featured_media` = ID da **destacada limpa**. A URL (`source_url`) da **arte social** vai no meta `rank_math_facebook_image` (passo 7).
-- Sem PEXELS_API_KEY ou sem foto: destacada sai no fallback limpo sem foto; social sai tipográfica. Anotar `CAPA SEM FOTO` no log.
+- `--dado`: o número MAIS FORTE do artigo (percentual, valor em R$ ou multiplicador), sempre um dado que está no texto e tem fonte citada. `--dadoLabel`: até ~10 palavras explicando o número, sem repetir o título.
+- Se o artigo não tiver número de destaque, omitir `--dado`: a arte social sai com a composição geométrica.
+- `--destaque`: o trecho do título com mais carga (2-4 palavras), sai em roxo/neon.
+- A variante de fundo (ink, paper, indigo) é escolhida por hash do título: estável por artigo, variada no feed.
+- Upload das DUAS via `POST /wp-json/wp/v2/media` (alt_text = título). `featured_media` = ID da **destacada**. A URL (`source_url`) da **arte social** vai no meta `rank_math_facebook_image` + o ID em `rank_math_facebook_image_id` (passo 7).
 - Upload: `POST {WP_URL}/wp-json/wp/v2/media` com `Content-Disposition: attachment; filename="capa-<slug>.png"`, `Content-Type: image/png` e o binário no body; depois `POST /wp-json/wp/v2/media/{id}` com `{"alt_text": "<título>", "title": "<título>"}`.
 - `featured_media` = ID retornado.
 - Se a geração falhar (ex.: node indisponível), fallback: escolher capa existente na media library mais aderente ao tema e anotar `CAPA REAPROVEITADA` no log; em último caso `SEM CAPA`.

@@ -56,6 +56,7 @@ O site usa **Rank Math**. A automação grava os campos dele via REST (meta `ran
 | Links internos | 3-6 posts relacionados do blog + 1-2 páginas de serviço + diagnóstico quando natural |
 | Links externos | 1-3 fontes de autoridade (dados de mercado BR: Ebit/Nielsen, ABComm, Sebrae, Google, Meta). Sempre em nova aba não é necessário; HTML padrão |
 | Imagens no corpo | opcional; se usar, só da media library existente, com alt text descritivo |
+| Capas | geradas pelo `blog/capa/gerar.js` em `--modo grafico` (identidade v10, sem foto de banco). A arte social usa o número mais forte do artigo em `--dado`, então vale garantir que o texto tenha pelo menos um dado com fonte |
 
 URLs canônicas para links de serviço:
 - SEO: https://salestrategias.com.br/servicos/agencia-de-seo/
