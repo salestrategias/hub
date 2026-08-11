@@ -40,7 +40,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 31 | Produto esgotado ou descontinuado: apagar, redirecionar ou manter a página? | produto esgotado seo o que fazer | SEO | 13 | MOFU | PUBLICADO 2026-08-08 https://www.salestrategias.com.br/produto-esgotado-seo/ |
 | 32 | Instagram para negócio local: como aparecer para o bairro | instagram para negócio local | LOC | 29 | MOFU | PUBLICADO 2026-08-09 https://www.salestrategias.com.br/instagram-para-negocio-local/ |
 | 33 | Remarketing dinâmico: como mostrar exatamente o produto que o cliente viu | remarketing dinâmico loja virtual | TP | 15 | TOFU | PUBLICADO 2026-08-10 https://www.salestrategias.com.br/remarketing-dinamico/ |
-| 34 | Margem de contribuição: o número que decide se a campanha pode escalar | margem de contribuição e-commerce | DAD | 29 | MOFU | PENDENTE |
+| 34 | Margem de contribuição: o número que decide se a campanha pode escalar | margem de contribuição e-commerce | DAD | 29 | MOFU | PUBLICADO 2026-08-11 https://www.salestrategias.com.br/margem-de-contribuicao-ecommerce/ |
 | 35 | Mídia no 2º semestre de 2026: eleições, CPM caro e onde anunciar | planejamento de mídia segundo semestre 2026 | SAZ | 29 | MOFU | PENDENTE |
 | 36 | Como conseguir avaliações no Google sem constranger o cliente | como conseguir avaliações no google | LOC | 17 | MOFU | PENDENTE |
 | 37 | E-mail de boas-vindas que vende: exemplos para loja virtual | email de boas-vindas loja virtual | CRM | 14 | MOFU | PENDENTE |
