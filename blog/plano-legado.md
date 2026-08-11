@@ -61,7 +61,7 @@ Diagnóstico a partir da amostra (1122): abertura com "Resumo:", Title Case em t
 
 - [x] Lote 1: 1122, 1158
 - [x] Lote 2: 1341, 1282, 1288
-- [ ] Lote 3: grupo Google Meu Negócio (1156, 1097, 1334)
+- [x] Lote 3: grupo Google Meu Negócio (1156, 1097, 1334)
 - [ ] Lote 4: grupo SEO local (1026, 1095, 1327, 1332)
 - [ ] Lote 5: grupo SEO/GEO (1067, 1079, 371)
 - [ ] Lote 6: 1165, 1174, 1285, 1299, 1014
