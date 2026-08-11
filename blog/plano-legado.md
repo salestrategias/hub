@@ -47,12 +47,12 @@ Diagnóstico a partir da amostra (1122): abertura com "Resumo:", Title Case em t
 |---|---|---|
 | 1122 | como-anunciar-no-meta-ads-em-2026-guia | Reescrita. Remover "PMEs" |
 | 1158 | como-anunciar-no-google-ads-em-2026-guia | Reescrita. Remover "PMEs" |
-| 1341 | meta-ads-em-2026-impostos-custos | Reescrita, preservando os fatos tributários já verificados |
+| 1341 | meta-ads-em-2026-impostos-custos | FEITO. Os percentuais antigos (20%, 15%, 25%) estavam sem fonte e errados. Reescrito com o comunicado oficial da Meta: 12,15% (PIS/Cofins 9,25% + ISS 2,9%), R$ 1.000 pagos = R$ 878,50 de entrega |
 | 1165 | como-criar-uma-loja-virtual-ecommerce-2026 | Reescrita |
 | 1174 | palavras-chave-de-cauda-longa-o-que-sao | Reescrita |
 | 1282 | google-analytics-4-guia-completo | Reescrita. Falta TOC, tem em-dash |
 | 1285 | planejamento-de-marketing-digital-2026 | Reescrita |
-| 1288 | cac-e-ltv-como-calcular-metricas-negocio | Reangular para LTV e a relação LTV:CAC (o CAC puro já tem artigo novo) |
+| 1288 | cac-e-ltv-como-calcular-metricas-negocio | FEITO. Link da Forbes estava 404. Reescrito com o achado de que a regra 3:1 vem do SaaS (David Skok) e não serve ao varejo: faixa de 2,5 a 4 para 1 |
 | 1299 | o-que-e-inbound-marketing-como-implementar | Reescrita, traduzida para a realidade de lojista |
 | 1014 | sal-em-marketing-sales-accepted-lead | Reescrita para quem tem vendedor atendendo lead |
 | 371 | (ver grupo SEO/GEO) | |
@@ -60,7 +60,7 @@ Diagnóstico a partir da amostra (1122): abertura com "Resumo:", Title Case em t
 ## Status
 
 - [x] Lote 1: 1122, 1158
-- [ ] Lote 2: 1341, 1282, 1288
+- [x] Lote 2: 1341, 1282, 1288
 - [ ] Lote 3: grupo Google Meu Negócio (1156, 1097, 1334)
 - [ ] Lote 4: grupo SEO local (1026, 1095, 1327, 1332)
 - [ ] Lote 5: grupo SEO/GEO (1067, 1079, 371)
