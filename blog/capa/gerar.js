@@ -43,8 +43,12 @@ const fotoArquivo = arg('foto')
 const busca = arg('busca')
 const fotoId = arg('fotoId') // reusar foto específica do Pexels
 // modo "limpo": SEM texto na arte (imagem destacada — sobrevive a qualquer corte dos layouts do blog)
+// modo "grafico": arte de marca 100% desenhada, sem foto (data card quando há --dado)
 // modo padrão: arte tipográfica/split com título (usar como og:image/social, proporção fixa)
 const modo = arg('modo', 'padrao')
+// --dado "61,3%" --dadoLabel "dos porto-alegrenses preferem lojas de rua" (só no modo grafico)
+const dado = arg('dado')
+const dadoLabel = arg('dadoLabel', '')
 if (!titulo) {
   console.error('Erro: --titulo é obrigatório')
   process.exit(1)
@@ -187,6 +191,83 @@ const rodape = (lg, corTexto, corDot) => ({
   },
 })
 
+// Composição geométrica de marca (usada quando não há dado numérico)
+function blocoGeometrico(corA, corB, corC) {
+  const linhas = [
+    [corA, corB, corC, corA],
+    [corB, corC, corA, corB],
+    [corC, corA, corB, corC],
+  ]
+  return {
+    type: 'div',
+    props: {
+      style: { display: 'flex', flexDirection: 'column', gap: 26 },
+      children: linhas.map((linha, li) => ({
+        type: 'div',
+        props: {
+          style: { display: 'flex', gap: 26, marginLeft: li * 18 },
+          children: linha.map((cor, ci) => saltGrain(cor, 44 - (li + ci) * 3)),
+        },
+      })),
+    },
+  }
+}
+
+// ─── Layout gráfico de marca (sem foto) ──────────────────────────
+// Capa 100% desenhada na identidade v10. Com --dado, vira "data card":
+// o número da matéria em destaque. Sem --dado, composição geométrica.
+function layoutGrafico(vi) {
+  const V = [
+    { bg: INK, texto: WHITE, eyebrow: 'rgba(255,255,255,.8)', accent: NEON, dot: NEON, caixa: 'rgba(255,255,255,.06)', borda: 'rgba(255,255,255,.16)', logo: 'branco', geo: [ROXO, NEON, 'rgba(255,255,255,.25)'] },
+    { bg: PAPER_WARM, texto: INK, eyebrow: INDIGO, accent: ROXO, dot: ROXO, caixa: 'rgba(126,48,225,.07)', borda: 'rgba(45,29,122,.14)', logo: 'roxo', geo: [ROXO, INDIGO, 'rgba(126,48,225,.35)'] },
+    { bg: INDIGO, texto: WHITE, eyebrow: 'rgba(255,255,255,.75)', accent: NEON, dot: NEON, caixa: 'rgba(255,255,255,.08)', borda: 'rgba(255,255,255,.18)', logo: 'branco', geo: [NEON, WHITE, 'rgba(255,255,255,.3)'] },
+  ][vi % 3]
+  const lg = logo(V.logo)
+  const len = titulo.length
+  const fs = len <= 40 ? 62 : len <= 60 ? 54 : len <= 80 ? 46 : 40
+
+  const painel = dado
+    ? {
+        type: 'div',
+        props: {
+          style: {
+            display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 18,
+            backgroundColor: V.caixa, border: `2px solid ${V.borda}`, borderRadius: 28,
+            padding: '48px 44px', width: 470,
+          },
+          children: [
+            { type: 'div', props: { style: { fontFamily: 'PlusJakarta', fontWeight: 800, fontSize: dado.length > 6 ? 92 : 116, letterSpacing: -4, color: V.accent, display: 'flex', lineHeight: 1 }, children: dado } },
+            dadoLabel
+              ? { type: 'div', props: { style: { fontFamily: 'PlusJakarta', fontWeight: 500, fontSize: 24, lineHeight: 1.35, color: V.texto, display: 'flex', opacity: 0.92 }, children: dadoLabel } }
+              : { type: 'div', props: { style: { display: 'flex' }, children: '' } },
+            { type: 'div', props: { style: { display: 'flex', gap: 12, marginTop: 6 }, children: [saltGrain(V.dot, 10), saltGrain(V.dot, 10), saltGrain(V.dot, 10)] } },
+          ],
+        },
+      }
+    : { type: 'div', props: { style: { display: 'flex', width: 470, justifyContent: 'center' }, children: [blocoGeometrico(...V.geo)] } }
+
+  return {
+    type: 'div',
+    props: {
+      style: { width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', backgroundColor: V.bg, padding: '64px 76px 56px 76px' },
+      children: [
+        eyebrow(V.eyebrow, V.accent, V.dot),
+        {
+          type: 'div',
+          props: {
+            style: { display: 'flex', alignItems: 'center', gap: 60, flex: 1, paddingTop: 22, paddingBottom: 22 },
+            children: [
+              { type: 'div', props: { style: { display: 'flex', flexWrap: 'wrap', flex: 1, fontFamily: 'PlusJakarta', fontWeight: 800, fontSize: fs, lineHeight: 1.1, letterSpacing: -1.6 }, children: spansTitulo(fs, V.texto, V.accent) } },
+              painel,
+            ],
+          },
+        },
+        rodape(lg, V.eyebrow, V.dot),
+      ],
+    },
+  }
+}
+
 // ─── Layouts ─────────────────────────────────────────────────────
 function layoutTipografico(vi) {
   const V = [
@@ -295,7 +376,11 @@ function layoutLimpoSemFoto() {
 // ─── Render ──────────────────────────────────────────────────────
 const foto = await obterFoto()
 let el, descricaoVariante
-if (modo === 'limpo') {
+if (modo === 'grafico') {
+  const vg = arg('variante') !== undefined ? Number(arg('variante')) % 3 : hash % 3
+  el = layoutGrafico(vg)
+  descricaoVariante = `grafico-${['ink', 'paper', 'indigo'][vg]}${dado ? '-dado' : '-geo'}`
+} else if (modo === 'limpo') {
   el = foto ? layoutFotoLimpa(foto.dataUri) : layoutLimpoSemFoto()
   descricaoVariante = foto ? 'foto-limpa' : 'limpa-sem-foto'
   if (foto) console.log(`FOTO: ${foto.credito}`)
