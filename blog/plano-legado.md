@@ -32,7 +32,7 @@ Diagnóstico a partir da amostra (1122): abertura com "Resumo:", Title Case em t
 |---|---|---|
 | 1026 | como-fazer-seo-para-negocios-locais | Guia geral de SEO local (nacional; POA tem página própria) |
 | 1095 | seo-para-negocios-locais-2026-5 | Como medir retorno de SEO local sem sistema caro |
-| 1327 | seo-para-pequenas-empresas-2026 | SEO com pouca verba e pouco tempo (operação de uma pessoa só). Slug preservado, mas o termo "pequenas empresas" sai do título e do texto |
+| 1327 | seo-para-pequenas-empresas-2026 | FEITO. Virou "SEO local com pouco tempo: duas horas por semana". Slug preservado; termo proibido zerado na página renderizada |
 | 1332 | seo-para-negocios-locais-2026-dominacao-regional | SEO para quem atende várias regiões, bairros ou unidades |
 
 ### Grupo SEO / GEO (3 URLs, 3 ângulos)
@@ -62,6 +62,6 @@ Diagnóstico a partir da amostra (1122): abertura com "Resumo:", Title Case em t
 - [x] Lote 1: 1122, 1158
 - [x] Lote 2: 1341, 1282, 1288
 - [x] Lote 3: grupo Google Meu Negócio (1156, 1097, 1334)
-- [ ] Lote 4: grupo SEO local (1026, 1095, 1327, 1332)
+- [x] Lote 4: grupo SEO local (1026, 1095, 1327, 1332)
 - [ ] Lote 5: grupo SEO/GEO (1067, 1079, 371)
 - [ ] Lote 6: 1165, 1174, 1285, 1299, 1014
