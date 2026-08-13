@@ -54,7 +54,7 @@ Diagnóstico a partir da amostra (1122): abertura com "Resumo:", Title Case em t
 | 1285 | planejamento-de-marketing-digital-2026 | Reescrita |
 | 1288 | cac-e-ltv-como-calcular-metricas-negocio | FEITO. Link da Forbes estava 404. Reescrito com o achado de que a regra 3:1 vem do SaaS (David Skok) e não serve ao varejo: faixa de 2,5 a 4 para 1 |
 | 1299 | o-que-e-inbound-marketing-como-implementar | Reescrita, traduzida para a realidade de lojista |
-| 1014 | sal-em-marketing-sales-accepted-lead | Reescrita para quem tem vendedor atendendo lead |
+| 1014 | sal-em-marketing-sales-accepted-lead | FEITO com pesquisa profunda (workflow de 4 agentes + verificação adversarial). Defesa de marca: a sigla SAL colide com o termo técnico e concorrentes capturavam busca por "SAL marketing". Artigo agora tem fonte primária datada (SiriusDecisions 2006), resolve a divergência das 3 escolas do funil, entrega SLA operacional, e desambigua a marca no topo. 2.743 palavras, 6 fontes externas, FAQPage + DefinedTerm |
 | 371 | (ver grupo SEO/GEO) | |
 
 ## Status
