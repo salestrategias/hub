@@ -42,7 +42,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 33 | Remarketing dinâmico: como mostrar exatamente o produto que o cliente viu | remarketing dinâmico loja virtual | TP | 15 | TOFU | PUBLICADO 2026-08-10 https://www.salestrategias.com.br/remarketing-dinamico/ |
 | 34 | Margem de contribuição: o número que decide se a campanha pode escalar | margem de contribuição e-commerce | DAD | 29 | MOFU | PUBLICADO 2026-08-11 https://www.salestrategias.com.br/margem-de-contribuicao-ecommerce/ |
 | 35 | Mídia no 2º semestre de 2026: eleições, CPM caro e onde anunciar | planejamento de mídia segundo semestre 2026 | SAZ | 29 | MOFU | PUBLICADO 2026-08-12 https://www.salestrategias.com.br/planejamento-de-midia-segundo-semestre-2026/ |
-| 36 | Como conseguir avaliações no Google sem constranger o cliente | como conseguir avaliações no google | LOC | 17 | MOFU | PENDENTE |
+| 36 | Como conseguir avaliações no Google sem constranger o cliente | como conseguir avaliações no google | LOC | 17 | MOFU | PUBLICADO 2026-08-13 https://www.salestrategias.com.br/avaliacoes-google-sem-constranger/ |
 | 37 | E-mail de boas-vindas que vende: exemplos para loja virtual | email de boas-vindas loja virtual | CRM | 14 | MOFU | PENDENTE |
 | 38 | Schema de produto: como aparecer com preço e estrelas no Google | schema de produto estrelas google | SEO | 13 | MOFU | PENDENTE |
 | 39 | Quanto investir em tráfego pago numa loja virtual que está começando | quanto investir trafego pago loja virtual | TP | 15 | TOFU | PENDENTE |
