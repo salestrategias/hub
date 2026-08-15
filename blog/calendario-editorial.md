@@ -44,7 +44,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 35 | Mídia no 2º semestre de 2026: eleições, CPM caro e onde anunciar | planejamento de mídia segundo semestre 2026 | SAZ | 29 | MOFU | PUBLICADO 2026-08-12 https://www.salestrategias.com.br/planejamento-de-midia-segundo-semestre-2026/ |
 | 36 | Como conseguir avaliações no Google sem constranger o cliente | como conseguir avaliações no google | LOC | 17 | MOFU | PUBLICADO 2026-08-13 https://www.salestrategias.com.br/avaliacoes-google-sem-constranger/ |
 | 37 | E-mail de boas-vindas que vende: exemplos para loja virtual | email de boas-vindas loja virtual | CRM | 14 | MOFU | PUBLICADO 2026-08-14 https://www.salestrategias.com.br/email-de-boas-vindas-loja-virtual/ |
-| 38 | Schema de produto: como aparecer com preço e estrelas no Google | schema de produto estrelas google | SEO | 13 | MOFU | PENDENTE |
+| 38 | Schema de produto: como aparecer com preço e estrelas no Google | schema de produto estrelas google | SEO | 13 | MOFU | PUBLICADO 2026-08-15 https://www.salestrategias.com.br/schema-de-produto-estrelas-google/ |
 | 39 | Quanto investir em tráfego pago numa loja virtual que está começando | quanto investir trafego pago loja virtual | TP | 15 | TOFU | PENDENTE |
 | 40 | Página de produto que converte: o que não pode faltar | pagina de produto que converte | CRO | 14 | MOFU | PENDENTE |
 | 41 | Como migrar clientes do marketplace para a loja própria (sem quebrar regras) | migrar clientes do marketplace | MKT | 14 | MOFU | PENDENTE |
