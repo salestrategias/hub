@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="pt-BR" prefix="og: https://ogp.me/ns#">
+<head><meta charset="UTF-8"><script>if(navigator.userAgent.match(/MSIE|Internet Explorer/i)||navigator.userAgent.match(/Trident\/7\..*?rv:11/i)){var href=document.location.href;if(!href.match(/[?&]nowprocket/)){if(href.indexOf("?")==-1){if(href.indexOf("#")==-1){document.location.href=href+"?nowprocket=1"}else{document.location.href=href.replace("#","?nowprocket=1#")}}else{if(href.indexOf("#")==-1){document.location.href=href+"&nowprocket=1"}else{document.location.href=href.replace("#","&nowprocket=1#")}}}}</script><script>(()=>{class RocketLazyLoadScripts{constructor(){this.v="2.0.4",this.userEvents=["keydown","keyup","mousedown","mouseup","mousemove","mouseover","mouseout","touchmove","touchstart","touchend","touchcancel","wheel","click","dblclick","input"],this.attributeEvents=["onblur","onclick","oncontextmenu","ondblclick","onfocus","onmousedown","onmouseenter","onmouseleave","onmousemove","onmouseout","onmouseover","onmouseup","onmousewheel","onscroll","onsubmit"]}async t(){this.i(),this.o(),/iP(ad|hone)/.test(navigator.userAgent)&&this.h(),this.u(),this.l(this),this.m(),this.k(this),this.p(this),this._(),await Promise.all([this.R(),this.L()]),this.lastBreath=Date.now(),this.S(this),this.P(),this.D(),this.O(),this.M(),await this.C(this.delayedScripts.normal),await this.C(this.delayedScripts.defer),await this.C(this.delayedScripts.async),await this.T(),await this.F(),await this.j(),await this.A(),window.dispatchEvent(new Event("rocket-allScriptsLoaded")),this.everythingLoaded=!0,this.lastTouchEnd&&await new Promise(t=>setTimeout(t,500-Date.now()+this.lastTouchEnd)),this.I(),this.H(),this.U(),this.W()}i(){this.CSPIssue=sessionStorage.getItem("rocketCSPIssue"),document.addEventListener("securitypolicyviolation",t=>{this.CSPIssue||"script-src-elem"!==t.violatedDirective||"data"!==t.blockedURI||(this.CSPIssue=!0,sessionStorage.setItem("rocketCSPIssue",!0))},{isRocket:!0})}o(){window.addEventListener("pageshow",t=>{this.persisted=t.persisted,this.realWindowLoadedFired=!0},{isRocket:!0}),window.addEventListener("pagehide",()=>{this.onFirstUserAction=null},{isRocket:!0})}h(){let t;function e(e){t=e}window.addEventListener("touchstart",e,{isRocket:!0}),window.addEventListener("touchend",function i(o){o.changedTouches[0]&&t.changedTouches[0]&&Math.abs(o.changedTouches[0].pageX-t.changedTouches[0].pageX)<10&&Math.abs(o.changedTouches[0].pageY-t.changedTouches[0].pageY)<10&&o.timeStamp-t.timeStamp<200&&(window.removeEventListener("touchstart",e,{isRocket:!0}),window.removeEventListener("touchend",i,{isRocket:!0}),"INPUT"===o.target.tagName&&"text"===o.target.type||(o.target.dispatchEvent(new TouchEvent("touchend",{target:o.target,bubbles:!0})),o.target.dispatchEvent(new MouseEvent("mouseover",{target:o.target,bubbles:!0})),o.target.dispatchEvent(new PointerEvent("click",{target:o.target,bubbles:!0,cancelable:!0,detail:1,clientX:o.changedTouches[0].clientX,clientY:o.changedTouches[0].clientY})),event.preventDefault()))},{isRocket:!0})}q(t){this.userActionTriggered||("mousemove"!==t.type||this.firstMousemoveIgnored?"keyup"===t.type||"mouseover"===t.type||"mouseout"===t.type||(this.userActionTriggered=!0,this.onFirstUserAction&&this.onFirstUserAction()):this.firstMousemoveIgnored=!0),"click"===t.type&&t.preventDefault(),t.stopPropagation(),t.stopImmediatePropagation(),"touchstart"===this.lastEvent&&"touchend"===t.type&&(this.lastTouchEnd=Date.now()),"click"===t.type&&(this.lastTouchEnd=0),this.lastEvent=t.type,t.composedPath&&t.composedPath()[0].getRootNode()instanceof ShadowRoot&&(t.rocketTarget=t.composedPath()[0]),this.savedUserEvents.push(t)}u(){this.savedUserEvents=[],this.userEventHandler=this.q.bind(this),this.userEvents.forEach(t=>window.addEventListener(t,this.userEventHandler,{passive:!1,isRocket:!0})),document.addEventListener("visibilitychange",this.userEventHandler,{isRocket:!0})}U(){this.userEvents.forEach(t=>window.removeEventListener(t,this.userEventHandler,{passive:!1,isRocket:!0})),document.removeEventListener("visibilitychange",this.userEventHandler,{isRocket:!0}),this.savedUserEvents.forEach(t=>{(t.rocketTarget||t.target).dispatchEvent(new window[t.constructor.name](t.type,t))})}m(){const t="return false",e=Array.from(this.attributeEvents,t=>"data-rocket-"+t),i="["+this.attributeEvents.join("],[")+"]",o="[data-rocket-"+this.attributeEvents.join("],[data-rocket-")+"]",s=(e,i,o)=>{o&&o!==t&&(e.setAttribute("data-rocket-"+i,o),e["rocket"+i]=new Function("event",o),e.setAttribute(i,t))};new MutationObserver(t=>{for(const n of t)"attributes"===n.type&&(n.attributeName.startsWith("data-rocket-")||this.everythingLoaded?n.attributeName.startsWith("data-rocket-")&&this.everythingLoaded&&this.N(n.target,n.attributeName.substring(12)):s(n.target,n.attributeName,n.target.getAttribute(n.attributeName))),"childList"===n.type&&n.addedNodes.forEach(t=>{if(t.nodeType===Node.ELEMENT_NODE)if(this.everythingLoaded)for(const i of[t,...t.querySelectorAll(o)])for(const t of i.getAttributeNames())e.includes(t)&&this.N(i,t.substring(12));else for(const e of[t,...t.querySelectorAll(i)])for(const t of e.getAttributeNames())this.attributeEvents.includes(t)&&s(e,t,e.getAttribute(t))})}).observe(document,{subtree:!0,childList:!0,attributeFilter:[...this.attributeEvents,...e]})}I(){this.attributeEvents.forEach(t=>{document.querySelectorAll("[data-rocket-"+t+"]").forEach(e=>{this.N(e,t)})})}N(t,e){const i=t.getAttribute("data-rocket-"+e);i&&(t.setAttribute(e,i),t.removeAttribute("data-rocket-"+e))}k(t){Object.defineProperty(HTMLElement.prototype,"onclick",{get(){return this.rocketonclick||null},set(e){this.rocketonclick=e,this.setAttribute(t.everythingLoaded?"onclick":"data-rocket-onclick","this.rocketonclick(event)")}})}S(t){function e(e,i){let o=e[i];e[i]=null,Object.defineProperty(e,i,{get:()=>o,set(s){t.everythingLoaded?o=s:e["rocket"+i]=o=s}})}e(document,"onreadystatechange"),e(window,"onload"),e(window,"onpageshow");try{Object.defineProperty(document,"readyState",{get:()=>t.rocketReadyState,set(e){t.rocketReadyState=e},configurable:!0}),document.readyState="loading"}catch(t){console.log("WPRocket DJE readyState conflict, bypassing")}}l(t){this.originalAddEventListener=EventTarget.prototype.addEventListener,this.originalRemoveEventListener=EventTarget.prototype.removeEventListener,this.savedEventListeners=[],EventTarget.prototype.addEventListener=function(e,i,o){o&&o.isRocket||!t.B(e,this)&&!t.userEvents.includes(e)||t.B(e,this)&&!t.userActionTriggered||e.startsWith("rocket-")||t.everythingLoaded?t.originalAddEventListener.call(this,e,i,o):(t.savedEventListeners.push({target:this,remove:!1,type:e,func:i,options:o}),"mouseenter"!==e&&"mouseleave"!==e||t.originalAddEventListener.call(this,e,t.savedUserEvents.push,o))},EventTarget.prototype.removeEventListener=function(e,i,o){o&&o.isRocket||!t.B(e,this)&&!t.userEvents.includes(e)||t.B(e,this)&&!t.userActionTriggered||e.startsWith("rocket-")||t.everythingLoaded?t.originalRemoveEventListener.call(this,e,i,o):t.savedEventListeners.push({target:this,remove:!0,type:e,func:i,options:o})}}J(t,e){this.savedEventListeners=this.savedEventListeners.filter(i=>{let o=i.type,s=i.target||window;return e!==o||t!==s||(this.B(o,s)&&(i.type="rocket-"+o),this.$(i),!1)})}H(){EventTarget.prototype.addEventListener=this.originalAddEventListener,EventTarget.prototype.removeEventListener=this.originalRemoveEventListener,this.savedEventListeners.forEach(t=>this.$(t))}$(t){t.remove?this.originalRemoveEventListener.call(t.target,t.type,t.func,t.options):this.originalAddEventListener.call(t.target,t.type,t.func,t.options)}p(t){let e;function i(e){return t.everythingLoaded?e:e.split(" ").map(t=>"load"===t||t.startsWith("load.")?"rocket-jquery-load":t).join(" ")}function o(o){function s(e){const s=o.fn[e];o.fn[e]=o.fn.init.prototype[e]=function(){return this[0]===window&&t.userActionTriggered&&("string"==typeof arguments[0]||arguments[0]instanceof String?arguments[0]=i(arguments[0]):"object"==typeof arguments[0]&&Object.keys(arguments[0]).forEach(t=>{const e=arguments[0][t];delete arguments[0][t],arguments[0][i(t)]=e})),s.apply(this,arguments),this}}if(o&&o.fn&&!t.allJQueries.includes(o)){const e={DOMContentLoaded:[],"rocket-DOMContentLoaded":[]};for(const t in e)document.addEventListener(t,()=>{e[t].forEach(t=>t())},{isRocket:!0});o.fn.ready=o.fn.init.prototype.ready=function(i){function s(){parseInt(o.fn.jquery)>2?setTimeout(()=>i.bind(document)(o)):i.bind(document)(o)}return"function"==typeof i&&(t.realDomReadyFired?!t.userActionTriggered||t.fauxDomReadyFired?s():e["rocket-DOMContentLoaded"].push(s):e.DOMContentLoaded.push(s)),o([])},s("on"),s("one"),s("off"),t.allJQueries.push(o)}e=o}t.allJQueries=[],o(window.jQuery),Object.defineProperty(window,"jQuery",{get:()=>e,set(t){o(t)}})}P(){const t=new Map;document.write=document.writeln=function(e){const i=document.currentScript,o=document.createRange(),s=i.parentElement;let n=t.get(i);void 0===n&&(n=i.nextSibling,t.set(i,n));const c=document.createDocumentFragment();o.setStart(c,0),c.appendChild(o.createContextualFragment(e)),s.insertBefore(c,n)}}async R(){return new Promise(t=>{this.userActionTriggered?t():this.onFirstUserAction=t})}async L(){return new Promise(t=>{document.addEventListener("DOMContentLoaded",()=>{this.realDomReadyFired=!0,t()},{isRocket:!0})})}async j(){return this.realWindowLoadedFired?Promise.resolve():new Promise(t=>{window.addEventListener("load",t,{isRocket:!0})})}M(){this.pendingScripts=[];this.scriptsMutationObserver=new MutationObserver(t=>{for(const e of t)e.addedNodes.forEach(t=>{"SCRIPT"!==t.tagName||t.noModule||t.isWPRocket||this.pendingScripts.push({script:t,promise:new Promise(e=>{const i=()=>{const i=this.pendingScripts.findIndex(e=>e.script===t);i>=0&&this.pendingScripts.splice(i,1),e()};t.addEventListener("load",i,{isRocket:!0}),t.addEventListener("error",i,{isRocket:!0}),setTimeout(i,1e3)})})})}),this.scriptsMutationObserver.observe(document,{childList:!0,subtree:!0})}async F(){await this.X(),this.pendingScripts.length?(await this.pendingScripts[0].promise,await this.F()):this.scriptsMutationObserver.disconnect()}D(){this.delayedScripts={normal:[],async:[],defer:[]},document.querySelectorAll("script[type$=rocketlazyloadscript]").forEach(t=>{t.hasAttribute("data-rocket-src")?t.hasAttribute("async")&&!1!==t.async?this.delayedScripts.async.push(t):t.hasAttribute("defer")&&!1!==t.defer||"module"===t.getAttribute("data-rocket-type")?this.delayedScripts.defer.push(t):this.delayedScripts.normal.push(t):this.delayedScripts.normal.push(t)})}async _(){await this.L();let t=[];document.querySelectorAll("script[type$=rocketlazyloadscript][data-rocket-src]").forEach(e=>{let i=e.getAttribute("data-rocket-src");if(i&&!i.startsWith("data:")){i.startsWith("//")&&(i=location.protocol+i);try{const o=new URL(i).origin;o!==location.origin&&t.push({src:o,crossOrigin:e.crossOrigin||"module"===e.getAttribute("data-rocket-type")})}catch(t){}}}),t=[...new Map(t.map(t=>[JSON.stringify(t),t])).values()],this.Y(t,"preconnect")}async G(t){if(await this.K(),!0!==t.noModule||!("noModule"in HTMLScriptElement.prototype))return new Promise(e=>{let i;function o(){(i||t).setAttribute("data-rocket-status","executed"),e()}try{if(navigator.userAgent.includes("Firefox/")||""===navigator.vendor||this.CSPIssue)i=document.createElement("script"),[...t.attributes].forEach(t=>{let e=t.nodeName;"type"!==e&&("data-rocket-type"===e&&(e="type"),"data-rocket-src"===e&&(e="src"),i.setAttribute(e,t.nodeValue))}),t.text&&(i.text=t.text),t.nonce&&(i.nonce=t.nonce),i.hasAttribute("src")?(i.addEventListener("load",o,{isRocket:!0}),i.addEventListener("error",()=>{i.setAttribute("data-rocket-status","failed-network"),e()},{isRocket:!0}),setTimeout(()=>{i.isConnected||e()},1)):(i.text=t.text,o()),i.isWPRocket=!0,t.parentNode.replaceChild(i,t);else{const i=t.getAttribute("data-rocket-type"),s=t.getAttribute("data-rocket-src");i?(t.type=i,t.removeAttribute("data-rocket-type")):t.removeAttribute("type"),t.addEventListener("load",o,{isRocket:!0}),t.addEventListener("error",i=>{this.CSPIssue&&i.target.src.startsWith("data:")?(console.log("WPRocket: CSP fallback activated"),t.removeAttribute("src"),this.G(t).then(e)):(t.setAttribute("data-rocket-status","failed-network"),e())},{isRocket:!0}),s?(t.fetchPriority="high",t.removeAttribute("data-rocket-src"),t.src=s):t.src="data:text/javascript;base64,"+window.btoa(unescape(encodeURIComponent(t.text)))}}catch(i){t.setAttribute("data-rocket-status","failed-transform"),e()}});t.setAttribute("data-rocket-status","skipped")}async C(t){const e=t.shift();return e?(e.isConnected&&await this.G(e),this.C(t)):Promise.resolve()}O(){this.Y([...this.delayedScripts.normal,...this.delayedScripts.defer,...this.delayedScripts.async],"preload")}Y(t,e){this.trash=this.trash||[];let i=!0;var o=document.createDocumentFragment();t.forEach(t=>{const s=t.getAttribute&&t.getAttribute("data-rocket-src")||t.src;if(s&&!s.startsWith("data:")){const n=document.createElement("link");n.href=s,n.rel=e,"preconnect"!==e&&(n.as="script",n.fetchPriority=i?"high":"low"),t.getAttribute&&"module"===t.getAttribute("data-rocket-type")&&(n.crossOrigin=!0),t.crossOrigin&&(n.crossOrigin=t.crossOrigin),t.integrity&&(n.integrity=t.integrity),t.nonce&&(n.nonce=t.nonce),o.appendChild(n),this.trash.push(n),i=!1}}),document.head.appendChild(o)}W(){this.trash.forEach(t=>t.remove())}async T(){try{document.readyState="interactive"}catch(t){}this.fauxDomReadyFired=!0;try{await this.K(),this.J(document,"readystatechange"),document.dispatchEvent(new Event("rocket-readystatechange")),await this.K(),document.rocketonreadystatechange&&document.rocketonreadystatechange(),await this.K(),this.J(document,"DOMContentLoaded"),document.dispatchEvent(new Event("rocket-DOMContentLoaded")),await this.K(),this.J(window,"DOMContentLoaded"),window.dispatchEvent(new Event("rocket-DOMContentLoaded"))}catch(t){console.error(t)}}async A(){try{document.readyState="complete"}catch(t){}try{await this.K(),this.J(document,"readystatechange"),document.dispatchEvent(new Event("rocket-readystatechange")),await this.K(),document.rocketonreadystatechange&&document.rocketonreadystatechange(),await this.K(),this.J(window,"load"),window.dispatchEvent(new Event("rocket-load")),await this.K(),window.rocketonload&&window.rocketonload(),await this.K(),this.allJQueries.forEach(t=>t(window).trigger("rocket-jquery-load")),await this.K(),this.J(window,"pageshow");const t=new Event("rocket-pageshow");t.persisted=this.persisted,window.dispatchEvent(t),await this.K(),window.rocketonpageshow&&window.rocketonpageshow({persisted:this.persisted})}catch(t){console.error(t)}}async K(){Date.now()-this.lastBreath>45&&(await this.X(),this.lastBreath=Date.now())}async X(){return document.hidden?new Promise(t=>setTimeout(t)):new Promise(t=>requestAnimationFrame(t))}B(t,e){return e===document&&"readystatechange"===t||(e===document&&"DOMContentLoaded"===t||(e===window&&"DOMContentLoaded"===t||(e===window&&"load"===t||e===window&&"pageshow"===t)))}static run(){(new RocketLazyLoadScripts).t()}}RocketLazyLoadScripts.run()})();</script>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+	<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+	<meta name="theme-color" content="#0B0A18">
+	<link rel="preload" href="https://www.salestrategias.com.br/wp-content/themes/sal-blog/fonts/newsreader-600.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="https://www.salestrategias.com.br/wp-content/themes/sal-blog/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+	<!-- Tag do Google (gtag.js) modo de consentimento dataLayer adicionado pelo Site Kit -->
+<script id="google_gtagjs-js-consent-mode-data-layer">
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+gtag('consent', 'default', {"ad_personalization":"denied","ad_storage":"denied","ad_user_data":"denied","analytics_storage":"denied","functionality_storage":"denied","security_storage":"denied","personalization_storage":"denied","region":["AT","BE","BG","CH","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IS","IT","LI","LT","LU","LV","MT","NL","NO","PL","PT","RO","SE","SI","SK"],"wait_for_update":500});
+window._googlesitekitConsentCategoryMap = {"statistics":["analytics_storage"],"marketing":["ad_storage","ad_user_data","ad_personalization"],"functional":["functionality_storage","security_storage"],"preferences":["personalization_storage"]};
+window._googlesitekitConsents = {"ad_personalization":"denied","ad_storage":"denied","ad_user_data":"denied","analytics_storage":"denied","functionality_storage":"denied","security_storage":"denied","personalization_storage":"denied","region":["AT","BE","BG","CH","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IS","IT","LI","LT","LU","LV","MT","NL","NO","PL","PT","RO","SE","SI","SK"],"wait_for_update":500};
+</script>
+<!-- Fim da tag do Google (gtag.js) modo de consentimento dataLayer adicionado pelo Site Kit -->
+
+<!-- Otimização dos mecanismos de pesquisa pelo Rank Math PRO - https://rankmath.com/ -->
+<title>Quanto Investir em Tráfego Pago numa Loja Virtual Nova</title>
+<meta name="description" content="Não existe valor fixo, mas dá pra calcular: veja como estimar o orçamento mínimo de tráfego pago para uma loja virtual nova, com exemplo prático de cálculo."/>
+<meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large"/>
+<link rel="canonical" href="https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Quanto Investir em Tráfego Pago numa Loja Virtual Nova" />
+<meta property="og:description" content="Não existe valor fixo, mas dá pra calcular: veja como estimar o orçamento mínimo de tráfego pago para uma loja virtual nova, com exemplo prático de cálculo." />
+<meta property="og:url" content="https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/" />
+<meta property="og:site_name" content="SAL Estratégias de Marketing | Assessoria de MKT Digital" />
+<meta property="article:publisher" content="https://www.facebook.com/salnamedidacerta/" />
+<meta property="article:tag" content="e-commerce" />
+<meta property="article:tag" content="Google Ads" />
+<meta property="article:tag" content="Loja Virtual" />
+<meta property="article:tag" content="Meta Ads" />
+<meta property="article:tag" content="Tráfego Pago" />
+<meta property="article:section" content="Tráfego Pago" />
+<meta property="og:image" content="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-social-quanto-investir-trafego-pago-loja-virtual.png" />
+<meta property="og:image:secure_url" content="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-social-quanto-investir-trafego-pago-loja-virtual.png" />
+<meta property="og:image:width" content="1376" />
+<meta property="og:image:height" content="768" />
+<meta property="og:image:alt" content="Quanto Investir em Tráfego Pago numa Loja Virtual que Está Começando" />
+<meta property="og:image:type" content="image/png" />
+<meta property="article:published_time" content="2026-08-16T08:08:02-03:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Quanto Investir em Tráfego Pago numa Loja Virtual Nova" />
+<meta name="twitter:description" content="Não existe valor fixo, mas dá pra calcular: veja como estimar o orçamento mínimo de tráfego pago para uma loja virtual nova, com exemplo prático de cálculo." />
+<meta name="twitter:image" content="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-social-quanto-investir-trafego-pago-loja-virtual.png" />
+<meta name="twitter:label1" content="Escrito por" />
+<meta name="twitter:data1" content="Marcelo Freitas" />
+<meta name="twitter:label2" content="Tempo para leitura" />
+<meta name="twitter:data2" content="9 minutos" />
+<script type="application/ld+json" class="rank-math-schema-pro">{"@context":"https://schema.org","@graph":[[{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Quanto investir em tr\u00e1fego pago para come\u00e7ar (o c\u00e1lculo, n\u00e3o o chute)","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#quanto-investir-para-comecar"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Por que n\u00e3o existe um n\u00famero m\u00e1gico de or\u00e7amento","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#por-que-nao-existe-um-numero-magico"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Google Ads ou Meta Ads: por onde come\u00e7ar com pouco dinheiro","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#google-ads-ou-meta-ads-por-onde-comecar"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"O or\u00e7amento m\u00ednimo para o algoritmo aprender","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#orcamento-minimo-para-o-algoritmo-aprender"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Como calcular seu or\u00e7amento de teste em 4 passos","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#como-calcular-seu-orcamento-de-teste"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Exemplo pr\u00e1tico: uma loja de roupa come\u00e7ando do zero","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#exemplo-pratico-loja-de-roupa"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Erros comuns de quem come\u00e7a com pouco or\u00e7amento","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#erros-comuns-de-quem-comeca-com-pouco-orcamento"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Quando aumentar o or\u00e7amento","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#quando-aumentar-o-orcamento"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Perguntas frequentes sobre or\u00e7amento de tr\u00e1fego pago","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#perguntas-frequentes-sobre-orcamento"}],{"@type":"Place","@id":"https://www.salestrategias.com.br/#place","address":{"@type":"PostalAddress","streetAddress":"Rua dos Andradas, 369, 302","addressLocality":"Porto Alegre","addressRegion":"Rio Grande do Sul","postalCode":"90020-000","addressCountry":"BR"}},{"@type":["ProfessionalService","Organization"],"@id":"https://www.salestrategias.com.br/#organization","name":"SAL Estrat\u00e9gias de Marketing Digital","url":"https://salestrategias.com.br","sameAs":["https://www.facebook.com/salnamedidacerta/","https://instagram.com/salestrategias","https://www.linkedin.com/company/salagenciademarketing"],"email":"contato@salestrategias.com.br","address":{"@type":"PostalAddress","streetAddress":"Rua dos Andradas, 369, 302","addressLocality":"Porto Alegre","addressRegion":"Rio Grande do Sul","postalCode":"90020-000","addressCountry":"BR"},"logo":{"@type":"ImageObject","@id":"https://www.salestrategias.com.br/#logo","url":"https://salestrategias.com.br/wp-content/uploads/2025/11/logo-sal-estrategias-perfil.png","contentUrl":"https://salestrategias.com.br/wp-content/uploads/2025/11/logo-sal-estrategias-perfil.png","caption":"SAL Estrat\u00e9gias de Marketing | Assessoria de MKT Digital","inLanguage":"pt-BR","width":"2000","height":"2000"},"openingHours":["Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday 09:00-17:00"],"description":"N\u00e3o somos mais uma ag\u00eancia gen\u00e9rica. Somos uma assessoria estrat\u00e9gica focada em resultados mensur\u00e1veis atrav\u00e9s de SEO e m\u00eddia paga.\n\nLiderada por Marcelo Freitas, consultor especializado em crescimento digital, a SAL trabalha como parceira do seu neg\u00f3cio, desenvolvendo estrat\u00e9gias personalizadas que conectam sua empresa aos clientes certos no momento certo.\n\nNosso foco: Fazer seu neg\u00f3cio crescer de forma sustent\u00e1vel atrav\u00e9s de:\n\n- SEO (posicionamento org\u00e2nico)\n- GEO (Google Meu Neg\u00f3cio otimizado)\n- Performance (m\u00eddia paga estrat\u00e9gica)\n- Consultoria personalizada\n\nNosso prop\u00f3sito \u00e9 fazer Marketing na Medida Certa!","legalName":"SAL Estrat\u00e9gias de Marketing","location":{"@id":"https://www.salestrategias.com.br/#place"},"image":{"@id":"https://www.salestrategias.com.br/#logo"},"telephone":"+55-51-99338-0278"},{"@type":"WebSite","@id":"https://www.salestrategias.com.br/#website","url":"https://www.salestrategias.com.br","name":"SAL Estrat\u00e9gias de Marketing | Assessoria de MKT Digital","alternateName":"SAL Estrat\u00e9gias de Marketing","publisher":{"@id":"https://www.salestrategias.com.br/#organization"},"inLanguage":"pt-BR"},{"@type":"ImageObject","@id":"https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-destacada-quanto-investir-trafego-pago-loja-virtual.png","url":"https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-destacada-quanto-investir-trafego-pago-loja-virtual.png","width":"1376","height":"768","caption":"Quanto Investir em Tr\u00e1fego Pago numa Loja Virtual que Est\u00e1 Come\u00e7ando","inLanguage":"pt-BR"},{"@type":"BreadcrumbList","@id":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#breadcrumb","itemListElement":[{"@type":"ListItem","position":"1","item":{"@id":"https://salestrategias.com.br","name":"Home"}},{"@type":"ListItem","position":"2","item":{"@id":"https://www.salestrategias.com.br/blog/trafego-pago/","name":"Tr\u00e1fego Pago"}},{"@type":"ListItem","position":"3","item":{"@id":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/","name":"Quanto Investir em Tr\u00e1fego Pago numa Loja Virtual que Est\u00e1 Come\u00e7ando"}}]},{"@type":"WebPage","@id":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#webpage","url":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/","name":"Quanto Investir em Tr\u00e1fego Pago numa Loja Virtual Nova","datePublished":"2026-08-16T08:08:02-03:00","dateModified":"2026-08-16T08:08:02-03:00","isPartOf":{"@id":"https://www.salestrategias.com.br/#website"},"primaryImageOfPage":{"@id":"https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-destacada-quanto-investir-trafego-pago-loja-virtual.png"},"inLanguage":"pt-BR","breadcrumb":{"@id":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#breadcrumb"}},{"@type":"Person","@id":"https://www.salestrategias.com.br/especialista/marcelofreitas/","name":"Marcelo Freitas","url":"https://www.salestrategias.com.br/especialista/marcelofreitas/","image":{"@type":"ImageObject","@id":"https://secure.gravatar.com/avatar/ac9e67a63b1d8461831144886f9f8b701340b2ddb57385530ad1c4f740305b5d?s=96&amp;d=mm&amp;r=g","url":"https://secure.gravatar.com/avatar/ac9e67a63b1d8461831144886f9f8b701340b2ddb57385530ad1c4f740305b5d?s=96&amp;d=mm&amp;r=g","caption":"Marcelo Freitas","inLanguage":"pt-BR"},"sameAs":["https://instagram.com/marcelo.c.freitas","https://instagram.com/marcelo.c.freitas%20https://instagram.com/salestrategias%20https://marcelofreitas.substack.com/%20https://linkedin.com/in/mcfreitas"],"worksFor":{"@id":"https://www.salestrategias.com.br/#organization"}},{"@type":"NewsArticle","headline":"Quanto Investir em Tr\u00e1fego Pago numa Loja Virtual Nova","keywords":"quanto investir trafego pago loja virtual","datePublished":"2026-08-16T08:08:02-03:00","dateModified":"2026-08-16T08:08:02-03:00","articleSection":"Tr\u00e1fego Pago","author":{"@id":"https://www.salestrategias.com.br/especialista/marcelofreitas/","name":"Marcelo Freitas"},"publisher":{"@id":"https://www.salestrategias.com.br/#organization"},"description":"N\u00e3o existe valor fixo, mas d\u00e1 pra calcular: veja como estimar o or\u00e7amento m\u00ednimo de tr\u00e1fego pago para uma loja virtual nova, com exemplo pr\u00e1tico de c\u00e1lculo.","copyrightYear":"2026","copyrightHolder":{"@id":"https://www.salestrategias.com.br/#organization"},"name":"Quanto Investir em Tr\u00e1fego Pago numa Loja Virtual Nova","@id":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#richSnippet","isPartOf":{"@id":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#webpage"},"image":{"@id":"https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-destacada-quanto-investir-trafego-pago-loja-virtual.png"},"inLanguage":"pt-BR","mainEntityOfPage":{"@id":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/#webpage"}}]}</script>
+<!-- /Plugin de SEO Rank Math para WordPress -->
+
+<link rel='dns-prefetch' href='//www.googletagmanager.com' />
+
+<link rel="alternate" type="application/rss+xml" title="Feed de comentários para SAL Estratégias de Marketing Digital &raquo; Quanto Investir em Tráfego Pago numa Loja Virtual que Está Começando" href="https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/feed/" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.salestrategias.com.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.salestrategias.com.br%2Fquanto-investir-trafego-pago-loja-virtual%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.salestrategias.com.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.salestrategias.com.br%2Fquanto-investir-trafego-pago-loja-virtual%2F&#038;format=xml" />
+		<style>
+			.lazyload,
+			.lazyloading {
+				max-width: 100%;
+			}
+		</style>
+				<style>
+			.smush-dimensions {
+				--smush-image-aspect-ratio: auto;
+				aspect-ratio: var(--smush-image-aspect-ratio);
+			}
+		</style>
+		<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+
+
+<link data-minify="1" rel='stylesheet' id='sal-blog-css' href='https://www.salestrategias.com.br/wp-content/cache/min/1/wp-content/themes/sal-blog/style.css?ver=1786651393' media='all' />
+
+<!-- Snippet da tag do Google (gtag.js) adicionado pelo Site Kit -->
+<!-- Snippet do Google Analytics adicionado pelo Site Kit -->
+<script id="google_gtagjs-js" src="https://www.googletagmanager.com/gtag/js?id=GT-MK4G89W8" async></script>
+<script id="google_gtagjs-js-after">
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+gtag("set","linker",{"domains":["www.salestrategias.com.br"]});
+gtag("js", new Date());
+gtag("set", "developer_id.dZTNiMT", true);
+gtag("config", "GT-MK4G89W8");
+ window._googlesitekit = window._googlesitekit || {}; window._googlesitekit.throttledEvents = []; window._googlesitekit.gtagEvent = (name, data) => { var key = JSON.stringify( { name, data } ); if ( !! window._googlesitekit.throttledEvents[ key ] ) { return; } window._googlesitekit.throttledEvents[ key ] = true; setTimeout( () => { delete window._googlesitekit.throttledEvents[ key ]; }, 5 ); gtag( "event", name, { ...data, event_source: "site-kit" } ); }; 
+//# sourceURL=google_gtagjs-js-after
+</script>
+<link rel="https://api.w.org/" href="https://www.salestrategias.com.br/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://www.salestrategias.com.br/wp-json/wp/v2/posts/2217" /><meta name="generator" content="auto-sizes 1.7.0">
+<meta name="generator" content="Site Kit by Google 1.185.0" /><meta name="generator" content="performance-lab 4.2.0; plugins: auto-sizes, embed-optimizer, image-prioritizer, performant-translations, nocache-bfcache, speculation-rules">
+<meta name="generator" content="performant-translations 1.2.0">
+		<style>
+			/* Thanks to https://github.com/paulirish/lite-youtube-embed and https://css-tricks.com/responsive-iframes/ */
+			.smush-lazyload-video {
+				min-height: 240px;
+				min-width: 320px;
+				--smush-video-aspect-ratio: 16/9;background-color: #000;position: relative;display: block;contain: content;background-position: center center;background-size: cover;cursor: pointer;				 			 			 			 	  	
+			}
+			.smush-lazyload-video.loading{cursor:progress}
+			.smush-lazyload-video::before{content:'';display:block;position:absolute;top:0;background-image:linear-gradient(rgba(0,0,0,0.6),transparent);background-position:top;background-repeat:repeat-x;height:60px;width:100%;transition:all .2s cubic-bezier(0,0,0.2,1)}
+			.smush-lazyload-video::after{content:"";display:block;padding-bottom:calc(100% / (var(--smush-video-aspect-ratio)))}
+			.smush-lazyload-video > iframe{width:100%;height:100%;position:absolute;top:0;left:0;border:0;opacity:0;transition:opacity .5s ease-in}
+			.smush-lazyload-video.smush-lazyloaded-video > iframe{opacity:1}
+			.smush-lazyload-video > .smush-play-btn{z-index:10;position: absolute;top:0;left:0;bottom:0;right:0;}
+			.smush-lazyload-video > .smush-play-btn > .smush-play-btn-inner{opacity:0.75;display:flex;align-items: center;width:68px;height:48px;position:absolute;cursor:pointer;transform:translate3d(-50%,-50%,0);top:50%;left:50%;z-index:1;background-repeat:no-repeat;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24 27 14v20" fill="white"/></svg>');filter:grayscale(100%);transition:filter .5s cubic-bezier(0,0,0.2,1), opacity .5s cubic-bezier(0,0,0.2,1);border:none}
+			.smush-lazyload-video:hover .smush-play-btn-inner,.smush-lazyload-video .smush-play-btn-inner:focus{filter:none;opacity:1}
+			.smush-lazyload-video > .smush-play-btn > .smush-play-btn-inner span{display:none;width:100%;text-align:center;}
+			.smush-lazyload-video.smush-lazyloaded-video{cursor:unset}
+			.smush-lazyload-video.video-loaded::before,.smush-lazyload-video.smush-lazyloaded-video > .smush-play-btn,.smush-lazyload-video.loading > .smush-play-btn{display:none;opacity:0;pointer-events:none}
+			.smush-lazyload-video.smush-lazyload-vimeo > .smush-play-btn > .smush-play-btn-inner{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 203 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m0.25116 9.0474c0-4.9968 4.0507-9.0474 9.0474-9.0474h184.4c4.997 0 9.048 4.0507 9.048 9.0474v101.91c0 4.996-4.051 9.047-9.048 9.047h-184.4c-4.9968 0-9.0474-4.051-9.0474-9.047v-101.91z' fill='%2317d5ff' fill-opacity='.7'/%3E%3Cpath d='m131.1 59.05c0.731 0.4223 0.731 1.4783 0 1.9006l-45.206 26.099c-0.7316 0.4223-1.646-0.1056-1.646-0.9504v-52.199c0-0.8448 0.9144-1.3727 1.646-0.9504l45.206 26.099z' fill='%23fff'/%3E%3C/svg%3E%0A");width:81px}
+					</style>
+				<script type="rocketlazyloadscript">
+			document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+		</script>
+				<style>
+			.no-js img.lazyload {
+				display: none;
+			}
+
+			figure.wp-block-image img.lazyloading {
+				min-width: 150px;
+			}
+
+			.lazyload,
+			.lazyloading {
+				--smush-placeholder-width: 100px;
+				--smush-placeholder-bg-max-width: 120px;
+				--smush-placeholder-aspect-ratio: 1/1;
+				width: var(--smush-image-width, var(--smush-placeholder-width)) !important;
+				aspect-ratio: var(--smush-image-aspect-ratio, var(--smush-placeholder-aspect-ratio)) !important;
+			}
+
+						.lazyload, .lazyloading {
+				opacity: 0;
+			}
+
+			.lazyloaded {
+				opacity: 1;
+				transition: opacity 400ms;
+				transition-delay: 0ms;
+			}
+
+					</style>
+		<meta name="generator" content="speculation-rules 1.6.0">
+<meta data-od-replaced-content="optimization-detective 1.0.0-beta6" name="generator" content="optimization-detective 1.0.0-beta6; url_metric_groups={0:empty, 480:empty, 600:empty, 782:empty}">
+<meta name="generator" content="embed-optimizer 1.0.0-beta5">
+<meta name="generator" content="image-prioritizer 1.0.0-beta3">
+<link rel="icon" href="https://www.salestrategias.com.br/wp-content/uploads/2025/11/cropped-logo-sal-estrategias-perfil-32x32.png" sizes="32x32" />
+<link rel="icon" href="https://www.salestrategias.com.br/wp-content/uploads/2025/11/cropped-logo-sal-estrategias-perfil-192x192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://www.salestrategias.com.br/wp-content/uploads/2025/11/cropped-logo-sal-estrategias-perfil-180x180.png" />
+<meta name="msapplication-TileImage" content="https://www.salestrategias.com.br/wp-content/uploads/2025/11/cropped-logo-sal-estrategias-perfil-270x270.png" />
+<link data-minify="1" rel='stylesheet' id='rank-math-toc-block-css' href='https://www.salestrategias.com.br/wp-content/cache/min/1/wp-content/plugins/seo-by-rank-math/includes/modules/schema/blocks/toc/assets/css/toc_list_style.css?ver=1786651393' media='all' />
+
+<style id="wpr-lazyload-bg-container"></style><style id="wpr-lazyload-bg-exclusion"></style>
+<noscript>
+<style id="wpr-lazyload-bg-nostyle"></style>
+</noscript>
+<script type="application/javascript">const rocket_pairs = []; const rocket_excluded_pairs = [];</script><meta name="generator" content="WP Rocket 3.20.1" data-wpr-features="wpr_lazyload_css_bg_img wpr_delay_js wpr_defer_js wpr_minify_js wpr_minify_css wpr_preload_links wpr_host_fonts_locally wpr_desktop" /></head>
+<body data-rsssl=1 class="wp-singular post-template-default single single-post postid-2217 single-format-standard wp-custom-logo wp-theme-sal-blog">
+
+<header data-rocket-location-hash="8ec3974564944b74b1092d2f465c837e" class="topo">
+	<div data-rocket-location-hash="a5e0f1c1a0a777abf5c94f591e912750" class="wrap">
+		<a href="/" aria-label="SAL Estratégias de Marketing">
+			<img data-od-unknown-tag data-od-xpath="/HTML/BODY/HEADER[@class=&apos;topo&apos;]/*[1][self::DIV]/*[1][self::A]/*[1][self::IMG]" data-src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="60" height="34" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 60px; --smush-placeholder-aspect-ratio: 60/34;">
+		</a>
+		<button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+		<nav class="nav" id="nav" aria-label="Menu principal">
+			<a href="/seo-local/">SEO local</a>
+			<a href="/seo-para-ecommerce/">SEO para e-commerce</a>
+			<a href="/trafego-pago/">Tráfego pago</a>
+			<a href="/quem-somos/">A SAL</a>
+			<a href="https://www.salestrategias.com.br/blog/" aria-current="false" class="ativo">Blog</a>
+			<a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
+		</nav>
+	</div>
+</header>
+
+<main data-rocket-location-hash="4e8b84950636608f2be62f665cbee805" id="conteudo">
+
+	<article data-rocket-location-hash="ebd3f4befc7d0966b0ac8764e657c087" class="artigo">
+
+		<header data-rocket-location-hash="85579a2da9b9da900548a5ea2072604a" class="artigo-topo">
+			<div class="wrap wrap-texto">
+				<nav class="migalha" aria-label="Você está em">
+					<a href="https://www.salestrategias.com.br/blog/">Blog</a>
+					 › <a href="https://www.salestrategias.com.br/blog/trafego-pago/">Tráfego Pago</a>				</nav>
+				<h1>Quanto Investir em Tráfego Pago numa Loja Virtual que Está Começando</h1>
+				<p class="dek">Não existe valor fixo, mas dá pra calcular: veja como estimar o orçamento mínimo de tráfego pago para uma loja virtual nova, com exemplo prático de cálculo.</p>				<div class="meta">
+					<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[1][self::ARTICLE]/*[1][self::HEADER]/*[1][self::DIV]/*[4][self::DIV]/*[1][self::IMG]" class="meta-foto lazyload" data-src="/img/fotos/marcelo-palestra.webp" alt="" width="40" height="40" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" style="--smush-placeholder-width: 40px; --smush-placeholder-aspect-ratio: 40/40;">
+					<span>
+						Por <a href="/marcelo-freitas/">Marcelo Freitas</a> ·
+						<time datetime="2026-08-16T08:08:02-03:00">16 de agosto de 2026</time>
+												· 10 min de leitura
+					</span>
+				</div>
+			</div>
+		</header>
+
+				<figure class="artigo-capa">
+			<div data-rocket-location-hash="e53d0d653883ffaca204cdac2f108d03" class="wrap"><img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[1][self::ARTICLE]/*[2][self::FIGURE]/*[1][self::DIV]/*[1][self::IMG]" src="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-destacada-quanto-investir-trafego-pago-loja-virtual.png" alt="Quanto Investir em Tráfego Pago numa Loja Virtual que Está Começando" width="1200" height="675" fetchpriority="high" decoding="async" srcset="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-destacada-quanto-investir-trafego-pago-loja-virtual-640x360.png 640w, https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-destacada-quanto-investir-trafego-pago-loja-virtual-1200x675.png 1200w" sizes="(max-width: 1200px) 100vw, 1200px"></div>
+		</figure>
+		
+		<div data-rocket-location-hash="fce57662bea46fd5433f52751a329c0c" class="folha">
+			<div class="wrap wrap-texto conteudo">
+				<p>Não existe um valor fixo que sirva para qualquer loja, mas dá para calcular: multiplique o custo por venda pelo número de conversões que a plataforma exige para sair da fase de teste, 30 a 50 no Google Ads, cerca de 50 por semana no Meta Ads. Com CPA de R$ 35, o orçamento de teste fica entre R$ 1.000 e R$ 1.500 no primeiro mês, só no Google Ads.</p>
+
+
+<div class="wp-block-rank-math-toc-block" id="rank-math-toc"><h2>Veja neste artigo</h2><nav><ol>
+<li><a href="#quanto-investir-para-comecar">Quanto investir em tráfego pago para começar (o cálculo, não o chute)</a></li>
+<li><a href="#por-que-nao-existe-um-numero-magico">Por que não existe um número mágico de orçamento</a></li>
+<li><a href="#google-ads-ou-meta-ads-por-onde-comecar">Google Ads ou Meta Ads: por onde começar com pouco dinheiro</a></li>
+<li><a href="#orcamento-minimo-para-o-algoritmo-aprender">O orçamento mínimo para o algoritmo aprender</a><ol>
+<li><a href="#google-ads-fase-de-aprendizado">No Google Ads: 30 a 50 conversões no período avaliado</a></li>
+<li><a href="#meta-ads-fase-de-aprendizado">No Meta Ads: 50 eventos de otimização por semana</a></li>
+</ol></li>
+<li><a href="#como-calcular-seu-orcamento-de-teste">Como calcular seu orçamento de teste em 4 passos</a></li>
+<li><a href="#exemplo-pratico-loja-de-roupa">Exemplo prático: uma loja de roupa começando do zero</a></li>
+<li><a href="#erros-comuns-de-quem-comeca-com-pouco-orcamento">Erros comuns de quem começa com pouco orçamento</a></li>
+<li><a href="#quando-aumentar-o-orcamento">Quando aumentar o orçamento</a></li>
+<li><a href="#perguntas-frequentes-sobre-orcamento">Perguntas frequentes sobre orçamento de tráfego pago</a><ol>
+<li><a href="#da-para-comecar-com-r-20-por-dia">Dá para começar a anunciar com R$ 20 por dia?</a></li>
+<li><a href="#quanto-tempo-leva-para-dar-resultado">Quanto tempo leva para o tráfego pago dar resultado numa loja nova?</a></li>
+<li><a href="#qual-da-resultado-mais-rapido">Google Ads ou Meta Ads: qual dá resultado mais rápido para quem está começando?</a></li>
+<li><a href="#orcamento-menor-que-o-minimo">O que fazer se o orçamento disponível for menor que o mínimo calculado?</a></li>
+<li><a href="#preciso-usar-lances-automaticos">Preciso usar lances automáticos (Smart Bidding) desde o início?</a></li>
+</ol></li>
+</ol></nav></div>
+
+
+<h2 id="quanto-investir-para-comecar">Quanto investir em tráfego pago para começar (o cálculo, não o chute)</h2>
+<p>A pergunta &#8220;quanto investir em tráfego pago&#8221; costuma vir acompanhada de uma resposta genérica, tipo &#8220;comece com R$ 500&#8221; ou &#8220;reserve 10% do faturamento&#8221;. O problema é que nenhuma das duas leva em conta o que realmente decide se um orçamento é suficiente: quanto custa gerar uma venda no seu nicho e quantas vendas a plataforma precisa registrar para parar de &#8220;adivinhar&#8221; e começar a otimizar de verdade.</p>
+<p>Esse segundo ponto é técnico, mas tem resposta oficial e documentada. É a partir dele que dá para montar um número que faz sentido para a sua loja, e não para a loja de outra pessoa.</p>
+
+<h2 id="por-que-nao-existe-um-numero-magico">Por que não existe um número mágico de orçamento</h2>
+<p>Um valor fixo de orçamento ignora três variáveis que mudam de loja para loja:</p>
+<ul>
+<li><strong>Custo por venda (CPA):</strong> anunciar um brinco de R$ 40 custa muito menos por clique do que anunciar um colchão de R$ 2.000, então o orçamento necessário para gerar o mesmo número de vendas é diferente.</li>
+<li><strong>Margem disponível:</strong> uma loja com margem de contribuição de 40% pode pagar um CPA mais alto do que uma com margem de 15% sem sair no prejuízo, o que muda quanto orçamento &#8220;vale a pena&#8221; testar.</li>
+<li><strong>Plataforma escolhida:</strong> Google Ads e Meta Ads têm mecânicas de aprendizado diferentes, com volumes mínimos de conversão diferentes, então o mesmo orçamento rende resultados distintos em cada uma.</li>
+</ul>
+<p>Para quem tem loja física em vez de loja virtual, a lógica de orçamento inicial é parecida, mas os números mudam bastante porque o objetivo costuma ser levar gente até o balcão, não fechar a venda direto no anúncio; vale ver o comparativo em <a href="https://www.salestrategias.com.br/quanto-investir-anuncio-loja-fisica/">quanto investir em anúncios para loja de bairro</a>.</p>
+
+<h2 id="google-ads-ou-meta-ads-por-onde-comecar">Google Ads ou Meta Ads: por onde começar com pouco dinheiro</h2>
+<p>Com orçamento apertado, a ordem importa. Google Ads captura gente que já está buscando o produto, então tende a converter mais rápido com menos investimento. Meta Ads interrompe alguém que estava rolando o feed, sem intenção de compra declarada, então exige mais tempo e mais testes de criativo até achar o público certo.</p>
+<p>Isso não significa abandonar o Meta Ads. Significa que, com um orçamento curto, faz mais sentido concentrar o teste inicial no Google Ads (veja o passo a passo em <a href="https://www.salestrategias.com.br/como-anunciar-no-google-ads-em-2026-guia/">como anunciar no Google Ads</a>) e só abrir uma campanha de Meta Ads (guia completo em <a href="https://www.salestrategias.com.br/como-anunciar-no-meta-ads-em-2026-guia/">como anunciar no Meta Ads</a>) quando já houver orçamento para rodar as duas sem sufocar nenhuma.</p>
+
+<h2 id="orcamento-minimo-para-o-algoritmo-aprender">O orçamento mínimo para o algoritmo aprender</h2>
+<p>Google Ads e Meta Ads usam machine learning para decidir a quem mostrar o anúncio e por quanto. Esse sistema só funciona bem depois de acumular um volume mínimo de conversões. Abaixo desse volume, a campanha ainda gasta, mas com resultado instável, porque o algoritmo está &#8220;no escuro&#8221;. Isso está documentado oficialmente nas duas plataformas.</p>
+
+<h3 id="google-ads-fase-de-aprendizado">No Google Ads: 30 a 50 conversões no período avaliado</h3>
+<p>A <a href="https://support.google.com/google-ads/answer/7065882?hl=pt-BR" target="_blank" rel="noopener">central de ajuda do Google Ads sobre lances inteligentes</a> recomenda avaliar o desempenho de uma estratégia de lances automáticos depois de acumular pelo menos 30 conversões no período analisado, e pelo menos 50 conversões quando a estratégia é ROAS desejado (tROAS), que depende de mais dado histórico para calibrar o valor de cada conversão. A <a href="https://support.google.com/google-ads/answer/6385083?hl=pt-BR" target="_blank" rel="noopener">documentação oficial sobre orçamentos diários médios</a> explica que o Google pode gastar até duas vezes o orçamento diário médio num dia específico, respeitando um teto mensal de 30,4 vezes esse orçamento diário, para aproveitar os dias com mais chance de conversão.</p>
+
+<h3 id="meta-ads-fase-de-aprendizado">No Meta Ads: 50 eventos de otimização por semana</h3>
+<p>A <a href="https://pt-br.facebook.com/business/help/269269737396981" target="_blank" rel="noopener">central de ajuda da Meta para empresas sobre aprendizado limitado</a> define que um conjunto de anúncios entra em &#8220;aprendizado limitado&#8221; quando é improvável que ele receba cerca de 50 eventos de otimização na semana seguinte à última edição significativa da campanha. Enquanto isso não acontece, o sistema de veiculação não consegue otimizar a entrega com confiança, o que costuma aparecer como CPA instável, semana boa seguida de semana ruim.</p>
+
+<table>
+<thead>
+<tr><th>Plataforma</th><th>Métrica que decide o aprendizado</th><th>Volume mínimo recomendado</th><th>Fonte oficial</th></tr>
+</thead>
+<tbody>
+<tr><td>Google Ads</td><td>Conversões no período avaliado</td><td>30 (50 para ROAS desejado)</td><td>Central de Ajuda do Google Ads</td></tr>
+<tr><td>Meta Ads</td><td>Eventos de otimização por semana</td><td>~50 por semana</td><td>Central de Ajuda da Meta para Empresas</td></tr>
+</tbody>
+</table>
+
+<h2 id="como-calcular-seu-orcamento-de-teste">Como calcular seu orçamento de teste em 4 passos</h2>
+<ol>
+<li><strong>Estime o custo por venda (CPA) do seu nicho.</strong> Use um histórico anterior se já anunciou, ou uma estimativa conservadora baseada no que a categoria costuma custar; sem esse número, qualquer orçamento é chute.</li>
+<li><strong>Confira sua margem de contribuição.</strong> Ela mostra o CPA máximo que a loja aguenta pagar por venda sem prejuízo; o cálculo completo está em <a href="https://www.salestrategias.com.br/margem-de-contribuicao-ecommerce/">margem de contribuição no e-commerce</a>.</li>
+<li><strong>Multiplique o CPA estimado pelo volume mínimo da plataforma.</strong> 30 conversões para Google Ads, 50 eventos por semana para Meta Ads.</li>
+<li><strong>Compare o resultado com o caixa disponível.</strong> Se o número for maior do que a loja consegue sustentar por 3 a 4 semanas sem editar a campanha, reduza o escopo (menos públicos, menos produtos anunciados), não o CPA-alvo.</li>
+</ol>
+<p>O CPA que sobra depois desse cálculo também é o ponto de partida para saber quanto cada canal pode &#8220;comer&#8221; da margem sem travar o caixa, o que se conecta direto com o cálculo do <a href="https://www.salestrategias.com.br/como-calcular-cac-ecommerce/">CAC da loja virtual</a>.</p>
+
+<h2 id="exemplo-pratico-loja-de-roupa">Exemplo prático: uma loja de roupa começando do zero</h2>
+<p>A loja fictícia Estação Norte vende roupa casual, ticket médio de R$ 140, margem de contribuição de 30% (R$ 42 por venda). Como está começando, o dono estima um CPA de teste de R$ 35, um pouco abaixo da margem, para ter fôlego caso o custo real venha mais alto nas primeiras semanas.</p>
+<table>
+<thead>
+<tr><th>Cálculo</th><th>Conta</th><th>Resultado</th></tr>
+</thead>
+<tbody>
+<tr><td>Orçamento mínimo Google Ads (30 conversões)</td><td>R$ 35 × 30</td><td>R$ 1.050 no mês</td></tr>
+<tr><td>Orçamento &#8220;ideal&#8221; Meta Ads (50 eventos/semana)</td><td>R$ 35 × 50 × 4,34 semanas</td><td>≈ R$ 7.600 no mês</td></tr>
+</tbody>
+</table>
+<p>Na prática, quase nenhuma loja que está começando tem R$ 7.600 sobrando para o Meta Ads bater o volume &#8220;ideal&#8221; logo de cara, e não precisa: o dono da Estação Norte decide rodar o Google Ads com os R$ 1.050 calculados e abrir o Meta Ads com um teste menor, R$ 900 no mês, aceitando ficar mais tempo em aprendizado limitado nessa plataforma até o caixa permitir aumentar. Não é o cenário ideal, mas é uma decisão informada, diferente de definir R$ 50/dia sem saber o porquê.</p>
+<p>Somando os dois, o primeiro mês de teste da Estação Norte fica em torno de R$ 1.950, valor que só existe porque a conta partiu do CPA e da margem, não de uma regra genérica de mercado.</p>
+
+<h2 id="erros-comuns-de-quem-comeca-com-pouco-orcamento">Erros comuns de quem começa com pouco orçamento</h2>
+<ul>
+<li><strong>Trocar público ou criativo toda semana.</strong> Cada edição significativa reinicia a contagem de eventos de otimização, então a campanha nunca sai do aprendizado.</li>
+<li><strong>Pausar e reativar a campanha sem necessidade.</strong> Tem o mesmo efeito de resetar o histórico que o algoritmo já tinha acumulado.</li>
+<li><strong>Definir CPA-alvo sem calcular a margem de contribuição.</strong> Sem esse número, é fácil aceitar um custo por venda que corrói o lucro sem o dono perceber.</li>
+<li><strong>Dividir um orçamento apertado entre Google Ads e Meta Ads em partes iguais.</strong> Isso costuma deixar as duas campanhas abaixo do volume mínimo, sem nenhuma aprender direito.</li>
+<li><strong>Ignorar o CAC ao decidir quanto pode gastar por venda.</strong> O CPA de uma campanha isolada não conta a história toda; o CAC junta todos os canais e mostra se o negócio está de fato lucrando.</li>
+</ul>
+
+<h2 id="quando-aumentar-o-orcamento">Quando aumentar o orçamento</h2>
+<p>Os sinais de que vale escalar o investimento costumam aparecer juntos, não isolados:</p>
+<ul>
+<li>O conjunto de anúncios saiu do status de aprendizado (ou aprendizado limitado) há pelo menos duas semanas.</li>
+<li>O CPA está estável dentro da margem de contribuição calculada, sem picos que corroem o lucro.</li>
+<li>O orçamento diário está sendo gasto por completo, sem perder posição no leilão por falta de verba.</li>
+<li>O ROAS reportado pela plataforma bate com o resultado real de caixa, não só com receita bruta; vale revisar esse ponto em <a href="https://www.salestrategias.com.br/roas-alto-mas-sem-lucro/">ROAS alto mas sem lucro</a>, porque é comum aumentar orçamento embalado por um ROAS que não sobra margem nenhuma.</li>
+</ul>
+<p>Quando esses sinais aparecem juntos, o aumento de orçamento costuma ser gradual, algo como 20% a 30% por vez, para não jogar a campanha de volta numa fase de aprendizado.</p>
+
+<h2 id="perguntas-frequentes-sobre-orcamento">Perguntas frequentes sobre orçamento de tráfego pago</h2>
+
+<h3 id="da-para-comecar-com-r-20-por-dia">Dá para começar a anunciar com R$ 20 por dia?</h3>
+<p>Dá, é inclusive o ponto de partida recomendado para lojas físicas. Numa loja virtual com CPA de R$ 30 a R$ 40 por venda, porém, R$ 20 por dia rende menos de uma venda por dia, o que estica bastante o tempo até acumular o volume mínimo de conversões das plataformas.</p>
+
+<h3 id="quanto-tempo-leva-para-dar-resultado">Quanto tempo leva para o tráfego pago dar resultado numa loja nova?</h3>
+<p>Normalmente de 2 a 4 semanas até a campanha sair da fase de aprendizado, desde que o orçamento e os públicos não sejam editados com frequência nesse período. Resultado consistente, com CPA estável, costuma vir só depois disso.</p>
+
+<h3 id="qual-da-resultado-mais-rapido">Google Ads ou Meta Ads: qual dá resultado mais rápido para quem está começando?</h3>
+<p>Google Ads costuma converter mais rápido no início porque captura uma busca com intenção de compra que já existe. Meta Ads tende a exigir mais tempo e mais testes de criativo, já que interrompe alguém que não estava procurando o produto naquele momento.</p>
+
+<h3 id="orcamento-menor-que-o-minimo">O que fazer se o orçamento disponível for menor que o mínimo calculado?</h3>
+<p>Reduza o escopo da campanha, não o CPA-alvo: anuncie menos produtos e menos públicos, concentrados num único conjunto de anúncios, para chegar mais perto do volume mínimo recomendado com o dinheiro que existe.</p>
+
+<h3 id="preciso-usar-lances-automaticos">Preciso usar lances automáticos (Smart Bidding) desde o início?</h3>
+<p>Não. Com pouco histórico, uma estratégia manual ou de maximizar cliques costuma funcionar melhor no começo. Migrar para CPA-alvo ou ROAS desejado faz mais sentido depois que a conta acumula o volume mínimo de conversões recomendado pelo Google.</p>
+
+<p>Calcular o orçamento certo é só metade do trabalho: a outra metade é montar a campanha, o público e os criativos para que esse dinheiro de teste realmente gere as conversões que o algoritmo precisa ver. Se preferir ter esse plano montado por quem acompanha resultado de tráfego pago todo dia, o <a href="https://salestrategias.com.br/diagnostico/">diagnóstico gratuito da SAL</a> mostra por onde a sua loja deveria começar.</p>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Dá para começar a anunciar com R$ 20 por dia?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dá, é inclusive o ponto de partida recomendado para lojas físicas. Numa loja virtual com CPA de R$ 30 a R$ 40 por venda, porém, R$ 20 por dia rende menos de uma venda por dia, o que estica bastante o tempo até acumular o volume mínimo de conversões das plataformas."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quanto tempo leva para o tráfego pago dar resultado numa loja nova?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Normalmente de 2 a 4 semanas até a campanha sair da fase de aprendizado, desde que o orçamento e os públicos não sejam editados com frequência nesse período. Resultado consistente, com CPA estável, costuma vir só depois disso."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Google Ads ou Meta Ads: qual dá resultado mais rápido para quem está começando?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Google Ads costuma converter mais rápido no início porque captura uma busca com intenção de compra que já existe. Meta Ads tende a exigir mais tempo e mais testes de criativo, já que interrompe alguém que não estava procurando o produto naquele momento."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "O que fazer se o orçamento disponível for menor que o mínimo calculado?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reduza o escopo da campanha, não o CPA-alvo: anuncie menos produtos e menos públicos, concentrados num único conjunto de anúncios, para chegar mais perto do volume mínimo recomendado com o dinheiro que existe."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Preciso usar lances automáticos (Smart Bidding) desde o início?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não. Com pouco histórico, uma estratégia manual ou de maximizar cliques costuma funcionar melhor no começo. Migrar para CPA-alvo ou ROAS desejado faz mais sentido depois que a conta acumula o volume mínimo de conversões recomendado pelo Google."
+      }
+    }
+  ]
+}
+</script>			</div>
+		</div>
+
+		<footer data-rocket-location-hash="d500d2a67d23ce67f6c3930c5432d992" class="artigo-pe">
+			<div class="wrap wrap-texto">
+
+				<div class="autor">
+					<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[1][self::ARTICLE]/*[4][self::FOOTER]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::IMG]" data-src="/img/fotos/marcelo-palestra.webp" alt="Marcelo Freitas" width="72" height="72" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 72px; --smush-placeholder-aspect-ratio: 72/72;">
+					<div data-rocket-location-hash="1d9818a179fefb9698cfc053b739ced2">
+						<strong>Marcelo Freitas</strong>
+						<p>Fundador da SAL Estratégias de Marketing. Estrategista de marketing há 12 anos, cinco deles no universo de shopping center, respondendo pelo movimento de dezenas de lojas ao mesmo tempo.</p>
+						<nav class="autor-links" aria-label="Perfis de Marcelo Freitas">
+							<a href="/marcelo-freitas/">Perfil completo</a>
+							<a href="https://www.linkedin.com/in/mcfreitas/" rel="noopener" target="_blank">LinkedIn</a>
+							<a href="https://marcelofreitas.substack.com/" rel="noopener" target="_blank">Newsletter</a>
+						</nav>
+					</div>
+				</div>
+
+				<nav class="vizinhos" aria-label="Mais artigos">
+										<a class="vizinho" rel="prev" href="https://www.salestrategias.com.br/schema-de-produto-estrelas-google/"><span>← Anterior</span>Schema de Produto: Como Aparecer com Preço e Estrelas no Google</a>									</nav>
+
+			</div>
+		</footer>
+
+	</article>
+
+	<section data-rocket-location-hash="71541c13ff31e76998df00681f74d9ae" class="news">
+	<div data-rocket-location-hash="bd51c6535aaf8bf9e8c9f5da20934be9" class="wrap news-grade">
+		<div>
+			<h2>O varejo muda toda semana. Resumimos pra você.</h2>
+			<p>Receba o essencial de tráfego, SEO e e-commerce, na medida certa. Sem spam, sem enrolação.</p>
+		</div>
+		<form action="https://marcelofreitas.substack.com/subscribe" method="get" target="_blank" rel="noopener">
+			<input type="hidden" name="utm_source" value="blog-sal">
+			<label class="oculto" for="news-email-2217">Seu e-mail</label>
+			<input id="news-email-2217" type="email" name="email" placeholder="voce@suaempresa.com.br" required>
+			<button class="btn btn-primary" type="submit">Quero receber →</button>
+		</form>
+	</div>
+</section>
+
+		<section data-rocket-location-hash="78e9ae94299ea31515c468b74e8e90df" class="faixa">
+		<div data-rocket-location-hash="511bb72d264ae4708e305b809f9496fd" class="wrap">
+			<h2 class="rotulo">Continue lendo</h2>
+			<div class="grade">
+				<article class="card">
+	<a href="https://www.salestrategias.com.br/trafego-pago-em-porto-alegre/">
+		<figure>
+							<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[3][self::SECTION]/*[1][self::DIV]/*[2][self::DIV]/*[1][self::ARTICLE]/*[1][self::A]/*[1][self::FIGURE]/*[1][self::IMG]" data-src="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-trafego-pago-em-porto-alegre-640x360.png" alt="Tráfego Pago em Porto Alegre: Como Anunciar para Quem Está Perto da Sua Loja" decoding="async" width="640" height="360" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 640px; --smush-placeholder-aspect-ratio: 640/360;" data-srcset="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-trafego-pago-em-porto-alegre-640x360.png 640w, https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-trafego-pago-em-porto-alegre-1200x675.png 1200w" data-sizes="auto" data-original-sizes="(max-width: 640px) 100vw, 640px">
+					</figure>
+		<div class="card-corpo">
+			<span class="card-cat">SEO Local</span>			<h3>Tráfego Pago em Porto Alegre: Como Anunciar para Quem Está Perto da Sua Loja</h3>
+			<time datetime="2026-08-10T21:10:09-03:00">10 de agosto de 2026</time>
+		</div>
+	</a>
+</article>
+<article class="card">
+	<a href="https://www.salestrategias.com.br/remarketing-dinamico/">
+		<figure>
+							<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[3][self::SECTION]/*[1][self::DIV]/*[2][self::DIV]/*[2][self::ARTICLE]/*[1][self::A]/*[1][self::FIGURE]/*[1][self::IMG]" data-src="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-remarketing-dinamico-1-640x360.png" alt="Remarketing Dinâmico: Como Mostrar ao Cliente o Produto Que Ele Viu" decoding="async" width="640" height="360" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 640px; --smush-placeholder-aspect-ratio: 640/360;" data-srcset="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-remarketing-dinamico-1-640x360.png 640w, https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-remarketing-dinamico-1-1200x675.png 1200w" data-sizes="auto" data-original-sizes="(max-width: 640px) 100vw, 640px">
+					</figure>
+		<div class="card-corpo">
+			<span class="card-cat">Tráfego Pago</span>			<h3>Remarketing Dinâmico: Como Mostrar ao Cliente o Produto Que Ele Viu</h3>
+			<time datetime="2026-08-10T08:08:19-03:00">10 de agosto de 2026</time>
+		</div>
+	</a>
+</article>
+<article class="card">
+	<a href="https://www.salestrategias.com.br/otimizar-feed-google-shopping/">
+		<figure>
+							<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[3][self::SECTION]/*[1][self::DIV]/*[2][self::DIV]/*[3][self::ARTICLE]/*[1][self::A]/*[1][self::FIGURE]/*[1][self::IMG]" data-src="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-otimizar-feed-google-shopping-1-640x360.png" alt="Otimizar Feed do Google Shopping: o Título Que Vende Mais" decoding="async" width="640" height="360" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 640px; --smush-placeholder-aspect-ratio: 640/360;" data-srcset="https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-otimizar-feed-google-shopping-1-640x360.png 640w, https://www.salestrategias.com.br/wp-content/uploads/2026/08/capa-otimizar-feed-google-shopping-1-1200x675.png 1200w" data-sizes="auto" data-original-sizes="(max-width: 640px) 100vw, 640px">
+					</figure>
+		<div class="card-corpo">
+			<span class="card-cat">Tráfego Pago</span>			<h3>Otimizar Feed do Google Shopping: o Título Que Vende Mais</h3>
+			<time datetime="2026-08-05T08:06:08-03:00">5 de agosto de 2026</time>
+		</div>
+	</a>
+</article>
+			</div>
+		</div>
+	</section>
+	
+</main>
+
+
+<section data-rocket-location-hash="4266ff819e9a651059c11c891b287881" class="band">
+	<div data-rocket-location-hash="7459bf887567d791daa17a3f401a77b9" class="wrap">
+		<h2>Vamos agendar uma reunião e analisar a sua operação?</h2>
+		<p class="band-sub">Escolha um horário e analisamos as suas contas de anúncio, a sua presença no mapa e a sua concorrência. Você sai com as prioridades na mão.</p>
+		<a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
+	</div>
+</section>
+
+<footer data-rocket-location-hash="eaa5937e7c602d9b75c7a7f7155cdd1b" class="rodape">
+	<div class="wrap">
+		<div data-rocket-location-hash="24ce8e6dd1ed2d4030fa7a6887b71e2f" class="rodape-grade">
+			<div>
+				<img data-od-unknown-tag data-od-xpath="/HTML/BODY/FOOTER[@class=&apos;rodape&apos;]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::IMG]" data-src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="72" height="41" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 72px; --smush-placeholder-aspect-ratio: 72/41;">
+				<p>Assessoria de Tráfego Pago e SEO para lojas físicas e e-commerces. Fazemos marketing na medida certa para você vender mais e crescer de forma sustentável.</p>
+			</div>
+			<nav aria-label="Serviços">
+				<h3>Serviços</h3>
+				<a href="/seo-local/">SEO local</a>
+				<a href="/seo-para-ecommerce/">SEO para e-commerce</a>
+				<a href="/trafego-pago/">Tráfego pago</a>
+				<a href="/diagnostico-de-site/">Diagnóstico de site</a>
+			</nav>
+			<nav aria-label="Navegar">
+				<h3>Navegar</h3>
+				<a href="/">Site da SAL</a>
+				<a href="/quem-somos/">Quem somos</a>
+				<a href="https://www.salestrategias.com.br/blog/">Blog</a>
+				<a href="/politica-de-privacidade/">Política de privacidade</a>
+			</nav>
+			<nav aria-label="Editorias">
+				<h3>Editorias</h3>
+									<a href="https://www.salestrategias.com.br/blog/seo/seo-local/">SEO Local</a>
+									<a href="https://www.salestrategias.com.br/blog/ecommerce/">E-commerce</a>
+									<a href="https://www.salestrategias.com.br/blog/marketing-digital/">Marketing Digital</a>
+									<a href="https://www.salestrategias.com.br/blog/trafego-pago/">Tráfego Pago</a>
+									<a href="https://www.salestrategias.com.br/blog/seo/">SEO</a>
+							</nav>
+		</div>
+		<div data-rocket-location-hash="f9341fb3b9a5b4fc2737516e0f926e55" class="rodape-legal">
+			<span>SAL ESTRATÉGIAS DE MARKETING LTDA · CNPJ 66.018.951/0001-04 · Porto Alegre, RS</span>
+			<span>Atendimento 100% online · <a href="https://wa.me/5551993380278" rel="noopener">(51) 99338-0278</a> · <a href="/cdn-cgi/l/email-protection#33505c5d4752475c7340525f56404741524756545a52401d505c5e1d5141"><span class="__cf_email__" data-cfemail="41222e2f3520352e0132202d24323533203524262820326f222e2c6f2333">[email&#160;protected]</span></a></span>
+		</div>
+	</div>
+</footer>
+
+<div data-rocket-location-hash="8b95eacdeab1f71934b744cdede24279" class="cookies" id="cookies" hidden>
+	<p>Este site usa cookies para funcionar e, se você deixar, para medir o desempenho das páginas. Você escolhe. <a href="/politica-de-privacidade/">Ler a política de privacidade</a>.</p>
+	<div>
+		<button type="button" class="btn btn-ghost" data-cookies="recusar">Só os necessários</button>
+		<button type="button" class="btn btn-primary" data-cookies="aceitar">Aceitar todos</button>
+	</div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="speculationrules">
+{"prerender":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/sal-blog/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prerender, .no-prerender a"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"moderate"}]}
+</script>
+
+<!-- Botão Acessar com o Google adicionado pelo Site Kit -->
+		<style>
+		.googlesitekit-sign-in-with-google__frontend-output-button{max-width:320px}
+		.interim-login #login>.googlesitekit-sign-in-with-google__frontend-output-button{margin-bottom:16px}
+		</style>
+		<script type="rocketlazyloadscript" data-rocket-src="https://accounts.google.com/gsi/client" data-rocket-defer defer></script>
+<script type="rocketlazyloadscript" data-siwg-config="{&quot;clientID&quot;:&quot;877807612101-ok18l3dj1mer9j539ic6e38ogtcm7eg9.apps.googleusercontent.com&quot;,&quot;defaultButtonOptions&quot;:{&quot;theme&quot;:&quot;filled_blue&quot;,&quot;text&quot;:&quot;signin_with&quot;,&quot;shape&quot;:&quot;pill&quot;},&quot;loginURI&quot;:&quot;https:\/\/www.salestrategias.com.br\/wp-login.php?action=googlesitekit_auth&quot;,&quot;isUserLoggedIn&quot;:false,&quot;isWPLogin&quot;:false,&quot;isPreview&quot;:false,&quot;isWooCommerce&quot;:false,&quot;isExistingUserFlow&quot;:false,&quot;connectNonce&quot;:&quot;&quot;,&quot;followsPostRedirect&quot;:false,&quot;redirectTo&quot;:&quot;&quot;,&quot;redirectCookieName&quot;:&quot;googlesitekit_auth_redirect_to&quot;,&quot;redirectCookiePath&quot;:&quot;\/&quot;,&quot;redirectCookieTTL&quot;:0,&quot;shouldShowOneTapPrompt&quot;:false}" data-rocket-src="https://www.salestrategias.com.br/wp-content/plugins/google-site-kit/dist/assets/js/sign-in-with-google-15a07dd57b5f79886b45.js" data-rocket-defer defer></script>
+
+<!-- Botão Finalizar Acesso com Google adicionado pelo Site Kit -->
+<script type="rocketlazyloadscript" id="rocket-browser-checker-js-after">
+"use strict";var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||!1,descriptor.configurable=!0,"value"in descriptor&&(descriptor.writable=!0),Object.defineProperty(target,descriptor.key,descriptor)}}return function(Constructor,protoProps,staticProps){return protoProps&&defineProperties(Constructor.prototype,protoProps),staticProps&&defineProperties(Constructor,staticProps),Constructor}}();function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor))throw new TypeError("Cannot call a class as a function")}var RocketBrowserCompatibilityChecker=function(){function RocketBrowserCompatibilityChecker(options){_classCallCheck(this,RocketBrowserCompatibilityChecker),this.passiveSupported=!1,this._checkPassiveOption(this),this.options=!!this.passiveSupported&&options}return _createClass(RocketBrowserCompatibilityChecker,[{key:"_checkPassiveOption",value:function(self){try{var options={get passive(){return!(self.passiveSupported=!0)}};window.addEventListener("test",null,options),window.removeEventListener("test",null,options)}catch(err){self.passiveSupported=!1}}},{key:"initRequestIdleCallback",value:function(){!1 in window&&(window.requestIdleCallback=function(cb){var start=Date.now();return setTimeout(function(){cb({didTimeout:!1,timeRemaining:function(){return Math.max(0,50-(Date.now()-start))}})},1)}),!1 in window&&(window.cancelIdleCallback=function(id){return clearTimeout(id)})}},{key:"isDataSaverModeOn",value:function(){return"connection"in navigator&&!0===navigator.connection.saveData}},{key:"supportsLinkPrefetch",value:function(){var elem=document.createElement("link");return elem.relList&&elem.relList.supports&&elem.relList.supports("prefetch")&&window.IntersectionObserver&&"isIntersecting"in IntersectionObserverEntry.prototype}},{key:"isSlowConnection",value:function(){return"connection"in navigator&&"effectiveType"in navigator.connection&&("2g"===navigator.connection.effectiveType||"slow-2g"===navigator.connection.effectiveType)}}]),RocketBrowserCompatibilityChecker}();
+//# sourceURL=rocket-browser-checker-js-after
+</script>
+<script id="rocket-preload-links-js-extra">
+var RocketPreloadLinksConfig = {"excludeUris":"/sitemap_index.xml/|/(.*)-sitemap.xml/|/(?:.+/)?feed(?:/(?:.+/?)?)?$|/(?:.+/)?embed/|/(index.php/)?(.*)wp-json(/.*|$)|/refer/|/go/|/recommend/|/recommends/","usesTrailingSlash":"1","imageExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php","fileExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php|html|htm","siteUrl":"https://www.salestrategias.com.br","onHoverDelay":"100","rateThrottle":"3"};
+//# sourceURL=rocket-preload-links-js-extra
+</script>
+<script type="rocketlazyloadscript" id="rocket-preload-links-js-after">
+(function() {
+"use strict";var r="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},e=function(){function i(e,t){for(var n=0;n<t.length;n++){var i=t[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(e,t,n){return t&&i(e.prototype,t),n&&i(e,n),e}}();function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}var t=function(){function n(e,t){i(this,n),this.browser=e,this.config=t,this.options=this.browser.options,this.prefetched=new Set,this.eventTime=null,this.threshold=1111,this.numOnHover=0}return e(n,[{key:"init",value:function(){!this.browser.supportsLinkPrefetch()||this.browser.isDataSaverModeOn()||this.browser.isSlowConnection()||(this.regex={excludeUris:RegExp(this.config.excludeUris,"i"),images:RegExp(".("+this.config.imageExt+")$","i"),fileExt:RegExp(".("+this.config.fileExt+")$","i")},this._initListeners(this))}},{key:"_initListeners",value:function(e){-1<this.config.onHoverDelay&&document.addEventListener("mouseover",e.listener.bind(e),e.listenerOptions),document.addEventListener("mousedown",e.listener.bind(e),e.listenerOptions),document.addEventListener("touchstart",e.listener.bind(e),e.listenerOptions)}},{key:"listener",value:function(e){var t=e.target.closest("a"),n=this._prepareUrl(t);if(null!==n)switch(e.type){case"mousedown":case"touchstart":this._addPrefetchLink(n);break;case"mouseover":this._earlyPrefetch(t,n,"mouseout")}}},{key:"_earlyPrefetch",value:function(t,e,n){var i=this,r=setTimeout(function(){if(r=null,0===i.numOnHover)setTimeout(function(){return i.numOnHover=0},1e3);else if(i.numOnHover>i.config.rateThrottle)return;i.numOnHover++,i._addPrefetchLink(e)},this.config.onHoverDelay);t.addEventListener(n,function e(){t.removeEventListener(n,e,{passive:!0}),null!==r&&(clearTimeout(r),r=null)},{passive:!0})}},{key:"_addPrefetchLink",value:function(i){return this.prefetched.add(i.href),new Promise(function(e,t){var n=document.createElement("link");n.rel="prefetch",n.href=i.href,n.onload=e,n.onerror=t,document.head.appendChild(n)}).catch(function(){})}},{key:"_prepareUrl",value:function(e){if(null===e||"object"!==(void 0===e?"undefined":r(e))||!1 in e||-1===["http:","https:"].indexOf(e.protocol))return null;var t=e.href.substring(0,this.config.siteUrl.length),n=this._getPathname(e.href,t),i={original:e.href,protocol:e.protocol,origin:t,pathname:n,href:t+n};return this._isLinkOk(i)?i:null}},{key:"_getPathname",value:function(e,t){var n=t?e.substring(this.config.siteUrl.length):e;return n.startsWith("/")||(n="/"+n),this._shouldAddTrailingSlash(n)?n+"/":n}},{key:"_shouldAddTrailingSlash",value:function(e){return this.config.usesTrailingSlash&&!e.endsWith("/")&&!this.regex.fileExt.test(e)}},{key:"_isLinkOk",value:function(e){return null!==e&&"object"===(void 0===e?"undefined":r(e))&&(!this.prefetched.has(e.href)&&e.origin===this.config.siteUrl&&-1===e.href.indexOf("?")&&-1===e.href.indexOf("#")&&!this.regex.excludeUris.test(e.href)&&!this.regex.images.test(e.href))}}],[{key:"run",value:function(){"undefined"!=typeof RocketPreloadLinksConfig&&new n(new RocketBrowserCompatibilityChecker({capture:!0,passive:!0}),RocketPreloadLinksConfig).init()}}]),n}();t.run();
+}());
+
+//# sourceURL=rocket-preload-links-js-after
+</script>
+<script id="rocket_lazyload_css-js-extra">
+var rocket_lazyload_css_data = {"threshold":"300"};
+//# sourceURL=rocket_lazyload_css-js-extra
+</script>
+<script id="rocket_lazyload_css-js-after">
+!function o(n,c,a){function u(t,e){if(!c[t]){if(!n[t]){var r="function"==typeof require&&require;if(!e&&r)return r(t,!0);if(s)return s(t,!0);throw(e=new Error("Cannot find module '"+t+"'")).code="MODULE_NOT_FOUND",e}r=c[t]={exports:{}},n[t][0].call(r.exports,function(e){return u(n[t][1][e]||e)},r,r.exports,o,n,c,a)}return c[t].exports}for(var s="function"==typeof require&&require,e=0;e<a.length;e++)u(a[e]);return u}({1:[function(e,t,r){"use strict";{const c="undefined"==typeof rocket_pairs?[]:rocket_pairs,a=(("undefined"==typeof rocket_excluded_pairs?[]:rocket_excluded_pairs).map(t=>{var e=t.selector;document.querySelectorAll(e).forEach(e=>{e.setAttribute("data-rocket-lazy-bg-"+t.hash,"excluded")})}),document.querySelector("#wpr-lazyload-bg-container"));var o=rocket_lazyload_css_data.threshold||300;const u=new IntersectionObserver(e=>{e.forEach(t=>{t.isIntersecting&&c.filter(e=>t.target.matches(e.selector)).map(t=>{var e;t&&((e=document.createElement("style")).textContent=t.style,a.insertAdjacentElement("afterend",e),t.elements.forEach(e=>{u.unobserve(e),e.setAttribute("data-rocket-lazy-bg-"+t.hash,"loaded")}))})})},{rootMargin:o+"px"});function n(){0<(0<arguments.length&&void 0!==arguments[0]?arguments[0]:[]).length&&c.forEach(t=>{try{document.querySelectorAll(t.selector).forEach(e=>{"loaded"!==e.getAttribute("data-rocket-lazy-bg-"+t.hash)&&"excluded"!==e.getAttribute("data-rocket-lazy-bg-"+t.hash)&&(u.observe(e),(t.elements||=[]).push(e))})}catch(e){console.error(e)}})}n(),function(){const r=window.MutationObserver;return function(e,t){if(e&&1===e.nodeType)return(t=new r(t)).observe(e,{attributes:!0,childList:!0,subtree:!0}),t}}()(document.querySelector("body"),n)}},{}]},{},[1]);
+//# sourceURL=rocket_lazyload_css-js-after
+</script>
+<script id="smush-detector-js-extra">
+var smush_detector = {"ajax_url":"https://www.salestrategias.com.br/wp-admin/admin-ajax.php","nonce":"9f8a625891","is_mobile":"","data_store":{"type":"post-meta","data":{"post_id":2217}},"previous_data_version":"-1","previous_data_hash":"no-data"};
+//# sourceURL=smush-detector-js-extra
+</script>
+<script type="rocketlazyloadscript" id="smush-detector-js" data-rocket-src="https://www.salestrategias.com.br/wp-content/plugins/wp-smush-pro/app/assets/js/smush-detector.min.js?ver=4.0.3" data-rocket-defer defer></script>
+<script type="rocketlazyloadscript" id="googlesitekit-consent-mode-js" data-rocket-src="https://www.salestrategias.com.br/wp-content/plugins/google-site-kit/dist/assets/js/googlesitekit-consent-mode-86cb52dcb9f2b27ed244.js" data-rocket-defer defer></script>
+<script id="sal-blog-js-extra">
+var SAL = {"ga":"G-DVRZ7L908H"};
+//# sourceURL=sal-blog-js-extra
+</script>
+<script type="rocketlazyloadscript" data-minify="1" id="sal-blog-js" data-rocket-src="https://www.salestrategias.com.br/wp-content/cache/min/1/wp-content/themes/sal-blog/js/tema.js?ver=1786651393" data-rocket-defer defer></script>
+<script id="smush-lazy-load-js-before">
+var smushLazyLoadOptions = {"autoResizingEnabled":true,"autoResizeOptions":{"precision":5,"skipAutoWidth":true}};
+//# sourceURL=smush-lazy-load-js-before
+</script>
+<script id="smush-lazy-load-js" src="https://www.salestrategias.com.br/wp-content/plugins/wp-smush-pro/app/assets/js/smush-lazy-load.min.js?ver=4.0.3" data-rocket-defer defer></script>
+<script id="wp-consent-api-js-extra">
+var consent_api = {"consent_type":"","waitfor_consent_hook":"","cookie_expiration":"30","cookie_prefix":"wp_consent","services":[]};
+//# sourceURL=wp-consent-api-js-extra
+</script>
+<script type="rocketlazyloadscript" id="wp-consent-api-js" data-rocket-src="https://www.salestrategias.com.br/wp-content/plugins/wp-consent-api/assets/js/wp-consent-api.min.js?ver=2.0.1" data-rocket-defer defer></script>
+<script id="optimization-detective-detect-args" type="application/json">
+["https://www.salestrategias.com.br/wp-content/plugins/optimization-detective/detect.min.js?ver=1.0.0-beta6",{"minViewportAspectRatio":0.4,"maxViewportAspectRatio":2.5,"isDebug":false,"extensionModuleUrls":["https://www.salestrategias.com.br/wp-content/plugins/image-prioritizer/detect.min.js?ver=1.0.0-beta3"],"restApiEndpoint":"https://www.salestrategias.com.br/wp-json/optimization-detective/v1/url-metrics:store","currentETag":"b9814c4cc4972f7aaf8f7ebce1810452","currentUrl":"https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/","urlMetricSlug":"ac02cddf40558558c958c355b280eaae","cachePurgePostId":2217,"urlMetricHMAC":"c55e24af0fa9ad0c2847436cb734fec5","urlMetricGroupStatuses":[{"minimumViewportWidth":0,"maximumViewportWidth":480,"complete":false},{"minimumViewportWidth":480,"maximumViewportWidth":600,"complete":false},{"minimumViewportWidth":600,"maximumViewportWidth":782,"complete":false},{"minimumViewportWidth":782,"maximumViewportWidth":null,"complete":false}],"storageLockTTL":60,"freshnessTTL":604800,"webVitalsLibrarySrc":"https://www.salestrategias.com.br/wp-content/plugins/optimization-detective/build/web-vitals.js?ver=5.1.0","gzdecodeAvailable":true,"maxUrlMetricSize":1048576}]
+</script>
+<script type="rocketlazyloadscript" data-rocket-type="module">
+async function load(){await new Promise((t=>{"complete"===document.readyState?t():window.addEventListener("load",t,{once:!0})})),"function"==typeof requestIdleCallback&&await new Promise((t=>{requestIdleCallback(t)}));const t="script#optimization-detective-detect-args",e=document.querySelector(t);if(!(e instanceof HTMLScriptElement))throw new Error(`Missing: ${t}`);const o=JSON.parse(e.text);if(!Array.isArray(o)||2!==o.length||"string"!=typeof o[0]||"object"!=typeof o[1])throw new Error("SCRIPT#optimization-detective-detect-args is not [ string, object ]");const i=o[0],a=o[1],n=(await import(i)).default;await n(a)}load();
+//# sourceURL=https://www.salestrategias.com.br/wp-content/plugins/optimization-detective/detect-loader.min.js?ver=1.0.0-beta6
+</script>
+<script>var rocket_beacon_data = {"ajax_url":"https:\/\/www.salestrategias.com.br\/wp-admin\/admin-ajax.php","nonce":"b09329ad05","url":"https:\/\/www.salestrategias.com.br\/quanto-investir-trafego-pago-loja-virtual","is_mobile":false,"width_threshold":1600,"height_threshold":700,"delay":500,"debug":null,"status":{"atf":true,"lrc":true,"preload_fonts":true,"preconnect_external_domain":true},"elements":"img, video, picture, p, main, div, li, svg, section, header, span","lrc_threshold":1800,"preload_fonts_exclusions":["api.fontshare.com","cdn.fontshare.com"],"processed_extensions":["woff2","woff","ttf"],"external_font_exclusions":[],"preconnect_external_domain_elements":["link","script","iframe"],"preconnect_external_domain_exclusions":["static.cloudflareinsights.com","rel=\"profile\"","rel=\"preconnect\"","rel=\"dns-prefetch\"","rel=\"icon\""]}</script><script data-name="wpr-wpr-beacon" src='https://www.salestrategias.com.br/wp-content/plugins/wp-rocket/assets/js/wpr-beacon.min.js' async></script></body>
+</html>
+
+<!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me -->
