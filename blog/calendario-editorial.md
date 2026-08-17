@@ -46,7 +46,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 37 | E-mail de boas-vindas que vende: exemplos para loja virtual | email de boas-vindas loja virtual | CRM | 14 | MOFU | PUBLICADO 2026-08-14 https://www.salestrategias.com.br/email-de-boas-vindas-loja-virtual/ |
 | 38 | Schema de produto: como aparecer com preço e estrelas no Google | schema de produto estrelas google | SEO | 13 | MOFU | PUBLICADO 2026-08-15 https://www.salestrategias.com.br/schema-de-produto-estrelas-google/ |
 | 39 | Quanto investir em tráfego pago numa loja virtual que está começando | quanto investir trafego pago loja virtual | TP | 15 | TOFU | PUBLICADO 2026-08-16 https://www.salestrategias.com.br/quanto-investir-trafego-pago-loja-virtual/ |
-| 40 | Página de produto que converte: o que não pode faltar | pagina de produto que converte | CRO | 14 | MOFU | PENDENTE |
+| 40 | Página de produto que converte: o que não pode faltar | pagina de produto que converte | CRO | 14 | MOFU | PUBLICADO 2026-08-17 https://www.salestrategias.com.br/pagina-de-produto-que-converte/ |
 | 41 | Como migrar clientes do marketplace para a loja própria (sem quebrar regras) | migrar clientes do marketplace | MKT | 14 | MOFU | PENDENTE |
 | 42 | GA4 na loja virtual: a configuração essencial (Nuvemshop, Shopify, Tray) | configurar ga4 loja virtual | DAD | 29 | MOFU | PENDENTE |
 | 43 | Buscas "perto de mim": como fazer a sua loja aparecer | perto de mim como aparecer google | LOC | 17 | TOFU | PENDENTE |
