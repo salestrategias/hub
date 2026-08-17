@@ -4,7 +4,7 @@ import Cabecalho from '../components/Cabecalho.astro';
 import Rodape from '../components/Rodape.astro';
 import HeroGrafico from '../components/HeroGrafico.astro';
 
-const title = 'Agência de SEO e Tráfego Pago para Varejo e E-commerce | SAL';
+const title = 'SAL Estratégias | Agência de Marketing, SEO e Tráfego Pago';
 const description =
   'A SAL Estratégias de Marketing faz SEO e tráfego pago na medida certa para lojas físicas e e-commerces venderem mais. Simplificar, Atrair e Libertar.';
 
@@ -102,31 +102,37 @@ const schema = {
 const servicos = [
   {
     titulo: 'SEO local',
+    href: '/seo-local/',
     texto: 'Perfil da Empresa no Google, mapa e busca de bairro. Quem pesquisa "perto de mim" precisa achar a sua loja antes de achar a do vizinho. Em rede, cada unidade tem o seu.',
     icone: 'pin',
   },
   {
     titulo: 'SEO para e-commerce',
+    href: '/seo-para-ecommerce/',
     texto: 'Categoria, produto e conteúdo ranqueando para quem já está decidido a comprar. Inclui o trabalho para a sua marca ser citada nas respostas do ChatGPT, do Gemini e do Google.',
     icone: 'busca',
   },
   {
     titulo: 'Tráfego pago',
+    href: '/trafego-pago/',
     texto: 'Google Ads e Meta Ads com gestão diária e meta de retorno calculada sobre a sua margem. Em loja física, anúncio por raio e medição de visita, não só de clique.',
     icone: 'alvo',
   },
   {
     titulo: 'Diagnóstico de site e loja virtual',
+    href: '/diagnostico-de-site/',
     texto: 'Nós analisamos o seu site como quem vai comprar: onde a pessoa trava, o que falta na página de produto, o que atrapalha no checkout e o que derruba a velocidade. Você recebe os gargalos apontados e a ordem de corrigir.',
     icone: 'loja',
   },
   {
     titulo: 'Conteúdo e autoridade',
+    href: '/servicos/#conteudo',
     texto: 'Calendário editorial montado por intenção de busca, artigos otimizados e conteúdo para o Perfil da Empresa. É o que faz o SEO andar mês a mês.',
     icone: 'texto',
   },
   {
     titulo: 'Criativos estratégicos',
+    href: '/servicos/#criativos',
     texto: 'Criativos constantemente atualizados, com o ângulo de venda definido antes da arte e aprovação sua antes de subir. Entram junto do plano de mídia.',
     icone: 'camada',
   },
@@ -275,13 +281,16 @@ const territorios = [
     <!-- SERVIÇOS -->
     <section class="sec" id="servicos">
       <div class="wrap">
-        <div class="cabeca rev">
-          <span class="eyebrow">Nossos serviços</span>
-          <h2>O que a SAL entrega, na prática.</h2>
+        <div class="cabeca-linha rev">
+          <div class="cabeca" style="margin-bottom:0">
+            <span class="eyebrow">Nossos serviços</span>
+            <h2>O que a SAL entrega, na prática.</h2>
+          </div>
+          <a class="btn btn-ghost" href="/servicos/">Ver todos os serviços →</a>
         </div>
         <div class="servicos">
           {servicos.map((s) => (
-            <article class="servico rev">
+            <a class="servico rev" href={s.href}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 {s.icone === 'alvo' && <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /></>}
                 {s.icone === 'pin' && <><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></>}
@@ -293,7 +302,8 @@ const territorios = [
               </svg>
               <h3>{s.titulo}</h3>
               <p>{s.texto}</p>
-            </article>
+              <span class="vai" aria-hidden="true">Conhecer o serviço →</span>
+            </a>
           ))}
         </div>
       </div>

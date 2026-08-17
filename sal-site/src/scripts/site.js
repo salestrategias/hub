@@ -5,6 +5,28 @@
     var o = n.classList.toggle('aberto');
     b.setAttribute('aria-expanded', o ? 'true' : 'false');
   });
+
+  /* dropdown de serviços: fecha ao clicar fora ou ao escolher um destino */
+  var drop = document.querySelector('.drop');
+  if (drop) {
+    document.addEventListener('click', function (e) {
+      if (!drop.contains(e.target)) drop.removeAttribute('open');
+    });
+    drop.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a')) drop.removeAttribute('open');
+    });
+  }
+
+  /* dia/noite: alterna o data-tema, guarda a escolha e avisa a barra do navegador */
+  var tb = document.querySelector('.tema-btn');
+  if (tb) tb.addEventListener('click', function () {
+    var claro = document.documentElement.getAttribute('data-tema') !== 'claro';
+    if (claro) document.documentElement.setAttribute('data-tema', 'claro');
+    else document.documentElement.removeAttribute('data-tema');
+    try { localStorage.setItem('tema', claro ? 'claro' : 'escuro'); } catch (e) {}
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', claro ? '#FBF9F4' : '#0B0A18');
+  });
   var alvos = document.querySelectorAll('.rev');
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (es) {

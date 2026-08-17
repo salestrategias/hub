@@ -69,6 +69,12 @@
   background-size: 38px 38px, 38px 38px;
   background-position: 0 0, 19px 19px;
 }
+/* no papel os grãos precisam escurecer para continuarem existindo */
+[data-tema="claro"] .malha::before {
+  background-image:
+    radial-gradient(rgba(143, 116, 52, 0.24) 1px, transparent 1.4px),
+    radial-gradient(rgba(69, 65, 95, 0.14) 1px, transparent 1.4px);
+}
 @media (prefers-reduced-motion: no-preference) {
   .malha::before { animation: deriva 34s linear infinite; will-change: transform; }
   @keyframes deriva { to { transform: translate(38px, 38px); } }
@@ -77,7 +83,7 @@
 /* -------- Header -------- */
 .topo {
   position: sticky; top: 0; z-index: 60; height: 72px;
-  background: rgba(11, 10, 24, 0.82);
+  background: rgba(var(--bg-rgb), 0.82);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
 }
@@ -87,7 +93,52 @@
 .nav a:not(.btn) { font-size: 0.95rem; color: var(--muted); transition: color var(--fast) var(--ease); }
 .nav a:not(.btn):hover { color: var(--text); }
 .nav .btn { padding: 11px 20px; font-size: 0.9rem; }
+.topo-acoes { display: flex; align-items: center; gap: var(--s3); }
 .menu-btn { display: none; background: none; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 14px; color: var(--text); font: 600 0.9rem var(--body); cursor: pointer; }
+
+/* troca de logo entre temas: o branco no escuro, o tinta no claro */
+.logo-claro { display: none; }
+[data-tema="claro"] .logo-claro { display: block; }
+[data-tema="claro"] .logo-escuro { display: none; }
+
+/* botão dia/noite: mostra o que vai acontecer, não o estado atual */
+.tema-btn {
+  display: grid; place-items: center; width: 38px; height: 38px; flex: none;
+  background: none; border: 1px solid var(--line); border-radius: 50%;
+  color: var(--muted); cursor: pointer;
+  transition: border-color var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.tema-btn:hover { border-color: var(--gold-line); color: var(--gold); }
+.tema-btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tema-btn .lua { display: none; }
+[data-tema="claro"] .tema-btn .sol { display: none; }
+[data-tema="claro"] .tema-btn .lua { display: block; }
+
+/* dropdown de serviços: <details> — funciona sem JS, o JS só fecha ao clicar fora */
+.drop { position: relative; }
+.drop summary {
+  list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.95rem; color: var(--muted); transition: color var(--fast) var(--ease);
+}
+.drop summary::-webkit-details-marker { display: none; }
+.drop summary:hover, .drop[open] summary { color: var(--text); }
+.drop summary svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--fast) var(--ease); }
+.drop[open] summary svg { transform: rotate(180deg); }
+.drop-caixa {
+  position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%);
+  min-width: 15.5rem; padding: var(--s3);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow); display: grid;
+}
+/* ponte invisível entre o rótulo e a caixa: sem ela o hover "cai" no vão */
+.drop-caixa::before { content: ""; position: absolute; top: -14px; left: 0; right: 0; height: 14px; }
+.drop-caixa a {
+  padding: 10px 14px; border-radius: var(--r-sm); font-size: 0.93rem; color: var(--muted);
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.drop-caixa a:hover { background: var(--gold-soft); color: var(--text); }
+.drop-caixa .drop-todos { margin-top: var(--s2); border-top: 1px solid var(--line); border-radius: 0 0 var(--r-sm) var(--r-sm); color: var(--gold); font-weight: 600; }
+.drop-caixa .drop-todos:hover { color: var(--gold-light); background: none; }
 
 /* -------- Hero: ilustração à direita, tipografia grande --------
    A arte é SVG desenhado aqui mesmo: não pesa em requisição, não perde
@@ -104,11 +155,13 @@
   transform: translateY(-50%);
   width: min(58%, 45rem); height: auto;
 }
+/* a arte é desenhada em indigo escuro: sobre papel ela entra suavizada */
+[data-tema="claro"] .hero-arte { opacity: 0.55; }
 .hero-veu {
   position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
-    linear-gradient(90deg, var(--bg) 0%, rgba(11, 10, 24, 0.92) 30%, rgba(11, 10, 24, 0.45) 52%, rgba(11, 10, 24, 0) 70%),
-    linear-gradient(0deg, var(--bg) 0%, rgba(11, 10, 24, 0.12) 30%, rgba(11, 10, 24, 0) 58%);
+    linear-gradient(90deg, var(--bg) 0%, rgba(var(--bg-rgb), 0.92) 30%, rgba(var(--bg-rgb), 0.45) 52%, rgba(var(--bg-rgb), 0) 70%),
+    linear-gradient(0deg, var(--bg) 0%, rgba(var(--bg-rgb), 0.12) 30%, rgba(var(--bg-rgb), 0) 58%);
 }
 .hero .malha { z-index: -1; }
 /* width: 100% é obrigatório — como item de um flex container, o .wrap
@@ -119,13 +172,13 @@
   font-size: clamp(2.6rem, 1.5rem + 4.6vw, 4.75rem);
   line-height: 1.02; letter-spacing: -0.022em;
   margin-bottom: var(--s5); text-wrap: balance;
-  text-shadow: 0 2px 40px rgba(11, 10, 24, 0.55);
+  text-shadow: 0 2px 40px rgba(var(--bg-rgb), 0.55);
 }
 .hero h1 em { font-style: normal; color: var(--gold); }
-.hero .sub { font-size: clamp(1.05rem, 1rem + 0.4vw, 1.25rem); color: #D6D4E6; max-width: 34rem; margin-bottom: var(--s6); }
+.hero .sub { font-size: clamp(1.05rem, 1rem + 0.4vw, 1.25rem); color: var(--hero-sub); max-width: 34rem; margin-bottom: var(--s6); }
 .hero .acoes { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
 .hero .porta { margin-top: var(--s5); }
-.hero .porta .link-side { color: #C3C0D8; }
+.hero .porta .link-side { color: var(--hero-porta); }
 
 /* -------- "Esta semana no Blog da SAL": a barra que mostra que o site é vivo -------- */
 .agora {
@@ -196,8 +249,8 @@
   transition: border-color var(--mid) var(--ease), transform var(--mid) var(--ease);
 }
 .publico:hover { border-color: var(--gold-line); transform: translateY(-2px); }
-.publico.fisico { background: radial-gradient(120% 100% at 0% 0%, #1A1636 0%, var(--surface) 60%); }
-.publico.online { background: radial-gradient(120% 100% at 100% 0%, #171A3A 0%, var(--surface) 60%); }
+.publico.fisico { background: radial-gradient(120% 100% at 0% 0%, var(--tint-a) 0%, var(--surface) 60%); }
+.publico.online { background: radial-gradient(120% 100% at 100% 0%, var(--tint-b) 0%, var(--surface) 60%); }
 .publico h3 { margin-bottom: var(--s2); }
 .publico p { color: var(--muted); font-size: 0.98rem; margin: 0; }
 .publico ul { list-style: none; margin: var(--s3) 0 var(--s5); padding: 0; display: grid; gap: var(--s3); }
@@ -205,6 +258,10 @@
 .publico li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); }
 .publico .vai { margin-top: auto; font-weight: 600; font-size: 0.95rem; color: var(--gold); display: inline-flex; align-items: center; gap: 6px; }
 .publico:hover .vai { color: var(--gold-light); }
+/* .publico dentro de seção bone (página de serviços): card claro, texto tinta */
+.bone .publico { background: var(--bone-2); border-color: var(--bone-line); }
+.bone .publico p { color: var(--bone-txt); }
+.bone .publico strong { color: var(--bone-ink); }
 
 /* -------- Serviços: 6 cards, os dois de SEO em destaque -------- */
 .servicos { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s5); }
@@ -215,12 +272,17 @@
 }
 /* SEO local e SEO para e-commerce ocupam a primeira linha: são o carro-chefe */
 .servico:nth-child(1), .servico:nth-child(2) { border-color: var(--gold-line); }
-.servico:nth-child(1) { background: radial-gradient(120% 100% at 0% 0%, #1A1636 0%, var(--surface) 62%); }
-.servico:nth-child(2) { background: radial-gradient(120% 100% at 100% 0%, #171A3A 0%, var(--surface) 62%); }
+.servico:nth-child(1) { background: radial-gradient(120% 100% at 0% 0%, var(--tint-a) 0%, var(--surface) 62%); }
+.servico:nth-child(2) { background: radial-gradient(120% 100% at 100% 0%, var(--tint-b) 0%, var(--surface) 62%); }
 .servico:hover { border-color: var(--gold-line); transform: translateY(-2px); }
 .servico svg { width: 28px; height: 28px; stroke: var(--gold); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; margin-bottom: var(--s4); }
 .servico h3 { font-size: 1.2rem; margin-bottom: var(--s2); }
 .servico p { color: var(--muted); font-size: 0.95rem; margin: 0; }
+/* o card inteiro é link para a página do serviço */
+a.servico { display: flex; flex-direction: column; }
+.servico .vai { margin-top: var(--s5); font-weight: 600; font-size: 0.92rem; color: var(--gold); display: inline-flex; align-items: center; gap: 6px; }
+.servico:hover .vai { color: var(--gold-light); }
+.servico:hover h3 { color: var(--gold-light); }
 
 /* -------- Método: 4 movimentos -------- */
 .metodo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
@@ -254,7 +316,7 @@
 .oferta {
   display: grid; grid-template-columns: 7fr 5fr; gap: clamp(2rem, 4vw, 3.5rem);
   align-items: start; padding: clamp(2rem, 4vw, 3.5rem);
-  background: radial-gradient(90% 120% at 100% 0%, #1A1636 0%, var(--surface) 60%);
+  background: radial-gradient(90% 120% at 100% 0%, var(--tint-a) 0%, var(--surface) 60%);
   border: 1px solid var(--gold-line); border-radius: var(--r-lg);
 }
 .oferta h2 { font-size: var(--t-h2); margin-bottom: var(--s4); }
@@ -266,7 +328,7 @@
   width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg);
 }
 .oferta aside {
-  padding: var(--s6) var(--s5); background: rgba(11, 10, 24, 0.5);
+  padding: var(--s6) var(--s5); background: rgba(var(--bg-rgb), 0.5);
   border: 1px solid var(--line); border-radius: var(--r); text-align: center;
 }
 .preco b {
@@ -321,7 +383,7 @@
 .faq details p { color: var(--muted); font-size: 0.98rem; margin: 0; }
 
 /* -------- CTA band -------- */
-.band { position: relative; overflow: hidden; background: linear-gradient(120deg, #1A1636, #101024); border-top: 1px solid var(--line); }
+.band { position: relative; overflow: hidden; background: linear-gradient(120deg, var(--tint-a), var(--bg-2)); border-top: 1px solid var(--line); }
 .band .wrap { position: relative; padding-block: var(--sec); text-align: center; }
 .band .numeros { border: 0; margin-bottom: var(--s7); }
 .band .numero { border-left: 0; }
@@ -365,8 +427,8 @@
   .hero-arte { width: 76%; right: -10%; top: 58%; opacity: .55; }
   .hero-veu {
     background:
-      linear-gradient(180deg, rgba(11, 10, 24, 0.72) 0%, rgba(11, 10, 24, 0.86) 46%, var(--bg) 100%),
-      linear-gradient(90deg, var(--bg) 0%, rgba(11, 10, 24, 0.55) 60%, rgba(11, 10, 24, 0.35) 100%);
+      linear-gradient(180deg, rgba(var(--bg-rgb), 0.72) 0%, rgba(var(--bg-rgb), 0.86) 46%, var(--bg) 100%),
+      linear-gradient(90deg, var(--bg) 0%, rgba(var(--bg-rgb), 0.55) 60%, rgba(var(--bg-rgb), 0.35) 100%);
   }
   .servicos, .artigos { grid-template-columns: repeat(2, 1fr); }
   .artigo:nth-child(3) { grid-column: span 2; }
@@ -386,15 +448,27 @@
   .bone .fundador, .faq { grid-template-columns: 1fr; }
   .rodape .grade { grid-template-columns: 1fr 1fr; }
 }
-@media (max-width: 640px) {
+/* No tablet o menu de 5 links estourava a linha: abaixo de 800px
+   vira burger, e o dropdown de serviços abre no fluxo, sem flutuar. */
+@media (max-width: 800px) {
   .nav {
     display: none; position: absolute; top: 72px; left: 0; right: 0;
-    flex-direction: column; align-items: flex-start; gap: var(--s4);
-    background: var(--bg-2); border-bottom: 1px solid var(--line); padding: var(--s5) var(--gutter) var(--s6);
+    flex-direction: column; align-items: stretch; gap: var(--s2);
+    background: var(--bg-2); border-bottom: 1px solid var(--line);
+    padding: var(--s4) var(--gutter) var(--s6);
+    max-height: calc(100dvh - 72px); overflow-y: auto;
   }
   .nav.aberto { display: flex; }
-  .nav .btn { width: 100%; justify-content: center; }
+  .nav a:not(.btn) { padding: 10px 0; font-size: 1rem; }
+  .nav .btn { width: 100%; justify-content: center; margin-top: var(--s3); }
   .menu-btn { display: inline-flex; }
+  .drop summary { padding: 10px 0; font-size: 1rem; width: 100%; justify-content: space-between; }
+  .drop-caixa { position: static; transform: none; min-width: 0; padding: 0 0 var(--s2) var(--s4); background: none; border: 0; box-shadow: none; }
+  .drop-caixa::before { display: none; }
+  .drop-caixa a { padding: 8px 0; }
+  .drop-caixa .drop-todos { border-top: 0; }
+}
+@media (max-width: 640px) {
   .numeros { grid-template-columns: 1fr; }
   .numero + .numero { border-left: 0; border-top: 1px solid var(--line); }
   .servicos, .metodo, .artigos { grid-template-columns: 1fr; }
@@ -535,7 +609,7 @@
 .chips { display: flex; flex-wrap: wrap; gap: var(--s3); list-style: none; margin: 0; padding: 0; }
 .chips li {
   font-family: var(--sans); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em;
-  color: var(--muted); background: rgba(22, 20, 46, 0.7);
+  color: var(--muted); background: rgba(var(--surface-rgb), 0.7);
   border: 1px solid var(--line); border-radius: var(--r-pill); padding: 7px 15px;
 }
 
@@ -638,7 +712,7 @@
   width: min(64rem, calc(100% - 2rem));
   display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--s5);
   margin-bottom: clamp(0.75rem, 2vw, 1.25rem); padding: var(--s5) var(--s6);
-  background: rgba(22, 20, 46, 0.97);
+  background: rgba(var(--surface-rgb), 0.97);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--gold-line); border-radius: var(--r);
   box-shadow: var(--shadow);
@@ -672,7 +746,7 @@
 
 /* -------- Porteira do WhatsApp -------- */
 .zapgate { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: var(--s4); }
-.zapgate-veu { position: absolute; inset: 0; background: rgba(11, 10, 24, 0.72); backdrop-filter: blur(3px); }
+.zapgate-veu { position: absolute; inset: 0; background: rgba(var(--bg-rgb), 0.78); backdrop-filter: blur(3px); }
 .zapgate-cartao {
   position: relative; width: min(26rem, 100%); background: var(--surface);
   border: 1px solid var(--line); border-radius: var(--r-lg, 18px); padding: var(--s6);

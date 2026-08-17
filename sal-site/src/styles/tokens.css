@@ -61,6 +61,15 @@
   --muted:   #B8B6CE;   /* cinza com veio violeta, não neutro */
   --muted-2: #7B7897;
 
+  /* -------- Derivados para véus e vidros (rgba precisa dos canais soltos) -------- */
+  --bg-rgb:      11, 10, 24;
+  --surface-rgb: 22, 20, 46;
+  /* tintas dos gradientes de card (radiais roxa e azulada) */
+  --tint-a: #1A1636;
+  --tint-b: #171A3A;
+  --hero-sub:   #D6D4E6;
+  --hero-porta: #C3C0D8;
+
   /* -------- Tipografia -------- */
   --display: 'Newsreader', Georgia, 'Times New Roman', serif;
   --sans:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -90,6 +99,47 @@
   /* -------- Movimento -------- */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --fast: 140ms; --mid: 260ms; --slow: 520ms;
+}
+
+/* =========================================================
+   Tema claro ("versão para o dia"). Mesma direção Indigo +
+   Champagne, trocada para papel: os fundos viram a escada do
+   osso, o champagne escurece para segurar contraste de texto
+   e os gradientes de card viram tintas lavanda/azul de leve.
+   Ativado por data-tema="claro" no <html> (script no head,
+   antes da pintura, para não piscar).
+   ========================================================= */
+:root[data-tema="claro"] {
+  --bg:        #FBF9F4;
+  --bg-2:      #F4F1E8;
+  --surface:   #FFFFFF;
+  --surface-2: #F8F5EC;
+  --line:      #E4DFD0;
+
+  --indigo-deep: #ECE8F8;   /* hero e capas: lavanda de papel */
+  --violet-soft: rgba(126, 48, 225, 0.10);
+
+  /* champagne mais fundo: o C9A961 não tem contraste sobre papel */
+  --gold:       #8F7434;
+  --gold-light: #A88940;
+  --gold-deep:  #6E5A24;
+  --gold-soft:  rgba(168, 137, 64, 0.12);
+  --gold-line:  rgba(168, 137, 64, 0.38);
+
+  --text:    #14122B;
+  --muted:   #45415F;
+  --muted-2: #6F6B87;
+
+  --bg-rgb:      251, 249, 244;
+  --surface-rgb: 255, 255, 255;
+  --tint-a: #EFEAF9;
+  --tint-b: #E9EDF9;
+  --hero-sub:   #45415F;
+  --hero-porta: #55516F;
+
+  --glow: 0 0 40px rgba(168, 137, 64, 0.14);
+  --shadow: 0 20px 60px rgba(20, 18, 43, 0.14);
+  --focus: 0 0 0 3px rgba(143, 116, 52, 0.4);
 }
 
 *, *::before, *::after { box-sizing: border-box; }

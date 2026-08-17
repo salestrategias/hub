@@ -23,6 +23,17 @@ const capa = site + '/img/og-sal.jpg';
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tema antes da pintura: escolha salva > preferência do sistema.
+       Precisa rodar aqui no head, senão o site escuro pisca antes do claro. -->
+  <script is:inline>
+    (function () {
+      try {
+        var t = localStorage.getItem('tema');
+        if (!t) t = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'escuro';
+        if (t === 'claro') document.documentElement.setAttribute('data-tema', 'claro');
+      } catch (e) {}
+    })();
+  </script>
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={url} />
@@ -44,6 +55,12 @@ const capa = site + '/img/og-sal.jpg';
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
   <meta name="theme-color" content="#0B0A18" />
+  <script is:inline>
+    if (document.documentElement.getAttribute('data-tema') === 'claro') {
+      var mtc = document.querySelector('meta[name="theme-color"]');
+      if (mtc) mtc.setAttribute('content', '#FBF9F4');
+    }
+  </script>
 
   <link rel="preload" href="/fonts/newsreader-600.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />

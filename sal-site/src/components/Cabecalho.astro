@@ -5,30 +5,49 @@ interface Props {
 }
 const { limpo = false } = Astro.props;
 
-const menu = [
+const servicos = [
   { rot: 'SEO local', href: '/seo-local/' },
   { rot: 'SEO para e-commerce', href: '/seo-para-ecommerce/' },
   { rot: 'Tráfego pago', href: '/trafego-pago/' },
-  { rot: 'A SAL', href: '/quem-somos/' },
-  { rot: 'Blog', href: '/blog/' },
+  { rot: 'Diagnóstico de site', href: '/diagnostico-de-site/' },
+  { rot: 'Conteúdo e autoridade', href: '/servicos/#conteudo' },
+  { rot: 'Criativos estratégicos', href: '/servicos/#criativos' },
 ];
 ---
 
 <header class={limpo ? 'topo topo-limpo' : 'topo'}>
   <div class="wrap">
     <a href="/" aria-label="SAL Estratégias de Marketing">
-      <img src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="60" height="34" />
+      <img class="logo-escuro" src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="60" height="34" />
+      <img class="logo-claro" src="/img/logo-sal-escuro.svg" alt="SAL Estratégias de Marketing" width="60" height="34" />
     </a>
 
     {limpo ? (
       <a class="link-side" href="/">← Voltar para o site</a>
     ) : (
       <>
-        <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
         <nav class="nav" id="nav" aria-label="Menu principal">
-          {menu.map((m) => <a href={m.href}>{m.rot}</a>)}
+          <details class="drop">
+            <summary aria-label="Serviços da SAL">
+              Serviços
+              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="m2 4 4 4 4-4" /></svg>
+            </summary>
+            <div class="drop-caixa">
+              {servicos.map((s) => <a href={s.href}>{s.rot}</a>)}
+              <a class="drop-todos" href="/servicos/">Ver todos os serviços →</a>
+            </div>
+          </details>
+          <a href="/quem-somos/">A SAL</a>
+          <a href="/blog/">Blog</a>
           <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
         </nav>
+        <div class="topo-acoes">
+          <button class="tema-btn" type="button" aria-label="Alternar entre tema claro e escuro">
+            <svg class="sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" /><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5 5l1.8 1.8M17.2 17.2 19 19M19 5l-1.8 1.8M6.8 17.2 5 19" /></svg>
+            <svg class="lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" /></svg>
+          </button>
+          <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+        </div>
       </>
     )}
   </div>
