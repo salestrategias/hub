@@ -89,9 +89,7 @@ Options -Indexes
   RedirectMatch 301 ^/servicos/como-aumentar-vendas-no-e-commerce/?$     /e-commerce/
   RedirectMatch 301 ^/servicos/estruturacao-de-ecommerce/?$              /e-commerce/
   RedirectMatch 301 ^/servicos/criacao-de-sites/?$                       /diagnostico-de-site/
-  RedirectMatch 301 ^/servicos/agencia-de-producao-de-conteudo/?$        /seo-para-ecommerce/
   RedirectMatch 301 ^/servicos/consultoria/?$                            /quem-somos/
-  RedirectMatch 301 ^/servicos/?$                                        /quem-somos/
   RedirectMatch 301 ^/diagnostico/?$                                     /agenda/
   RedirectMatch 301 ^/contato/?$                                         /agenda/
   RedirectMatch 301 ^/newsletter/?$                                      /blog/
