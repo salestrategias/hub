@@ -126,13 +126,13 @@ const servicos = [
   },
   {
     titulo: 'Conteúdo e autoridade',
-    href: '/servicos/#conteudo',
+    href: '/servicos/agencia-de-producao-de-conteudo/',
     texto: 'Calendário editorial montado por intenção de busca, artigos otimizados e conteúdo para o Perfil da Empresa. É o que faz o SEO andar mês a mês.',
     icone: 'texto',
   },
   {
     titulo: 'Criativos estratégicos',
-    href: '/servicos/#criativos',
+    href: null,
     texto: 'Criativos constantemente atualizados, com o ângulo de venda definido antes da arte e aprovação sua antes de subir. Entram junto do plano de mídia.',
     icone: 'camada',
   },
@@ -289,8 +289,10 @@ const territorios = [
           <a class="btn btn-ghost" href="/servicos/">Ver todos os serviços →</a>
         </div>
         <div class="servicos">
-          {servicos.map((s) => (
-            <a class="servico rev" href={s.href}>
+          {servicos.map((s) => {
+            const Cartao = s.href ? 'a' : 'article';
+            return (
+            <Cartao class="servico rev" href={s.href ?? undefined}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 {s.icone === 'alvo' && <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /></>}
                 {s.icone === 'pin' && <><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></>}
@@ -302,9 +304,10 @@ const territorios = [
               </svg>
               <h3>{s.titulo}</h3>
               <p>{s.texto}</p>
-              <span class="vai" aria-hidden="true">Conhecer o serviço →</span>
-            </a>
-          ))}
+              {s.href && <span class="vai" aria-hidden="true">Conhecer o serviço →</span>}
+            </Cartao>
+            );
+          })}
         </div>
       </div>
     </section>

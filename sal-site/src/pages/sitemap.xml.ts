@@ -10,6 +10,7 @@ const site = 'https://www.salestrategias.com.br';
 const paginas: { url: string; prioridade: string; freq: string }[] = [
   { url: '/', prioridade: '1.0', freq: 'weekly' },
   { url: '/servicos/', prioridade: '0.9', freq: 'monthly' },
+  { url: '/servicos/agencia-de-producao-de-conteudo/', prioridade: '0.8', freq: 'monthly' },
   { url: '/seo-local/', prioridade: '0.9', freq: 'monthly' },
   { url: '/seo-para-ecommerce/', prioridade: '0.9', freq: 'monthly' },
   { url: '/trafego-pago/', prioridade: '0.9', freq: 'monthly' },

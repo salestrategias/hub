@@ -39,23 +39,23 @@ const frentes = [
     texto: 'Analisamos o seu site como quem vai comprar e mostramos onde a pessoa desiste: página de produto, checkout, frete e velocidade. Você recebe os gargalos apontados e a ordem certa de corrigir.',
     para: 'Porta de entrada',
   },
+  {
+    titulo: 'Produção de conteúdo',
+    href: '/servicos/agencia-de-producao-de-conteudo/',
+    icone: 'texto',
+    texto: 'Calendário editorial por intenção de busca, artigos otimizados com E-E-A-T e conteúdo para o Perfil da Empresa. É o que faz o SEO andar mês a mês — e o que coloca a sua marca nas respostas das IAs.',
+    para: 'Para os dois',
+  },
 ];
 
-/* As frentes que entram junto do plano, sem página própria. */
+/* Frente que entra junto do plano, sem página própria. */
 const complementos = [
-  {
-    id: 'conteudo',
-    titulo: 'Conteúdo e autoridade',
-    icone: 'texto',
-    texto: 'Calendário editorial montado por intenção de busca, artigos otimizados e conteúdo para o Perfil da Empresa no Google. É o que faz o SEO andar mês a mês e a sua marca virar referência no assunto — inclusive nas respostas das IAs.',
-    junto: 'Entra junto das frentes de SEO.',
-  },
   {
     id: 'criativos',
     titulo: 'Criativos estratégicos',
     icone: 'camada',
     texto: 'Criativos constantemente atualizados, com o ângulo de venda definido antes da arte e a sua aprovação antes de subir. Anúncio bom não é o mais bonito: é o que fala com a pessoa certa no momento certo.',
-    junto: 'Entra junto da gestão de tráfego pago.',
+    junto: 'Entra junto da gestão de tráfego pago — não é contratado separado.',
   },
 ];
 
@@ -104,7 +104,7 @@ const schema = {
         <span class="eyebrow">Nossos serviços</span>
         <h1>Tudo o que a SAL faz para a sua loja <em>vender mais</em>.</h1>
         <p class="sub">
-          Quatro frentes principais e duas de apoio, montadas na medida do seu negócio.
+          Cinco frentes, montadas na medida do seu negócio.
           Nenhum cliente contrata tudo: o diagnóstico mostra o que faz diferença no seu caso.
         </p>
         <div class="acoes">
@@ -129,6 +129,7 @@ const schema = {
                 {f.icone === 'pin' && <><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></>}
                 {f.icone === 'busca' && <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5M8.5 11h5M11 8.5v5" /></>}
                 {f.icone === 'loja' && <><path d="M4 10v10h16V10" /><path d="M3 10 5 4h14l2 6a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0Z" /><path d="M10 20v-6h4v6" /></>}
+                {f.icone === 'texto' && <><path d="M5 4h14v16H5z" /><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4" /></>}
               </svg>
               <span class="eyebrow" style="margin-bottom:var(--s2)">{f.para}</span>
               <h3>{f.titulo}</h3>
@@ -145,7 +146,7 @@ const schema = {
       <div class="wrap">
         <div class="cabeca rev">
           <span class="eyebrow">Também entra no plano</span>
-          <h2>Duas frentes que sustentam as principais.</h2>
+          <h2>E o criativo, quem faz?</h2>
         </div>
         <div class="publicos">
           {complementos.map((c) => (
