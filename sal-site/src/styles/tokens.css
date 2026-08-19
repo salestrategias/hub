@@ -1,5 +1,5 @@
 /* =========================================================
-   SAL — Direção "Indigo + Champagne" (aprovada 2026-07-28)
+   SAL — Direção "Marinho + Coral" (prévia 2026-08-18; antes: Indigo + Champagne)
    Estrutura de tokens conforme o benchmark: escada de 4 fundos,
    UMA cor de borda, UM acento (≤5% da tela).
    O violeta da marca fica em papel de suporte (hover, foco,
@@ -30,45 +30,45 @@
 
 :root {
   /* -------- Escada de fundos: quase-preto com veio indigo -------- */
-  --bg:        #0B0A18;
-  --bg-2:      #101024;
-  --surface:   #16142E;
-  --surface-2: #1D1A3A;
-  --line:      #2A2652;   /* a única cor de borda no escuro */
+  --bg:        #0B1526;
+  --bg-2:      #0F1E3A;
+  --surface:   #152848;
+  --surface-2: #1B3156;
+  --line:      #29426B;   /* a única cor de borda no escuro */
 
   /* -------- Marca -------- */
-  --indigo:      #2D1D7A;
-  --indigo-deep: #14103A;
-  --violet:      #7E30E1;              /* suporte: hover, foco, borda ativa */
-  --violet-soft: rgba(126, 48, 225, 0.14);
+  --indigo:      #1B3A73;
+  --indigo-deep: #0E1C38;
+  --violet:      #3D6FE0;              /* suporte: hover, foco, borda ativa */
+  --violet-soft: rgba(61, 111, 224, 0.14);
 
   /* -------- Acento champagne (o "caro") -------- */
-  --gold:       #C9A961;
-  --gold-light: #E0C88A;
-  --gold-deep:  #A88940;
-  --gold-soft:  rgba(201, 169, 97, 0.12);
-  --gold-line:  rgba(201, 169, 97, 0.28);
+  --gold:       #FF6B66;
+  --gold-light: #FF8D85;
+  --gold-deep:  #C43C3C;
+  --gold-soft:  rgba(255, 107, 102, 0.12);
+  --gold-line:  rgba(255, 107, 102, 0.32);
 
   /* -------- Osso: a seção clara de respiro -------- */
-  --bone:     #F4F1E8;
-  --bone-2:   #FBF9F4;
-  --bone-ink: #14122B;
-  --bone-txt: #45415F;
-  --bone-line: #E3DDCD;
+  --bone:     #F1F4FA;
+  --bone-2:   #F8FAFD;
+  --bone-ink: #12203A;
+  --bone-txt: #46587A;
+  --bone-line: #D9E1EF;
 
   /* -------- Texto no escuro -------- */
   --text:    #FFFFFF;
-  --muted:   #B8B6CE;   /* cinza com veio violeta, não neutro */
-  --muted-2: #7B7897;
+  --muted:   #AEBCD6;   /* cinza com veio marinho, não neutro */
+  --muted-2: #7688A6;
 
   /* -------- Derivados para véus e vidros (rgba precisa dos canais soltos) -------- */
-  --bg-rgb:      11, 10, 24;
-  --surface-rgb: 22, 20, 46;
+  --bg-rgb:      11, 21, 38;
+  --surface-rgb: 21, 40, 72;
   /* tintas dos gradientes de card (radiais roxa e azulada) */
-  --tint-a: #1A1636;
-  --tint-b: #171A3A;
-  --hero-sub:   #D6D4E6;
-  --hero-porta: #C3C0D8;
+  --tint-a: #16294E;
+  --tint-b: #122B52;
+  --hero-sub:   #CBD6E8;
+  --hero-porta: #B7C4DC;
 
   /* -------- Tipografia -------- */
   --display: 'Newsreader', Georgia, 'Times New Roman', serif;
@@ -91,10 +91,10 @@
 
   /* -------- Forma -------- */
   --r-sm: 12px; --r: 16px; --r-lg: 20px; --r-pill: 999px;
-  --glow: 0 0 40px rgba(201, 169, 97, 0.13);
-  --shadow: 0 20px 60px rgba(11, 10, 24, 0.55);
-  --shadow-bone: 0 12px 40px rgba(20, 18, 43, 0.10);
-  --focus: 0 0 0 3px rgba(201, 169, 97, 0.45);
+  --glow: 0 0 40px rgba(255, 107, 102, 0.13);
+  --shadow: 0 20px 60px rgba(7, 14, 27, 0.55);
+  --shadow-bone: 0 12px 40px rgba(18, 32, 58, 0.10);
+  --focus: 0 0 0 3px rgba(255, 107, 102, 0.45);
 
   /* -------- Movimento -------- */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -110,36 +110,36 @@
    antes da pintura, para não piscar).
    ========================================================= */
 :root[data-tema="claro"] {
-  --bg:        #FBF9F4;
-  --bg-2:      #F4F1E8;
+  --bg:        #F7F9FC;
+  --bg-2:      #EDF1F8;
   --surface:   #FFFFFF;
-  --surface-2: #F8F5EC;
-  --line:      #E4DFD0;
+  --surface-2: #F2F5FA;
+  --line:      #DCE3EF;
 
-  --indigo-deep: #ECE8F8;   /* hero e capas: lavanda de papel */
-  --violet-soft: rgba(126, 48, 225, 0.10);
+  --indigo-deep: #E6EDF9;   /* hero e capas: azul de papel */
+  --violet-soft: rgba(61, 111, 224, 0.10);
 
   /* champagne mais fundo: o C9A961 não tem contraste sobre papel */
-  --gold:       #8F7434;
-  --gold-light: #A88940;
-  --gold-deep:  #6E5A24;
-  --gold-soft:  rgba(168, 137, 64, 0.12);
-  --gold-line:  rgba(168, 137, 64, 0.38);
+  --gold:       #C43C3C;
+  --gold-light: #A82F35;
+  --gold-deep:  #93262C;
+  --gold-soft:  rgba(196, 60, 60, 0.10);
+  --gold-line:  rgba(196, 60, 60, 0.36);
 
-  --text:    #14122B;
-  --muted:   #45415F;
-  --muted-2: #6F6B87;
+  --text:    #12203A;
+  --muted:   #46587A;
+  --muted-2: #6E80A0;
 
-  --bg-rgb:      251, 249, 244;
+  --bg-rgb:      247, 249, 252;
   --surface-rgb: 255, 255, 255;
-  --tint-a: #EFEAF9;
-  --tint-b: #E9EDF9;
-  --hero-sub:   #45415F;
-  --hero-porta: #55516F;
+  --tint-a: #E7EDF9;
+  --tint-b: #E3F0F8;
+  --hero-sub:   #46587A;
+  --hero-porta: #566A8E;
 
-  --glow: 0 0 40px rgba(168, 137, 64, 0.14);
-  --shadow: 0 20px 60px rgba(20, 18, 43, 0.14);
-  --focus: 0 0 0 3px rgba(143, 116, 52, 0.4);
+  --glow: 0 0 40px rgba(196, 60, 60, 0.12);
+  --shadow: 0 20px 60px rgba(18, 32, 58, 0.14);
+  --focus: 0 0 0 3px rgba(196, 60, 60, 0.4);
 }
 
 *, *::before, *::after { box-sizing: border-box; }

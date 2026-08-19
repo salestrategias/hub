@@ -38,7 +38,7 @@
               border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease), color var(--fast) var(--ease);
 }
 .btn-primary { background: var(--gold); color: var(--bg); }
-.btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 0 40px rgba(201,169,97,.32); }
+.btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 0 40px rgba(255,107,102,.3); }
 .btn-ghost { border-color: var(--line); color: var(--text); }
 .btn-ghost:hover { border-color: var(--gold-line); color: var(--gold); }
 .bone .btn-ghost { border-color: var(--bone-line); color: var(--bone-ink); }
@@ -68,16 +68,16 @@
 .malha::before {
   content: ""; position: absolute; inset: -38px 0 0 -38px;
   background-image:
-    radial-gradient(rgba(201, 169, 97, 0.16) 1px, transparent 1.4px),
-    radial-gradient(rgba(184, 182, 206, 0.10) 1px, transparent 1.4px);
+    radial-gradient(rgba(255, 107, 102, 0.15) 1px, transparent 1.4px),
+    radial-gradient(rgba(174, 188, 214, 0.10) 1px, transparent 1.4px);
   background-size: 38px 38px, 38px 38px;
   background-position: 0 0, 19px 19px;
 }
 /* no papel os grãos precisam escurecer para continuarem existindo */
 [data-tema="claro"] .malha::before {
   background-image:
-    radial-gradient(rgba(143, 116, 52, 0.24) 1px, transparent 1.4px),
-    radial-gradient(rgba(69, 65, 95, 0.14) 1px, transparent 1.4px);
+    radial-gradient(rgba(196, 60, 60, 0.2) 1px, transparent 1.4px),
+    radial-gradient(rgba(70, 88, 122, 0.14) 1px, transparent 1.4px);
 }
 @media (prefers-reduced-motion: no-preference) {
   .malha::before { animation: deriva 34s linear infinite; will-change: transform; }
