@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 	<div class="wrap">
 		<h2>Vamos agendar uma reunião e analisar a sua operação?</h2>
 		<p class="band-sub">Escolha um horário e analisamos as suas contas de anúncio, a sua presença no mapa e a sua concorrência. Você sai com as prioridades na mão.</p>
-		<a class="btn btn-primary" href="<?php echo esc_url( SAL_AGENDA ); ?>">Agendar diagnóstico ↗</a>
+		<a class="btn btn-primary" href="<?php echo esc_url( SAL_AGENDA ); ?>">Contrate a SAL</a>
 	</div>
 </section>
 
@@ -15,7 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 	<div class="wrap">
 		<div class="rodape-grade">
 			<div>
-				<img src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="72" height="41">
+				<img class="logo-escuro" src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="72" height="41">
+				<img class="logo-claro" src="/img/logo-sal-escuro.svg" alt="SAL Estratégias de Marketing" width="72" height="41">
 				<p>Assessoria de Tráfego Pago e SEO para lojas físicas e e-commerces. Fazemos marketing na medida certa para você vender mais e crescer de forma sustentável.</p>
 			</div>
 			<nav aria-label="Serviços">

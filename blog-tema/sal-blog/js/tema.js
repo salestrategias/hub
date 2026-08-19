@@ -8,6 +8,28 @@
     b.setAttribute('aria-expanded', o ? 'true' : 'false');
   });
 
+  /* dropdown de serviços: fecha ao clicar fora ou ao escolher um destino */
+  var drop = document.querySelector('.drop');
+  if (drop) {
+    document.addEventListener('click', function (e) {
+      if (!drop.contains(e.target)) drop.removeAttribute('open');
+    });
+    drop.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a')) drop.removeAttribute('open');
+    });
+  }
+
+  /* dia/noite: mesma chave do site (tema), o visitante transita sem quebra */
+  var tb = document.querySelector('.tema-btn');
+  if (tb) tb.addEventListener('click', function () {
+    var claro = document.documentElement.getAttribute('data-tema') !== 'claro';
+    if (claro) document.documentElement.setAttribute('data-tema', 'claro');
+    else document.documentElement.removeAttribute('data-tema');
+    try { localStorage.setItem('tema', claro ? 'claro' : 'escuro'); } catch (e) {}
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', claro ? '#F7F9FC' : '#0B1526');
+  });
+
   /* Consentimento: mesma chave do site estático (sal-cookies), então quem
      já decidiu lá não vê a barra de novo aqui. */
   var CHAVE = 'sal-cookies';
