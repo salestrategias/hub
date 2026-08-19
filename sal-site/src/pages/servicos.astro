@@ -43,7 +43,7 @@ const frentes = [
     titulo: 'Produção de conteúdo',
     href: '/servicos/agencia-de-producao-de-conteudo/',
     icone: 'texto',
-    texto: 'Calendário editorial por intenção de busca, artigos otimizados com E-E-A-T e conteúdo para o Perfil da Empresa. É o que faz o SEO andar mês a mês — e o que coloca a sua marca nas respostas das IAs.',
+    texto: 'Calendário editorial por intenção de busca, artigos otimizados com E-E-A-T e conteúdo para o Perfil da Empresa. É o que faz o SEO andar mês a mês e coloca a sua marca nas respostas das IAs.',
     para: 'Para os dois',
   },
 ];
@@ -55,7 +55,7 @@ const complementos = [
     titulo: 'Criativos estratégicos',
     icone: 'camada',
     texto: 'Criativos constantemente atualizados, com o ângulo de venda definido antes da arte e a sua aprovação antes de subir. Anúncio bom não é o mais bonito: é o que fala com a pessoa certa no momento certo.',
-    junto: 'Entra junto da gestão de tráfego pago — não é contratado separado.',
+    junto: 'Entra junto da gestão de tráfego pago, não é contratado separado.',
   },
 ];
 
@@ -101,14 +101,13 @@ const schema = {
         <nav class="migalhas" aria-label="Você está aqui">
           <a href="/">Início</a> <span aria-hidden="true">/</span> <span>Serviços</span>
         </nav>
-        <span class="eyebrow">Nossos serviços</span>
         <h1>Tudo o que a SAL faz para a sua loja <em>vender mais</em>.</h1>
         <p class="sub">
           Cinco frentes, montadas na medida do seu negócio.
           Nenhum cliente contrata tudo: o diagnóstico mostra o que faz diferença no seu caso.
         </p>
         <div class="acoes">
-          <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
+          <a class="btn btn-primary" href="/agenda/">Contrate a SAL ↗</a>
           <a class="btn btn-ghost" href="#frentes">Ver as frentes</a>
         </div>
       </div>
@@ -118,7 +117,6 @@ const schema = {
     <section class="sec" id="frentes">
       <div class="wrap">
         <div class="cabeca rev">
-          <span class="eyebrow">As frentes principais</span>
           <h2>Cada uma tem página própria, com método e entregáveis.</h2>
         </div>
         <div class="servicos">
@@ -131,7 +129,6 @@ const schema = {
                 {f.icone === 'loja' && <><path d="M4 10v10h16V10" /><path d="M3 10 5 4h14l2 6a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0Z" /><path d="M10 20v-6h4v6" /></>}
                 {f.icone === 'texto' && <><path d="M5 4h14v16H5z" /><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4" /></>}
               </svg>
-              <span class="eyebrow" style="margin-bottom:var(--s2)">{f.para}</span>
               <h3>{f.titulo}</h3>
               <p>{f.texto}</p>
               <span class="vai" aria-hidden="true">Conhecer o serviço →</span>
@@ -145,7 +142,6 @@ const schema = {
     <section class="sec bone" id="apoio">
       <div class="wrap">
         <div class="cabeca rev">
-          <span class="eyebrow">Também entra no plano</span>
           <h2>E o criativo, quem faz?</h2>
         </div>
         <div class="publicos">
@@ -179,9 +175,9 @@ const schema = {
         <h2>Não sabe por qual frente começar?</h2>
         <p class="sub">
           É exatamente para isso que existe o diagnóstico gratuito: a SAL analisa o seu negócio
-          e diz onde o marketing rende mais — mesmo que a resposta seja "ainda não é com a gente".
+          e diz onde o marketing rende mais, mesmo que a resposta seja "ainda não é com a gente".
         </p>
-        <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
+        <a class="btn btn-primary" href="/agenda/">Contrate a SAL ↗</a>
       </div>
     </section>
   </main>

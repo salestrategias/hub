@@ -181,8 +181,6 @@
 .hero h1 em { font-style: normal; color: var(--gold); }
 .hero .sub { font-size: clamp(1.05rem, 1rem + 0.4vw, 1.25rem); color: var(--hero-sub); max-width: 34rem; margin-inline: auto; margin-bottom: var(--s6); }
 .hero .acoes { display: flex; align-items: center; justify-content: center; gap: var(--s4); flex-wrap: wrap; }
-.hero .porta { margin-top: var(--s5); }
-.hero .porta .link-side { color: var(--hero-porta); }
 
 /* -------- "Esta semana no Blog da SAL": a barra que mostra que o site é vivo -------- */
 .agora {
@@ -776,17 +774,6 @@ a.servico { display: flex; flex-direction: column; }
    Fase Kaizen — personalidade e prova (18/08)
    ========================================================================= */
 
-/* chip do hero: o eyebrow ganha moldura de "credencial" */
-.chip-hero {
-  display: inline-flex; align-items: center; gap: 10px;
-  font-family: var(--sans); font-size: 0.66rem; font-weight: 600;
-  letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);
-  border: 1px solid var(--gold-line); border-radius: var(--r-pill);
-  padding: 9px 18px; margin-bottom: var(--s5);
-  background: rgba(var(--surface-rgb), 0.45);
-}
-.chip-hero .grao { width: 6px; height: 6px; }
-
 /* manifesto: a seção de opinião, centrada e em sans pesada */
 .manifesto { text-align: center; }
 .manifesto .mani-menor {
@@ -811,11 +798,6 @@ a.servico { display: flex; flex-direction: column; }
 /* ecossistema: as peças com nome próprio */
 .eco { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s5); }
 .eco .servico { grid-column: auto; }
-.eco .eco-rot {
-  display: block; font-family: var(--sans); font-size: 0.64rem; font-weight: 600;
-  letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted-2);
-  margin-bottom: var(--s2);
-}
 
 /* CTA com canal humano explícito */
 .band-zap { margin-top: var(--s5); font-size: 0.95rem; color: var(--muted); }
@@ -827,7 +809,6 @@ a.servico { display: flex; flex-direction: column; }
 }
 @media (max-width: 640px) {
   .eco { grid-template-columns: 1fr; }
-  .chip-hero { letter-spacing: 0.14em; }
 }
 
 /* trajetória: a prova social em números escaneáveis */

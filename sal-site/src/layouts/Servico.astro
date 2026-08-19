@@ -99,12 +99,11 @@ const schema = {
         <nav class="migalhas" aria-label="Você está aqui">
           <a href="/">Início</a> <span aria-hidden="true">/</span> <span>{servicoNome}</span>
         </nav>
-        <span class="eyebrow">{rotulo}</span>
         <h1>{h1} {h1Destaque && <em>{h1Destaque}</em>}</h1>
         <p class="sub">{chamada}</p>
         <ul class="chips">{chips.map((c) => <li>{c}</li>)}</ul>
         <div class="acoes">
-          <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
+          <a class="btn btn-primary" href="/agenda/">Contrate a SAL ↗</a>
           <a class="btn btn-ghost" href="#entregas">Ver o que está incluído</a>
         </div>
       </div>
@@ -131,7 +130,6 @@ const schema = {
     <section class="sec" id="como">
       <div class="wrap">
         <div class="cabeca rev">
-          <span class="eyebrow">Como funciona</span>
           <h2>{etapasTitulo}</h2>
         </div>
         <div class="metodo">
@@ -150,7 +148,6 @@ const schema = {
     <section class="sec" id="entregas">
       <div class="wrap">
         <div class="cabeca rev">
-          <span class="eyebrow">O que está incluído</span>
           <h2>{entregasTitulo}</h2>
         </div>
         <div class="entregas">
@@ -170,7 +167,6 @@ const schema = {
       <section class="sec bone" id="metrica">
         <div class="wrap">
           <div class="metrica rev">
-            <span class="eyebrow">A conta que interessa</span>
             <h2>{metricaTitulo}</h2>
             <p class="destaque">{metricaTexto}</p>
           </div>
@@ -183,7 +179,6 @@ const schema = {
       <div class="wrap">
         <div class="faq">
           <div class="rev">
-            <span class="eyebrow">Perguntas frequentes</span>
             <h2>Ficou alguma dúvida?</h2>
             <p style="color:var(--muted)">Se a sua não estiver aqui, chame no WhatsApp que respondemos.</p>
             <a class="btn btn-ghost" href="https://wa.me/5551993380278" rel="noopener">Perguntar no WhatsApp</a>
@@ -216,7 +211,7 @@ const schema = {
       <div class="wrap">
         <h2>{ctaTitulo}</h2>
         <p class="sub">{ctaTexto}</p>
-        <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
+        <a class="btn btn-primary" href="/agenda/">Contrate a SAL ↗</a>
       </div>
     </section>
   </main>
