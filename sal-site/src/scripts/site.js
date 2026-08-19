@@ -90,6 +90,11 @@
             if (res) res.textContent = limpo(p.excerpt && p.excerpt.rendered).slice(0, 150) + '…';
             var tm = c.querySelector('time');
             if (tm) { tm.setAttribute('datetime', p.date); tm.textContent = dataBR(p.date); }
+            var lt = c.querySelector('[data-leitura]');
+            if (lt) {
+              var palavras = limpo(p.content && p.content.rendered).split(/\s+/).length;
+              lt.textContent = Math.max(1, Math.round(palavras / 200)) + ' min de leitura';
+            }
           });
         }
       })

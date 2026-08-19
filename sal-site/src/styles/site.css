@@ -218,15 +218,17 @@
 .artigo figure { margin: 0 0 var(--s5); aspect-ratio: 16/9; overflow: hidden; background: var(--indigo-deep); border-bottom: 1px solid var(--line); }
 .artigo img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform var(--slow) var(--ease); }
 .artigo:hover img { transform: scale(1.03); }
-.artigo-cat, .artigo h3, .artigo p, .artigo time { padding-inline: var(--s5); }
+.artigo h3, .artigo p, .artigo .artigo-meta { padding-inline: var(--s5); }
 .artigo-cat {
-  display: block; font-family: var(--sans); font-size: 0.68rem; font-weight: 600;
-  letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: var(--s3);
+  display: inline-block; font-family: var(--sans); font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold);
+  background: var(--gold-soft); border: 1px solid var(--gold-line); border-radius: var(--r-pill);
+  padding: 5px 13px; margin: 0 0 var(--s3) var(--s5);
 }
 .artigo h3 { font-size: 1.12rem; line-height: 1.3; margin-bottom: var(--s3); }
 .artigo:hover h3 { color: var(--gold-light); }
 .artigo p { color: var(--muted); font-size: 0.92rem; margin: 0 0 var(--s4); }
-.artigo time { display: block; font-size: var(--t-xs); color: var(--muted-2); padding-bottom: var(--s5); }
+.artigo .artigo-meta { display: flex; gap: 8px; align-items: center; font-size: var(--t-xs); color: var(--muted-2); padding-bottom: var(--s5); }
 
 /* -------- Números (3, sempre em sans) -------- */
 .numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); border-bottom: 1px solid var(--line); }
@@ -271,9 +273,9 @@
   transition: border-color var(--mid) var(--ease), transform var(--mid) var(--ease);
 }
 /* SEO local e SEO para e-commerce ocupam a primeira linha: são o carro-chefe */
-.servico:nth-child(1), .servico:nth-child(2) { border-color: var(--gold-line); }
-.servico:nth-child(1) { background: radial-gradient(120% 100% at 0% 0%, var(--tint-a) 0%, var(--surface) 62%); }
-.servico:nth-child(2) { background: radial-gradient(120% 100% at 100% 0%, var(--tint-b) 0%, var(--surface) 62%); }
+.servicos .servico:nth-child(1), .servicos .servico:nth-child(2) { border-color: var(--gold-line); }
+.servicos .servico:nth-child(1) { background: radial-gradient(120% 100% at 0% 0%, var(--tint-a) 0%, var(--surface) 62%); }
+.servicos .servico:nth-child(2) { background: radial-gradient(120% 100% at 100% 0%, var(--tint-b) 0%, var(--surface) 62%); }
 .servico:hover { border-color: var(--gold-line); transform: translateY(-2px); }
 .servico svg { width: 28px; height: 28px; stroke: var(--gold); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; margin-bottom: var(--s4); }
 .servico h3 { font-size: 1.2rem; margin-bottom: var(--s2); }
@@ -395,7 +397,7 @@ a.servico { display: flex; flex-direction: column; }
 
 /* -------- Footer -------- */
 .rodape { background: var(--bg); border-top: 1px solid var(--line); }
-.rodape .grade { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--s7); padding-block: var(--s8) var(--s7); border-bottom: 1px solid var(--line); }
+.rodape .grade { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.15fr; gap: var(--s7); padding-block: var(--s8) var(--s7); border-bottom: 1px solid var(--line); }
 .rodape img { height: 40px; width: auto; aspect-ratio: 16/9; object-fit: contain; }
 .rodape p { font-size: var(--t-sm); color: var(--muted-2); max-width: 36ch; margin-top: var(--s4); }
 
@@ -770,3 +772,61 @@ a.servico { display: flex; flex-direction: column; }
 .zapgate form .btn { width: 100%; justify-content: center; margin-top: var(--s2); }
 .zapgate-erro { color: #E88; font-size: var(--t-sm); margin-bottom: var(--s3); }
 .zapgate-nota { margin-top: var(--s3); text-align: center; }
+
+/* =========================================================================
+   Fase Kaizen — personalidade e prova (18/08)
+   ========================================================================= */
+
+/* chip do hero: o eyebrow ganha moldura de "credencial" */
+.chip-hero {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--sans); font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);
+  border: 1px solid var(--gold-line); border-radius: var(--r-pill);
+  padding: 9px 18px; margin-bottom: var(--s5);
+  background: rgba(var(--surface-rgb), 0.45);
+}
+.chip-hero .grao { width: 6px; height: 6px; }
+
+/* manifesto: a seção de opinião, centrada e em sans pesada */
+.manifesto { text-align: center; }
+.manifesto .mani-menor {
+  font-family: var(--sans); font-weight: 700;
+  font-size: clamp(1rem, 0.9rem + 0.6vw, 1.3rem);
+  color: var(--gold); margin: 0 0 var(--s4);
+}
+.manifesto .mani-maior {
+  font-family: var(--sans); font-weight: 800;
+  font-size: clamp(2rem, 1.15rem + 3.8vw, 3.9rem);
+  line-height: 1.04; letter-spacing: -0.028em; color: var(--text);
+  max-width: 21ch; margin: 0 auto var(--s6); text-wrap: balance;
+}
+.manifesto .mani-corpo {
+  max-width: 46rem; margin: 0 auto;
+  font-size: var(--t-lead); line-height: 1.75; color: var(--muted);
+}
+.manifesto .mani-corpo + .mani-corpo { margin-top: var(--s4); }
+.manifesto .mani-corpo a { color: var(--gold); border-bottom: 1px solid var(--gold-line); font-weight: 600; }
+.manifesto .mani-corpo a:hover { color: var(--gold-light); }
+
+/* ecossistema: as peças com nome próprio */
+.eco { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s5); }
+.eco .servico { grid-column: auto; }
+.eco .eco-rot {
+  display: block; font-family: var(--sans); font-size: 0.64rem; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted-2);
+  margin-bottom: var(--s2);
+}
+
+/* CTA com canal humano explícito */
+.band-zap { margin-top: var(--s5); font-size: 0.95rem; color: var(--muted); }
+.band-zap a { color: var(--gold); border-bottom: 1px solid var(--gold-line); font-weight: 600; white-space: nowrap; }
+.band-zap a:hover { color: var(--gold-light); }
+
+@media (max-width: 1000px) {
+  .eco { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .eco { grid-template-columns: 1fr; }
+  .chip-hero { letter-spacing: 0.14em; }
+}

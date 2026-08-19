@@ -150,6 +150,7 @@ const servicos = [
 const API_BLOG = `https://www.salestrategias.com.br/wp-json/wp/v2/posts?per_page=4&_embed=wp:featuredmedia,wp:term&cb=${Date.now()}`;
 
 const semTags = (s = '') => s.replace(/<[^>]*>/g, '').replace(/&hellip;/g, '…').replace(/&#8230;/g, '…').replace(/&nbsp;/g, ' ').replace(/&#8217;/g, '’').replace(/&amp;/g, '&').trim();
+const minLeitura = (html = '') => Math.max(1, Math.round(semTags(html).split(/\s+/).length / 200));
 
 let artigos = [];
 try {
@@ -163,6 +164,7 @@ try {
         link: p.link,
         data: p.date,
         categoria: (emb['wp:term'] ?? []).flat().find((t) => t?.taxonomy === 'category')?.name ?? 'Blog',
+        leitura: minLeitura(p.content?.rendered),
         imagem: (emb['wp:featuredmedia'] ?? [])[0]?.source_url ?? null,
       };
     });
@@ -209,8 +211,8 @@ const territorios = [
       <div class="malha"></div>
       <div class="wrap">
         <div>
-          <span class="eyebrow">Assessoria de SEO e tráfego pago</span>
-          <h1>Marketing na medida certa para sua loja <em>vender mais e aumentar o lucro</em>.</h1>
+          <span class="chip-hero"><span class="grao" aria-hidden="true"></span>SEO × Tráfego pago · Varejo e e-commerce</span>
+          <h1><em>Marketing na Medida Certa</em> para te ajudar a vender mais e melhor.</h1>
           <p class="sub">
             Para negócios locais e e-commerces. Você aparece na hora em que o cliente procura o que
             você vende: no Google, no mapa e no anúncio.
@@ -242,6 +244,22 @@ const territorios = [
         </a>
       </section>
     )}
+
+    <!-- MANIFESTO -->
+    <section class="sec manifesto" id="manifesto">
+      <div class="wrap rev">
+        <p class="mani-menor">não somos mais uma agência de tráfego.</p>
+        <p class="mani-maior">somos a dose certa de marketing para a sua loja.</p>
+        <p class="mani-corpo">
+          A SAL nasceu depois de 12 anos vendo o varejo por dentro — de shopping center a loja de rua.
+          Não acreditamos em fórmula pronta nem em pacote fechado: acreditamos em
+          <a href="/trafego-pago/">tráfego pago</a> com meta calculada sobre a sua margem,
+          em <a href="/seo-local/">SEO</a> que faz o cliente achar você antes do concorrente,
+          e num <a href="/diagnostico-de-site/">diagnóstico</a> que diz a verdade —
+          inclusive quando a verdade é "ainda não é hora de anunciar".
+        </p>
+      </div>
+    </section>
 
     <!-- PARA QUEM -->
     <section class="sec" id="para-quem">
@@ -316,7 +334,7 @@ const territorios = [
     <section class="sec" id="metodo">
       <div class="wrap">
         <div class="cabeca rev">
-          <span class="eyebrow">Marketing na Medida Certa</span>
+          <span class="eyebrow">O método SAL</span>
           <h2>Método baseado em dados.</h2>
           <p>
             Sal demais estraga o prato, de menos ninguém sente o gosto. Com verba de marketing é igual.
@@ -380,7 +398,11 @@ const territorios = [
                   <span class="artigo-cat">{a.categoria}</span>
                   <h3>{a.titulo}</h3>
                   <p>{a.resumo}…</p>
-                  <time datetime={a.data}>{dataBR(a.data)}</time>
+                  <span class="artigo-meta">
+                    <time datetime={a.data}>{dataBR(a.data)}</time>
+                    <span aria-hidden="true">·</span>
+                    <span data-leitura>{a.leitura} min de leitura</span>
+                  </span>
                 </a>
               </article>
             ))}
@@ -425,6 +447,41 @@ const territorios = [
             <p class="destaque">Em 2024, fundou a SAL.</p>
             <p><a class="btn btn-ghost" href="/quem-somos/">Conhecer a SAL ↗</a></p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ECOSSISTEMA -->
+    <section class="sec" id="ecossistema">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <span class="eyebrow">O ecossistema SAL</span>
+          <h2>Mais que atendimento: uma operação com ferramentas próprias.</h2>
+        </div>
+        <div class="eco">
+          <a class="servico rev" href="/agenda/">
+            <span class="eco-rot">A porta de entrada</span>
+            <h3>Diagnóstico SAL</h3>
+            <p>Análise gratuita das suas contas de anúncio, da presença no Google e da concorrência. Você sai com as prioridades na mão — mesmo que não feche com a gente.</p>
+            <span class="vai" aria-hidden="true">Agendar o meu →</span>
+          </a>
+          <a class="servico rev" href="/blog/">
+            <span class="eco-rot">Conhecimento aberto</span>
+            <h3>Blog da SAL</h3>
+            <p>Guias práticos de SEO, tráfego pago e e-commerce, escritos para quem vende — não para quem estuda marketing. Novos artigos toda semana.</p>
+            <span class="vai" aria-hidden="true">Ler os artigos →</span>
+          </a>
+          <a class="servico rev" href="https://marcelofreitas.substack.com/" rel="noopener">
+            <span class="eco-rot">Toda semana no seu e-mail</span>
+            <h3>Café com Sal</h3>
+            <p>A newsletter do Marcelo: o que mudou no marketing na semana e o que fazer a respeito, em cinco minutos de leitura. Sem spam, sem enrolação.</p>
+            <span class="vai" aria-hidden="true">Assinar de graça →</span>
+          </a>
+          <article class="servico rev">
+            <span class="eco-rot">Tecnologia própria</span>
+            <h3>SAL Hub</h3>
+            <p>O sistema que a SAL construiu para gerir clientes, projetos, reuniões e números num lugar só. É onde o seu plano vive — com IA trabalhando nos bastidores.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -475,6 +532,7 @@ const territorios = [
           concorrência. Você sai com as prioridades na mão.
         </p>
         <a class="btn btn-primary" href="/agenda/">Agendar diagnóstico ↗</a>
+        <p class="band-zap">Prefere conversar antes? Chama no WhatsApp: <a href="https://wa.me/5551993380278" rel="noopener">(51) 99338-0278</a></p>
       </div>
     </section>
 
