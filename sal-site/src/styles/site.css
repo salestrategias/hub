@@ -892,12 +892,26 @@ a.eco-linha:hover .vai { color: var(--gold-light); }
 .carta-cabeca { display: flex; align-items: center; gap: var(--s5); margin-bottom: var(--s6); }
 .carta-cabeca h2 { margin: 0; font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.4rem); }
 .carta-avatar {
-  width: 88px; height: 88px; border-radius: 50%; object-fit: cover; object-position: 50% 12%;
+  width: 128px; height: 128px; border-radius: 50%; object-fit: cover; object-position: 50% 12%;
   border: 3px solid var(--bone-line); flex: none;
 }
 .carta-de { margin: 6px 0 0; font-size: var(--t-sm); color: var(--bone-txt); }
 .cenas { max-width: 46rem; margin: var(--s5) auto 0; }
 @media (max-width: 640px) {
-  .carta-avatar { width: 64px; height: 64px; }
+  .carta-avatar { width: 92px; height: 92px; }
   .carta-cabeca { gap: var(--s4); }
 }
+
+/* Confiam na SAL: logos sobre lousa branca, nome e frente embaixo */
+.clientes { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s5); }
+.cliente { text-align: center; }
+.cliente-logo {
+  height: 104px; background: #FFFFFF; border: 1px solid var(--line); border-radius: var(--r);
+  display: grid; place-items: center; padding: 16px 22px; margin-bottom: var(--s4);
+}
+.cliente-logo img { max-height: 68px; width: auto; max-width: 100%; object-fit: contain; }
+.cliente-tile { font-family: var(--sans); font-weight: 800; font-size: 1.02rem; letter-spacing: -0.01em; color: #12203A; line-height: 1.2; }
+.cliente h3 { font-size: 0.98rem; margin: 0 0 3px; }
+.cliente p { color: var(--muted-2); font-size: 0.84rem; margin: 0; }
+@media (max-width: 1000px) { .clientes { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .clientes { grid-template-columns: 1fr; } }
