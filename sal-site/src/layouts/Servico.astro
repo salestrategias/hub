@@ -101,7 +101,7 @@ const schema = {
         </nav>
         <h1>{h1} {h1Destaque && <em>{h1Destaque}</em>}</h1>
         <p class="sub">{chamada}</p>
-        <p class="escopo">{chips.join(" · ")}</p>
+        <p class="escopo">{chips.map((c, i) => (<>{i > 0 && <i class="grao-sep" aria-hidden="true"></i>}<span>{c}</span></>))}</p>
         <div class="acoes">
           <a class="btn btn-primary" href="/agenda/">Contrate a SAL</a>
           <a class="btn btn-ghost" href="#entregas">Ver o que está incluído</a>

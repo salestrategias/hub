@@ -69,6 +69,7 @@
   --tint-b: #122B52;
   --hero-sub:   #CBD6E8;
   --hero-porta: #B7C4DC;
+  --lima: #F6FF74;
 
   /* -------- Tipografia -------- */
   --display: 'Newsreader', Georgia, 'Times New Roman', serif;
@@ -194,4 +195,4 @@ img, svg, video { max-width: 100%; height: auto; display: block; }
 a { color: inherit; text-decoration: none; }
 
 :focus-visible { outline: none; box-shadow: var(--focus); border-radius: var(--r-sm); }
-::selection { background: var(--gold); color: var(--bg); }
+::selection { background: var(--lima); color: #12203A; }

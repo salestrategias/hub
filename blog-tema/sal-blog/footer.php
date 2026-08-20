@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 	<div class="wrap">
 		<div class="rodape-grade">
 			<div>
-				<img class="logo-escuro" src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="72" height="41">
-				<img class="logo-claro" src="/img/logo-sal-escuro.svg" alt="SAL Estratégias de Marketing" width="72" height="41">
+				<img class="logo-escuro" src="/img/sal-wordmark.svg" alt="SAL Estratégias de Marketing" width="72" height="41">
+				<img class="logo-claro" src="/img/sal-wordmark-tinta.svg" alt="SAL Estratégias de Marketing" width="72" height="41">
 				<p>Assessoria de Tráfego Pago e SEO para lojas físicas e e-commerces. Fazemos marketing na medida certa para você vender mais e crescer de forma sustentável.</p>
 			</div>
 			<nav aria-label="Serviços">

@@ -52,13 +52,13 @@ const capa = site + '/img/og-sal.jpg';
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content={capa} />
 
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
-  <meta name="theme-color" content="#0B0A18" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/img/sal-touch.png" />
+  <meta name="theme-color" content="#0B1526" />
   <script is:inline>
     if (document.documentElement.getAttribute('data-tema') === 'claro') {
       var mtc = document.querySelector('meta[name="theme-color"]');
-      if (mtc) mtc.setAttribute('content', '#FBF9F4');
+      if (mtc) mtc.setAttribute('content', '#F7F9FC');
     }
   </script>
 

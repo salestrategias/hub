@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-	<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+	<link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+	<link rel="apple-touch-icon" href="/img/sal-touch.png">
 	<meta name="theme-color" content="#0B1526">
 	<script>
 	(function () {
@@ -31,8 +31,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 <header class="topo">
 	<div class="wrap">
 		<a href="/" aria-label="SAL Estratégias de Marketing">
-			<img class="logo-escuro" src="/img/logo-sal-branco.svg" alt="SAL Estratégias de Marketing" width="60" height="34">
-			<img class="logo-claro" src="/img/logo-sal-escuro.svg" alt="SAL Estratégias de Marketing" width="60" height="34">
+			<img class="logo-escuro" src="/img/sal-wordmark.svg" alt="SAL Estratégias de Marketing" width="60" height="34">
+			<img class="logo-claro" src="/img/sal-wordmark-tinta.svg" alt="SAL Estratégias de Marketing" width="60" height="34">
 		</a>
 		<nav class="nav" id="nav" aria-label="Menu principal">
 			<details class="drop">
