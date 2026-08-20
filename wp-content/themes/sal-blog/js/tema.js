@@ -66,6 +66,19 @@
     else if (escolha !== 'recusar') barra.hidden = false;
   }
 
+  /* Busca navega por caminho (/blog/search/termo/): o cache de página do
+     servidor ignora query strings, então ?s= nunca chegaria ao WordPress. */
+  document.querySelectorAll('form.busca').forEach(function (f) {
+    f.addEventListener('submit', function (e) {
+      var campo = f.querySelector('input[name="s"]');
+      var termo = campo ? campo.value.trim() : '';
+      e.preventDefault();
+      if (!termo) return;
+      var base = (f.getAttribute('action') || '/').replace(/\/+$/, '');
+      window.location = base + '/search/' + encodeURIComponent(termo) + '/';
+    });
+  });
+
   /* Tabelas dentro do artigo rolam na horizontal em vez de estourar a folha. */
   document.querySelectorAll('.conteudo table').forEach(function (t) {
     if (t.parentElement && t.parentElement.classList.contains('rolagem')) return;

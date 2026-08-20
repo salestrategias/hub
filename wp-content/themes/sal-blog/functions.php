@@ -99,6 +99,17 @@ add_action( 'pre_get_posts', function ( $q ) {
 	}
 } );
 
+// ---------------------------------------------------------------- busca por caminho
+// O cache de página do servidor ignora query strings, então /blog/?s=termo nunca
+// chega ao WordPress. O formulário navega para /blog/search/termo/, cacheável por URL.
+add_action( 'init', function () {
+	add_rewrite_rule( 'search/(.+?)/?$', 'index.php?s=$matches[1]', 'top' );
+	if ( '2.2.1' !== get_option( 'sal_rewrite_v' ) ) {
+		flush_rewrite_rules( false );
+		update_option( 'sal_rewrite_v', '2.2.1' );
+	}
+} );
+
 // ---------------------------------------------------------------- ajudantes
 /** Minutos de leitura, no mínimo 1. */
 function sal_leitura( $post = null ) {
