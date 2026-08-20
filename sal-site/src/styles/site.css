@@ -178,6 +178,33 @@
 }
 /* a arte é desenhada em indigo escuro: sobre papel ela entra suavizada */
 [data-tema="claro"] .hero-arte { opacity: 0.3; }
+
+/* vida na ilustração: flutuação, radar e cintilar — só transform e opacity,
+   direto no compositor, sem custo de layout nem de CLS */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-arte .ha-serp { animation: ha-flutua 9s ease-in-out infinite alternate; }
+  .hero-arte .ha-vitrine > g:nth-child(1) { animation: ha-flutua 8s ease-in-out -3s infinite alternate; }
+  .hero-arte .ha-vitrine > g:nth-child(2) { animation: ha-flutua-alto 7s ease-in-out infinite alternate; }
+  .hero-arte .ha-vitrine > g:nth-child(3) { animation: ha-flutua 8.5s ease-in-out -5s infinite alternate; }
+  .hero-arte .ha-mapa { animation: ha-flutua 10s ease-in-out -2s infinite alternate; }
+  .hero-arte .ha-escala { animation: ha-flutua 11s ease-in-out -6s infinite alternate; }
+  @keyframes ha-flutua { from { transform: translateY(5px); } to { transform: translateY(-7px); } }
+  @keyframes ha-flutua-alto { from { transform: translateY(8px); } to { transform: translateY(-10px); } }
+
+  /* o radar do pino: as ondas acendem de dentro para fora */
+  .hero-arte .ha-mapa circle:nth-of-type(3) { animation: ha-onda 4.8s ease-in-out -3.2s infinite; }
+  .hero-arte .ha-mapa circle:nth-of-type(2) { animation: ha-onda 4.8s ease-in-out -1.6s infinite; }
+  .hero-arte .ha-mapa circle:nth-of-type(1) { animation: ha-onda 4.8s ease-in-out infinite; }
+  @keyframes ha-onda { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+
+  /* o ponto alto do gráfico pulsa; os grãos soltos cintilam defasados */
+  .hero-arte .ha-escala circle:last-of-type { animation: ha-brilha 3.6s ease-in-out infinite; }
+  .hero-arte .ha-graos rect:nth-child(1) { animation: ha-brilha 5s ease-in-out infinite; }
+  .hero-arte .ha-graos rect:nth-child(2) { animation: ha-brilha 6s ease-in-out -2s infinite; }
+  .hero-arte .ha-graos rect:nth-child(3) { animation: ha-brilha 5.5s ease-in-out -4s infinite; }
+  .hero-arte .ha-graos rect:nth-child(4) { animation: ha-brilha 6.5s ease-in-out -1s infinite; }
+  @keyframes ha-brilha { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+}
 .hero-veu {
   position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
