@@ -245,17 +245,18 @@
 .bone .cabeca p { color: var(--bone-txt); }
 
 /* -------- Para quem: 2 públicos -------- */
-.publicos { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); }
+/* díptico editorial: dois painéis e um fio, sem caixa */
+.publicos { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-block: 1px solid var(--line); }
 .publico {
-  position: relative; overflow: hidden; border-radius: var(--r);
-  border: 1px solid var(--line); padding: clamp(1.75rem, 3vw, 2.5rem);
-  display: flex; flex-direction: column; gap: var(--s3);
-  transition: border-color var(--mid) var(--ease), transform var(--mid) var(--ease);
+  position: relative; display: flex; flex-direction: column; gap: var(--s3);
+  padding: clamp(2rem, 4vw, 3.25rem) clamp(1.5rem, 3vw, 3rem);
 }
-.publico:hover { border-color: var(--gold-line); transform: translateY(-2px); }
-.publico.fisico { background: radial-gradient(120% 100% at 0% 0%, var(--tint-a) 0%, var(--surface) 60%); }
-.publico.online { background: radial-gradient(120% 100% at 100% 0%, var(--tint-b) 0%, var(--surface) 60%); }
-.publico h3 { margin-bottom: var(--s2); }
+.publico:first-child { padding-left: 0; }
+.publico + .publico { border-left: 1px solid var(--line); }
+.publico h3 {
+  font-family: var(--display); font-weight: 600; letter-spacing: -0.015em;
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.3rem); margin-bottom: var(--s2);
+}
 .publico p { color: var(--muted); font-size: 0.98rem; margin: 0; }
 .publico ul { list-style: none; margin: var(--s3) 0 var(--s5); padding: 0; display: grid; gap: var(--s3); }
 .publico li { position: relative; padding-left: 22px; font-size: 0.95rem; color: var(--muted); }
@@ -263,7 +264,8 @@
 .publico .vai { margin-top: auto; font-weight: 600; font-size: 0.95rem; color: var(--gold); display: inline-flex; align-items: center; gap: 6px; }
 .publico:hover .vai { color: var(--gold-light); }
 /* .publico dentro de seção bone (página de serviços): card claro, texto tinta */
-.bone .publico { background: var(--bone-2); border-color: var(--bone-line); }
+.bone .publicos { border-color: var(--bone-line); }
+.bone .publico + .publico { border-color: var(--bone-line); }
 .bone .publico p { color: var(--bone-txt); }
 .bone .publico strong { color: var(--bone-ink); }
 
@@ -444,6 +446,8 @@ a.servico { display: flex; flex-direction: column; }
 }
 @media (max-width: 860px) {
   .publicos, .selos, .oferta { grid-template-columns: 1fr; }
+  .publico { padding-inline: 0; }
+  .publico + .publico { border-left: 0; border-top: 1px solid var(--line); }
   .bone .fundador, .faq { grid-template-columns: 1fr; }
   .rodape .grade { grid-template-columns: 1fr 1fr; }
 }
@@ -805,19 +809,27 @@ a.servico { display: flex; flex-direction: column; }
 .mani-fecho { margin-top: var(--s7); }
 
 /* ecossistema: as peças com nome próprio */
-.eco { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s5); }
-.eco .servico { grid-column: auto; }
+/* ecossistema: um índice em linhas, não mais uma grade de cards */
+.eco { max-width: 62rem; border-top: 1px solid var(--line); }
+.eco-linha {
+  display: grid; grid-template-columns: 13rem 1fr auto; gap: var(--s5);
+  align-items: baseline; padding: var(--s5) 0; border-bottom: 1px solid var(--line);
+}
+.eco-linha h3 { margin: 0; font-size: 1.12rem; transition: color var(--fast) var(--ease); }
+.eco-linha p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.eco-linha .vai { white-space: nowrap; font-weight: 600; font-size: 0.92rem; color: var(--gold); }
+a.eco-linha:hover h3 { color: var(--gold); }
+a.eco-linha:hover .vai { color: var(--gold-light); }
 
 /* CTA com canal humano explícito */
 .band-zap { margin-top: var(--s5); font-size: 0.95rem; color: var(--muted); }
 .band-zap a { color: var(--gold); border-bottom: 1px solid var(--gold-line); font-weight: 600; white-space: nowrap; }
 .band-zap a:hover { color: var(--gold-light); }
 
-@media (max-width: 1000px) {
-  .eco { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 640px) {
-  .eco { grid-template-columns: 1fr; }
+
+@media (max-width: 800px) {
+  .eco-linha { grid-template-columns: 1fr; gap: var(--s2); }
+  .eco-linha .vai { margin-top: var(--s2); }
 }
 
 /* trajetória: a prova social em números escaneáveis */
