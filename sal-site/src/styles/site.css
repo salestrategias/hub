@@ -867,3 +867,14 @@ a.eco-linha:hover .vai { color: var(--gold-light); }
 
 /* fluo lima: só destaque, nunca ação */
 .grifo { background: linear-gradient(transparent 58%, var(--lima) 58%, var(--lima) 94%, transparent 94%); padding-inline: 2px; }
+
+/* a carta do fundador: parágrafos de leitura e assinatura */
+.carta p { color: var(--bone-txt); line-height: 1.7; margin-bottom: var(--s4); }
+.assinatura { margin: var(--s6) 0 0; }
+.assinatura b {
+  display: block; font-family: var(--display); font-weight: 600;
+  font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.6rem); letter-spacing: -0.01em;
+  color: var(--bone-ink); line-height: 1.2;
+}
+.assinatura span { display: block; font-size: var(--t-sm); color: var(--bone-txt); margin-top: 4px; }
+.bone .grifo { color: var(--bone-ink); font-weight: 600; }
