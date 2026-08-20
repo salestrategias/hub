@@ -1,0 +1,1 @@
+Card para redes sociais, 1080×1080: `.capa.capa-social` — a mesma gramática da capa de post (marinho, rótulo coral, grifo lima, grãos, wordmark), título maior (~96px). No rodapé, o handle à esquerda e o domínio à direita. O lima aqui pode ser mais generoso que no site: é a peça de feed que o usuário aprovou como "marca-texto".
