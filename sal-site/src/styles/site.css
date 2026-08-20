@@ -367,7 +367,6 @@ a.servico { display: flex; flex-direction: column; }
 .bone { background: var(--bone); color: var(--bone-txt); }
 .bone h1, .bone h2, .bone h3, .bone h4 { color: var(--bone-ink); }
 .bone .fundador { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(2rem, 5vw, 4rem); align-items: start; }
-.fundador-fotos { position: sticky; top: 96px; }
 .bone .foto-grande {
   margin: 0; aspect-ratio: 4/5; border-radius: var(--r-lg); overflow: hidden;
   background: linear-gradient(160deg, #E6E0D2, #D8D1C0); border: 1px solid var(--bone-line);
@@ -863,7 +862,6 @@ a.eco-linha:hover .vai { color: var(--gold-light); }
 .trajetoria span { display: block; font-size: 0.88rem; color: var(--bone-txt); margin-top: var(--s2); line-height: 1.4; }
 .marcas-linha { font-size: 0.9rem; color: var(--bone-txt); margin-top: var(--s5); }
 .marcas-linha b { color: var(--bone-ink); font-family: var(--sans); }
-@media (max-width: 860px) { .fundador-fotos { position: static; } }
 @media (max-width: 640px) { .trajetoria { grid-template-columns: 1fr; gap: var(--s4); } .prova-pe { flex-direction: column; align-items: flex-start; } }
 
 /* a quebra que protege o slogan: só quando a tela comporta a linha inteira */
@@ -883,3 +881,23 @@ a.eco-linha:hover .vai { color: var(--gold-light); }
 }
 .assinatura span { display: block; font-size: var(--t-sm); color: var(--bone-txt); margin-top: 4px; }
 .bone .grifo { color: var(--bone-ink); font-weight: 600; }
+
+/* a folha de carta: o texto do fundador como objeto físico sobre a seção */
+.folha-carta {
+  max-width: 46rem; margin-inline: auto;
+  background: var(--bone-2); border: 1px solid var(--bone-line); border-radius: var(--r-lg);
+  padding: clamp(1.75rem, 4.5vw, 3.5rem);
+  box-shadow: var(--shadow-bone);
+}
+.carta-cabeca { display: flex; align-items: center; gap: var(--s5); margin-bottom: var(--s6); }
+.carta-cabeca h2 { margin: 0; font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.4rem); }
+.carta-avatar {
+  width: 88px; height: 88px; border-radius: 50%; object-fit: cover; object-position: 50% 12%;
+  border: 3px solid var(--bone-line); flex: none;
+}
+.carta-de { margin: 6px 0 0; font-size: var(--t-sm); color: var(--bone-txt); }
+.cenas { max-width: 46rem; margin: var(--s5) auto 0; }
+@media (max-width: 640px) {
+  .carta-avatar { width: 64px; height: 64px; }
+  .carta-cabeca { gap: var(--s4); }
+}
