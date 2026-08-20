@@ -13,11 +13,7 @@ get_header();
 				<a class="btn btn-primary" href="<?php echo esc_url( home_url( '/blog/' ) ); ?>">Ir para o blog</a>
 				<a class="btn btn-ghost" href="/">Ir para o site da SAL</a>
 			</div>
-			<form class="busca" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-				<label class="oculto" for="busca-404">Buscar no blog</label>
-				<input id="busca-404" type="search" name="s" placeholder="Buscar no blog">
-				<button class="btn btn-ghost" type="submit">Buscar</button>
-			</form>
+			<?php get_template_part( 'parts/busca', null, array( 'id' => 'busca-404' ) ); ?>
 		</div>
 	</section>
 </main>

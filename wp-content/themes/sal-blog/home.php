@@ -32,6 +32,7 @@ $guias = get_posts( array(
 					<a href="<?php echo esc_url( get_category_link( $ed ) ); ?>"><?php echo esc_html( $ed->name ); ?></a>
 				<?php endforeach; ?>
 			</nav>
+			<?php get_template_part( 'parts/busca', null, array( 'id' => 'busca-portal' ) ); ?>
 		</div>
 	</section>
 

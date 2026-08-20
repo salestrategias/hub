@@ -16,6 +16,7 @@ $termo = get_queried_object();
 				<p class="dek"><?php echo wp_kses_post( category_description() ); ?></p>
 			<?php endif; ?>
 			<p class="conta"><?php echo (int) $termo->count; ?> artigo<?php echo 1 === (int) $termo->count ? '' : 's'; ?> publicados</p>
+			<?php get_template_part( 'parts/busca', null, array( 'id' => 'busca-editoria' ) ); ?>
 		</div>
 	</section>
 

@@ -10,11 +10,7 @@ get_header();
 		<div class="wrap">
 			<nav class="migalha" aria-label="Você está em"><a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>">Blog</a> › Busca</nav>
 			<h1>Resultados para “<?php echo esc_html( get_search_query() ); ?>”</h1>
-			<form class="busca" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-				<label class="oculto" for="busca-q">Buscar no blog</label>
-				<input id="busca-q" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" placeholder="Buscar no blog">
-				<button class="btn btn-primary" type="submit">Buscar</button>
-			</form>
+			<?php get_template_part( 'parts/busca', null, array( 'id' => 'busca-q' ) ); ?>
 		</div>
 	</section>
 
