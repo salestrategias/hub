@@ -103,10 +103,13 @@ add_action( 'pre_get_posts', function ( $q ) {
 // O cache de página do servidor ignora query strings, então /blog/?s=termo nunca
 // chega ao WordPress. O formulário navega para /blog/search/termo/, cacheável por URL.
 add_action( 'init', function () {
+	// O "home" do WP é a raiz do domínio, mas o blog vive em /blog/ — a regra
+	// precisa cobrir o caminho completo que chega ao WordPress.
+	add_rewrite_rule( 'blog/search/(.+?)/?$', 'index.php?s=$matches[1]', 'top' );
 	add_rewrite_rule( 'search/(.+?)/?$', 'index.php?s=$matches[1]', 'top' );
-	if ( '2.2.1' !== get_option( 'sal_rewrite_v' ) ) {
+	if ( '2.2.2' !== get_option( 'sal_rewrite_v' ) ) {
 		flush_rewrite_rules( false );
-		update_option( 'sal_rewrite_v', '2.2.1' );
+		update_option( 'sal_rewrite_v', '2.2.2' );
 	}
 } );
 
