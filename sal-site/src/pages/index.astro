@@ -219,7 +219,7 @@ const territorios = [
           </p>
           <div class="acoes">
             <a class="btn btn-primary" href="/agenda/">Contrate a SAL</a>
-            <a class="btn btn-ghost" href="#metodo">Ver como trabalhamos</a>
+            <a class="btn btn-ghost" href="#territorios">Ver como trabalhamos</a>
           </div>
         </div>
       </div>
@@ -344,26 +344,6 @@ const territorios = [
       </div>
     </section>
 
-    <!-- MÉTODO -->
-    <section class="sec" id="metodo">
-      <div class="wrap">
-        <div class="cabeca rev">
-          <h2>Método baseado em dados.</h2>
-          <p>
-            Sal demais estraga o prato, de menos ninguém sente o gosto. Com verba de marketing é igual.
-            A dose certa vem dos seus números: ticket, margem, sazonalidade e o que a concorrência está
-            fazendo. É isso que definimos antes de começar a gastar.
-          </p>
-        </div>
-        <div class="metodo">
-          <div class="passo rev"><b>01</b><h3>Descobrir</h3><p>Auditoria das contas de anúncio, da presença no mapa, do site e da concorrência. No fim, um documento com os gargalos e a ordem de atacar.</p></div>
-          <div class="passo rev"><b>02</b><h3>Desenhar</h3><p>Verba, canais, metas e calendário definidos antes de qualquer campanha ir para o ar, com base no seu ticket e na sua margem.</p></div>
-          <div class="passo rev"><b>03</b><h3>Disparar</h3><p>Gestão diária das campanhas, criativos estratégicos e o SEO avançando mês a mês.</p></div>
-          <div class="passo rev"><b>04</b><h3>Decodificar</h3><p>Reunião mensal lendo os números juntos. Canal que não se paga sai do plano no mês seguinte.</p></div>
-        </div>
-      </div>
-    </section>
-
     <!-- 3 TERRITÓRIOS -->
     <section class="sec" id="territorios">
       <div class="wrap">
@@ -386,41 +366,6 @@ const territorios = [
         </div>
       </div>
     </section>
-
-    <!-- BLOG DA SAL -->
-    {maisArtigos.length > 0 && (
-      <section class="sec" id="blog">
-        <div class="wrap">
-          <div class="cabeca-linha rev">
-            <div>
-              <h2>Conteúdos sobre marketing, tecnologia e materiais gratuitos.</h2>
-            </div>
-            <a class="btn btn-ghost" href="/blog/">Ver todos os artigos</a>
-          </div>
-          <div class="artigos" data-blog-cards>
-            {maisArtigos.map((a) => (
-              <article class="artigo rev">
-                <a href={a.link}>
-                  <figure>
-                    {a.imagem
-                      ? <img src={a.imagem} alt={a.titulo} loading="lazy" decoding="async" width="640" height="360" />
-                      : <span class="sem-capa" aria-hidden="true"></span>}
-                  </figure>
-                  <span class="artigo-cat">{a.categoria}</span>
-                  <h3>{a.titulo}</h3>
-                  <p>{a.resumo}…</p>
-                  <span class="artigo-meta">
-                    <time datetime={a.data}>{dataBR(a.data)}</time>
-                    <span aria-hidden="true">·</span>
-                    <span data-leitura>{a.leitura} min de leitura</span>
-                  </span>
-                </a>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
 
     <!-- SOBRE (seção osso: a quebra editorial) -->
     <section class="sec bone" id="sobre">
@@ -492,14 +437,7 @@ const territorios = [
             <li><b>+5</b><span>anos como gerente de marketing de shoppings</span></li>
             <li><b>+50</b><span>grandes marcas na trajetória</span></li>
           </ul>
-          <div class="prova-pe">
-            <p class="marcas-linha">
-              Como gestor em shoppings, já atendi: <b>Starbucks, McDonald&rsquo;s, Kopenhagen, Hering,
-              Panvel, Natura, Cacau Show, Unimed, Intimissimi, Calzedonia, Belshop e Grand Cru</b>,
-              entre tantas outras.
-            </p>
-            <a class="btn btn-ghost" href="/quem-somos/">Conhecer a SAL</a>
-          </div>
+          <p class="sobre-mais"><a class="btn btn-ghost" href="/quem-somos/">Saiba mais sobre a SAL</a></p>
         </div>
       </div>
     </section>
@@ -527,31 +465,66 @@ const territorios = [
       </div>
     </section>
 
+    <!-- BLOG DA SAL -->
+    {maisArtigos.length > 0 && (
+      <section class="sec" id="blog">
+        <div class="wrap">
+          <div class="cabeca-linha rev">
+            <div>
+              <h2>Conteúdos sobre marketing, tecnologia e materiais gratuitos.</h2>
+            </div>
+            <a class="btn btn-ghost" href="/blog/">Ver todos os artigos</a>
+          </div>
+          <div class="artigos" data-blog-cards>
+            {maisArtigos.map((a) => (
+              <article class="artigo rev">
+                <a href={a.link}>
+                  <figure>
+                    {a.imagem
+                      ? <img src={a.imagem} alt={a.titulo} loading="lazy" decoding="async" width="640" height="360" />
+                      : <span class="sem-capa" aria-hidden="true"></span>}
+                  </figure>
+                  <span class="artigo-cat">{a.categoria}</span>
+                  <h3>{a.titulo}</h3>
+                  <p>{a.resumo}…</p>
+                  <span class="artigo-meta">
+                    <time datetime={a.data}>{dataBR(a.data)}</time>
+                    <i class="grao-sep" aria-hidden="true"></i>
+                    <span data-leitura>{a.leitura} min de leitura</span>
+                  </span>
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
     <!-- ECOSSISTEMA -->
-    <section class="sec" id="ecossistema">
+    <section class="sec sec-sm" id="ecossistema">
       <div class="wrap">
         <div class="cabeca rev">
-          <h2>Mais que atendimento: uma operação com ferramentas próprias.</h2>
+          <h2>O ecossistema da SAL.</h2>
         </div>
-        <div class="eco">
+        <div class="eco eco-compacto">
           <a class="eco-linha rev" href="/agenda/">
             <h3>Diagnóstico SAL</h3>
-            <p>Análise gratuita das suas contas de anúncio, da presença no Google e da concorrência. Você sai com as prioridades na mão, mesmo que não feche com a gente.</p>
-            <span class="vai" aria-hidden="true">Agendar o meu →</span>
+            <p>Análise gratuita das suas contas, do Google e da concorrência.</p>
+            <span class="vai" aria-hidden="true">Agendar →</span>
           </a>
           <a class="eco-linha rev" href="/blog/">
             <h3>Blog da SAL</h3>
-            <p>Guias práticos de SEO, tráfego pago e e-commerce, escritos para quem vende, não para quem estuda marketing. Novos artigos toda semana.</p>
-            <span class="vai" aria-hidden="true">Ler os artigos →</span>
+            <p>Guias práticos de SEO, tráfego pago e e-commerce, toda semana.</p>
+            <span class="vai" aria-hidden="true">Ler →</span>
           </a>
           <a class="eco-linha rev" href="https://marcelofreitas.substack.com/" rel="noopener">
             <h3>Café com Sal</h3>
-            <p>A newsletter do Marcelo: o que mudou no marketing na semana e o que fazer a respeito, em cinco minutos de leitura. Sem spam, sem enrolação.</p>
-            <span class="vai" aria-hidden="true">Assinar de graça →</span>
+            <p>A newsletter do Marcelo, em cinco minutos de leitura.</p>
+            <span class="vai" aria-hidden="true">Assinar →</span>
           </a>
           <article class="eco-linha rev">
             <h3>SAL Hub</h3>
-            <p>O sistema que a SAL construiu para gerir clientes, projetos, reuniões e números num lugar só, com IA trabalhando nos bastidores. É onde o seu plano vive.</p>
+            <p>O sistema próprio onde o seu plano vive, com IA nos bastidores.</p>
           </article>
         </div>
       </div>

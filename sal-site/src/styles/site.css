@@ -842,6 +842,14 @@ a.servico { display: flex; flex-direction: column; }
 a.eco-linha:hover h3 { color: var(--gold); }
 a.eco-linha:hover .vai { color: var(--gold-light); }
 
+/* versão compacta: o ecossistema é detalhe, não capítulo */
+#ecossistema .cabeca { margin-bottom: var(--s5); }
+#ecossistema .cabeca h2 { font-size: clamp(1.4rem, 1.15rem + 1vw, 1.85rem); }
+.eco-compacto .eco-linha { padding: var(--s4) 0; }
+.eco-compacto .eco-linha h3 { font-size: 1rem; }
+.eco-compacto .eco-linha p { font-size: 0.9rem; }
+.eco-compacto .vai { font-size: 0.86rem; }
+
 /* CTA com canal humano explícito */
 .band-zap { margin-top: var(--s5); font-size: 0.95rem; color: var(--muted); }
 .band-zap a { color: var(--gold); border-bottom: 1px solid var(--gold-line); font-weight: 600; white-space: nowrap; }
@@ -855,8 +863,7 @@ a.eco-linha:hover .vai { color: var(--gold-light); }
 
 /* trajetória: a prova social em números escaneáveis */
 .prova { margin-top: clamp(2.5rem, 5vw, 4rem); border-top: 1px solid var(--bone-line); padding-top: clamp(1.5rem, 3vw, 2.5rem); }
-.prova-pe { display: flex; align-items: center; justify-content: space-between; gap: var(--s5); flex-wrap: wrap; margin-top: var(--s5); }
-.prova-pe .marcas-linha { margin: 0; max-width: 52rem; }
+.sobre-mais { text-align: center; margin: clamp(2rem, 4vw, 3rem) 0 0; }
 .trajetoria { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); margin: 0; padding: 0; }
 .trajetoria b { display: block; font-family: var(--sans); font-weight: 800; font-size: clamp(1.9rem, 1.4rem + 1.8vw, 2.75rem); line-height: 1; color: var(--gold-deep); letter-spacing: -0.02em; }
 .trajetoria span { display: block; font-size: 0.88rem; color: var(--bone-txt); margin-top: var(--s2); line-height: 1.4; }
