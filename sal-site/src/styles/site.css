@@ -468,6 +468,7 @@ a.servico { display: flex; flex-direction: column; }
   .drop-caixa .drop-todos { border-top: 0; }
 }
 @media (max-width: 640px) {
+  .pilares { grid-template-columns: 1fr; }
   .numeros { grid-template-columns: 1fr; }
   .numero + .numero { border-left: 0; border-top: 1px solid var(--line); }
   .servicos, .metodo, .artigos { grid-template-columns: 1fr; }
@@ -794,6 +795,14 @@ a.servico { display: flex; flex-direction: column; }
 .manifesto .mani-corpo + .mani-corpo { margin-top: var(--s4); }
 .manifesto .mani-corpo a { color: var(--gold); border-bottom: 1px solid var(--gold-line); font-weight: 600; }
 .manifesto .mani-corpo a:hover { color: var(--gold-light); }
+
+/* os três pilares da sigla: S, A e L */
+.pilares { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); max-width: 60rem; margin: var(--s7) auto 0; text-align: left; }
+.pilar { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s6) var(--s5); }
+.pilar h3 { font-family: var(--sans); font-weight: 800; font-size: 1.4rem; letter-spacing: -0.01em; margin-bottom: var(--s3); }
+.pilar h3 em { font-style: normal; color: var(--gold); }
+.pilar p { color: var(--muted); font-size: 0.95rem; margin: 0; }
+.mani-fecho { margin-top: var(--s7); }
 
 /* ecossistema: as peças com nome próprio */
 .eco { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s5); }
