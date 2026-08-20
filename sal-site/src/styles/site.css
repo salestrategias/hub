@@ -366,7 +366,8 @@ a.servico { display: flex; flex-direction: column; }
 /* -------- Seção osso: a quebra editorial -------- */
 .bone { background: var(--bone); color: var(--bone-txt); }
 .bone h1, .bone h2, .bone h3, .bone h4 { color: var(--bone-ink); }
-.bone .fundador { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+.bone .fundador { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+.fundador-fotos { position: sticky; top: 96px; }
 .bone .foto-grande {
   margin: 0; aspect-ratio: 4/5; border-radius: var(--r-lg); overflow: hidden;
   background: linear-gradient(160deg, #E6E0D2, #D8D1C0); border: 1px solid var(--bone-line);
@@ -854,12 +855,16 @@ a.eco-linha:hover .vai { color: var(--gold-light); }
 }
 
 /* trajetória: a prova social em números escaneáveis */
-.trajetoria { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); margin: var(--s6) 0 0; padding: var(--s5) 0 0; border-top: 1px solid var(--bone-line); }
+.prova { margin-top: clamp(2.5rem, 5vw, 4rem); border-top: 1px solid var(--bone-line); padding-top: clamp(1.5rem, 3vw, 2.5rem); }
+.prova-pe { display: flex; align-items: center; justify-content: space-between; gap: var(--s5); flex-wrap: wrap; margin-top: var(--s5); }
+.prova-pe .marcas-linha { margin: 0; max-width: 52rem; }
+.trajetoria { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); margin: 0; padding: 0; }
 .trajetoria b { display: block; font-family: var(--sans); font-weight: 800; font-size: clamp(1.9rem, 1.4rem + 1.8vw, 2.75rem); line-height: 1; color: var(--gold-deep); letter-spacing: -0.02em; }
 .trajetoria span { display: block; font-size: 0.88rem; color: var(--bone-txt); margin-top: var(--s2); line-height: 1.4; }
 .marcas-linha { font-size: 0.9rem; color: var(--bone-txt); margin-top: var(--s5); }
 .marcas-linha b { color: var(--bone-ink); font-family: var(--sans); }
-@media (max-width: 640px) { .trajetoria { grid-template-columns: 1fr; gap: var(--s4); } }
+@media (max-width: 860px) { .fundador-fotos { position: static; } }
+@media (max-width: 640px) { .trajetoria { grid-template-columns: 1fr; gap: var(--s4); } .prova-pe { flex-direction: column; align-items: flex-start; } }
 
 /* a quebra que protege o slogan: só quando a tela comporta a linha inteira */
 .so-desktop { display: none; }
