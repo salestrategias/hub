@@ -906,12 +906,9 @@ a.eco-linha:hover .vai { color: var(--gold-light); }
 .clientes { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s5); }
 .cliente { text-align: center; }
 .cliente-logo {
-  height: 104px; background: #FFFFFF; border: 1px solid var(--line); border-radius: var(--r);
-  display: grid; place-items: center; padding: 16px 22px; margin-bottom: var(--s4);
+  height: 112px; background: #FFFFFF; border: 1px solid var(--line); border-radius: var(--r);
+  display: grid; place-items: center; padding: 18px 26px;
 }
 .cliente-logo img { max-height: 68px; width: auto; max-width: 100%; object-fit: contain; }
-.cliente-tile { font-family: var(--sans); font-weight: 800; font-size: 1.02rem; letter-spacing: -0.01em; color: #12203A; line-height: 1.2; }
-.cliente h3 { font-size: 0.98rem; margin: 0 0 3px; }
-.cliente p { color: var(--muted-2); font-size: 0.84rem; margin: 0; }
 @media (max-width: 1000px) { .clientes { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 640px) { .clientes { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .clientes { grid-template-columns: 1fr; } .cliente-logo { height: 96px; } }
