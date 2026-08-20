@@ -41,8 +41,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 			</nav>
 		</div>
 		<div class="rodape-legal">
-			<span>SAL ESTRATÉGIAS DE MARKETING LTDA · CNPJ 66.018.951/0001-04 · Porto Alegre, RS</span>
-			<span>Atendimento 100% online · <a href="<?php echo esc_url( SAL_ZAP ); ?>" rel="noopener">(51) 99338-0278</a> · <a href="mailto:contato@salestrategias.com.br">contato@salestrategias.com.br</a></span>
+			<span>SAL ESTRATÉGIAS DE MARKETING LTDA — CNPJ 66.018.951/0001-04 — Porto Alegre, RS</span>
+			<span>Atendimento 100% online — <a href="<?php echo esc_url( SAL_ZAP ); ?>" rel="noopener">(51) 99338-0278</a> — <a href="mailto:contato@salestrategias.com.br">contato@salestrategias.com.br</a></span>
 		</div>
 	</div>
 </footer>
