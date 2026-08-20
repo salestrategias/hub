@@ -145,20 +145,20 @@
 .drop-caixa .drop-todos:hover { color: var(--gold-light); background: none; }
 
 /* aurora do hero: pinta uma vez, anima no compositor; zero CLS, zero JS */
-.hero-aurora { position: absolute; inset: 0; z-index: -3; overflow: hidden; pointer-events: none; }
+.hero-aurora { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .hero-aurora::before, .hero-aurora::after {
   content: ""; position: absolute; width: 58vmax; height: 58vmax; border-radius: 50%;
-  filter: blur(72px); opacity: 0.55; will-change: transform;
+  filter: blur(64px); opacity: 0.8; will-change: transform;
 }
-.hero-aurora::before { background: radial-gradient(circle, rgba(61, 111, 224, 0.30) 0%, transparent 62%); top: -20%; left: -14%; }
-.hero-aurora::after  { background: radial-gradient(circle, rgba(255, 107, 102, 0.17) 0%, transparent 64%); bottom: -24%; right: -16%; }
-[data-tema="claro"] .hero-aurora::before { background: radial-gradient(circle, rgba(61, 111, 224, 0.16) 0%, transparent 62%); }
-[data-tema="claro"] .hero-aurora::after  { background: radial-gradient(circle, rgba(196, 60, 60, 0.09) 0%, transparent 64%); }
+.hero-aurora::before { background: radial-gradient(circle, rgba(61, 111, 224, 0.4) 0%, transparent 60%); top: -22%; left: -16%; }
+.hero-aurora::after  { background: radial-gradient(circle, rgba(255, 107, 102, 0.26) 0%, transparent 62%); bottom: -26%; right: -18%; }
+[data-tema="claro"] .hero-aurora::before { background: radial-gradient(circle, rgba(61, 111, 224, 0.2) 0%, transparent 60%); }
+[data-tema="claro"] .hero-aurora::after  { background: radial-gradient(circle, rgba(196, 60, 60, 0.12) 0%, transparent 62%); }
 @media (prefers-reduced-motion: no-preference) {
-  .hero-aurora::before { animation: aurora-a 26s ease-in-out infinite alternate; }
-  .hero-aurora::after  { animation: aurora-b 34s ease-in-out infinite alternate; }
-  @keyframes aurora-a { to { transform: translate(11vw, 9vh) scale(1.14); } }
-  @keyframes aurora-b { to { transform: translate(-9vw, -7vh) scale(1.1); } }
+  .hero-aurora::before { animation: aurora-a 16s ease-in-out infinite alternate; }
+  .hero-aurora::after  { animation: aurora-b 21s ease-in-out infinite alternate; }
+  @keyframes aurora-a { to { transform: translate(16vw, 12vh) scale(1.22); } }
+  @keyframes aurora-b { to { transform: translate(-14vw, -10vh) scale(1.18); } }
 }
 
 /* -------- Hero: ilustração à direita, tipografia grande --------

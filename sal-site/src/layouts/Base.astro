@@ -28,9 +28,7 @@ const capa = site + '/img/og-sal.jpg';
   <script is:inline>
     (function () {
       try {
-        var t = localStorage.getItem('tema');
-        if (!t) t = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'escuro';
-        if (t === 'claro') document.documentElement.setAttribute('data-tema', 'claro');
+        if (localStorage.getItem('tema') === 'claro') document.documentElement.setAttribute('data-tema', 'claro');
       } catch (e) {}
     })();
   </script>
