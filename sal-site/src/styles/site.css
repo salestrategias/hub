@@ -472,7 +472,7 @@ a.servico { display: flex; flex-direction: column; }
   .drop-caixa .drop-todos { border-top: 0; }
 }
 @media (max-width: 640px) {
-  .pilares { grid-template-columns: 1fr; }
+  .pilares { grid-template-columns: 1fr; gap: var(--s6); text-align: center; }
   .numeros { grid-template-columns: 1fr; }
   .numero + .numero { border-left: 0; border-top: 1px solid var(--line); }
   .servicos, .metodo, .artigos { grid-template-columns: 1fr; }
@@ -801,13 +801,15 @@ a.servico { display: flex; flex-direction: column; }
 .manifesto .mani-corpo a { color: var(--gold); border-bottom: 1px solid var(--gold-line); font-weight: 600; }
 .manifesto .mani-corpo a:hover { color: var(--gold-light); }
 
-/* os três pilares da sigla: S, A e L */
-.pilares { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); max-width: 60rem; margin: var(--s7) auto 0; text-align: left; }
-.pilar { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s6) var(--s5); }
-.pilar h3 { font-family: var(--sans); font-weight: 800; font-size: 1.4rem; letter-spacing: -0.01em; margin-bottom: var(--s3); }
-.pilar h3 em { font-style: normal; color: var(--gold); }
-.pilar p { color: var(--muted); font-size: 0.95rem; margin: 0; }
-.mani-fecho { margin-top: var(--s7); max-width: 38rem; text-wrap: balance; }
+/* os três pilares da sigla: verbetes de tipografia pura, sem caixa */
+.pilares { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(2rem, 4vw, 3.5rem); max-width: 62rem; margin: var(--s8) auto 0; text-align: left; }
+.pilar dt {
+  font-family: var(--sans); font-weight: 800; letter-spacing: -0.02em;
+  font-size: clamp(1.5rem, 1.15rem + 1.3vw, 2rem); color: var(--text); line-height: 1;
+}
+.pilar dt em { font-style: normal; color: var(--gold); font-size: 1.45em; line-height: 1; }
+.pilar dd { margin: var(--s3) 0 0; color: var(--muted); font-size: 0.96rem; line-height: 1.6; }
+.mani-fecho { margin-top: var(--s8); max-width: 38rem; text-wrap: balance; }
 
 /* ecossistema: as peças com nome próprio */
 /* ecossistema: um índice em linhas, não mais uma grade de cards */
