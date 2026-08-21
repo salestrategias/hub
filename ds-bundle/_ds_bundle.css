@@ -1006,6 +1006,8 @@ a.eco-linha:hover .vai { color: var(--gold-light); }
 }
 .capa-meta { font-family: var(--sans); font-size: 20px; font-weight: 600; color: #7688A6; }
 
-/* variação social: quadrado 1080×1080, mesmos elementos, título maior */
+/* variação social: quadrado 1080×1080, mesmos elementos, título maior.
+   Chão liso, sem véus: degradê em card de rede é clichê de IA. */
 .capa-social { width: 1080px; height: 1080px; padding: 72px 76px; }
+.capa-social::before { content: none; }
 .capa-social .capa-titulo { font-size: 96px; max-width: 900px; }

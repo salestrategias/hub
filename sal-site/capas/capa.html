@@ -35,6 +35,8 @@
   .meta { font: 600 20px 'Plus Jakarta Sans'; color: #7688A6; }
   .social .capa, body.social .capa { width: 1080px; height: 1080px; padding: 72px 76px; }
   body.social h1 { font-size: 96px; max-width: 900px; }
+  /* card de rede: chão liso, sem véus — degradê em card é clichê de IA */
+  body.social .capa::before { content: none; }
 </style></head>
 <body>
   <div class="capa">
@@ -60,7 +62,7 @@
   if (q.get('formato') === 'social') {
     document.body.classList.add('social');
     document.getElementById('assin').textContent = '@salestrategias';
-    document.getElementById('meta').textContent = 'salestrategias.com.br';
+    document.getElementById('meta').remove();
   } else {
     document.getElementById('meta').textContent = (q.get('min') || '5') + ' min de leitura';
   }
