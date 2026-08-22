@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import Cabecalho from '../components/Cabecalho.astro';
+import Rodape from '../components/Rodape.astro';
+
+const title = 'Página não encontrada | SAL Estratégias de Marketing';
+const description = 'A página que você procurava não existe ou mudou de endereço.';
+
+const atalhos = [
+  { rot: 'SEO local', href: '/seo-local/' },
+  { rot: 'SEO para e-commerce', href: '/seo-para-ecommerce/' },
+  { rot: 'Tráfego pago', href: '/trafego-pago/' },
+  { rot: 'Diagnóstico de site', href: '/diagnostico-de-site/' },
+  { rot: 'Blog da SAL', href: '/blog/' },
+  { rot: 'Agendar diagnóstico', href: '/agenda/' },
+];
+---
+
+<Base title={title} description={description} canonical="/404.html" semIndice>
+  <Cabecalho />
+  <main>
+    <section class="capa">
+      <div class="malha"></div>
+      <div class="wrap">
+        <span class="eyebrow">Erro 404</span>
+        <h1>Esta página <em>não existe mais</em>.</h1>
+        <p class="sub">
+          O endereço pode ter mudado ou o link pode estar com algum caractere a mais. Abaixo estão os
+          caminhos mais procurados do site.
+        </p>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="wrap">
+        <ul class="proximos">
+          {atalhos.map((a) => <li><a href={a.href}>{a.rot} <span aria-hidden="true">→</span></a></li>)}
+        </ul>
+      </div>
+    </section>
+  </main>
+  <Rodape />
+</Base>
