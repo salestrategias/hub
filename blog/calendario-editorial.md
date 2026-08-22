@@ -50,7 +50,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 41 | Como migrar clientes do marketplace para a loja própria (sem quebrar regras) | migrar clientes do marketplace | MKT | 14 | MOFU | PUBLICADO 2026-08-18 https://www.salestrategias.com.br/migrar-clientes-marketplace-loja-propria/ |
 | 42 | GA4 na loja virtual: a configuração essencial (Nuvemshop, Shopify, Tray) | configurar ga4 loja virtual | DAD | 29 | MOFU | PUBLICADO 2026-08-19 https://www.salestrategias.com.br/configurar-ga4-loja-virtual/ |
 | 43 | Buscas "perto de mim": como fazer a sua loja aparecer | perto de mim como aparecer google | LOC | 17 | TOFU | PUBLICADO 2026-08-20 https://www.salestrategias.com.br/perto-de-mim-como-aparecer-no-google/ |
-| 44 | Performance Max vale a pena para e-commerce? Quando sim, quando não | performance max vale a pena | TP | 15 | MOFU | PENDENTE |
+| 44 | Performance Max vale a pena para e-commerce? Quando sim, quando não | performance max vale a pena | TP | 15 | MOFU | PUBLICADO 2026-08-22 https://www.salestrategias.com.br/performance-max-vale-a-pena/ |
 | 45 | Programa de fidelidade para loja pequena: como montar sem ferramenta cara | programa de fidelidade loja pequena | CRM | 14 | MOFU | PENDENTE |
 | 46 | Como organizar as categorias da loja: arquitetura para o Google e o cliente | como organizar categorias loja virtual | SEO | 13 | MOFU | PENDENTE |
 | 47 | Como reduzir o abandono no checkout: fricções e correções | como reduzir abandono no checkout | CRO | 14 | MOFU | PENDENTE |
