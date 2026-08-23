@@ -51,7 +51,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 42 | GA4 na loja virtual: a configuração essencial (Nuvemshop, Shopify, Tray) | configurar ga4 loja virtual | DAD | 29 | MOFU | PUBLICADO 2026-08-19 https://www.salestrategias.com.br/configurar-ga4-loja-virtual/ |
 | 43 | Buscas "perto de mim": como fazer a sua loja aparecer | perto de mim como aparecer google | LOC | 17 | TOFU | PUBLICADO 2026-08-20 https://www.salestrategias.com.br/perto-de-mim-como-aparecer-no-google/ |
 | 44 | Performance Max vale a pena para e-commerce? Quando sim, quando não | performance max vale a pena | TP | 15 | MOFU | PUBLICADO 2026-08-22 https://www.salestrategias.com.br/performance-max-vale-a-pena/ |
-| 45 | Programa de fidelidade para loja pequena: como montar sem ferramenta cara | programa de fidelidade loja pequena | CRM | 14 | MOFU | PENDENTE |
+| 45 | Programa de fidelidade para loja pequena: como montar sem ferramenta cara | programa de fidelidade loja pequena | CRM | 14 | MOFU | PUBLICADO 2026-08-23 https://www.salestrategias.com.br/programa-de-fidelidade-loja-pequena/ |
 | 46 | Como organizar as categorias da loja: arquitetura para o Google e o cliente | como organizar categorias loja virtual | SEO | 13 | MOFU | PENDENTE |
 | 47 | Como reduzir o abandono no checkout: fricções e correções | como reduzir abandono no checkout | CRO | 14 | MOFU | PENDENTE |
 | 48 | Mercado Ads: como funciona anunciar dentro do Mercado Livre | mercado ads como funciona | MKT | 14 | MOFU | PENDENTE |
