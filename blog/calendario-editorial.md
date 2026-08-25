@@ -53,7 +53,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 44 | Performance Max vale a pena para e-commerce? Quando sim, quando não | performance max vale a pena | TP | 15 | MOFU | PUBLICADO 2026-08-22 https://www.salestrategias.com.br/performance-max-vale-a-pena/ |
 | 45 | Programa de fidelidade para loja pequena: como montar sem ferramenta cara | programa de fidelidade loja pequena | CRM | 14 | MOFU | PUBLICADO 2026-08-23 https://www.salestrategias.com.br/programa-de-fidelidade-loja-pequena/ |
 | 46 | Como organizar as categorias da loja: arquitetura para o Google e o cliente | como organizar categorias loja virtual | SEO | 13 | MOFU | PUBLICADO 2026-08-24 https://www.salestrategias.com.br/como-organizar-categorias-loja-virtual/ |
-| 47 | Como reduzir o abandono no checkout: fricções e correções | como reduzir abandono no checkout | CRO | 14 | MOFU | PENDENTE |
+| 47 | Como reduzir o abandono no checkout: fricções e correções | como reduzir abandono no checkout | CRO | 14 | MOFU | PUBLICADO 2026-08-25 https://www.salestrategias.com.br/como-reduzir-abandono-checkout/ |
 | 48 | Mercado Ads: como funciona anunciar dentro do Mercado Livre | mercado ads como funciona | MKT | 14 | MOFU | PENDENTE |
 | 49 | UTM sem bagunça: como marcar as campanhas da sua loja | como usar utm | DAD | 29 | MOFU | PENDENTE |
 | 50 | Catálogo do WhatsApp Business para o comércio de bairro | catalogo whatsapp business | LOC | 17 | MOFU | PENDENTE |
