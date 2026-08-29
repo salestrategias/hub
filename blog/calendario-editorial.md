@@ -57,7 +57,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 48 | Mercado Ads: como funciona anunciar dentro do Mercado Livre | mercado ads como funciona | MKT | 14 | MOFU | PUBLICADO 2026-08-26 https://www.salestrategias.com.br/mercado-ads-como-funciona/ |
 | 49 | UTM sem bagunça: como marcar as campanhas da sua loja | como usar utm | DAD | 29 | MOFU | PUBLICADO 2026-08-27 https://www.salestrategias.com.br/como-usar-utm/ |
 | 50 | Catálogo do WhatsApp Business para o comércio de bairro | catalogo whatsapp business | LOC | 17 | MOFU | PUBLICADO 2026-08-28 https://www.salestrategias.com.br/catalogo-whatsapp-business/ |
-| 51 | Campanha de catálogo no Meta Ads: passo a passo para loja virtual | campanha de catalogo meta ads | TP | 15 | MOFU | PENDENTE |
+| 51 | Campanha de catálogo no Meta Ads: passo a passo para loja virtual | campanha de catalogo meta ads | TP | 15 | MOFU | PUBLICADO 2026-08-29 https://www.salestrategias.com.br/campanha-de-catalogo-meta-ads/ |
 | 52 | Segmentação RFM: separe os clientes ouro dos de uma compra só | segmentação rfm | CRM | 14 | MOFU | PENDENTE |
 | 53 | Velocidade do site derruba vendas: como medir e corrigir | velocidade site loja virtual conversão | SEO | 13 | MOFU | PENDENTE |
 | 54 | Mostrar o frete na página de produto aumenta a conversão? | frete na pagina de produto | CRO | 14 | MOFU | PENDENTE |
