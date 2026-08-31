@@ -1,0 +1,43 @@
+{
+  "nome": "site-lento-2026-08-31",
+  "editoria": "SEO",
+  "legenda": "O seu site não é lento para você. É lento para quem nunca comprou de você.\n\nVocê abre a sua loja todo dia, no wi-fi de casa, com tudo em cache. O cliente novo chega pelo 4G, num celular mediano, e cada segundo de espera é uma chance de desistir. Opinião sincera sobre a vitrine mais ignorada do e-commerce.\n\nO checklist de velocidade está no blog da SAL (link na bio).\n\n#seo #corewebvitals #ecommerce #lojavirtual #conversao",
+  "slides": [
+    {
+      "tipo": "citacao",
+      "tema": "osso",
+      "texto": "O seu site não é lento para você. É lento para quem *nunca* comprou de você."
+    },
+    {
+      "tipo": "texto",
+      "tema": "osso",
+      "paragrafos": [
+        "Você abre a sua loja todo dia: wi-fi de casa, tudo em cache. Voa.",
+        "O cliente novo chega pelo 4G, num celular mediano, esperando a página montar.",
+        "Ele não reclama. Ele volta para o Google e compra do concorrente."
+      ]
+    },
+    {
+      "tipo": "lista",
+      "tema": "osso",
+      "titulo": "O que mais pesa:",
+      "itens": [
+        "Fotos gigantes sem compressão.",
+        "Dez aplicativos de tema instalados.",
+        "Pop-up carregando antes do produto.",
+        "Servidor barato segurando a Black Friday."
+      ]
+    },
+    {
+      "tipo": "citacao",
+      "tema": "osso",
+      "texto": "Site bonito e lento é vitrine com a porta *emperrada*."
+    },
+    {
+      "tipo": "cta",
+      "tema": "osso",
+      "titulo": "Quer saber quanto a lentidão está custando?",
+      "sub": "Diagnóstico gratuito no link da bio."
+    }
+  ]
+}
