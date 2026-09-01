@@ -1,0 +1,1 @@
+`.btn.btn-primary` (coral, pílula) é a ação principal — o rótulo padrão de conversão é "Contrate a SAL"; uma por tela. `.btn.btn-ghost` é a secundária. `.vai` é o link de avanço dentro de cards, coral com seta "→" (nunca "↗"). Botões nunca usam lima nem carregam ícones decorativos.

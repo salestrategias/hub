@@ -1,0 +1,220 @@
+---
+import Base from './Base.astro';
+import Cabecalho from '../components/Cabecalho.astro';
+import Rodape from '../components/Rodape.astro';
+
+export interface Etapa { n: string; titulo: string; texto: string }
+export interface Entrega { titulo: string; texto: string }
+export interface Duvida { p: string; r: string }
+export interface Link { rot: string; href: string }
+
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  rotulo: string;
+  h1: string;
+  h1Destaque?: string;
+  chamada: string;
+  chips: string[];
+  /** O problema, dito sem rótulo de "o problema" — o H2 é uma frase inteira. */
+  problemaTitulo: string;
+  problemaTexto: string[];
+  problemaLista?: string[];
+  etapasTitulo: string;
+  etapas: Etapa[];
+  entregasTitulo: string;
+  entregas: Entrega[];
+  metricaTitulo?: string;
+  metricaTexto?: string;
+  duvidas: Duvida[];
+  proximos: Link[];
+  ctaTitulo: string;
+  ctaTexto: string;
+  /** Nome do serviço no schema.org. */
+  servicoNome: string;
+}
+
+const {
+  title, description, canonical, rotulo, h1, h1Destaque, chamada, chips,
+  problemaTitulo, problemaTexto, problemaLista,
+  etapasTitulo, etapas, entregasTitulo, entregas,
+  metricaTitulo, metricaTexto, duvidas, proximos, ctaTitulo, ctaTexto, servicoNome,
+} = Astro.props;
+
+const site = 'https://www.salestrategias.com.br';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Service',
+      name: servicoNome,
+      description,
+      serviceType: servicoNome,
+      url: site + canonical,
+      provider: {
+        '@type': 'Organization',
+        name: 'SAL Estratégias de Marketing',
+        url: site + '/',
+        address: { '@type': 'PostalAddress', addressLocality: 'Porto Alegre', addressRegion: 'RS', addressCountry: 'BR' },
+      },
+      areaServed: { '@type': 'Country', name: 'Brasil' },
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: entregasTitulo,
+        itemListElement: entregas.map((e) => ({
+          '@type': 'Offer',
+          itemOffered: { '@type': 'Service', name: e.titulo, description: e.texto },
+        })),
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: duvidas.map((d) => ({
+        '@type': 'Question',
+        name: d.p,
+        acceptedAnswer: { '@type': 'Answer', text: d.r },
+      })),
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: site + '/' },
+        { '@type': 'ListItem', position: 2, name: servicoNome, item: site + canonical },
+      ],
+    },
+  ],
+};
+---
+
+<Base title={title} description={description} canonical={canonical} schema={schema}>
+  <Cabecalho />
+
+  <main>
+    <!-- ABERTURA -->
+    <section class="capa">
+      <div class="malha"></div>
+      <div class="wrap">
+        <nav class="migalhas" aria-label="Você está aqui">
+          <a href="/">Início</a> <span aria-hidden="true">/</span> <span>{servicoNome}</span>
+        </nav>
+        <h1>{h1} {h1Destaque && <em>{h1Destaque}</em>}</h1>
+        <p class="sub">{chamada}</p>
+        <p class="escopo">{chips.map((c, i) => (<>{i > 0 && <i class="grao-sep" aria-hidden="true"></i>}<span>{c}</span></>))}</p>
+        <div class="acoes">
+          <a class="btn btn-primary" href="/agenda/">Contrate a SAL</a>
+          <a class="btn btn-ghost" href="#entregas">Ver o que está incluído</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- O PROBLEMA -->
+    <section class="sec" id="problema">
+      <div class="wrap">
+        <div class="dupla">
+          <div class="rev">
+            <h2>{problemaTitulo}</h2>
+          </div>
+          <div class="rev">
+            {problemaTexto.map((t) => <p class="corpo">{t}</p>)}
+            {problemaLista && (
+              <ul class="lista-grao">{problemaLista.map((l) => <li>{l}</li>)}</ul>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section class="sec" id="como">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <h2>{etapasTitulo}</h2>
+        </div>
+        <div class="metodo">
+          {etapas.map((e) => (
+            <div class="passo rev">
+              <b>{e.n}</b>
+              <h3>{e.titulo}</h3>
+              <p>{e.texto}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ENTREGÁVEIS -->
+    <section class="sec" id="entregas">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <h2>{entregasTitulo}</h2>
+        </div>
+        <div class="entregas">
+          {entregas.map((e) => (
+            <article class="entrega rev">
+              <span class="grao" aria-hidden="true"></span>
+              <h3>{e.titulo}</h3>
+              <p>{e.texto}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- A MÉTRICA QUE IMPORTA -->
+    {metricaTitulo && (
+      <section class="sec bone" id="metrica">
+        <div class="wrap">
+          <div class="metrica rev">
+            <h2>{metricaTitulo}</h2>
+            <p class="destaque">{metricaTexto}</p>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- FAQ -->
+    <section class="sec" id="duvidas">
+      <div class="wrap">
+        <div class="faq">
+          <div class="rev">
+            <h2>Ficou alguma dúvida?</h2>
+            <p style="color:var(--muted)">Se a sua não estiver aqui, chame no WhatsApp que respondemos.</p>
+            <a class="btn btn-ghost" href="https://wa.me/5551993380278" rel="noopener">Perguntar no WhatsApp</a>
+          </div>
+          <div class="rev">
+            {duvidas.map((d) => (
+              <details>
+                <summary>{d.p}</summary>
+                <div><p>{d.r}</p></div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PARA ONDE IR AGORA -->
+    <section class="sec sec-sm" id="proximos">
+      <div class="wrap">
+        <div class="cabeca rev"><h2 class="h2-menor">Continue por aqui</h2></div>
+        <ul class="proximos">
+          {proximos.map((p) => <li><a href={p.href}>{p.rot} <span aria-hidden="true">→</span></a></li>)}
+        </ul>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="band">
+      <div class="malha"></div>
+      <div class="wrap">
+        <h2>{ctaTitulo}</h2>
+        <p class="sub">{ctaTexto}</p>
+        <a class="btn btn-primary" href="/agenda/">Contrate a SAL</a>
+      </div>
+    </section>
+  </main>
+
+  <Rodape />
+</Base>

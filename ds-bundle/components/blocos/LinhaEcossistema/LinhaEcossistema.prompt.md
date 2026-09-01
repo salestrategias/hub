@@ -1,0 +1,1 @@
+Lista de índice para conteúdo secundário: `.eco.eco-compacto` com `.eco-linha` (grid título 13rem + frase + ação). Use quando o conteúdo é detalhe, não capítulo — respiro pequeno, uma linha por item. Item sem link vai como `<article>` sem `.vai`.

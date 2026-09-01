@@ -1,0 +1,146 @@
+---
+import Base from '../layouts/Base.astro';
+import Cabecalho from '../components/Cabecalho.astro';
+import Rodape from '../components/Rodape.astro';
+
+const title = 'Política de Privacidade | SAL Estratégias de Marketing';
+const description =
+  'Como a SAL Estratégias de Marketing coleta, usa e protege os dados de quem visita o site e agenda um diagnóstico. Em conformidade com a LGPD.';
+
+const atualizacao = '30 de julho de 2026';
+---
+
+<Base title={title} description={description} canonical="/politica-de-privacidade/">
+  <Cabecalho />
+
+  <main>
+    <section class="capa">
+      <div class="malha"></div>
+      <div class="wrap">
+        <nav class="migalhas" aria-label="Você está aqui">
+          <a href="/">Início</a> <span aria-hidden="true">/</span> <span>Política de privacidade</span>
+        </nav>
+        <span class="eyebrow">Última atualização: {atualizacao}</span>
+        <h1>Política de privacidade</h1>
+        <p class="sub">
+          Esta política explica quais dados a SAL coleta neste site, para que eles servem e o que você
+          pode pedir a qualquer momento. Está escrita para ser entendida, não para se proteger atrás de
+          texto difícil.
+        </p>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <article class="texto-longo legal-texto">
+
+          <h2>Quem é o responsável pelos seus dados</h2>
+          <p class="corpo">
+            SAL ESTRATÉGIAS DE MARKETING LTDA, inscrita no CNPJ 66.018.951/0001-04, sediada em Porto
+            Alegre, Rio Grande do Sul, com atendimento 100% online para todo o Brasil. Para qualquer
+            assunto relacionado a dados pessoais, o contato é
+            <a class="link-texto" href="mailto:contato@salestrategias.com.br">contato@salestrategias.com.br</a>
+            ou o WhatsApp <a class="link-texto" href="https://wa.me/5551993380278" rel="noopener">(51) 99338-0278</a>.
+          </p>
+
+          <h2>Quais dados coletamos</h2>
+          <p class="corpo">São dois casos, e só dois.</p>
+          <p class="corpo">
+            <b>Quando você agenda um diagnóstico.</b> Coletamos o que você mesmo escreve no formulário:
+            nome, e-mail, WhatsApp, nome da empresa, endereço do site ou do perfil, tipo de negócio,
+            número de unidades, faixa de faturamento, o que você já faz de marketing hoje, faixa de verba
+            pretendida, objetivo e o desafio que você descreve. Coletamos também a data e a hora que você
+            escolheu.
+          </p>
+          <p class="corpo">
+            <b>Quando você só navega.</b> Ferramentas de medição registram dados técnicos e de navegação,
+            como páginas visitadas, tempo de permanência, tipo de aparelho, navegador e a origem pela qual
+            você chegou até aqui. Esses dados são usados de forma agregada, para entender o que funciona no
+            site.
+          </p>
+
+          <h2>Para que usamos</h2>
+          <ul class="lista-grao">
+            <li>Preparar e realizar a reunião de diagnóstico que você agendou</li>
+            <li>Entrar em contato para confirmar horário, enviar proposta ou retomar uma conversa</li>
+            <li>Entender como o site é usado e melhorar as páginas</li>
+            <li>Cumprir obrigações legais, quando existirem</li>
+          </ul>
+          <p class="corpo">
+            Os dados do formulário servem para atender você. A SAL não vende, não aluga e não cede a sua
+            informação para terceiros, e não inscreve ninguém em lista de disparo sem pedir antes.
+          </p>
+
+          <h2>Com quem esses dados são compartilhados</h2>
+          <p class="corpo">
+            Apenas com os serviços necessários para o site funcionar e para a reunião acontecer: Google
+            (Calendar, Analytics e Ads), Meta (quando você chega por um anúncio), a hospedagem do site e a
+            ferramenta de e-mail. Cada um trata os dados sob a política própria, e nenhum recebe informação
+            além do necessário.
+          </p>
+
+          <h2>Cookies e o seu consentimento</h2>
+          <p class="corpo">
+            Na primeira visita aparece uma barra com duas opções do mesmo tamanho: aceitar todos ou usar
+            só os necessários. <b>Nenhuma ferramenta de medição carrega antes da sua escolha.</b> Se você
+            recusar, o Google Analytics simplesmente não é carregado, e o site funciona igual.
+          </p>
+          <p class="corpo">
+            Os cookies necessários fazem a página funcionar e guardar a sua preferência de consentimento.
+            Os de medição, que só entram com o seu aceite, mostram quais páginas são lidas e quais
+            campanhas trazem visita. Neles, o seu endereço de IP é anonimizado e os sinais de publicidade
+            do Google ficam desligados.
+          </p>
+          <p class="corpo">
+            Mudou de ideia?
+            <button type="button" class="link-texto botao-texto" data-rever-cookies>Reabrir as preferências de cookies</button>.
+            Você também pode limpar ou bloquear cookies nas configurações do seu navegador.
+          </p>
+
+          <h2>Por quanto tempo guardamos</h2>
+          <p class="corpo">
+            Dados de contato e de diagnóstico ficam guardados enquanto durar a relação comercial e por até
+            cinco anos depois, prazo usado para eventual necessidade legal. Dados de navegação seguem o
+            prazo das ferramentas de medição, normalmente de 14 a 26 meses.
+          </p>
+
+          <h2>Seus direitos</h2>
+          <p class="corpo">
+            Pela Lei Geral de Proteção de Dados, a Lei 13.709/2018, você pode pedir a qualquer momento:
+          </p>
+          <ul class="lista-grao">
+            <li>Confirmação de que a SAL trata dados seus, e o acesso a eles</li>
+            <li>Correção de dado incompleto, desatualizado ou errado</li>
+            <li>Anonimização, bloqueio ou eliminação de dado desnecessário ou excessivo</li>
+            <li>Portabilidade dos dados para outro fornecedor</li>
+            <li>Eliminação dos dados tratados com o seu consentimento</li>
+            <li>Informação sobre com quem a SAL compartilhou os seus dados</li>
+            <li>Revogação do consentimento</li>
+          </ul>
+          <p class="corpo">
+            Basta escrever para
+            <a class="link-texto" href="mailto:contato@salestrategias.com.br">contato@salestrategias.com.br</a>.
+            A resposta sai em até 15 dias.
+          </p>
+
+          <h2>Segurança</h2>
+          <p class="corpo">
+            A SAL adota medidas técnicas e administrativas para proteger os dados, incluindo conexão
+            criptografada no site e acesso restrito às ferramentas onde os dados ficam. Nenhum sistema é
+            infalível, e por isso coletamos o mínimo necessário para fazer o trabalho. O site é estático,
+            sem banco de dados e sem área de login, o que reduz bastante a superfície de ataque.
+          </p>
+
+          <h2>Mudanças nesta política</h2>
+          <p class="corpo">
+            Quando esta política mudar, a data de atualização no topo da página muda junto. Alterações
+            relevantes são comunicadas a quem já é cliente.
+          </p>
+
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <Rodape />
+</Base>

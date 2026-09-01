@@ -1,0 +1,1 @@
+Card para redes sociais, 1080×1080: `.capa.capa-social` — a gramática da capa de post sobre marinho LISO (sem os véus de gradiente: degradê em card de rede é clichê de IA). Rótulo coral, grifo lima, grãos e, no rodapé, só o wordmark com o handle `@salestrategias` — sem endereço do site. Título maior (~96px).

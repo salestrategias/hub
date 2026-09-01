@@ -1,0 +1,586 @@
+---
+import Base from '../layouts/Base.astro';
+import Cabecalho from '../components/Cabecalho.astro';
+import Rodape from '../components/Rodape.astro';
+import HeroGrafico from '../components/HeroGrafico.astro';
+
+const title = 'SAL Estratégias | Agência de Marketing, SEO e Tráfego Pago';
+const description =
+  'A SAL Estratégias de Marketing faz SEO e tráfego pago na medida certa para lojas físicas e e-commerces venderem mais. Simplificar, Atrair e Libertar.';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': ['Organization', 'ProfessionalService'],
+      '@id': 'https://www.salestrategias.com.br/#org',
+      name: 'SAL Estratégias de Marketing',
+      alternateName: 'SAL',
+      url: 'https://www.salestrategias.com.br/',
+      slogan: 'Marketing na Medida Certa',
+      description: 'Agência de tráfego pago e SEO (tráfego orgânico) para varejo local e e-commerce.',
+      foundingDate: '2024',
+      founder: {
+        '@type': 'Person',
+        name: 'Marcelo Freitas',
+        jobTitle: 'Estrategista de marketing',
+        url: 'https://www.salestrategias.com.br/marcelo-freitas/',
+        sameAs: ['https://www.linkedin.com/in/mcfreitas/', 'https://marcelofreitas.substack.com/'],
+      },
+      address: { '@type': 'PostalAddress', addressLocality: 'Porto Alegre', addressRegion: 'RS', addressCountry: 'BR' },
+      telephone: '+55-51-99338-0278',
+      email: 'contato@salestrategias.com.br',
+      areaServed: { '@type': 'Country', name: 'Brasil' },
+      availableLanguage: 'pt-BR',
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'comercial',
+        telephone: '+55-51-99338-0278',
+        email: 'contato@salestrategias.com.br',
+        areaServed: 'BR',
+        availableLanguage: 'pt-BR',
+      },
+      knowsAbout: ['Tráfego pago', 'Google Ads', 'Meta Ads', 'SEO', 'Tráfego orgânico', 'SEO local', 'Google Meu Negócio', 'E-commerce', 'Varejo'],
+      sameAs: ['https://www.instagram.com/salestrategias/', 'https://marcelofreitas.substack.com/'],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://www.salestrategias.com.br/#site',
+      name: 'SAL Estratégias de Marketing',
+      url: 'https://www.salestrategias.com.br/',
+      inLanguage: 'pt-BR',
+      publisher: { '@id': 'https://www.salestrategias.com.br/#org' },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Qual a diferença entre tráfego pago e tráfego orgânico?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Tráfego pago é quando você paga por clique ou impressão, no Google Ads e no Meta Ads: acelera os resultados, mas para de vender quando não tem verba investida. Tráfego orgânico vem do SEO, das buscas, do mapa e das respostas das IAs: demora mais pra engrenar e não some quando você para de investir. Os dois se completam e são extremamente necessários.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Quanto preciso investir em anúncios para começar?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Para e-commerce, trabalhamos com quem tem pelo menos R$ 2.500 por mês para investir em anúncios. Para loja física, a partir de R$ 1.500. Abaixo disso a campanha não reúne dado suficiente para otimizar e o dinheiro rende mais em outra frente, normalmente no SEO local. Se for o seu caso, dizemos isso no diagnóstico.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Em quanto tempo aparece resultado?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Anúncio responde nas primeiras semanas, com o mês inicial servindo para calibrar público e criativo. Em SEO o próprio Google avisa que leva de quatro meses a um ano. Na nossa experiência os primeiros sinais vêm por volta de 90 dias, e é por isso que o contrato é de 6 meses: abaixo disso você paga o esforço e não colhe o resultado.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Vocês atendem loja física ou só e-commerce?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Atendemos os dois modelos de negócios, com estratégias específicas para cada um. Quem tem os dois canais recebe um plano que cobre ambos.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Tem fidelidade no contrato?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'O contrato tem validade inicial de 6 meses, que é o tempo mínimo para estratégias de performance em tráfego pago e orgânico trazerem resultado consistente. Mas você pode cancelar quando quiser, sem multa, avisando com 30 dias de antecedência. O prazo existe para proteger o trabalho, não para prender você.',
+          },
+        },
+      ],
+    },
+  ],
+};
+
+const servicos = [
+  {
+    titulo: 'SEO local',
+    href: '/seo-local/',
+    texto: 'Perfil da Empresa no Google, mapa e busca de bairro. Quem pesquisa "perto de mim" precisa achar a sua loja antes de achar a do vizinho. Em rede, cada unidade tem o seu.',
+    icone: 'pin',
+  },
+  {
+    titulo: 'SEO para e-commerce',
+    href: '/seo-para-ecommerce/',
+    texto: 'Categoria, produto e conteúdo ranqueando para quem já está decidido a comprar. Inclui o trabalho para a sua marca ser citada nas respostas do ChatGPT, do Gemini e do Google.',
+    icone: 'busca',
+  },
+  {
+    titulo: 'Tráfego pago',
+    href: '/trafego-pago/',
+    texto: 'Google Ads e Meta Ads com gestão diária e meta de retorno calculada sobre a sua margem. Em loja física, anúncio por raio e medição de visita, não só de clique.',
+    icone: 'alvo',
+  },
+  {
+    titulo: 'Diagnóstico de site e loja virtual',
+    href: '/diagnostico-de-site/',
+    texto: 'Nós analisamos o seu site como quem vai comprar: onde a pessoa trava, o que falta na página de produto, o que atrapalha no checkout e o que derruba a velocidade. Você recebe os gargalos apontados e a ordem de corrigir.',
+    icone: 'loja',
+  },
+  {
+    titulo: 'Conteúdo e autoridade',
+    href: '/servicos/agencia-de-producao-de-conteudo/',
+    texto: 'Calendário editorial montado por intenção de busca, artigos otimizados e conteúdo para o Perfil da Empresa. É o que faz o SEO andar mês a mês.',
+    icone: 'texto',
+  },
+  {
+    titulo: 'Criativos estratégicos',
+    href: null,
+    texto: 'Criativos constantemente atualizados, com o ângulo de venda definido antes da arte e aprovação sua antes de subir. Entram junto do plano de mídia.',
+    icone: 'camada',
+  },
+];
+
+/* -------------------------------------------------------------------------
+   Últimos artigos do Blog da SAL, lidos da API do WordPress em tempo de build.
+   Se a API estiver fora do ar na hora do build, a home simplesmente não
+   mostra os blocos de blog — nunca quebra a publicação.
+   O bloco do topo ainda se atualiza sozinho no navegador (ver Base.astro),
+   para não depender de um rebuild a cada post novo.
+------------------------------------------------------------------------- */
+// O cb= fura qualquer camada de cache entre o build e a API: sem ele, o
+// WordPress chegou a devolver uma lista de posts com uma semana de atraso.
+const API_BLOG = `https://www.salestrategias.com.br/wp-json/wp/v2/posts?per_page=4&_embed=wp:featuredmedia,wp:term&cb=${Date.now()}`;
+
+const semTags = (s = '') => s.replace(/<[^>]*>/g, '').replace(/&hellip;/g, '…').replace(/&#8230;/g, '…').replace(/&nbsp;/g, ' ').replace(/&#8217;/g, '’').replace(/&amp;/g, '&').trim();
+const minLeitura = (html = '') => Math.max(1, Math.round(semTags(html).split(/\s+/).length / 200));
+
+let artigos = [];
+try {
+  const r = await fetch(API_BLOG);
+  if (r.ok) {
+    artigos = (await r.json()).map((p) => {
+      const emb = p._embedded ?? {};
+      return {
+        titulo: semTags(p.title?.rendered),
+        resumo: semTags(p.excerpt?.rendered).slice(0, 150),
+        link: p.link,
+        data: p.date,
+        categoria: (emb['wp:term'] ?? []).flat().find((t) => t?.taxonomy === 'category')?.name ?? 'Blog',
+        leitura: minLeitura(p.content?.rendered),
+        imagem: (emb['wp:featuredmedia'] ?? [])[0]?.source_url ?? null,
+      };
+    });
+  }
+} catch {
+  artigos = [];
+}
+
+const dataBR = (iso) =>
+  new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Sao_Paulo' }).format(new Date(iso));
+
+const destaque = artigos[0] ?? null;
+const maisArtigos = artigos.slice(1, 4);
+
+const territorios = [
+  {
+    n: '01',
+    titulo: 'Ser encontrado',
+    texto: 'SEO local, SEO de e-commerce, Perfil da Empresa no Google, presença nas respostas das IAs e anúncio na hora da busca. Antes de convencer alguém, é preciso aparecer para essa pessoa.',
+  },
+  {
+    n: '02',
+    titulo: 'Ser escolhido',
+    texto: 'Página de produto, checkout, oferta, avaliações e criativo. Quem chega até você compara com outros três antes de decidir, e o que decide é o que está na tela nesses segundos.',
+  },
+  {
+    n: '03',
+    titulo: 'Ser lembrado',
+    texto: 'Base de clientes, WhatsApp, recompra e sazonalidade. Cliente que comprou uma vez e nunca mais ouviu falar de você custou caro duas vezes.',
+  },
+];
+---
+
+<Base title={title} description={description} canonical="/" schema={schema}>
+
+  <Cabecalho />
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <HeroGrafico />
+      <div class="hero-veu" aria-hidden="true"></div>
+      <div class="hero-aurora" aria-hidden="true"></div>
+      <div class="malha"></div>
+      <div class="wrap">
+        <div>
+          <h1><em>Marketing na Medida Certa</em><br class="so-desktop" /> para te ajudar a vender mais e melhor.</h1>
+          <p class="sub">
+            Para negócios locais e e-commerces. Você aparece na hora em que o cliente procura o que
+            você vende: no Google, nos anúncios e nas IAs.
+          </p>
+          <div class="acoes">
+            <a class="btn btn-primary" href="/agenda/">Contrate a SAL</a>
+            <a class="btn btn-ghost" href="#territorios">Ver como trabalhamos</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESTA SEMANA NO BLOG (atualiza sozinho no navegador) -->
+    {destaque && (
+      <section class="wrap">
+        <a class="agora" href={destaque.link} data-blog-destaque>
+          <span class="agora-rot">
+            <span class="pulso" aria-hidden="true"></span>
+            Esta semana no Blog da SAL
+          </span>
+          <span class="agora-titulo" data-campo="titulo">{destaque.titulo}</span>
+          <span class="agora-meta">
+            <span data-campo="categoria">{destaque.categoria}</span>
+            <span aria-hidden="true">·</span>
+            <time data-campo="data" datetime={destaque.data}>{dataBR(destaque.data)}</time>
+          </span>
+          <span class="agora-vai" aria-hidden="true">Ler o artigo →</span>
+        </a>
+      </section>
+    )}
+
+    <!-- MANIFESTO -->
+    <section class="sec manifesto" id="manifesto">
+      <div class="wrap rev">
+        <p class="mani-menor">Nós temos um compromisso sério com o marketing:</p>
+        <p class="mani-maior">torná-lo <em>s</em>imples, <em>a</em>trativo e <em>l</em>ibertador.</p>
+        <p class="mani-corpo">
+          A SAL nasceu da inquietação de mentes que acreditam que marketing não precisa ser
+          complicado para ser poderoso. Existimos para transformar negócios locais e digitais
+          em cases de sucesso, aumentando as suas margens de lucro com previsibilidade.
+        </p>
+        <dl class="pilares">
+          <div class="pilar">
+            <dt><em>S</em>implificar</dt>
+            <dd>O marketing, para torná-lo compreensível, executável e mensurável.</dd>
+          </div>
+          <div class="pilar">
+            <dt><em>A</em>trair</dt>
+            <dd>O interesse das pessoas, com estratégias combinadas de conteúdo, dados e experiência.</dd>
+          </div>
+          <div class="pilar">
+            <dt><em>L</em>ibertar</dt>
+            <dd>O potencial de crescimento dos nossos clientes e parceiros, com clareza e resultados consistentes.</dd>
+          </div>
+        </dl>
+        <p class="mani-corpo mani-fecho">
+          Prestamos <a href="/servicos/">assessoria de marketing</a> para o
+          <a href="/varejo-local/">varejo</a>, com
+          <a href="/seo-local/">tráfego orgânico</a> e
+          <a href="/trafego-pago/">tráfego pago</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- PARA QUEM -->
+    <section class="sec" id="para-quem">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <h2>Dois negócios, duas engrenagens diferentes.</h2>
+          <p>Loja de rua e loja online não vendem do mesmo jeito, e o marketing das duas não pode ser o mesmo. A SAL trabalha as duas, com a estratégia que cada uma pede.</p>
+        </div>
+        <div class="publicos">
+          <article class="publico fisico rev">
+            <h3>Varejo local</h3>
+            <p>Loja de rua, quiosque, franquia, operação em shopping e rede com várias unidades. O que importa é o cliente encontrar sua loja, ser bem atendido e virar freguês.</p>
+            <ul>
+              <li>Perfil da Empresa no Google no topo do mapa</li>
+              <li>Anúncio por raio, só para quem consegue chegar</li>
+              <li>Avaliações respondidas e reputação cuidada</li>
+              <li>Rede: cada loja com o seu perfil, sua página e seu painel</li>
+            </ul>
+            <a class="vai" href="/varejo-local/">Ver a frente de varejo local →</a>
+          </article>
+          <article class="publico online rev">
+            <h3>E-commerce</h3>
+            <p>Loja virtual que precisa crescer com margem, e não só aumentar o número de pedidos.</p>
+            <ul>
+              <li>Shopping, Performance Max e catálogo bem configurados</li>
+              <li>Meta de retorno calculada sobre comissão, frete e imposto</li>
+              <li>Produto e categoria ranqueando sem pagar por clique</li>
+              <li>Sua marca citada nas respostas do ChatGPT e do Gemini</li>
+            </ul>
+            <a class="vai" href="/e-commerce/">Ver a frente de e-commerce →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVIÇOS -->
+    <section class="sec" id="servicos">
+      <div class="wrap">
+        <div class="cabeca-linha rev">
+          <div class="cabeca" style="margin-bottom:0">
+            <h2>O que a SAL entrega, na prática.</h2>
+          </div>
+          <a class="btn btn-ghost" href="/servicos/">Ver todos os serviços →</a>
+        </div>
+        <div class="servicos">
+          {servicos.map((s) => {
+            const Cartao = s.href ? 'a' : 'article';
+            return (
+            <Cartao class="servico rev" href={s.href ?? undefined}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                {s.icone === 'alvo' && <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /></>}
+                {s.icone === 'pin' && <><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></>}
+                {s.icone === 'busca' && <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5M8.5 11h5M11 8.5v5" /></>}
+                {s.icone === 'camada' && <><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></>}
+                {s.icone === 'loja' && <><path d="M4 10v10h16V10" /><path d="M3 10 5 4h14l2 6a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0Z" /><path d="M10 20v-6h4v6" /></>}
+                {s.icone === 'texto' && <><path d="M5 4h14v16H5z" /><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4" /></>}
+                {s.icone === 'grafico' && <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>}
+              </svg>
+              <h3>{s.titulo}</h3>
+              <p>{s.texto}</p>
+              {s.href && <span class="vai" aria-hidden="true">Conhecer o serviço →</span>}
+            </Cartao>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 TERRITÓRIOS -->
+    <section class="sec" id="territorios">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <h2>Os três territórios da venda.</h2>
+          <p>
+            Toda venda, na loja de rua ou no e-commerce, passa por três momentos. A maior parte das
+            agências trabalha só o primeiro. É no segundo e no terceiro que costuma estar o dinheiro
+            que a sua operação já poderia estar fazendo.
+          </p>
+        </div>
+        <div class="territorios">
+          {territorios.map((t) => (
+            <article class="territorio rev">
+              <b>{t.n}</b>
+              <h3>{t.titulo}</h3>
+              <p>{t.texto}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- SOBRE (seção osso: a quebra editorial) -->
+    <section class="sec bone" id="sobre">
+      <div class="wrap">
+        <article class="folha-carta rev">
+          <header class="carta-cabeca">
+            <img class="carta-avatar" src="/img/fotos/marcelo-palestra.webp" alt="Marcelo Freitas" width="88" height="88" loading="lazy" decoding="async" />
+            <div>
+              <h2>Oi, empreendedor.</h2>
+              <p class="carta-de">Uma carta de quem passou 12 anos aprendendo sobre você.</p>
+            </div>
+          </header>
+          <div class="carta">
+              <p>
+                Se você possui uma loja, seja ela física ou online, certamente já passou por algumas
+                destas situações: já impulsionou posts no Instagram sem nenhuma estratégia, já contratou
+                alguma agência ou social media e já ouviu muitas promessas de sucesso. Mas, depois de tudo
+                isso, os lucros não cresceram e o negócio estagnou. Estou certo?
+              </p>
+              <p>
+                Eu sei disso, pois durante mais de 10 anos atuei em empresas de educação e de varejo.
+                Cinco deles, como gerente de marketing de shopping centers, respondendo pelas estratégias
+                de expansão comercial de lojas e pelo aumento do fluxo de clientes. Toda semana, era uma
+                cobrança imensa por resultados, mesmo quando tinha baixo investimento nos empreendimentos.
+                Foi nessa experiência que aprendi a diferença entre o marketing que enfeita relatórios e
+                promete coisas impossíveis e o marketing realmente estratégico, capaz de lotar lojas e
+                encaminhar os clientes para a compra.
+              </p>
+              <p>
+                Em 2024, junto de dois amigos publicitários, eu criei a SAL inspirada em uma metáfora que
+                foi o foco de diversas conversas nossas sobre a profissão: o sal é um elemento essencial,
+                presente em todo lugar, que todo mundo percebe quando falta. Usado na medida certa, realça
+                sabores; em excesso, fica salgado; de menos, passa despercebido.
+              </p>
+              <p>
+                O marketing é exatamente como o sal. A dose certa não vem de fórmulas prontas e nem de
+                promessas de &ldquo;gurus&rdquo;. Vem de dados metrificados corretamente, de um
+                público-alvo bem definido e de uma estrutura de campanhas desenhada de forma totalmente
+                adequada às necessidades do cliente.
+              </p>
+              <p>
+                Na minha visão, não adianta você querer anunciar produtos se a sua estrutura está toda
+                bagunçada, se você não tem previsibilidade sobre sua margem e sequer sabe quem é o seu
+                cliente ideal. Já perdi contrato com alguns clientes por dizer e demonstrar isso a eles.
+                <span class="grifo">Mas prefiro perder contrato do que o seu respeito.</span>
+              </p>
+              <p>
+                Por isso, o primeiro passo aqui é o diagnóstico da SAL. É uma videochamada de meia hora,
+                na qual eu analiso a sua estrutura, suas contas de anúncios, sua presença digital e seus
+                concorrentes. Depois, te entrego uma lista de prioridades para avançarmos. No pior
+                cenário, você ganha um plano de ação. No melhor, você vira meu cliente e parceiro.
+              </p>
+            </div>
+          <p class="assinatura">
+            <b>Marcelo da Costa Freitas</b>
+            <span>Fundador da SAL Estratégias de Marketing</span>
+          </p>
+        </article>
+
+        <div class="mini-fotos cenas rev">
+          <figure><img src="/img/fotos/starbucks-inauguracao.webp" alt="Corte de fita na inauguração da primeira Starbucks de Porto Alegre" width="800" height="533" loading="lazy" decoding="async" /></figure>
+          <figure><img src="/img/fotos/pascoa-gramado.webp" alt="Páscoa em Gramado, no Vita Boulevard, com personagens em frente ao letreiro da cidade" width="800" height="600" loading="lazy" decoding="async" /></figure>
+          <figure><img src="/img/fotos/marcelo-evento-1.webp" alt="Marcelo Freitas em um evento do setor de shopping centers" width="800" height="533" loading="lazy" decoding="async" /></figure>
+        </div>
+
+        <div class="prova rev">
+          <ul class="trajetoria">
+            <li><b>+12</b><span>anos de estratégia de marketing e comunicação</span></li>
+            <li><b>+5</b><span>anos como gerente de marketing de shoppings</span></li>
+            <li><b>+50</b><span>grandes marcas na trajetória</span></li>
+          </ul>
+          <p class="sobre-mais"><a class="btn btn-ghost" href="/quem-somos/">Saiba mais sobre a SAL</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section class="sec" id="clientes">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <h2>Confiam na SAL.</h2>
+        </div>
+        <div class="clientes">
+          <article class="cliente rev">
+            <div class="cliente-logo"><img src="/img/clientes/lindoia-shopping.svg" alt="Lindóia Shopping" width="220" height="96" loading="lazy" decoding="async" /></div>
+          </article>
+          <article class="cliente rev">
+            <div class="cliente-logo"><img src="/img/clientes/galeria-chaves.png" alt="Galeria Chaves" width="234" height="68" loading="lazy" decoding="async" /></div>
+          </article>
+          <article class="cliente rev">
+            <div class="cliente-logo"><img src="/img/clientes/rua-da-praia.png" alt="Rua da Praia Shopping" width="75" height="68" loading="lazy" decoding="async" /></div>
+          </article>
+          <article class="cliente rev">
+            <div class="cliente-logo"><img src="/img/clientes/pipehline-services.png" alt="Pipehline Services" width="191" height="68" loading="lazy" decoding="async" /></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOG DA SAL -->
+    {maisArtigos.length > 0 && (
+      <section class="sec" id="blog">
+        <div class="wrap">
+          <div class="cabeca-linha rev">
+            <div>
+              <h2>Conteúdos sobre marketing, tecnologia e materiais gratuitos.</h2>
+            </div>
+            <a class="btn btn-ghost" href="/blog/">Ver todos os artigos</a>
+          </div>
+          <div class="artigos" data-blog-cards>
+            {maisArtigos.map((a) => (
+              <article class="artigo rev">
+                <a href={a.link}>
+                  <figure>
+                    {a.imagem
+                      ? <img src={a.imagem} alt={a.titulo} loading="lazy" decoding="async" width="640" height="360" />
+                      : <span class="sem-capa" aria-hidden="true"></span>}
+                  </figure>
+                  <span class="artigo-cat">{a.categoria}</span>
+                  <h3>{a.titulo}</h3>
+                  <p>{a.resumo}…</p>
+                  <span class="artigo-meta">
+                    <time datetime={a.data}>{dataBR(a.data)}</time>
+                    <i class="grao-sep" aria-hidden="true"></i>
+                    <span data-leitura>{a.leitura} min de leitura</span>
+                  </span>
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- ECOSSISTEMA -->
+    <section class="sec sec-sm" id="ecossistema">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <h2>O ecossistema da SAL.</h2>
+        </div>
+        <div class="eco eco-compacto">
+          <a class="eco-linha rev" href="/agenda/">
+            <h3>Diagnóstico SAL</h3>
+            <p>Análise gratuita das suas contas, do Google e da concorrência.</p>
+            <span class="vai" aria-hidden="true">Agendar →</span>
+          </a>
+          <a class="eco-linha rev" href="/blog/">
+            <h3>Blog da SAL</h3>
+            <p>Guias práticos de SEO, tráfego pago e e-commerce, toda semana.</p>
+            <span class="vai" aria-hidden="true">Ler →</span>
+          </a>
+          <a class="eco-linha rev" href="https://marcelofreitas.substack.com/" rel="noopener">
+            <h3>Café com Sal</h3>
+            <p>A newsletter do Marcelo, em cinco minutos de leitura.</p>
+            <span class="vai" aria-hidden="true">Assinar →</span>
+          </a>
+          <article class="eco-linha rev">
+            <h3>SAL Hub</h3>
+            <p>O sistema próprio onde o seu plano vive, com IA nos bastidores.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="sec" id="duvidas">
+      <div class="wrap">
+        <div class="faq">
+          <div class="rev">
+            <h2>Ficou alguma dúvida?</h2>
+            <p style="color:var(--muted)">Se a sua não estiver aqui, chame no WhatsApp que respondemos.</p>
+            <a class="btn btn-ghost" href="https://wa.me/5551993380278" rel="noopener">Perguntar no WhatsApp</a>
+          </div>
+          <div class="rev">
+            <details>
+              <summary>Qual a diferença entre tráfego pago e tráfego orgânico?</summary>
+              <div><p>Tráfego pago é quando você paga por clique ou impressão, no Google Ads e no Meta Ads: acelera os resultados, mas para de vender quando não tem verba investida. Tráfego orgânico vem do SEO, das buscas, do mapa e das respostas das IAs: demora mais pra engrenar e não some quando você para de investir. Os dois se completam e são extremamente necessários.</p></div>
+            </details>
+            <details>
+              <summary>Quanto preciso investir em anúncios para começar?</summary>
+              <div><p>Para e-commerce, trabalhamos com quem tem pelo menos R$ 2.500 por mês para investir em anúncios. Para loja física, a partir de R$ 1.500. Abaixo disso a campanha não reúne dado suficiente para otimizar e o dinheiro rende mais em outra frente, normalmente no SEO local. Se for o seu caso, dizemos isso no diagnóstico.</p></div>
+            </details>
+            <details>
+              <summary>Em quanto tempo aparece resultado?</summary>
+              <div><p>Anúncio responde nas primeiras semanas, com o mês inicial servindo para calibrar público e criativo. Em SEO o próprio Google avisa que leva de quatro meses a um ano. Na nossa experiência os primeiros sinais vêm por volta de 90 dias, e é por isso que o contrato é de 6 meses: abaixo disso você paga o esforço e não colhe o resultado. Quem promete primeira página em 30 dias está vendendo o que não pode entregar.</p></div>
+            </details>
+            <details>
+              <summary>Vocês atendem loja física ou só e-commerce?</summary>
+              <div><p>Atendemos os dois modelos de negócios, com estratégias específicas para cada um. Quem tem os dois canais recebe um plano que cobre ambos.</p></div>
+            </details>
+            <details>
+              <summary>Tem fidelidade no contrato?</summary>
+              <div><p>O contrato tem validade inicial de 6 meses, que é o tempo mínimo para estratégias de performance em tráfego pago e orgânico trazerem resultado consistente. Mas você pode cancelar quando quiser, sem multa, avisando com 30 dias de antecedência. O prazo existe para proteger o trabalho, não para prender você.</p></div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="band">
+      <div class="malha"></div>
+      <div class="wrap">
+        <h2>Pronto para escalar as suas vendas?</h2>
+        <p class="sub">
+          Escolha um horário. A SAL analisa as suas contas de anúncio, a sua presença no Google
+          e a sua concorrência, e você sai com as prioridades na mão.
+        </p>
+        <a class="btn btn-primary" href="/agenda/">Contrate a SAL</a>
+        <p class="band-zap">Prefere conversar antes? Chama no WhatsApp: <a href="https://wa.me/5551993380278" rel="noopener">(51) 99338-0278</a></p>
+      </div>
+    </section>
+
+  </main>
+
+  <Rodape />
+
+</Base>

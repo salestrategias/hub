@@ -1,0 +1,45 @@
+{
+  "nome": "checkout-que-desiste-2026-08-24",
+  "editoria": "E-commerce",
+  "legenda": "O cliente quis comprar. O checkout desistiu por ele.\n\nCarrinho cheio não é venda: entre o “finalizar compra” e o cartão existe uma corrida de obstáculos — e cada campo a mais derruba gente que já tinha decidido comprar. Arrasta para ver as fricções que mais matam venda e a regra para limpar o caminho.\n\nO mapa completo, fricção por fricção, está no blog da SAL (link na bio).\n\n#ecommerce #checkout #conversao #lojavirtual #vendasonline",
+  "slides": [
+    {
+      "tipo": "capa",
+      "titulo": "O cliente quis comprar. O checkout *desistiu* por ele."
+    },
+    {
+      "tipo": "texto",
+      "paragrafos": [
+        "Carrinho cheio não é venda.",
+        "Entre o “finalizar compra” e o cartão existe uma corrida de obstáculos.",
+        "Cada campo a mais derruba alguém que já tinha decidido comprar."
+      ]
+    },
+    {
+      "tipo": "lista",
+      "titulo": "As fricções que matam a venda:",
+      "itens": [
+        "Frete surpresa na última tela.",
+        "Cadastro obrigatório antes de pagar.",
+        "Formulário pedindo o que não precisa.",
+        "Pix e cartão escondidos no fim da página."
+      ]
+    },
+    {
+      "tipo": "passo",
+      "num": "A REGRA",
+      "titulo": "Menos cliques, mais caixa.",
+      "texto": "Compra sem cadastro, frete calculado cedo e Pix à vista. Cada obstáculo removido é venda que volta para o seu caixa."
+    },
+    {
+      "tipo": "citacao",
+      "tema": "osso",
+      "texto": "Checkout bom é o que o cliente *nem percebe*."
+    },
+    {
+      "tipo": "cta",
+      "titulo": "Quantas vendas o seu checkout está segurando?",
+      "sub": "Diagnóstico gratuito no link da bio."
+    }
+  ]
+}

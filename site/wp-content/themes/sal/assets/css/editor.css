@@ -1,0 +1,40 @@
+/* Editor com a mesma tipografia do site — o que se escreve é o que se publica. */
+
+@font-face {
+	font-family: "Plus Jakarta Sans";
+	src: url("../fonts/plus-jakarta-sans-var.woff2") format("woff2");
+	font-weight: 200 800;
+	font-display: swap;
+}
+@font-face {
+	font-family: "Inter";
+	src: url("../fonts/inter-var.woff2") format("woff2");
+	font-weight: 100 900;
+	font-display: swap;
+}
+
+body, .editor-styles-wrapper {
+	font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+	font-size: 1.0625rem;
+	line-height: 1.65;
+	color: #0A0A0F;
+}
+
+.editor-styles-wrapper h1,
+.editor-styles-wrapper h2,
+.editor-styles-wrapper h3,
+.editor-styles-wrapper h4 {
+	font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+	font-weight: 800;
+	letter-spacing: -0.022em;
+	line-height: 1.15;
+}
+
+.editor-styles-wrapper a { color: #7E30E1; }
+
+.editor-styles-wrapper blockquote {
+	border-left: 3px solid #7E30E1;
+	padding-left: 1.25em;
+	color: #5A5A66;
+	font-style: italic;
+}
