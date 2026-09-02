@@ -61,7 +61,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 52 | Segmentação RFM: separe os clientes ouro dos de uma compra só | segmentação rfm | CRM | 14 | MOFU | PUBLICADO 2026-08-30 https://www.salestrategias.com.br/segmentacao-rfm/ |
 | 53 | Velocidade do site derruba vendas: como medir e corrigir | velocidade site loja virtual conversão | SEO | 13 | MOFU | PUBLICADO 2026-08-31 https://www.salestrategias.com.br/velocidade-site-loja-virtual/ |
 | 54 | Mostrar o frete na página de produto aumenta a conversão? | frete na pagina de produto | CRO | 14 | MOFU | PUBLICADO 2026-09-01 https://www.salestrategias.com.br/frete-na-pagina-de-produto/ |
-| 55 | Live commerce: como fazer uma live que vende (sem estúdio) | como fazer live commerce | MKT | 14 | MOFU | PENDENTE |
+| 55 | Live commerce: como fazer uma live que vende (sem estúdio) | como fazer live commerce | MKT | 14 | MOFU | PUBLICADO 2026-09-02 https://www.salestrategias.com.br/como-fazer-live-commerce/ |
 | 56 | ROAS-alvo por categoria de produto: como definir o seu | como definir roas alvo | DAD | 29 | MOFU | PENDENTE |
 | 57 | Clique e retire: vale a pena para quem tem loja física? | clique e retire vale a pena | LOC | 17 | MOFU | PENDENTE |
 | 58 | Anunciar produto de ticket baixo compensa? A conta que decide | anunciar produto barato compensa | TP | 15 | MOFU | PENDENTE |
