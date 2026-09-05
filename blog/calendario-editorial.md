@@ -64,7 +64,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 55 | Live commerce: como fazer uma live que vende (sem estúdio) | como fazer live commerce | MKT | 14 | MOFU | PUBLICADO 2026-09-02 https://www.salestrategias.com.br/como-fazer-live-commerce/ |
 | 56 | ROAS-alvo por categoria de produto: como definir o seu | como definir roas alvo | DAD | 29 | MOFU | PUBLICADO 2026-09-03 https://www.salestrategias.com.br/roas-alvo-por-categoria/ |
 | 57 | Clique e retire: vale a pena para quem tem loja física? | clique e retire vale a pena | LOC | 17 | MOFU | PUBLICADO 2026-09-04 https://www.salestrategias.com.br/clique-e-retire-vale-a-pena/ |
-| 58 | Anunciar produto de ticket baixo compensa? A conta que decide | anunciar produto barato compensa | TP | 15 | MOFU | PENDENTE |
+| 58 | Anunciar produto de ticket baixo compensa? A conta que decide | anunciar produto barato compensa | TP | 15 | MOFU | PUBLICADO 2026-09-05 https://www.salestrategias.com.br/anunciar-produto-ticket-baixo-compensa/ |
 | 59 | Fluxo de pós-venda: o que enviar depois da compra | fluxo pos venda e-commerce | CRM | 14 | MOFU | PENDENTE |
 | 60 | Pesquisa de palavras-chave para loja virtual: guia prático | pesquisa de palavras chave loja virtual | SEO | 13 | MOFU | PENDENTE |
 | 61 | Black Friday 2026 (27/11): o cronograma de 12 semanas começa agora | quando começar a preparar black friday | SAZ | 14 | MOFU | PENDENTE |
