@@ -1,0 +1,198 @@
+/* =========================================================
+   SAL — Direção "Marinho + Coral" (prévia 2026-08-18; antes: Indigo + Champagne)
+   Estrutura de tokens conforme o benchmark: escada de 4 fundos,
+   UMA cor de borda, UM acento (≤5% da tela).
+   O violeta da marca fica em papel de suporte (hover, foco,
+   borda ativa): em área grande ele é a assinatura de site de IA.
+   ========================================================= */
+
+@font-face {
+  font-family: 'Newsreader';
+  src: url('../fonts/newsreader-600.woff2') format('woff2');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('../fonts/plus-jakarta-sans-var.woff2') format('woff2');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/inter-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* -------- Escada de fundos: quase-preto com veio indigo -------- */
+  --bg:        #0B1526;
+  --bg-2:      #0F1E3A;
+  --surface:   #152848;
+  --surface-2: #1B3156;
+  --line:      #29426B;   /* a única cor de borda no escuro */
+
+  /* -------- Marca -------- */
+  --indigo:      #1B3A73;
+  --indigo-deep: #0E1C38;
+  --violet:      #3D6FE0;              /* suporte: hover, foco, borda ativa */
+  --violet-soft: rgba(61, 111, 224, 0.14);
+
+  /* -------- Acento champagne (o "caro") -------- */
+  --gold:       #FF6B66;
+  --gold-light: #FF8D85;
+  --gold-deep:  #C43C3C;
+  --gold-soft:  rgba(255, 107, 102, 0.12);
+  --gold-line:  rgba(255, 107, 102, 0.32);
+
+  /* -------- Osso: a seção clara de respiro -------- */
+  --bone:     #F1F4FA;
+  --bone-2:   #F8FAFD;
+  --bone-ink: #12203A;
+  --bone-txt: #46587A;
+  --bone-line: #D9E1EF;
+
+  /* -------- Texto no escuro -------- */
+  --text:    #FFFFFF;
+  --muted:   #AEBCD6;   /* cinza com veio marinho, não neutro */
+  --muted-2: #7688A6;
+
+  /* -------- Derivados para véus e vidros (rgba precisa dos canais soltos) -------- */
+  --bg-rgb:      11, 21, 38;
+  --surface-rgb: 21, 40, 72;
+  /* tintas dos gradientes de card (radiais roxa e azulada) */
+  --tint-a: #16294E;
+  --tint-b: #122B52;
+  --hero-sub:   #CBD6E8;
+  --hero-porta: #B7C4DC;
+  --lima: #F6FF74;
+
+  /* -------- Tipografia -------- */
+  --display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --sans:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --body:    'Inter', system-ui, -apple-system, sans-serif;
+
+  --t-h1:  clamp(2.25rem, 1.4rem + 3.6vw, 3.75rem);
+  --t-h2:  clamp(1.75rem, 1.25rem + 2.2vw, 2.75rem);
+  --t-h3:  clamp(1.2rem, 1.08rem + 0.5vw, 1.45rem);
+  --t-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.15rem);
+  --t-sm:   0.875rem;
+  --t-xs:   0.75rem;
+
+  /* -------- Espaço e medida -------- */
+  --maxw: 1160px;
+  --gutter: clamp(1.25rem, 4vw, 2rem);
+  --sec: clamp(4rem, 7vw, 6rem);
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px;
+
+  /* -------- Forma -------- */
+  --r-sm: 12px; --r: 16px; --r-lg: 20px; --r-pill: 999px;
+  --glow: 0 0 40px rgba(255, 107, 102, 0.13);
+  --shadow: 0 20px 60px rgba(7, 14, 27, 0.55);
+  --shadow-bone: 0 12px 40px rgba(18, 32, 58, 0.10);
+  --focus: 0 0 0 3px rgba(255, 107, 102, 0.45);
+
+  /* -------- Movimento -------- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fast: 140ms; --mid: 260ms; --slow: 520ms;
+}
+
+/* =========================================================
+   Tema claro ("versão para o dia"). Mesma direção Indigo +
+   Champagne, trocada para papel: os fundos viram a escada do
+   osso, o champagne escurece para segurar contraste de texto
+   e os gradientes de card viram tintas lavanda/azul de leve.
+   Ativado por data-tema="claro" no <html> (script no head,
+   antes da pintura, para não piscar).
+   ========================================================= */
+:root[data-tema="claro"] {
+  --bg:        #F7F9FC;
+  --bg-2:      #EDF1F8;
+  --surface:   #FFFFFF;
+  --surface-2: #F2F5FA;
+  --line:      #DCE3EF;
+
+  --indigo-deep: #E6EDF9;   /* hero e capas: azul de papel */
+  --violet-soft: rgba(61, 111, 224, 0.10);
+
+  /* champagne mais fundo: o C9A961 não tem contraste sobre papel */
+  --gold:       #C43C3C;
+  --gold-light: #A82F35;
+  --gold-deep:  #93262C;
+  --gold-soft:  rgba(196, 60, 60, 0.10);
+  --gold-line:  rgba(196, 60, 60, 0.36);
+
+  --text:    #12203A;
+  --muted:   #46587A;
+  --muted-2: #6E80A0;
+
+  --bg-rgb:      247, 249, 252;
+  --surface-rgb: 255, 255, 255;
+  --tint-a: #E7EDF9;
+  --tint-b: #E3F0F8;
+  --hero-sub:   #46587A;
+  --hero-porta: #566A8E;
+
+  --glow: 0 0 40px rgba(196, 60, 60, 0.12);
+  --shadow: 0 20px 60px rgba(18, 32, 58, 0.14);
+  --focus: 0 0 0 3px rgba(196, 60, 60, 0.4);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 88px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--muted);
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Serifada nos títulos, peso 600 (nunca 700: bold pesado envelhece) */
+h1, h2 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-variation-settings: 'opsz' 96;
+  color: var(--text);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--s4);
+  text-wrap: balance;
+}
+h1 { font-size: var(--t-h1); }
+h2 { font-size: var(--t-h2); letter-spacing: -0.015em; }
+/* H3/H4 voltam para sans: serifada só nos níveis altos */
+h3, h4 {
+  font-family: var(--sans);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--s3);
+}
+h3 { font-size: var(--t-h3); }
+h4 { font-size: 1.0625rem; }
+
+p { margin: 0 0 var(--s4); }
+img, svg, video { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration: none; }
+
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: var(--r-sm); }
+::selection { background: var(--lima); color: #12203A; }

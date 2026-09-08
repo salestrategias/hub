@@ -1,0 +1,42 @@
+{
+  "nome": "venda-no-escuro-2026-08-31",
+  "editoria": "Marketing digital",
+  "legenda": "De onde veio a sua última venda? Se a resposta é “não sei”, você está anunciando no escuro.\n\nUTM é a etiqueta que diz qual anúncio, post ou e-mail trouxe cada venda — e configurar leva uma tarde. Arrasta para ver o passo a passo em três movimentos.\n\nO guia completo, com o padrão de nomes pronto para copiar, está no blog da SAL (link na bio).\n\n#marketingdigital #utm #ga4 #analytics #ecommerce",
+  "slides": [
+    {
+      "tipo": "capa",
+      "titulo": "De onde veio a sua última venda? Se não sabe, você anuncia *no escuro*."
+    },
+    {
+      "tipo": "texto",
+      "paragrafos": [
+        "Você posta, impulsiona, manda e-mail e paga anúncio.",
+        "A venda entra… e ninguém sabe qual canal trouxe ela.",
+        "Sem isso, a verba do mês que vem é chute."
+      ]
+    },
+    {
+      "tipo": "passo",
+      "num": "PASSO 01",
+      "titulo": "Etiquete cada link.",
+      "texto": "UTM é uma etiqueta no fim do link que diz de onde o clique veio: origem, canal e campanha. Sem custo, sem ferramenta paga."
+    },
+    {
+      "tipo": "passo",
+      "num": "PASSO 02",
+      "titulo": "Padronize os nomes.",
+      "texto": "Sempre minúsculo, sempre igual: instagram, email, google. “Insta”, “IG” e “instagram” viram três canais diferentes no relatório."
+    },
+    {
+      "tipo": "passo",
+      "num": "PASSO 03",
+      "titulo": "Leia no GA4.",
+      "texto": "Relatórios de aquisição mostram receita por origem e campanha. O canal que não traz venda perde verba no mês seguinte."
+    },
+    {
+      "tipo": "cta",
+      "titulo": "Quer saber o que cada real seu está trazendo?",
+      "sub": "Diagnóstico gratuito no link da bio."
+    }
+  ]
+}

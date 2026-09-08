@@ -1,0 +1,165 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-1",
+      "title": "Capa"
+    },
+    {
+      "file": "Educativo2.dc.html",
+      "x": 1180,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-1",
+      "title": "Passo 01"
+    },
+    {
+      "file": "Educativo3.dc.html",
+      "x": 2360,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-1",
+      "title": "Passo 02"
+    },
+    {
+      "file": "Educativo4.dc.html",
+      "x": 3540,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-1",
+      "title": "Passo 03"
+    },
+    {
+      "file": "EducativoCTA.dc.html",
+      "x": 4720,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-1",
+      "title": "CTA"
+    },
+    {
+      "file": "ListaCapa.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-2",
+      "title": "Capa"
+    },
+    {
+      "file": "ListaItens.dc.html",
+      "x": 1180,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-2",
+      "title": "Itens"
+    },
+    {
+      "file": "ListaDado.dc.html",
+      "x": 2360,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-2",
+      "title": "Dado"
+    },
+    {
+      "file": "ListaCTA.dc.html",
+      "x": 3540,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-2",
+      "title": "CTA"
+    },
+    {
+      "file": "OpiniaoCapa.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-3",
+      "title": "Capa"
+    },
+    {
+      "file": "OpiniaoTexto.dc.html",
+      "x": 1180,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-3",
+      "title": "Texto"
+    },
+    {
+      "file": "OpiniaoFrase.dc.html",
+      "x": 2360,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-3",
+      "title": "Frase"
+    },
+    {
+      "file": "OpiniaoCTA.dc.html",
+      "x": 3540,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-3",
+      "title": "CTA"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "nota-educativo",
+      "x": 0,
+      "y": -220,
+      "w": 620,
+      "page": "page-1",
+      "text": "Modelo Educativo (5 telas): capa com gancho, três passos numerados e CTA.\nTroque editoria, título e textos; mantenha UM grifo lima por capa."
+    },
+    {
+      "id": "nota-lista",
+      "x": 0,
+      "y": -220,
+      "w": 620,
+      "page": "page-2",
+      "text": "Modelo Lista (4 telas): capa numérica, itens com grão de sal, um dado REAL da SAL e CTA.\nNunca inventar estatística: usar número da casa ou cortar a tela do dado."
+    },
+    {
+      "id": "nota-opiniao",
+      "x": 0,
+      "y": -220,
+      "w": 620,
+      "page": "page-3",
+      "text": "Modelo Opinião (4 telas): o único claro (osso), voz do Marcelo em primeira pessoa.\nCitação na capa, argumento curto, frase de efeito e CTA."
+    }
+  ],
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Educativo"
+    },
+    {
+      "id": "page-2",
+      "name": "Lista"
+    },
+    {
+      "id": "page-3",
+      "name": "Opinião"
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-1"
+  }
+}

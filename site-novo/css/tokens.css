@@ -1,0 +1,167 @@
+/* =========================================================
+   SAL — Tokens oficiais do SAL Design System (claude.ai/design)
+   Fonte da verdade: colors_and_type.css do projeto, abr/2026.
+   Fontes servidas localmente em woff2 (variáveis).
+   ========================================================= */
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('../fonts/plus-jakarta-sans-var.woff2') format('woff2');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/inter-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* -------- Roxos da marca -------- */
+  --sal-indigo-900: #1A114A;
+  --sal-indigo-800: #231863;
+  --sal-indigo-700: #2D1D7A;   /* ÂNCORA — indigo profundo primário */
+  --sal-violet-700: #6822C4;
+  --sal-violet-600: #7E30E1;   /* ÂNCORA — violeta elétrico (CTA) */
+  --sal-violet-500: #9656E8;
+  --sal-violet-300: #C9AEF4;
+  --sal-violet-100: #EEE0FB;
+
+  /* -------- Acento lima -------- */
+  --sal-lime-600: #D8E134;
+  --sal-lime-500: #F2FA5A;     /* ÂNCORA — lima oficial */
+  --sal-lime-200: #F9FCAF;
+  --sal-lime-100: #FCFDDB;
+
+  /* -------- Tintas (neutros frios) -------- */
+  --sal-black:   #0E0E0F;      /* ÂNCORA — preto máximo */
+  --sal-ink-900: #222E34;      /* ÂNCORA — corpo (charcoal-teal) */
+  --sal-ink-800: #2D3A41;
+  --sal-ink-700: #3D4A52;
+  --sal-ink-600: #556670;
+  --sal-ink-500: #6E8189;
+  --sal-ink-400: #A9BAC5;      /* ÂNCORA — cool steel */
+  --sal-ink-350: #9FB4B2;      /* ÂNCORA — sage steel */
+  --sal-ink-300: #BDCCD5;
+  --sal-ink-200: #D3DBE8;      /* ÂNCORA — mist blue */
+  --sal-ink-190: #D9E3E1;      /* ÂNCORA — mist sage */
+  --sal-ink-180: #E3EBEE;      /* ÂNCORA — mist cool */
+  --sal-ink-100: #EDF1F4;
+  --sal-ink-50:  #FCFAF7;      /* ÂNCORA — off-white */
+  --sal-paper:   #FCF6EA;      /* ÂNCORA — papel quente */
+  --sal-white:   #FFFFFF;
+
+  /* -------- Estados funcionais -------- */
+  --sal-red-500:   #E63946;
+  --sal-green-500: #2CB179;
+
+  /* -------- Tokens semânticos -------- */
+  --bg:            var(--sal-ink-50);
+  --bg-alt:        var(--sal-paper);
+  --bg-cool:       var(--sal-ink-180);
+  --bg-invert:     var(--sal-indigo-700);
+  --bg-black:      var(--sal-black);
+  --fg:            var(--sal-ink-900);
+  --fg-strong:     var(--sal-black);
+  --fg-muted:      var(--sal-ink-500);
+  --fg-subtle:     var(--sal-ink-400);
+  --fg-invert:     var(--sal-white);
+  --accent:        var(--sal-indigo-700);
+  --accent-hover:  var(--sal-indigo-800);
+  --accent-soft:   var(--sal-violet-100);
+  --accent-bright: var(--sal-violet-600);
+  --accent-bright-hover: var(--sal-violet-700);
+  --spark:         var(--sal-lime-500);
+  --spark-soft:    var(--sal-lime-100);
+  --border:        var(--sal-ink-190);
+  --border-cool:   var(--sal-ink-200);
+  --border-strong: var(--sal-ink-400);
+
+  /* -------- Raio -------- */
+  --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px;
+  --radius-lg: 18px; --radius-xl: 28px; --radius-pill: 999px;
+
+  /* -------- Espaço (grade 4pt) -------- */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px; --space-9: 96px;
+
+  /* -------- Sombras (tingidas de indigo) -------- */
+  --shadow-xs: 0 1px 2px rgba(45, 29, 122, 0.06);
+  --shadow-sm: 0 2px 6px rgba(45, 29, 122, 0.08);
+  --shadow-md: 0 6px 18px rgba(45, 29, 122, 0.10);
+  --shadow-lg: 0 18px 40px rgba(45, 29, 122, 0.14);
+  --shadow-focus: 0 0 0 3px rgba(126, 48, 225, 0.28);
+
+  /* -------- Movimento -------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms; --dur-med: 220ms; --dur-slow: 420ms;
+
+  /* -------- Tipo -------- */
+  --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --fs-display: clamp(44px, 6.4vw, 84px);
+  --fs-h1: clamp(36px, 4.6vw, 56px);
+  --fs-h2: clamp(28px, 3.2vw, 40px);
+  --fs-h3: 24px; --fs-h4: 20px;
+  --fs-lead: 19px; --fs-body: 16px; --fs-sm: 14px; --fs-xs: 12px;
+
+  --lh-tight: 1.05; --lh-snug: 1.22; --lh-body: 1.55; --lh-loose: 1.7;
+  --tracking-tight: -0.02em; --tracking-eyebrow: 0.14em;
+}
+
+/* -------- Base -------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 88px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--fg);
+  background: var(--bg);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--sal-indigo-900);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-snug);
+  margin: 0 0 var(--space-4);
+}
+h1 { font-size: var(--fs-h1); font-weight: 800; line-height: var(--lh-tight); }
+h2 { font-size: var(--fs-h2); font-weight: 800; }
+h3 { font-size: var(--fs-h3); font-weight: 700; }
+h4 { font-size: var(--fs-h4); font-weight: 700; }
+
+.display {
+  font-family: var(--font-display);
+  font-size: var(--fs-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  color: var(--sal-indigo-900);
+}
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent-bright);
+}
+p { margin: 0 0 var(--space-4); }
+.lead { font-size: var(--fs-lead); color: var(--fg-muted); }
+img, svg, video { max-width: 100%; height: auto; display: block; }
+
+a { color: var(--accent-bright); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+a:hover { color: var(--sal-indigo-800); }
+:focus-visible { outline: none; box-shadow: var(--shadow-focus); border-radius: var(--radius-xs); }
+::selection { background: var(--sal-violet-100); color: var(--sal-indigo-900); }

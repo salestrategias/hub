@@ -1,0 +1,45 @@
+{
+  "nome": "ticket-baixo-2026-09-07",
+  "editoria": "Tráfego pago",
+  "legenda": "Anunciar produto barato dá prejuízo? Depende de uma conta — e ela não é em porcentagem.\n\nMargem de 50% parece ótima até virar dinheiro: 50% de R$ 30 são R$ 15 para pagar clique, frete e embalagem. Arrasta para ver a conta em reais e as quatro formas de fazer o ticket baixo compensar.\n\nA análise completa está no blog da SAL (link na bio).\n\n#trafegopago #ecommerce #ticketmedio #margem #metaads",
+  "slides": [
+    {
+      "tipo": "capa",
+      "titulo": "Anunciar produto barato dá prejuízo? Depende de *uma conta*."
+    },
+    {
+      "tipo": "texto",
+      "paragrafos": [
+        "Margem de 50% parece ótima — até virar dinheiro.",
+        "50% de R$ 30 são R$ 15 para pagar clique, frete e embalagem.",
+        "Porcentagem não paga tráfego. Real paga."
+      ]
+    },
+    {
+      "tipo": "passo",
+      "num": "A CONTA",
+      "titulo": "Margem em reais por venda.",
+      "texto": "Ticket vezes margem de contribuição. É esse valor, em reais, que precisa ser maior do que o custo de trazer um cliente."
+    },
+    {
+      "tipo": "lista",
+      "titulo": "Como o ticket baixo compensa:",
+      "itens": [
+        "Kit e leve-3: o clique é o mesmo, o carrinho não.",
+        "Recompra: o segundo pedido vem sem anúncio.",
+        "Frete no preço, não na surpresa da última tela.",
+        "Anuncie o carro-chefe, venda a loja inteira."
+      ]
+    },
+    {
+      "tipo": "citacao",
+      "tema": "osso",
+      "texto": "Quem anuncia produto de R$ 30 não vende produto. Vende *carrinho*."
+    },
+    {
+      "tipo": "cta",
+      "titulo": "Quer saber se a sua conta fecha?",
+      "sub": "Diagnóstico gratuito no link da bio."
+    }
+  ]
+}

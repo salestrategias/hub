@@ -1,0 +1,1 @@
+Card de artigo: `article.artigo > a` com `figure` (capa 16:9), `.artigo-cat` (rótulo coral uppercase), `h3`, resumo e `.artigo-meta` (data + grão de sal + leitura — nunca "·"). Em grade `.artigos` de 3 colunas no desktop. Sem capa, usar `.sem-capa` com a tinta gradiente da casa.

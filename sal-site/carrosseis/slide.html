@@ -1,0 +1,108 @@
+<!doctype html>
+<!-- Renderizador universal de slides de carrossel da SAL (1080×1350).
+     Recebe ?s=<base64url de JSON>: { tipo, editoria, pag, total, ...campos do tipo }.
+     Tipos: capa, capa-foto, passo, lista, dado, citacao, texto, foto, cta.
+     Grifo: *trecho* no texto vira marca-texto lima. Gerado por gerar.mjs. -->
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Slide</title>
+<style>
+  @font-face { font-family: 'Newsreader'; src: url('../public/fonts/newsreader-600.woff2') format('woff2'); font-weight: 200 800; }
+  @font-face { font-family: 'Plus Jakarta Sans'; src: url('../public/fonts/plus-jakarta-sans-var.woff2') format('woff2'); font-weight: 200 800; }
+  @font-face { font-family: 'Inter'; src: url('../public/fonts/inter-var.woff2') format('woff2'); font-weight: 100 900; }
+  html, body { margin: 0; }
+  .slide { position: relative; width: 1080px; height: 1350px; box-sizing: border-box; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: space-between; padding: 88px 84px;
+    background: #0B1526; color: #FFFFFF; font-family: 'Inter', system-ui, sans-serif; }
+  .slide.osso { background: #F1F4FA; color: #12203A; }
+  .topo, .pe { display: flex; justify-content: space-between; align-items: center; position: relative; }
+  .rot { display: flex; align-items: center; gap: 14px; font: 600 22px 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--acento); }
+  .grao { width: 10px; height: 10px; background: var(--acento); transform: rotate(45deg); flex: none; }
+  .graos { display: flex; gap: 16px; }
+  .graos .grao:nth-child(2) { opacity: .6; } .graos .grao:nth-child(3) { opacity: .3; }
+  .marca { display: flex; align-items: center; gap: 20px; }
+  .marca img { height: 52px; display: block; }
+  .marca span { font: 600 22px 'Plus Jakarta Sans', sans-serif; color: var(--suave); border-left: 1px solid var(--linha); padding-left: 20px; }
+  .pag { font: 600 22px 'Plus Jakarta Sans', sans-serif; color: var(--suave2); }
+  .vai { font: 600 26px 'Plus Jakarta Sans', sans-serif; color: var(--acento); }
+  h1 { font: 600 104px/1.07 'Newsreader', Georgia, serif; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+  h2 { font: 600 72px/1.12 'Newsreader', Georgia, serif; letter-spacing: -0.02em; margin: 0 0 32px; text-wrap: balance; }
+  .num { font: 700 26px 'Plus Jakarta Sans', sans-serif; color: var(--acento); letter-spacing: 0.14em; margin: 0 0 28px; }
+  .txt { font: 400 42px/1.55 'Inter', system-ui, sans-serif; color: var(--suave); margin: 0; }
+  .grifo { background: #F6FF74; color: #12203A; padding: 0 16px 8px; margin-inline: -4px;
+    -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .pill { display: inline-flex; background: var(--acento); color: var(--pill-texto);
+    font: 700 36px 'Plus Jakarta Sans', sans-serif; padding: 30px 56px; border-radius: 999px; }
+  .slide { --acento: #FF6B66; --suave: #AEBCD6; --suave2: #7688A6; --linha: #29426B; --pill-texto: #12203A; }
+  .slide.osso { --acento: #C43C3C; --suave: #46587A; --suave2: #6E80A0; --linha: #D9E1EF; --pill-texto: #FFFFFF; }
+  /* fatias com foto: corte reto, sem degradê (regra da casa) */
+  .slide.tem-foto { padding: 0; }
+  .foto-meia { height: 660px; flex: none; }
+  .foto-meia img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+  .tem-foto .miolo { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 64px 84px 88px; }
+  .foto-cheia { position: absolute; inset: 0; }
+  .foto-cheia img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .faixa { position: absolute; left: 0; right: 0; bottom: 0; background: #0B1526; padding: 64px 84px 88px;
+    display: flex; flex-direction: column; gap: 48px; }
+</style></head>
+<body>
+<div class="slide" id="raiz"></div>
+<script>
+  const dados = JSON.parse(decodeURIComponent(escape(atob((new URLSearchParams(location.search).get('s') || '').replace(/-/g, '+').replace(/_/g, '/')))));
+  const esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const grifar = (t) => esc(t).replace(/\*([^*]+)\*/g, '<span class="grifo">$1</span>');
+  const raiz = document.getElementById('raiz');
+  const osso = dados.tema === 'osso';
+  if (osso) raiz.classList.add('osso');
+  const wm = osso ? 'assets/sal-wordmark-tinta.svg' : 'assets/sal-wordmark.svg';
+  const rot = `<span class="rot"><i class="grao"></i>${esc(dados.editoria || 'Blog da SAL')}</span>`;
+  const graos = '<span class="graos"><i class="grao"></i><i class="grao"></i><i class="grao"></i></span>';
+  const marca = `<div class="marca"><img src="${wm}" alt="SAL"><span>@salestrategias</span></div>`;
+  const peDir = dados.pag === 1 ? '<span class="vai">arraste →</span>'
+    : `<span class="pag">${String(dados.pag).padStart(2, '0')}/${String(dados.total).padStart(2, '0')}</span>`;
+  const topo = `<div class="topo">${rot}${graos}</div>`;
+  const pe = `<div class="pe">${marca}${peDir}</div>`;
+
+  const t = dados.tipo;
+  if (t === 'capa') {
+    raiz.innerHTML = `${topo}<h1${dados.titulo.length > 70 ? ' style="font-size: 92px;"' : ''}>${grifar(dados.titulo)}</h1>${pe}`;
+  } else if (t === 'capa-foto' || t === 'interna-foto') {
+    raiz.classList.add('tem-foto');
+    const miolo = t === 'capa-foto'
+      ? `<h1 style="font-size: 84px;">${grifar(dados.titulo)}</h1>`
+      : `<div><p class="num">${esc(dados.num || '')}</p><h2 style="font-size: 64px;">${grifar(dados.titulo)}</h2>${dados.texto ? `<p class="txt" style="font-size: 38px;">${grifar(dados.texto)}</p>` : ''}</div>`;
+    raiz.innerHTML = `<div class="foto-meia"><img src="assets/${esc(dados.imagem)}" alt=""${dados.foco ? ` style="object-position: ${esc(dados.foco)};"` : ''}></div>
+      <div class="miolo">${miolo}${pe}</div>`;
+  } else if (t === 'passo') {
+    raiz.innerHTML = `${topo}<div><p class="num">${esc(dados.num)}</p><h2>${grifar(dados.titulo)}</h2>
+      <p class="txt" style="max-width: 860px;">${grifar(dados.texto)}</p></div>${pe}`;
+  } else if (t === 'lista') {
+    const linhas = dados.itens.map((i) =>
+      `<div style="display: flex; align-items: flex-start; gap: 28px;"><i class="grao" style="margin-top: 26px;"></i>
+       <p class="txt" style="color: ${osso ? '#12203A' : '#FFFFFF'}; font-weight: 600;">${grifar(i)}</p></div>`).join('');
+    raiz.innerHTML = `${topo}<div>${dados.titulo ? `<h2>${grifar(dados.titulo)}</h2>` : ''}
+      <div style="display: flex; flex-direction: column; gap: 44px;">${linhas}</div></div>${pe}`;
+  } else if (t === 'dado') {
+    raiz.innerHTML = `${topo}<div><p style="font: 800 260px/1 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.02em; color: var(--acento); margin: 0 0 36px;">${esc(dados.numero)}</p>
+      <h2 style="margin: 0; max-width: 820px;">${grifar(dados.texto)}</h2></div>${pe}`;
+  } else if (t === 'citacao') {
+    raiz.innerHTML = `${topo}<div><h1 style="font-size: 92px;">&ldquo;${grifar(dados.texto)}&rdquo;</h1>
+      <p class="txt" style="margin-top: 48px; font-weight: 600; color: ${osso ? '#12203A' : '#FFFFFF'};">${esc(dados.autor || 'Marcelo da Costa Freitas')}<br>
+      <span style="font-weight: 400; color: var(--suave);">${esc(dados.cargo || 'Fundador da SAL Estratégias de Marketing')}</span></p></div>${pe}`;
+  } else if (t === 'texto') {
+    raiz.innerHTML = `${topo}<div style="display: flex; flex-direction: column; gap: 40px;">
+      ${dados.paragrafos.map((p) => `<p class="txt" style="font-size: 46px; color: ${osso ? '#12203A' : '#FFFFFF'};">${grifar(p)}</p>`).join('')}</div>${pe}`;
+  } else if (t === 'foto') {
+    raiz.classList.add('tem-foto');
+    raiz.innerHTML = `<div class="foto-cheia"><img src="assets/${esc(dados.imagem)}" alt=""></div>
+      <div class="faixa"><h2 style="margin: 0; font-size: 60px;">${grifar(dados.frase)}</h2>${pe}</div>`;
+  } else if (t === 'cta') {
+    raiz.innerHTML = `${topo}<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 56px;">
+      <h1 style="font-size: 88px;">${grifar(dados.titulo)}</h1>
+      <span class="pill">${esc(dados.botao || 'Contrate a SAL')}</span>
+      <p class="txt">${esc(dados.sub || 'Diagnóstico gratuito no link da bio.')}</p></div>${pe}`;
+  } else {
+    raiz.innerHTML = `${topo}<h1>Tipo desconhecido: ${esc(t)}</h1>${pe}`;
+  }
+  document.title = 'ok';
+</script>
+</body></html>

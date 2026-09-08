@@ -1,0 +1,1 @@
+Card de serviço: `<a class="servico">` com ícone SVG de traço (stroke coral 1.5, 28px, sem preenchimento), `h3` sans, parágrafo curto e `.vai` no rodapé. Em grade `.servicos`. Os dois primeiros da grade ganham borda coral e tinta radial automaticamente (nth-child no CSS). Serviço sem página vai como `<article class="servico">` sem `.vai`.

@@ -1,0 +1,1 @@
+Prova social por logotipo: grade `.clientes` de chips brancos `.cliente-logo` (112px de altura, borda `--line`, raio `--r`) com o logo em `img` de até 68px de altura. Sem nome nem descrição embaixo — o logo fala sozinho. Fundo branco de propósito: logos de terceiros mantêm as cores originais.

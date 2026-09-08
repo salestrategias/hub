@@ -1,0 +1,45 @@
+{
+  "nome": "perto-de-mim-2026-08-24",
+  "editoria": "SEO Local",
+  "legenda": "Não aparece no “perto de mim”? Para o cliente, a sua loja não existe.\n\nO celular decide onde o seu cliente compra — e o Google só mostra três lojas no mapa. Arrasta para ver o que ele pesa na escolha e por onde começar hoje.\n\nO guia completo está no blog da SAL (link na bio).\n\n#seolocal #googlemeunegocio #pertodemim #varejo #negociolocal",
+  "slides": [
+    {
+      "tipo": "capa",
+      "titulo": "Não aparece no “perto de mim”? Sua loja *não existe*."
+    },
+    {
+      "tipo": "texto",
+      "paragrafos": [
+        "O celular decide onde o seu cliente compra.",
+        "Ele busca “farmácia perto de mim” e o Google mostra três lojas no mapa.",
+        "Se a sua não está ali, a venda acabou de ir para o vizinho."
+      ]
+    },
+    {
+      "tipo": "lista",
+      "titulo": "O que o Google pesa:",
+      "itens": [
+        "Perfil da Empresa completo e ativo.",
+        "Avaliações recentes — e respondidas.",
+        "Categoria certa e horário atualizado.",
+        "Endereço igual no site, no mapa e nas redes."
+      ]
+    },
+    {
+      "tipo": "passo",
+      "num": "POR ONDE COMEÇAR",
+      "titulo": "Domine o seu quadrado.",
+      "texto": "Antes de querer a cidade inteira, apareça no seu bairro: um post por semana no perfil, foto nova e toda avaliação respondida."
+    },
+    {
+      "tipo": "foto",
+      "imagem": "starbucks-inauguracao.webp",
+      "frase": "A fila na porta começa no *mapa*."
+    },
+    {
+      "tipo": "cta",
+      "titulo": "Quer aparecer para quem está a 5 minutos de você?",
+      "sub": "Diagnóstico gratuito no link da bio."
+    }
+  ]
+}
