@@ -67,7 +67,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 58 | Anunciar produto de ticket baixo compensa? A conta que decide | anunciar produto barato compensa | TP | 15 | MOFU | PUBLICADO 2026-09-05 https://www.salestrategias.com.br/anunciar-produto-ticket-baixo-compensa/ |
 | 59 | Fluxo de pós-venda: o que enviar depois da compra | fluxo pos venda e-commerce | CRM | 14 | MOFU | PUBLICADO 2026-09-06 https://www.salestrategias.com.br/fluxo-de-pos-venda/ |
 | 60 | Pesquisa de palavras-chave para loja virtual: guia prático | pesquisa de palavras chave loja virtual | SEO | 13 | MOFU | PUBLICADO 2026-09-07 https://www.salestrategias.com.br/pesquisa-palavras-chave-loja-virtual/ |
-| 61 | Black Friday 2026 (27/11): o cronograma de 12 semanas começa agora | quando começar a preparar black friday | SAZ | 14 | MOFU | PENDENTE |
+| 61 | Black Friday 2026 (27/11): o cronograma de 12 semanas começa agora | quando começar a preparar black friday | SAZ | 14 | MOFU | PUBLICADO 2026-09-08 https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/ |
 | 62 | Teste A/B com pouco tráfego: o que dá pra testar numa loja pequena | teste ab loja virtual pouco trafego | CRO | 14 | MOFU | PENDENTE |
 | 63 | Full do Mercado Livre: quando compensa (e quando é armadilha) | full mercado livre vale a pena | MKT | 14 | MOFU | PENDENTE |
 | 64 | Dashboard essencial da loja: as métricas que importam de verdade | metricas loja virtual dashboard | DAD | 29 | TOFU | PENDENTE |

@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="pt-BR" prefix="og: https://ogp.me/ns#">
+<head><meta charset="UTF-8"><script>if(navigator.userAgent.match(/MSIE|Internet Explorer/i)||navigator.userAgent.match(/Trident\/7\..*?rv:11/i)){var href=document.location.href;if(!href.match(/[?&]nowprocket/)){if(href.indexOf("?")==-1){if(href.indexOf("#")==-1){document.location.href=href+"?nowprocket=1"}else{document.location.href=href.replace("#","?nowprocket=1#")}}else{if(href.indexOf("#")==-1){document.location.href=href+"&nowprocket=1"}else{document.location.href=href.replace("#","&nowprocket=1#")}}}}</script><script>(()=>{class RocketLazyLoadScripts{constructor(){this.v="2.0.4",this.userEvents=["keydown","keyup","mousedown","mouseup","mousemove","mouseover","mouseout","touchmove","touchstart","touchend","touchcancel","wheel","click","dblclick","input"],this.attributeEvents=["onblur","onclick","oncontextmenu","ondblclick","onfocus","onmousedown","onmouseenter","onmouseleave","onmousemove","onmouseout","onmouseover","onmouseup","onmousewheel","onscroll","onsubmit"]}async t(){this.i(),this.o(),/iP(ad|hone)/.test(navigator.userAgent)&&this.h(),this.u(),this.l(this),this.m(),this.k(this),this.p(this),this._(),await Promise.all([this.R(),this.L()]),this.lastBreath=Date.now(),this.S(this),this.P(),this.D(),this.O(),this.M(),await this.C(this.delayedScripts.normal),await this.C(this.delayedScripts.defer),await this.C(this.delayedScripts.async),await this.T(),await this.F(),await this.j(),await this.A(),window.dispatchEvent(new Event("rocket-allScriptsLoaded")),this.everythingLoaded=!0,this.lastTouchEnd&&await new Promise(t=>setTimeout(t,500-Date.now()+this.lastTouchEnd)),this.I(),this.H(),this.U(),this.W()}i(){this.CSPIssue=sessionStorage.getItem("rocketCSPIssue"),document.addEventListener("securitypolicyviolation",t=>{this.CSPIssue||"script-src-elem"!==t.violatedDirective||"data"!==t.blockedURI||(this.CSPIssue=!0,sessionStorage.setItem("rocketCSPIssue",!0))},{isRocket:!0})}o(){window.addEventListener("pageshow",t=>{this.persisted=t.persisted,this.realWindowLoadedFired=!0},{isRocket:!0}),window.addEventListener("pagehide",()=>{this.onFirstUserAction=null},{isRocket:!0})}h(){let t;function e(e){t=e}window.addEventListener("touchstart",e,{isRocket:!0}),window.addEventListener("touchend",function i(o){o.changedTouches[0]&&t.changedTouches[0]&&Math.abs(o.changedTouches[0].pageX-t.changedTouches[0].pageX)<10&&Math.abs(o.changedTouches[0].pageY-t.changedTouches[0].pageY)<10&&o.timeStamp-t.timeStamp<200&&(window.removeEventListener("touchstart",e,{isRocket:!0}),window.removeEventListener("touchend",i,{isRocket:!0}),"INPUT"===o.target.tagName&&"text"===o.target.type||(o.target.dispatchEvent(new TouchEvent("touchend",{target:o.target,bubbles:!0})),o.target.dispatchEvent(new MouseEvent("mouseover",{target:o.target,bubbles:!0})),o.target.dispatchEvent(new PointerEvent("click",{target:o.target,bubbles:!0,cancelable:!0,detail:1,clientX:o.changedTouches[0].clientX,clientY:o.changedTouches[0].clientY})),event.preventDefault()))},{isRocket:!0})}q(t){this.userActionTriggered||("mousemove"!==t.type||this.firstMousemoveIgnored?"keyup"===t.type||"mouseover"===t.type||"mouseout"===t.type||(this.userActionTriggered=!0,this.onFirstUserAction&&this.onFirstUserAction()):this.firstMousemoveIgnored=!0),"click"===t.type&&t.preventDefault(),t.stopPropagation(),t.stopImmediatePropagation(),"touchstart"===this.lastEvent&&"touchend"===t.type&&(this.lastTouchEnd=Date.now()),"click"===t.type&&(this.lastTouchEnd=0),this.lastEvent=t.type,t.composedPath&&t.composedPath()[0].getRootNode()instanceof ShadowRoot&&(t.rocketTarget=t.composedPath()[0]),this.savedUserEvents.push(t)}u(){this.savedUserEvents=[],this.userEventHandler=this.q.bind(this),this.userEvents.forEach(t=>window.addEventListener(t,this.userEventHandler,{passive:!1,isRocket:!0})),document.addEventListener("visibilitychange",this.userEventHandler,{isRocket:!0})}U(){this.userEvents.forEach(t=>window.removeEventListener(t,this.userEventHandler,{passive:!1,isRocket:!0})),document.removeEventListener("visibilitychange",this.userEventHandler,{isRocket:!0}),this.savedUserEvents.forEach(t=>{(t.rocketTarget||t.target).dispatchEvent(new window[t.constructor.name](t.type,t))})}m(){const t="return false",e=Array.from(this.attributeEvents,t=>"data-rocket-"+t),i="["+this.attributeEvents.join("],[")+"]",o="[data-rocket-"+this.attributeEvents.join("],[data-rocket-")+"]",s=(e,i,o)=>{o&&o!==t&&(e.setAttribute("data-rocket-"+i,o),e["rocket"+i]=new Function("event",o),e.setAttribute(i,t))};new MutationObserver(t=>{for(const n of t)"attributes"===n.type&&(n.attributeName.startsWith("data-rocket-")||this.everythingLoaded?n.attributeName.startsWith("data-rocket-")&&this.everythingLoaded&&this.N(n.target,n.attributeName.substring(12)):s(n.target,n.attributeName,n.target.getAttribute(n.attributeName))),"childList"===n.type&&n.addedNodes.forEach(t=>{if(t.nodeType===Node.ELEMENT_NODE)if(this.everythingLoaded)for(const i of[t,...t.querySelectorAll(o)])for(const t of i.getAttributeNames())e.includes(t)&&this.N(i,t.substring(12));else for(const e of[t,...t.querySelectorAll(i)])for(const t of e.getAttributeNames())this.attributeEvents.includes(t)&&s(e,t,e.getAttribute(t))})}).observe(document,{subtree:!0,childList:!0,attributeFilter:[...this.attributeEvents,...e]})}I(){this.attributeEvents.forEach(t=>{document.querySelectorAll("[data-rocket-"+t+"]").forEach(e=>{this.N(e,t)})})}N(t,e){const i=t.getAttribute("data-rocket-"+e);i&&(t.setAttribute(e,i),t.removeAttribute("data-rocket-"+e))}k(t){Object.defineProperty(HTMLElement.prototype,"onclick",{get(){return this.rocketonclick||null},set(e){this.rocketonclick=e,this.setAttribute(t.everythingLoaded?"onclick":"data-rocket-onclick","this.rocketonclick(event)")}})}S(t){function e(e,i){let o=e[i];e[i]=null,Object.defineProperty(e,i,{get:()=>o,set(s){t.everythingLoaded?o=s:e["rocket"+i]=o=s}})}e(document,"onreadystatechange"),e(window,"onload"),e(window,"onpageshow");try{Object.defineProperty(document,"readyState",{get:()=>t.rocketReadyState,set(e){t.rocketReadyState=e},configurable:!0}),document.readyState="loading"}catch(t){console.log("WPRocket DJE readyState conflict, bypassing")}}l(t){this.originalAddEventListener=EventTarget.prototype.addEventListener,this.originalRemoveEventListener=EventTarget.prototype.removeEventListener,this.savedEventListeners=[],EventTarget.prototype.addEventListener=function(e,i,o){o&&o.isRocket||!t.B(e,this)&&!t.userEvents.includes(e)||t.B(e,this)&&!t.userActionTriggered||e.startsWith("rocket-")||t.everythingLoaded?t.originalAddEventListener.call(this,e,i,o):(t.savedEventListeners.push({target:this,remove:!1,type:e,func:i,options:o}),"mouseenter"!==e&&"mouseleave"!==e||t.originalAddEventListener.call(this,e,t.savedUserEvents.push,o))},EventTarget.prototype.removeEventListener=function(e,i,o){o&&o.isRocket||!t.B(e,this)&&!t.userEvents.includes(e)||t.B(e,this)&&!t.userActionTriggered||e.startsWith("rocket-")||t.everythingLoaded?t.originalRemoveEventListener.call(this,e,i,o):t.savedEventListeners.push({target:this,remove:!0,type:e,func:i,options:o})}}J(t,e){this.savedEventListeners=this.savedEventListeners.filter(i=>{let o=i.type,s=i.target||window;return e!==o||t!==s||(this.B(o,s)&&(i.type="rocket-"+o),this.$(i),!1)})}H(){EventTarget.prototype.addEventListener=this.originalAddEventListener,EventTarget.prototype.removeEventListener=this.originalRemoveEventListener,this.savedEventListeners.forEach(t=>this.$(t))}$(t){t.remove?this.originalRemoveEventListener.call(t.target,t.type,t.func,t.options):this.originalAddEventListener.call(t.target,t.type,t.func,t.options)}p(t){let e;function i(e){return t.everythingLoaded?e:e.split(" ").map(t=>"load"===t||t.startsWith("load.")?"rocket-jquery-load":t).join(" ")}function o(o){function s(e){const s=o.fn[e];o.fn[e]=o.fn.init.prototype[e]=function(){return this[0]===window&&t.userActionTriggered&&("string"==typeof arguments[0]||arguments[0]instanceof String?arguments[0]=i(arguments[0]):"object"==typeof arguments[0]&&Object.keys(arguments[0]).forEach(t=>{const e=arguments[0][t];delete arguments[0][t],arguments[0][i(t)]=e})),s.apply(this,arguments),this}}if(o&&o.fn&&!t.allJQueries.includes(o)){const e={DOMContentLoaded:[],"rocket-DOMContentLoaded":[]};for(const t in e)document.addEventListener(t,()=>{e[t].forEach(t=>t())},{isRocket:!0});o.fn.ready=o.fn.init.prototype.ready=function(i){function s(){parseInt(o.fn.jquery)>2?setTimeout(()=>i.bind(document)(o)):i.bind(document)(o)}return"function"==typeof i&&(t.realDomReadyFired?!t.userActionTriggered||t.fauxDomReadyFired?s():e["rocket-DOMContentLoaded"].push(s):e.DOMContentLoaded.push(s)),o([])},s("on"),s("one"),s("off"),t.allJQueries.push(o)}e=o}t.allJQueries=[],o(window.jQuery),Object.defineProperty(window,"jQuery",{get:()=>e,set(t){o(t)}})}P(){const t=new Map;document.write=document.writeln=function(e){const i=document.currentScript,o=document.createRange(),s=i.parentElement;let n=t.get(i);void 0===n&&(n=i.nextSibling,t.set(i,n));const c=document.createDocumentFragment();o.setStart(c,0),c.appendChild(o.createContextualFragment(e)),s.insertBefore(c,n)}}async R(){return new Promise(t=>{this.userActionTriggered?t():this.onFirstUserAction=t})}async L(){return new Promise(t=>{document.addEventListener("DOMContentLoaded",()=>{this.realDomReadyFired=!0,t()},{isRocket:!0})})}async j(){return this.realWindowLoadedFired?Promise.resolve():new Promise(t=>{window.addEventListener("load",t,{isRocket:!0})})}M(){this.pendingScripts=[];this.scriptsMutationObserver=new MutationObserver(t=>{for(const e of t)e.addedNodes.forEach(t=>{"SCRIPT"!==t.tagName||t.noModule||t.isWPRocket||this.pendingScripts.push({script:t,promise:new Promise(e=>{const i=()=>{const i=this.pendingScripts.findIndex(e=>e.script===t);i>=0&&this.pendingScripts.splice(i,1),e()};t.addEventListener("load",i,{isRocket:!0}),t.addEventListener("error",i,{isRocket:!0}),setTimeout(i,1e3)})})})}),this.scriptsMutationObserver.observe(document,{childList:!0,subtree:!0})}async F(){await this.X(),this.pendingScripts.length?(await this.pendingScripts[0].promise,await this.F()):this.scriptsMutationObserver.disconnect()}D(){this.delayedScripts={normal:[],async:[],defer:[]},document.querySelectorAll("script[type$=rocketlazyloadscript]").forEach(t=>{t.hasAttribute("data-rocket-src")?t.hasAttribute("async")&&!1!==t.async?this.delayedScripts.async.push(t):t.hasAttribute("defer")&&!1!==t.defer||"module"===t.getAttribute("data-rocket-type")?this.delayedScripts.defer.push(t):this.delayedScripts.normal.push(t):this.delayedScripts.normal.push(t)})}async _(){await this.L();let t=[];document.querySelectorAll("script[type$=rocketlazyloadscript][data-rocket-src]").forEach(e=>{let i=e.getAttribute("data-rocket-src");if(i&&!i.startsWith("data:")){i.startsWith("//")&&(i=location.protocol+i);try{const o=new URL(i).origin;o!==location.origin&&t.push({src:o,crossOrigin:e.crossOrigin||"module"===e.getAttribute("data-rocket-type")})}catch(t){}}}),t=[...new Map(t.map(t=>[JSON.stringify(t),t])).values()],this.Y(t,"preconnect")}async G(t){if(await this.K(),!0!==t.noModule||!("noModule"in HTMLScriptElement.prototype))return new Promise(e=>{let i;function o(){(i||t).setAttribute("data-rocket-status","executed"),e()}try{if(navigator.userAgent.includes("Firefox/")||""===navigator.vendor||this.CSPIssue)i=document.createElement("script"),[...t.attributes].forEach(t=>{let e=t.nodeName;"type"!==e&&("data-rocket-type"===e&&(e="type"),"data-rocket-src"===e&&(e="src"),i.setAttribute(e,t.nodeValue))}),t.text&&(i.text=t.text),t.nonce&&(i.nonce=t.nonce),i.hasAttribute("src")?(i.addEventListener("load",o,{isRocket:!0}),i.addEventListener("error",()=>{i.setAttribute("data-rocket-status","failed-network"),e()},{isRocket:!0}),setTimeout(()=>{i.isConnected||e()},1)):(i.text=t.text,o()),i.isWPRocket=!0,t.parentNode.replaceChild(i,t);else{const i=t.getAttribute("data-rocket-type"),s=t.getAttribute("data-rocket-src");i?(t.type=i,t.removeAttribute("data-rocket-type")):t.removeAttribute("type"),t.addEventListener("load",o,{isRocket:!0}),t.addEventListener("error",i=>{this.CSPIssue&&i.target.src.startsWith("data:")?(console.log("WPRocket: CSP fallback activated"),t.removeAttribute("src"),this.G(t).then(e)):(t.setAttribute("data-rocket-status","failed-network"),e())},{isRocket:!0}),s?(t.fetchPriority="high",t.removeAttribute("data-rocket-src"),t.src=s):t.src="data:text/javascript;base64,"+window.btoa(unescape(encodeURIComponent(t.text)))}}catch(i){t.setAttribute("data-rocket-status","failed-transform"),e()}});t.setAttribute("data-rocket-status","skipped")}async C(t){const e=t.shift();return e?(e.isConnected&&await this.G(e),this.C(t)):Promise.resolve()}O(){this.Y([...this.delayedScripts.normal,...this.delayedScripts.defer,...this.delayedScripts.async],"preload")}Y(t,e){this.trash=this.trash||[];let i=!0;var o=document.createDocumentFragment();t.forEach(t=>{const s=t.getAttribute&&t.getAttribute("data-rocket-src")||t.src;if(s&&!s.startsWith("data:")){const n=document.createElement("link");n.href=s,n.rel=e,"preconnect"!==e&&(n.as="script",n.fetchPriority=i?"high":"low"),t.getAttribute&&"module"===t.getAttribute("data-rocket-type")&&(n.crossOrigin=!0),t.crossOrigin&&(n.crossOrigin=t.crossOrigin),t.integrity&&(n.integrity=t.integrity),t.nonce&&(n.nonce=t.nonce),o.appendChild(n),this.trash.push(n),i=!1}}),document.head.appendChild(o)}W(){this.trash.forEach(t=>t.remove())}async T(){try{document.readyState="interactive"}catch(t){}this.fauxDomReadyFired=!0;try{await this.K(),this.J(document,"readystatechange"),document.dispatchEvent(new Event("rocket-readystatechange")),await this.K(),document.rocketonreadystatechange&&document.rocketonreadystatechange(),await this.K(),this.J(document,"DOMContentLoaded"),document.dispatchEvent(new Event("rocket-DOMContentLoaded")),await this.K(),this.J(window,"DOMContentLoaded"),window.dispatchEvent(new Event("rocket-DOMContentLoaded"))}catch(t){console.error(t)}}async A(){try{document.readyState="complete"}catch(t){}try{await this.K(),this.J(document,"readystatechange"),document.dispatchEvent(new Event("rocket-readystatechange")),await this.K(),document.rocketonreadystatechange&&document.rocketonreadystatechange(),await this.K(),this.J(window,"load"),window.dispatchEvent(new Event("rocket-load")),await this.K(),window.rocketonload&&window.rocketonload(),await this.K(),this.allJQueries.forEach(t=>t(window).trigger("rocket-jquery-load")),await this.K(),this.J(window,"pageshow");const t=new Event("rocket-pageshow");t.persisted=this.persisted,window.dispatchEvent(t),await this.K(),window.rocketonpageshow&&window.rocketonpageshow({persisted:this.persisted})}catch(t){console.error(t)}}async K(){Date.now()-this.lastBreath>45&&(await this.X(),this.lastBreath=Date.now())}async X(){return document.hidden?new Promise(t=>setTimeout(t)):new Promise(t=>requestAnimationFrame(t))}B(t,e){return e===document&&"readystatechange"===t||(e===document&&"DOMContentLoaded"===t||(e===window&&"DOMContentLoaded"===t||(e===window&&"load"===t||e===window&&"pageshow"===t)))}static run(){(new RocketLazyLoadScripts).t()}}RocketLazyLoadScripts.run()})();</script>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+	<link rel="apple-touch-icon" href="/img/sal-touch.png">
+	<meta name="theme-color" content="#0B1526">
+	<script type="rocketlazyloadscript">
+	(function () {
+		try {
+			if (localStorage.getItem('tema') === 'claro') {
+				document.documentElement.setAttribute('data-tema', 'claro');
+				var m = document.querySelector('meta[name="theme-color"]');
+				if (m) m.setAttribute('content', '#F7F9FC');
+			}
+		} catch (e) {}
+	})();
+	</script>
+	<link rel="preload" href="https://www.salestrategias.com.br/wp-content/themes/sal-blog/fonts/newsreader-600.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="https://www.salestrategias.com.br/wp-content/themes/sal-blog/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+	<!-- Tag do Google (gtag.js) modo de consentimento dataLayer adicionado pelo Site Kit -->
+<script id="google_gtagjs-js-consent-mode-data-layer">
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+gtag('consent', 'default', {"ad_personalization":"denied","ad_storage":"denied","ad_user_data":"denied","analytics_storage":"denied","functionality_storage":"denied","security_storage":"denied","personalization_storage":"denied","region":["AT","BE","BG","CH","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IS","IT","LI","LT","LU","LV","MT","NL","NO","PL","PT","RO","SE","SI","SK"],"wait_for_update":500});
+window._googlesitekitConsentCategoryMap = {"statistics":["analytics_storage"],"marketing":["ad_storage","ad_user_data","ad_personalization"],"functional":["functionality_storage","security_storage"],"preferences":["personalization_storage"]};
+window._googlesitekitConsents = {"ad_personalization":"denied","ad_storage":"denied","ad_user_data":"denied","analytics_storage":"denied","functionality_storage":"denied","security_storage":"denied","personalization_storage":"denied","region":["AT","BE","BG","CH","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IS","IT","LI","LT","LU","LV","MT","NL","NO","PL","PT","RO","SE","SI","SK"],"wait_for_update":500};
+</script>
+<!-- Fim da tag do Google (gtag.js) modo de consentimento dataLayer adicionado pelo Site Kit -->
+
+<!-- Otimização dos mecanismos de pesquisa pelo Rank Math PRO - https://rankmath.com/ -->
+<title>Quando Começar a Preparar a Black Friday 2026: Guia</title>
+<meta name="description" content="Descubra quando começar a preparar a Black Friday 2026 (27/11): cronograma de 12 semanas, do estoque ao e-mail. Comece agora e chegue pronto para vender."/>
+<meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large"/>
+<link rel="canonical" href="https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Quando Começar a Preparar a Black Friday 2026: Guia" />
+<meta property="og:description" content="Descubra quando começar a preparar a Black Friday 2026 (27/11): cronograma de 12 semanas, do estoque ao e-mail. Comece agora e chegue pronto para vender." />
+<meta property="og:url" content="https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/" />
+<meta property="og:site_name" content="SAL Estratégias de Marketing | Assessoria de MKT Digital" />
+<meta property="article:publisher" content="https://www.facebook.com/salnamedidacerta/" />
+<meta property="article:tag" content="black friday" />
+<meta property="article:tag" content="Checkout" />
+<meta property="article:tag" content="e-commerce" />
+<meta property="article:tag" content="estoque" />
+<meta property="article:tag" content="Margem de Contribuição" />
+<meta property="article:tag" content="sazonalidade" />
+<meta property="article:section" content="E-commerce" />
+<meta property="og:image" content="https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-social-quando-comecar-preparar-black-friday-1.png" />
+<meta property="og:image:secure_url" content="https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-social-quando-comecar-preparar-black-friday-1.png" />
+<meta property="og:image:width" content="1376" />
+<meta property="og:image:height" content="768" />
+<meta property="og:image:alt" content="Quando Começar a Preparar a Black Friday 2026: o Cronograma de 12 Semanas" />
+<meta property="og:image:type" content="image/png" />
+<meta property="article:published_time" content="2026-09-08T08:07:56-03:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Quando Começar a Preparar a Black Friday 2026: Guia" />
+<meta name="twitter:description" content="Descubra quando começar a preparar a Black Friday 2026 (27/11): cronograma de 12 semanas, do estoque ao e-mail. Comece agora e chegue pronto para vender." />
+<meta name="twitter:image" content="https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-social-quando-comecar-preparar-black-friday-1.png" />
+<meta name="twitter:label1" content="Escrito por" />
+<meta name="twitter:data1" content="Marcelo Freitas" />
+<meta name="twitter:label2" content="Tempo para leitura" />
+<meta name="twitter:data2" content="9 minutos" />
+<script type="application/ld+json" class="rank-math-schema-pro">{"@context":"https://schema.org","@graph":[[{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Por Que Come\u00e7ar 12 Semanas Antes da Black Friday","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#por-que-comecar-12-semanas-antes"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"O Cronograma Completo: Semana a Semana","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#cronograma-completo-semana-a-semana"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Semanas 12 a 9: Fornecedor, Estoque e Margem","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#semanas-12-a-9-fornecedor-estoque-e-margem"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Semanas 8 a 5: Testes T\u00e9cnicos e Aquecimento de Base","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#semanas-8-a-5-testes-tecnicos-e-aquecimento-de-base"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Semanas 4 a 1: Execu\u00e7\u00e3o e Ajuste Fino","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#semanas-4-a-1-execucao-e-ajuste-fino"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Como Precificar o Desconto sem Destruir a Margem","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#como-precificar-o-desconto-sem-destruir-a-margem"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Checklist T\u00e9cnico: o Que Trava a Loja no Pico","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#checklist-tecnico-o-que-trava-a-loja-no-pico"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"E-mail e WhatsApp: Como Aquecer a Base sem Cansar o Cliente","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#email-e-whatsapp-como-aquecer-a-base-sem-cansar-o-cliente"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Exemplo Pr\u00e1tico: o Cronograma Aplicado a 3 Tipos de Loja","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#exemplo-pratico-o-cronograma-aplicado-a-3-tipos-de-loja"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Erros Comuns que Atrasam a Black Friday","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#erros-comuns-que-atrasam-a-black-friday"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Perguntas Frequentes sobre a Black Friday 2026","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#perguntas-frequentes-sobre-a-black-friday-2026"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Preciso mesmo de 12 semanas ou d\u00e1 para fazer em menos tempo?","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#preciso-mesmo-de-12-semanas-ou-da-para-fazer-em-menos-tempo"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Quando devo mandar o primeiro e-mail de Black Friday?","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#quando-devo-mandar-o-primeiro-e-mail-de-black-friday"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Vale a pena participar da Black Friday se minha loja \u00e9 pequena?","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#vale-a-pena-participar-da-black-friday-se-minha-loja-e-pequena"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Como evito cair no Black Fraude (subir o pre\u00e7o antes para descer na promo\u00e7\u00e3o)?","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#como-evito-cair-no-black-fraude"},{"@context":"https://schema.org","@type":"SiteNavigationElement","@id":"#rank-math-toc","name":"Preciso negociar frete com a transportadora antes da Black Friday?","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#preciso-negociar-frete-com-a-transportadora-antes-da-black-friday"}],{"@type":"Place","@id":"https://www.salestrategias.com.br/#place","address":{"@type":"PostalAddress","streetAddress":"Rua dos Andradas, 369, 302","addressLocality":"Porto Alegre","addressRegion":"Rio Grande do Sul","postalCode":"90020-000","addressCountry":"BR"}},{"@type":["ProfessionalService","Organization"],"@id":"https://www.salestrategias.com.br/#organization","name":"SAL Estrat\u00e9gias de Marketing Digital","url":"https://salestrategias.com.br","sameAs":["https://www.facebook.com/salnamedidacerta/","https://instagram.com/salestrategias","https://www.linkedin.com/company/salagenciademarketing"],"email":"contato@salestrategias.com.br","address":{"@type":"PostalAddress","streetAddress":"Rua dos Andradas, 369, 302","addressLocality":"Porto Alegre","addressRegion":"Rio Grande do Sul","postalCode":"90020-000","addressCountry":"BR"},"logo":{"@type":"ImageObject","@id":"https://www.salestrategias.com.br/#logo","url":"https://salestrategias.com.br/wp-content/uploads/2025/11/logo-sal-estrategias-perfil.png","contentUrl":"https://salestrategias.com.br/wp-content/uploads/2025/11/logo-sal-estrategias-perfil.png","caption":"SAL Estrat\u00e9gias de Marketing | Assessoria de MKT Digital","inLanguage":"pt-BR","width":"2000","height":"2000"},"openingHours":["Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday 09:00-17:00"],"description":"N\u00e3o somos mais uma ag\u00eancia gen\u00e9rica. Somos uma assessoria estrat\u00e9gica focada em resultados mensur\u00e1veis atrav\u00e9s de SEO e m\u00eddia paga.\n\nLiderada por Marcelo Freitas, consultor especializado em crescimento digital, a SAL trabalha como parceira do seu neg\u00f3cio, desenvolvendo estrat\u00e9gias personalizadas que conectam sua empresa aos clientes certos no momento certo.\n\nNosso foco: Fazer seu neg\u00f3cio crescer de forma sustent\u00e1vel atrav\u00e9s de:\n\n- SEO (posicionamento org\u00e2nico)\n- GEO (Google Meu Neg\u00f3cio otimizado)\n- Performance (m\u00eddia paga estrat\u00e9gica)\n- Consultoria personalizada\n\nNosso prop\u00f3sito \u00e9 fazer Marketing na Medida Certa!","legalName":"SAL Estrat\u00e9gias de Marketing","location":{"@id":"https://www.salestrategias.com.br/#place"},"image":{"@id":"https://www.salestrategias.com.br/#logo"},"telephone":"+55-51-99338-0278"},{"@type":"WebSite","@id":"https://www.salestrategias.com.br/#website","url":"https://www.salestrategias.com.br","name":"SAL Estrat\u00e9gias de Marketing | Assessoria de MKT Digital","alternateName":"SAL Estrat\u00e9gias de Marketing","publisher":{"@id":"https://www.salestrategias.com.br/#organization"},"inLanguage":"pt-BR"},{"@type":"ImageObject","@id":"https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-quando-comecar-preparar-black-friday-1.png","url":"https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-quando-comecar-preparar-black-friday-1.png","width":"1376","height":"768","caption":"Quando Come\u00e7ar a Preparar a Black Friday 2026: o Cronograma de 12 Semanas","inLanguage":"pt-BR"},{"@type":"BreadcrumbList","@id":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#breadcrumb","itemListElement":[{"@type":"ListItem","position":"1","item":{"@id":"https://salestrategias.com.br","name":"Home"}},{"@type":"ListItem","position":"2","item":{"@id":"https://www.salestrategias.com.br/blog/ecommerce/","name":"E-commerce"}},{"@type":"ListItem","position":"3","item":{"@id":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/","name":"Quando Come\u00e7ar a Preparar a Black Friday 2026: o Cronograma de 12 Semanas"}}]},{"@type":"WebPage","@id":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#webpage","url":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/","name":"Quando Come\u00e7ar a Preparar a Black Friday 2026: Guia","datePublished":"2026-09-08T08:07:56-03:00","dateModified":"2026-09-08T08:07:56-03:00","isPartOf":{"@id":"https://www.salestrategias.com.br/#website"},"primaryImageOfPage":{"@id":"https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-quando-comecar-preparar-black-friday-1.png"},"inLanguage":"pt-BR","breadcrumb":{"@id":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#breadcrumb"}},{"@type":"Person","@id":"https://www.salestrategias.com.br/especialista/marcelofreitas/","name":"Marcelo Freitas","url":"https://www.salestrategias.com.br/especialista/marcelofreitas/","image":{"@type":"ImageObject","@id":"https://secure.gravatar.com/avatar/ac9e67a63b1d8461831144886f9f8b701340b2ddb57385530ad1c4f740305b5d?s=96&amp;d=mm&amp;r=g","url":"https://secure.gravatar.com/avatar/ac9e67a63b1d8461831144886f9f8b701340b2ddb57385530ad1c4f740305b5d?s=96&amp;d=mm&amp;r=g","caption":"Marcelo Freitas","inLanguage":"pt-BR"},"sameAs":["https://instagram.com/marcelo.c.freitas","https://instagram.com/marcelo.c.freitas%20https://instagram.com/salestrategias%20https://marcelofreitas.substack.com/%20https://linkedin.com/in/mcfreitas"],"worksFor":{"@id":"https://www.salestrategias.com.br/#organization"}},{"@type":"NewsArticle","headline":"Quando Come\u00e7ar a Preparar a Black Friday 2026: Guia","keywords":"quando come\u00e7ar a preparar black friday","datePublished":"2026-09-08T08:07:56-03:00","dateModified":"2026-09-08T08:07:56-03:00","articleSection":"E-commerce","author":{"@id":"https://www.salestrategias.com.br/especialista/marcelofreitas/","name":"Marcelo Freitas"},"publisher":{"@id":"https://www.salestrategias.com.br/#organization"},"description":"Descubra quando come\u00e7ar a preparar a Black Friday 2026 (27/11): cronograma de 12 semanas, do estoque ao e-mail. Comece agora e chegue pronto para vender.","copyrightYear":"2026","copyrightHolder":{"@id":"https://www.salestrategias.com.br/#organization"},"name":"Quando Come\u00e7ar a Preparar a Black Friday 2026: Guia","@id":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#richSnippet","isPartOf":{"@id":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#webpage"},"image":{"@id":"https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-quando-comecar-preparar-black-friday-1.png"},"inLanguage":"pt-BR","mainEntityOfPage":{"@id":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/#webpage"}}]}</script>
+<!-- /Plugin de SEO Rank Math para WordPress -->
+
+<link rel='dns-prefetch' href='//www.googletagmanager.com' />
+
+<link rel="alternate" type="application/rss+xml" title="Feed de comentários para SAL Estratégias de Marketing Digital &raquo; Quando Começar a Preparar a Black Friday 2026: o Cronograma de 12 Semanas" href="https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/feed/" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.salestrategias.com.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.salestrategias.com.br%2Fquando-comecar-preparar-black-friday%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.salestrategias.com.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.salestrategias.com.br%2Fquando-comecar-preparar-black-friday%2F&#038;format=xml" />
+		<style>
+			.lazyload,
+			.lazyloading {
+				max-width: 100%;
+			}
+		</style>
+				<style>
+			.smush-dimensions {
+				--smush-image-aspect-ratio: auto;
+				aspect-ratio: var(--smush-image-aspect-ratio);
+			}
+		</style>
+		<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+
+
+<link data-minify="1" rel='stylesheet' id='sal-blog-css' href='https://www.salestrategias.com.br/wp-content/cache/min/1/wp-content/themes/sal-blog/style.css?ver=1787315732' media='all' />
+
+<!-- Snippet da tag do Google (gtag.js) adicionado pelo Site Kit -->
+<!-- Snippet do Google Analytics adicionado pelo Site Kit -->
+<script id="google_gtagjs-js" src="https://www.googletagmanager.com/gtag/js?id=GT-MK4G89W8" async></script>
+<script id="google_gtagjs-js-after">
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+gtag("set","linker",{"domains":["www.salestrategias.com.br"]});
+gtag("js", new Date());
+gtag("set", "developer_id.dZTNiMT", true);
+gtag("config", "GT-MK4G89W8");
+ window._googlesitekit = window._googlesitekit || {}; window._googlesitekit.throttledEvents = []; window._googlesitekit.gtagEvent = (name, data) => { var key = JSON.stringify( { name, data } ); if ( !! window._googlesitekit.throttledEvents[ key ] ) { return; } window._googlesitekit.throttledEvents[ key ] = true; setTimeout( () => { delete window._googlesitekit.throttledEvents[ key ]; }, 5 ); gtag( "event", name, { ...data, event_source: "site-kit" } ); }; 
+//# sourceURL=google_gtagjs-js-after
+</script>
+<link rel="https://api.w.org/" href="https://www.salestrategias.com.br/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://www.salestrategias.com.br/wp-json/wp/v2/posts/2299" /><meta name="generator" content="auto-sizes 1.7.0">
+<meta name="generator" content="Site Kit by Google 1.187.0" /><meta name="generator" content="performance-lab 4.2.0; plugins: auto-sizes, embed-optimizer, image-prioritizer, performant-translations, nocache-bfcache, speculation-rules">
+<meta name="generator" content="performant-translations 1.2.0">
+		<style>
+			/* Thanks to https://github.com/paulirish/lite-youtube-embed and https://css-tricks.com/responsive-iframes/ */
+			.smush-lazyload-video {
+				min-height: 240px;
+				min-width: 320px;
+				--smush-video-aspect-ratio: 16/9;background-color: #000;position: relative;display: block;contain: content;background-position: center center;background-size: cover;cursor: pointer;				 			 			 			 	  	
+			}
+			.smush-lazyload-video.loading{cursor:progress}
+			.smush-lazyload-video::before{content:'';display:block;position:absolute;top:0;background-image:linear-gradient(rgba(0,0,0,0.6),transparent);background-position:top;background-repeat:repeat-x;height:60px;width:100%;transition:all .2s cubic-bezier(0,0,0.2,1)}
+			.smush-lazyload-video::after{content:"";display:block;padding-bottom:calc(100% / (var(--smush-video-aspect-ratio)))}
+			.smush-lazyload-video > iframe{width:100%;height:100%;position:absolute;top:0;left:0;border:0;opacity:0;transition:opacity .5s ease-in}
+			.smush-lazyload-video.smush-lazyloaded-video > iframe{opacity:1}
+			.smush-lazyload-video > .smush-play-btn{z-index:10;position: absolute;top:0;left:0;bottom:0;right:0;}
+			.smush-lazyload-video > .smush-play-btn > .smush-play-btn-inner{opacity:0.75;display:flex;align-items: center;width:68px;height:48px;position:absolute;cursor:pointer;transform:translate3d(-50%,-50%,0);top:50%;left:50%;z-index:1;background-repeat:no-repeat;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="red"/><path d="M45 24 27 14v20" fill="white"/></svg>');filter:grayscale(100%);transition:filter .5s cubic-bezier(0,0,0.2,1), opacity .5s cubic-bezier(0,0,0.2,1);border:none}
+			.smush-lazyload-video:hover .smush-play-btn-inner,.smush-lazyload-video .smush-play-btn-inner:focus{filter:none;opacity:1}
+			.smush-lazyload-video > .smush-play-btn > .smush-play-btn-inner span{display:none;width:100%;text-align:center;}
+			.smush-lazyload-video.smush-lazyloaded-video{cursor:unset}
+			.smush-lazyload-video.video-loaded::before,.smush-lazyload-video.smush-lazyloaded-video > .smush-play-btn,.smush-lazyload-video.loading > .smush-play-btn{display:none;opacity:0;pointer-events:none}
+			.smush-lazyload-video.smush-lazyload-vimeo > .smush-play-btn > .smush-play-btn-inner{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 203 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m0.25116 9.0474c0-4.9968 4.0507-9.0474 9.0474-9.0474h184.4c4.997 0 9.048 4.0507 9.048 9.0474v101.91c0 4.996-4.051 9.047-9.048 9.047h-184.4c-4.9968 0-9.0474-4.051-9.0474-9.047v-101.91z' fill='%2317d5ff' fill-opacity='.7'/%3E%3Cpath d='m131.1 59.05c0.731 0.4223 0.731 1.4783 0 1.9006l-45.206 26.099c-0.7316 0.4223-1.646-0.1056-1.646-0.9504v-52.199c0-0.8448 0.9144-1.3727 1.646-0.9504l45.206 26.099z' fill='%23fff'/%3E%3C/svg%3E%0A");width:81px}
+					</style>
+				<script type="rocketlazyloadscript">
+			document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+		</script>
+				<style>
+			.no-js img.lazyload {
+				display: none;
+			}
+
+			figure.wp-block-image img.lazyloading {
+				min-width: 150px;
+			}
+
+			.lazyload,
+			.lazyloading {
+				--smush-placeholder-width: 100px;
+				--smush-placeholder-bg-max-width: 120px;
+				--smush-placeholder-aspect-ratio: 1/1;
+				width: var(--smush-image-width, var(--smush-placeholder-width)) !important;
+				aspect-ratio: var(--smush-image-aspect-ratio, var(--smush-placeholder-aspect-ratio)) !important;
+			}
+
+						.lazyload, .lazyloading {
+				opacity: 0;
+			}
+
+			.lazyloaded {
+				opacity: 1;
+				transition: opacity 400ms;
+				transition-delay: 0ms;
+			}
+
+					</style>
+		<meta name="generator" content="speculation-rules 1.6.0">
+<meta data-od-replaced-content="optimization-detective 1.0.0-beta6" name="generator" content="optimization-detective 1.0.0-beta6; url_metric_groups={0:empty, 480:empty, 600:empty, 782:empty}">
+<meta name="generator" content="embed-optimizer 1.0.0-beta5">
+<meta name="generator" content="image-prioritizer 1.0.0-beta3">
+<link rel="icon" href="https://www.salestrategias.com.br/wp-content/uploads/2025/11/cropped-logo-sal-estrategias-perfil-32x32.png" sizes="32x32" />
+<link rel="icon" href="https://www.salestrategias.com.br/wp-content/uploads/2025/11/cropped-logo-sal-estrategias-perfil-192x192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://www.salestrategias.com.br/wp-content/uploads/2025/11/cropped-logo-sal-estrategias-perfil-180x180.png" />
+<meta name="msapplication-TileImage" content="https://www.salestrategias.com.br/wp-content/uploads/2025/11/cropped-logo-sal-estrategias-perfil-270x270.png" />
+<link data-minify="1" rel='stylesheet' id='rank-math-toc-block-css' href='https://www.salestrategias.com.br/wp-content/cache/min/1/wp-content/plugins/seo-by-rank-math/includes/modules/schema/blocks/toc/assets/css/toc_list_style.css?ver=1787315732' media='all' />
+
+<style id="wpr-lazyload-bg-container"></style><style id="wpr-lazyload-bg-exclusion"></style>
+<noscript>
+<style id="wpr-lazyload-bg-nostyle"></style>
+</noscript>
+<script type="application/javascript">const rocket_pairs = []; const rocket_excluded_pairs = [];</script><meta name="generator" content="WP Rocket 3.20.1" data-wpr-features="wpr_lazyload_css_bg_img wpr_delay_js wpr_defer_js wpr_minify_js wpr_minify_css wpr_preload_links wpr_host_fonts_locally wpr_desktop" /></head>
+<body data-rsssl=1 class="wp-singular post-template-default single single-post postid-2299 single-format-standard wp-custom-logo wp-theme-sal-blog">
+
+<header data-rocket-location-hash="8ec3974564944b74b1092d2f465c837e" class="topo">
+	<div data-rocket-location-hash="a5e0f1c1a0a777abf5c94f591e912750" class="wrap">
+		<a href="/" aria-label="SAL Estratégias de Marketing">
+			<img data-od-unknown-tag data-od-xpath="/HTML/BODY/HEADER[@class=&apos;topo&apos;]/*[1][self::DIV]/*[1][self::A]/*[1][self::IMG]" class="logo-escuro lazyload" data-src="/img/sal-wordmark.svg" alt="SAL Estratégias de Marketing" width="60" height="34" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" style="--smush-placeholder-width: 60px; --smush-placeholder-aspect-ratio: 60/34;">
+			<img data-od-unknown-tag data-od-xpath="/HTML/BODY/HEADER[@class=&apos;topo&apos;]/*[1][self::DIV]/*[1][self::A]/*[2][self::IMG]" class="logo-claro lazyload" data-src="/img/sal-wordmark-tinta.svg" alt="SAL Estratégias de Marketing" width="60" height="34" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" style="--smush-placeholder-width: 60px; --smush-placeholder-aspect-ratio: 60/34;">
+		</a>
+		<nav class="nav" id="nav" aria-label="Menu principal">
+			<details class="drop">
+				<summary aria-label="Serviços da SAL">
+					Serviços
+					<svg viewBox="0 0 12 12" aria-hidden="true"><path d="m2 4 4 4 4-4"/></svg>
+				</summary>
+				<div class="drop-caixa">
+					<a href="/seo-local/">SEO local</a>
+					<a href="/seo-para-ecommerce/">SEO para e-commerce</a>
+					<a href="/trafego-pago/">Tráfego pago</a>
+					<a href="/diagnostico-de-site/">Diagnóstico de site</a>
+					<a href="/servicos/agencia-de-producao-de-conteudo/">Produção de conteúdo</a>
+					<a class="drop-todos" href="/servicos/">Ver todos os serviços →</a>
+				</div>
+			</details>
+			<a href="/quem-somos/">A SAL</a>
+			<a href="https://www.salestrategias.com.br/blog/" aria-current="false" class="ativo">Blog</a>
+			<a class="btn btn-primary" href="/agenda/">Contrate a SAL</a>
+		</nav>
+		<div data-rocket-location-hash="1b36210593474c9036040705c992b01c" class="topo-acoes">
+			<button class="tema-btn" type="button" aria-label="Acender ou apagar a luz do site">
+				<svg class="sol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 17.5h5M10.2 20.5h3.6"/><path d="M12 3.5a5.6 5.6 0 0 0-3.2 10.2c.7.5 1.2 1.2 1.2 2v.3h4v-.3c0-.8.5-1.5 1.2-2A5.6 5.6 0 0 0 12 3.5Z"/></svg>
+				<svg class="lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 17.5h5M10.2 20.5h3.6"/><path d="M12 3.5a5.6 5.6 0 0 0-3.2 10.2c.7.5 1.2 1.2 1.2 2v.3h4v-.3c0-.8.5-1.5 1.2-2A5.6 5.6 0 0 0 12 3.5Z"/><path d="M12 0.6v1.2M4.6 3.4l1 1M19.4 3.4l-1 1M2.2 9.5h1.4M20.4 9.5h1.4"/></svg>
+			</button>
+			<button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+		</div>
+	</div>
+</header>
+
+<main data-rocket-location-hash="4b1993296e5ff63e4f91f178a674baa7" id="conteudo">
+
+	<article data-rocket-location-hash="ccbfb42bd3d9990cf6c43082d915c188" class="artigo">
+
+		<header data-rocket-location-hash="542bc01954d8a94d036fd8623841e726" class="artigo-topo">
+			<div class="wrap wrap-texto">
+				<nav class="migalha" aria-label="Você está em">
+					<a href="https://www.salestrategias.com.br/blog/">Blog</a>
+					 › <a href="https://www.salestrategias.com.br/blog/ecommerce/">E-commerce</a>				</nav>
+				<h1>Quando Começar a Preparar a Black Friday 2026: o Cronograma de 12 Semanas</h1>
+				<p class="dek">Descubra quando começar a preparar a Black Friday 2026 (27/11): cronograma de 12 semanas, do estoque ao e-mail. Comece agora e chegue pronto para vender.</p>				<div class="meta">
+					<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[1][self::ARTICLE]/*[1][self::HEADER]/*[1][self::DIV]/*[4][self::DIV]/*[1][self::IMG]" class="meta-foto lazyload" data-src="/img/fotos/marcelo-palestra.webp" alt="" width="40" height="40" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" style="--smush-placeholder-width: 40px; --smush-placeholder-aspect-ratio: 40/40;">
+					<span>
+						Por <a href="/marcelo-freitas/">Marcelo Freitas</a> ·
+						<time datetime="2026-09-08T08:07:56-03:00">8 de setembro de 2026</time>
+												· 11 min de leitura
+					</span>
+				</div>
+			</div>
+		</header>
+
+				<figure class="artigo-capa">
+			<div data-rocket-location-hash="6a1e7b9ff1cc2786fed855fee740ab7f" class="wrap"><img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[1][self::ARTICLE]/*[2][self::FIGURE]/*[1][self::DIV]/*[1][self::IMG]" src="https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-quando-comecar-preparar-black-friday-1.png" alt="Quando Começar a Preparar a Black Friday 2026: o Cronograma de 12 Semanas" width="1200" height="675" fetchpriority="high" decoding="async" srcset="https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-quando-comecar-preparar-black-friday-1-640x360.png 640w, https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-quando-comecar-preparar-black-friday-1-1200x675.png 1200w" sizes="(max-width: 1200px) 100vw, 1200px"></div>
+		</figure>
+		
+		<div data-rocket-location-hash="c5827b4461db71bd982fa06d4a071b6c" class="folha">
+			<div class="wrap wrap-texto conteudo">
+				<p>O ideal é começar a preparar a Black Friday 2026 (dia 27 de novembro) com pelo menos 12 semanas de antecedência, ou seja, a partir da primeira quinzena de setembro. Nesse prazo dá para negociar estoque e prazo com fornecedor, calcular até onde o desconto pode ir sem sangrar a margem, testar a loja sob pico de tráfego e aquecer a base de e-mail e WhatsApp sem parecer desesperado. Quem espera outubro corre atrás do prejuízo: o consumidor já chega pesquisando.</p>
+
+
+<div class="wp-block-rank-math-toc-block" id="rank-math-toc"><h2>Veja neste artigo</h2><nav><ol><li><a href="#por-que-comecar-12-semanas-antes">Por Que Começar 12 Semanas Antes da Black Friday</a></li><li><a href="#cronograma-completo-semana-a-semana">O Cronograma Completo: Semana a Semana</a><ol><li><a href="#semanas-12-a-9-fornecedor-estoque-e-margem">Semanas 12 a 9: Fornecedor, Estoque e Margem</a></li><li><a href="#semanas-8-a-5-testes-tecnicos-e-aquecimento-de-base">Semanas 8 a 5: Testes Técnicos e Aquecimento de Base</a></li><li><a href="#semanas-4-a-1-execucao-e-ajuste-fino">Semanas 4 a 1: Execução e Ajuste Fino</a></li></ol></li><li><a href="#como-precificar-o-desconto-sem-destruir-a-margem">Como Precificar o Desconto sem Destruir a Margem</a></li><li><a href="#checklist-tecnico-o-que-trava-a-loja-no-pico">Checklist Técnico: o Que Trava a Loja no Pico</a></li><li><a href="#email-e-whatsapp-como-aquecer-a-base-sem-cansar-o-cliente">E-mail e WhatsApp: Como Aquecer a Base sem Cansar o Cliente</a></li><li><a href="#exemplo-pratico-o-cronograma-aplicado-a-3-tipos-de-loja">Exemplo Prático: o Cronograma Aplicado a 3 Tipos de Loja</a></li><li><a href="#erros-comuns-que-atrasam-a-black-friday">Erros Comuns que Atrasam a Black Friday</a></li><li><a href="#perguntas-frequentes-sobre-a-black-friday-2026">Perguntas Frequentes sobre a Black Friday 2026</a><ol><li><a href="#preciso-mesmo-de-12-semanas-ou-da-para-fazer-em-menos-tempo">Preciso mesmo de 12 semanas ou dá para fazer em menos tempo?</a></li><li><a href="#quando-devo-mandar-o-primeiro-e-mail-de-black-friday">Quando devo mandar o primeiro e-mail de Black Friday?</a></li><li><a href="#vale-a-pena-participar-da-black-friday-se-minha-loja-e-pequena">Vale a pena participar da Black Friday se minha loja é pequena?</a></li><li><a href="#como-evito-cair-no-black-fraude">Como evito cair no Black Fraude (subir o preço antes para descer na promoção)?</a></li><li><a href="#preciso-negociar-frete-com-a-transportadora-antes-da-black-friday">Preciso negociar frete com a transportadora antes da Black Friday?</a></li></ol></li></ol></nav></div>
+
+
+<h2 id="por-que-comecar-12-semanas-antes">Por Que Começar 12 Semanas Antes da Black Friday</h2>
+<p>Porque o comprador chega antes. Segundo pesquisa do Google divulgada em setembro de 2026, 44% dos consumidores já monitoram preços antes da Black Friday e 48% já montaram a lista de compras antes do dia oficial, 27 de novembro (<a href="https://blog.joompulse.com/2026/09/02/black-friday-2026-precos/" target="_blank" rel="noopener">Google, via Joom Pulse, 2026</a>). Quem só sobe a campanha em novembro está competindo por um cliente que já decidiu onde vai comprar.</p>
+<p>Do lado do resultado, a Black Friday de 2025 (28/11) faturou R$ 4,76 bilhões só na sexta-feira, alta de 11,2% sobre 2024, mas o ticket médio caiu de R$ 634,40 para R$ 554 segundo a Confi Neotrust (<a href="https://www.cnnbrasil.com.br/economia/macroeconomia/faturamento-do-e-commerce-atinge-r-476-bi-na-black-friday-diz-pesquisa/" target="_blank" rel="noopener">CNN Brasil, 29/11/2025</a>). O motivo é o mesmo: o cliente distribui a compra ao longo do mês em vez de gastar tudo num dia só. Isso muda a lógica de quem vende: a campanha não é mais um evento de 24 horas, é um mês inteiro de disputa por atenção, e quem entra atrasado perde as primeiras semanas de pesquisa de preço.</p>
+<p>Doze semanas antes de 27/11/2026 cai por volta do início de setembro, exatamente onde estamos agora. É tempo suficiente para resolver os três pontos que mais atrasam loja pequena e média: fornecedor que demora a confirmar estoque, plataforma que não foi testada sob pico e base de e-mail/WhatsApp fria demais para converter em cima da hora.</p>
+
+<h2 id="cronograma-completo-semana-a-semana">O Cronograma Completo: Semana a Semana</h2>
+<p>O cronograma abaixo divide os três blocos do trabalho: primeiro a base (estoque, fornecedor, margem), depois os testes técnicos e o aquecimento, e por fim a execução. Ajuste as datas ao seu calendário, mas mantenha a ordem: não adianta aquecer e-mail com preço ainda não definido, nem testar checkout antes de saber o volume de estoque disponível.</p>
+
+<table>
+<thead><tr><th>Período</th><th>Foco principal</th><th>Entregável</th></tr></thead>
+<tbody>
+<tr><td>Semanas 12-9 (set.)</td><td>Fornecedor, estoque, margem</td><td>Lista de produtos-âncora com desconto calculado e estoque confirmado</td></tr>
+<tr><td>Semanas 8-5 (fim de set. a out.)</td><td>Testes técnicos e aquecimento</td><td>Loja testada sob carga, base de e-mail/WhatsApp segmentada</td></tr>
+<tr><td>Semanas 4-2 (out. a início de nov.)</td><td>Comunicação e teaser</td><td>Calendário de posts, primeiro e-mail teaser disparado</td></tr>
+<tr><td>Semana 1 (véspera e dia 27/11)</td><td>Execução e monitoramento</td><td>Time escalado, dashboard de acompanhamento em tempo real</td></tr>
+</tbody>
+</table>
+
+<h3 id="semanas-12-a-9-fornecedor-estoque-e-margem">Semanas 12 a 9: Fornecedor, Estoque e Margem</h3>
+<p>Essa é a etapa que decide se a Black Friday vai dar lucro ou só girar caixa. Três tarefas não são negociáveis:</p>
+<ul>
+<li>Confirmar com o fornecedor quantidade e prazo de reposição dos produtos que puxam tráfego (os que mais vendem ou os mais buscados no Google).</li>
+<li>Calcular a margem de contribuição de cada produto-âncora antes de definir o desconto, para saber até onde dá para descer o preço sem vender no prejuízo (veja a conta completa em <a href="https://www.salestrategias.com.br/margem-de-contribuicao-ecommerce/">margem de contribuição no e-commerce</a>).</li>
+<li>Revisar a comissão do marketplace se parte do estoque também vende por lá: a taxa entra na conta antes do desconto, não depois.</li>
+</ul>
+<p>Loja que pula essa etapa e só decide o desconto na véspera costuma repetir o erro clássico: usa a mesma margem do dia a dia numa data em que o concorrente também está descontando, e o resultado é vender mais e lucrar menos.</p>
+
+<h3 id="semanas-8-a-5-testes-tecnicos-e-aquecimento-de-base">Semanas 8 a 5: Testes Técnicos e Aquecimento de Base</h3>
+<p>Com o estoque e o preço fechados, a prioridade vira infraestrutura e comunicação. Teste a loja simulando um pico de acessos simultâneos (a maioria das plataformas como Nuvemshop, Tray e Shopify tem essa opção no plano ou via parceiro técnico) e revise o funil de checkout: é nesse momento que se descobre se o antifraude está bloqueando pedido legítimo ou se o cálculo de frete trava com CEP de fora do Sudeste.</p>
+<p>Em paralelo, comece a aquecer a base sem falar em desconto ainda. Um e-mail de conteúdo (comparativo de produto, guia de tamanho, dica de uso) mantém a lista engajada e evita que o primeiro contato do cliente com a marca em novembro já seja um pedido de compra.</p>
+
+<h3 id="semanas-4-a-1-execucao-e-ajuste-fino">Semanas 4 a 1: Execução e Ajuste Fino</h3>
+<p>Nas últimas quatro semanas o trabalho é comunicação e monitoramento. Suba o banner da campanha no site e nas redes, dispare o e-mail teaser (sem preço, só aviso de que a promoção está chegando) e prepare os fluxos automáticos de recuperação de carrinho, que trabalham sozinhos durante o pico. Na última semana, garanta que alguém do time está de olho no dashboard de vendas e no atendimento durante todo o dia 27, porque é quando qualquer falha de estoque ou checkout custa caro.</p>
+
+<h2 id="como-precificar-o-desconto-sem-destruir-a-margem">Como Precificar o Desconto sem Destruir a Margem</h2>
+<p>Um exemplo simples fecha a conta. Uma loja de roupas vende uma camisa por R$ 120, com custo de produção de R$ 40 e comissão média de venda (gateway de pagamento + antifraude) de 5%. Na operação normal, a margem de contribuição é assim:</p>
+
+<table>
+<thead><tr><th>Item</th><th>Preço cheio</th><th>Desconto de 20%</th><th>Desconto de 40%</th></tr></thead>
+<tbody>
+<tr><td>Preço de venda</td><td>R$ 120,00</td><td>R$ 96,00</td><td>R$ 72,00</td></tr>
+<tr><td>Custo de produção</td><td>R$ 40,00</td><td>R$ 40,00</td><td>R$ 40,00</td></tr>
+<tr><td>Comissão (5%)</td><td>R$ 6,00</td><td>R$ 4,80</td><td>R$ 3,60</td></tr>
+<tr><td>Margem de contribuição</td><td>R$ 74,00 (61,7%)</td><td>R$ 51,20 (53,3%)</td><td>R$ 28,40 (39,4%)</td></tr>
+</tbody>
+</table>
+
+<p>O desconto de 20% ainda mantém uma margem saudável. O de 40%, muito comum em Black Friday para &#8220;chamar&#8221; cliente, derruba a margem para menos da metade da original: a loja precisa vender bem mais de 2x o volume normal só para manter o lucro em reais igual ao de um dia comum. Isso não significa evitar descontos agressivos, significa reservá-los para poucos produtos-isca (que trazem tráfego e cross-sell) e manter o desconto médio do catálogo mais próximo dos 20-25%, faixa que costuma preservar a operação.</p>
+
+<h2 id="checklist-tecnico-o-que-trava-a-loja-no-pico">Checklist Técnico: o Que Trava a Loja no Pico</h2>
+<p>Três pontos concentram a maioria dos problemas técnicos relatados em Black Friday: infraestrutura, checkout e sincronização de estoque. Use este checklist nas semanas 8 a 5:</p>
+<ul>
+<li>Testar a loja com simulação de acesso simultâneo acima do pico histórico do site.</li>
+<li>Confirmar com a transportadora se o prazo informado no site já considera o aumento de volume de novembro.</li>
+<li>Revisar as regras do antifraude: filtro rígido demais barra venda legítima no dia de maior tráfego do ano.</li>
+<li>Checar se o estoque está sincronizado entre loja própria e marketplaces, para não vender item que já zerou.</li>
+<li>Testar o checkout em celular do início ao fim, já que a maior parte do tráfego de Black Friday entra por mobile.</li>
+</ul>
+
+<h2 id="email-e-whatsapp-como-aquecer-a-base-sem-cansar-o-cliente">E-mail e WhatsApp: Como Aquecer a Base sem Cansar o Cliente</h2>
+<p>A sequência que funciona segue uma lógica de crescendo: conteúdo primeiro, oferta depois. Duas a três semanas antes, um e-mail de pré-aquecimento sem preço mantém a lista curiosa; na véspera e no dia, o e-mail de abertura com a oferta principal; durante a campanha, mensagens segmentadas por categoria evitam mandar oferta de produto errado para quem já comprou. No WhatsApp, o cuidado é dobrado: liste apenas quem deu opt-in explícito e limite a frequência, porque bloqueio em massa nessa data é o pior momento possível para perder o canal (o guia de <a href="https://www.salestrategias.com.br/whatsapp-marketing-sem-ser-bloqueado/">WhatsApp marketing sem ser bloqueado</a> detalha os limites técnicos). Para quem abandona o carrinho durante o pico, automatizar a recuperação é o que sustenta a conversão sem depender de mais gente no time (veja os modelos em <a href="https://www.salestrategias.com.br/mensagem-carrinho-abandonado-whatsapp/">mensagem de carrinho abandonado no WhatsApp</a>).</p>
+
+<h2 id="exemplo-pratico-o-cronograma-aplicado-a-3-tipos-de-loja">Exemplo Prático: o Cronograma Aplicado a 3 Tipos de Loja</h2>
+<p>O mesmo cronograma de 12 semanas muda de peso conforme o tipo de negócio. Três cenários hipotéticos ilustram o ajuste:</p>
+<ul>
+<li><strong>Loja de roupas:</strong> o gargalo costuma ser tamanho e grade. Reserve as semanas 12-9 para confirmar com o fornecedor a curva de tamanhos dos itens-âncora, não só a quantidade total, porque faltar P e M no meio da campanha é pior do que faltar estoque total.</li>
+<li><strong>Pet shop com loja física e virtual:</strong> o cronograma técnico pesa menos, mas a sincronização de estoque entre balcão e site pesa mais. Vale antecipar para as semanas 8-5 um teste real de venda simultânea nos dois canais.</li>
+<li><strong>Loja de suplementos:</strong> categoria sensível a ruptura de estoque por causa da recompra recorrente. Priorize nas semanas 12-9 os produtos de assinatura ou recompra frequente, porque cliente que não encontra o item de sempre na Black Friday tende a migrar de marca.</li>
+</ul>
+
+<h2 id="erros-comuns-que-atrasam-a-black-friday">Erros Comuns que Atrasam a Black Friday</h2>
+<p>Os erros mais frequentes não são de execução na hora, são de planejamento adiado. Definir o desconto na última semana sem calcular margem por produto obriga a loja a copiar o desconto do concorrente às cegas. Testar a loja pela primeira vez no próprio dia 27 significa descobrir o gargalo de infraestrutura com o cliente já na fila do checkout. E aquecer a base de e-mail só na véspera faz a primeira mensagem que o cliente recebe da marca em meses já ser uma oferta, o que reduz a taxa de abertura.</p>
+
+<h2 id="perguntas-frequentes-sobre-a-black-friday-2026">Perguntas Frequentes sobre a Black Friday 2026</h2>
+
+<h3 id="preciso-mesmo-de-12-semanas-ou-da-para-fazer-em-menos-tempo">Preciso mesmo de 12 semanas ou dá para fazer em menos tempo?</h3>
+<p>Dá para fazer uma versão enxuta em 6-8 semanas, mas alguns itens ficam de fora: negociação de preço melhor com fornecedor e teste de carga completo da loja. Se o prazo apertar, priorize margem calculada por produto e checkout testado, que são os dois pontos que mais custam caro quando falham.</p>
+
+<h3 id="quando-devo-mandar-o-primeiro-e-mail-de-black-friday">Quando devo mandar o primeiro e-mail de Black Friday?</h3>
+<p>O primeiro contato deve ser de conteúdo, sem menção a desconto, umas 3-4 semanas antes do dia 27. O e-mail teaser com aviso da promoção (ainda sem preço) entra na primeira semana de novembro, e a oferta completa sai na véspera e no dia oficial.</p>
+
+<h3 id="vale-a-pena-participar-da-black-friday-se-minha-loja-e-pequena">Vale a pena participar da Black Friday se minha loja é pequena?</h3>
+<p>Vale, desde que o desconto seja calculado por produto e não copiado do concorrente grande. Loja pequena não compete em volume, compete em atendimento e curadoria: descontos menores em itens certos, com margem preservada, costumam performar melhor do que queimar preço em tudo.</p>
+
+<h3 id="como-evito-cair-no-black-fraude">Como evito cair no Black Fraude (subir o preço antes para descer na promoção)?</h3>
+<p>Mantenha o histórico de preço visível e real: o próprio consumidor já pesquisa preço com semanas de antecedência, então qualquer alta artificial em outubro para dar desconto maior em novembro costuma ser identificada e vira reclamação pública, o que pesa mais que a venda perdida.</p>
+
+<h3 id="preciso-negociar-frete-com-a-transportadora-antes-da-black-friday">Preciso negociar frete com a transportadora antes da Black Friday?</h3>
+<p>Sim. O volume de novembro costuma atrasar prazos padrão, e o cliente que recebe o pedido fora do prometido pede reembolso ou não volta a comprar. Confirmar prazo real com a transportadora nas semanas 8-5 evita prometer um frete que a operação não consegue cumprir.</p>
+
+<p>Chegar em novembro com estoque confirmado, margem calculada e loja testada é o que separa uma Black Friday que dá lucro de uma que só gira caixa. Se você quer ajuda para desenhar esse cronograma com números reais da sua loja e definir onde investir a mídia paga nesse período, o <a href="https://salestrategias.com.br/diagnostico/">diagnóstico gratuito da SAL</a> mapeia isso com você antes que a fila de tarefas de outubro fique impossível de cumprir.</p>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Preciso mesmo de 12 semanas ou dá para fazer em menos tempo?","acceptedAnswer":{"@type":"Answer","text":"Dá para fazer uma versão enxuta em 6-8 semanas, mas alguns itens ficam de fora: negociação de preço melhor com fornecedor e teste de carga completo da loja. Se o prazo apertar, priorize margem calculada por produto e checkout testado, que são os dois pontos que mais custam caro quando falham."}},{"@type":"Question","name":"Quando devo mandar o primeiro e-mail de Black Friday?","acceptedAnswer":{"@type":"Answer","text":"O primeiro contato deve ser de conteúdo, sem menção a desconto, umas 3-4 semanas antes do dia 27. O e-mail teaser com aviso da promoção (ainda sem preço) entra na primeira semana de novembro, e a oferta completa sai na véspera e no dia oficial."}},{"@type":"Question","name":"Vale a pena participar da Black Friday se minha loja é pequena?","acceptedAnswer":{"@type":"Answer","text":"Vale, desde que o desconto seja calculado por produto e não copiado do concorrente grande. Loja pequena não compete em volume, compete em atendimento e curadoria: descontos menores em itens certos, com margem preservada, costumam performar melhor do que queimar preço em tudo."}},{"@type":"Question","name":"Como evito cair no Black Fraude (subir o preço antes para descer na promoção)?","acceptedAnswer":{"@type":"Answer","text":"Mantenha o histórico de preço visível e real: o próprio consumidor já pesquisa preço com semanas de antecedência, então qualquer alta artificial em outubro para dar desconto maior em novembro costuma ser identificada e vira reclamação pública, o que pesa mais que a venda perdida."}},{"@type":"Question","name":"Preciso negociar frete com a transportadora antes da Black Friday?","acceptedAnswer":{"@type":"Answer","text":"Sim. O volume de novembro costuma atrasar prazos padrão, e o cliente que recebe o pedido fora do prometido pede reembolso ou não volta a comprar. Confirmar prazo real com a transportadora nas semanas 8-5 evita prometer um frete que a operação não consegue cumprir."}}]}
+</script>
+			</div>
+		</div>
+
+		<footer data-rocket-location-hash="a2ef8ae64230d71c009673f47e74b25c" class="artigo-pe">
+			<div class="wrap wrap-texto">
+
+				<div class="autor">
+					<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[1][self::ARTICLE]/*[4][self::FOOTER]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::IMG]" data-src="/img/fotos/marcelo-palestra.webp" alt="Marcelo Freitas" width="72" height="72" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 72px; --smush-placeholder-aspect-ratio: 72/72;">
+					<div data-rocket-location-hash="a7dab295679f9a70bc6ae1d4bb637287">
+						<strong>Marcelo Freitas</strong>
+						<p>Fundador da SAL Estratégias de Marketing. Estrategista de marketing há 12 anos, cinco deles no universo de shopping center, respondendo pelo movimento de dezenas de lojas ao mesmo tempo.</p>
+						<nav class="autor-links" aria-label="Perfis de Marcelo Freitas">
+							<a href="/marcelo-freitas/">Perfil completo</a>
+							<a href="https://www.linkedin.com/in/mcfreitas/" rel="noopener" target="_blank">LinkedIn</a>
+							<a href="https://marcelofreitas.substack.com/" rel="noopener" target="_blank">Newsletter</a>
+						</nav>
+					</div>
+				</div>
+
+				<nav class="vizinhos" aria-label="Mais artigos">
+										<a class="vizinho" rel="prev" href="https://www.salestrategias.com.br/pesquisa-palavras-chave-loja-virtual/"><span>← Anterior</span>Pesquisa de Palavras-Chave para Loja Virtual: Guia Prático</a>									</nav>
+
+			</div>
+		</footer>
+
+	</article>
+
+	<section data-rocket-location-hash="a69e1dafdd72ee3b4e96ca01db01fae5" class="news">
+	<div data-rocket-location-hash="7da775654fac737378ff9a34845ff07b" class="wrap news-grade">
+		<div>
+			<h2>O varejo muda toda semana. Resumimos pra você.</h2>
+			<p>Receba o essencial de tráfego, SEO e e-commerce, na medida certa. Sem spam, sem enrolação.</p>
+		</div>
+		<form action="https://marcelofreitas.substack.com/subscribe" method="get" target="_blank" rel="noopener">
+			<input type="hidden" name="utm_source" value="blog-sal">
+			<label class="oculto" for="news-email-2299">Seu e-mail</label>
+			<input id="news-email-2299" type="email" name="email" placeholder="voce@suaempresa.com.br" required>
+			<button class="btn btn-primary" type="submit">Quero receber →</button>
+		</form>
+	</div>
+</section>
+
+		<section data-rocket-location-hash="50fc991de92a78c2b444c988b0d7cb3d" class="faixa">
+		<div data-rocket-location-hash="4d74621ed93541de64a3678cf5a65ef0" class="wrap">
+			<h2 class="rotulo">Continue lendo</h2>
+			<div class="grade">
+				<article class="card">
+	<a href="https://www.salestrategias.com.br/fluxo-de-pos-venda/">
+		<figure>
+							<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[3][self::SECTION]/*[1][self::DIV]/*[2][self::DIV]/*[1][self::ARTICLE]/*[1][self::A]/*[1][self::FIGURE]/*[1][self::IMG]" data-src="https://www.salestrategias.com.br/wp-content/uploads/2026/09/destacada-fluxo-de-pos-venda-640x360.png" alt="Fluxo de Pós-venda no E-commerce: o Que Enviar Depois da Compra" decoding="async" width="640" height="360" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 640px; --smush-placeholder-aspect-ratio: 640/360;" data-srcset="https://www.salestrategias.com.br/wp-content/uploads/2026/09/destacada-fluxo-de-pos-venda-640x360.png 640w, https://www.salestrategias.com.br/wp-content/uploads/2026/09/destacada-fluxo-de-pos-venda-1200x675.png 1200w" data-sizes="auto" data-original-sizes="(max-width: 640px) 100vw, 640px">
+					</figure>
+		<div class="card-corpo">
+			<span class="card-cat">E-commerce</span>			<h3>Fluxo de Pós-venda no E-commerce: o Que Enviar Depois da Compra</h3>
+			<time datetime="2026-09-06T08:07:49-03:00">6 de setembro de 2026</time>
+		</div>
+	</a>
+</article>
+<article class="card">
+	<a href="https://www.salestrategias.com.br/como-fazer-live-commerce/">
+		<figure>
+							<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[3][self::SECTION]/*[1][self::DIV]/*[2][self::DIV]/*[2][self::ARTICLE]/*[1][self::A]/*[1][self::FIGURE]/*[1][self::IMG]" data-src="https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-destacada-como-fazer-live-commerce-640x360.png" alt="Como Fazer Live Commerce: o Guia Prático para Vender ao Vivo sem Estúdio" decoding="async" width="640" height="360" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 640px; --smush-placeholder-aspect-ratio: 640/360;" data-srcset="https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-destacada-como-fazer-live-commerce-640x360.png 640w, https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-destacada-como-fazer-live-commerce-1200x675.png 1200w" data-sizes="auto" data-original-sizes="(max-width: 640px) 100vw, 640px">
+					</figure>
+		<div class="card-corpo">
+			<span class="card-cat">E-commerce</span>			<h3>Como Fazer Live Commerce: o Guia Prático para Vender ao Vivo sem Estúdio</h3>
+			<time datetime="2026-09-02T08:06:24-03:00">2 de setembro de 2026</time>
+		</div>
+	</a>
+</article>
+<article class="card">
+	<a href="https://www.salestrategias.com.br/frete-na-pagina-de-produto/">
+		<figure>
+							<img data-od-unknown-tag data-od-xpath="/HTML/BODY/MAIN[@id=&apos;conteudo&apos;]/*[3][self::SECTION]/*[1][self::DIV]/*[2][self::DIV]/*[3][self::ARTICLE]/*[1][self::A]/*[1][self::FIGURE]/*[1][self::IMG]" data-src="https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-frete-na-pagina-de-produto-640x360.png" alt="Frete na Página de Produto: Mostrar o Valor Aumenta a Conversão?" decoding="async" width="640" height="360" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" class="lazyload" style="--smush-placeholder-width: 640px; --smush-placeholder-aspect-ratio: 640/360;" data-srcset="https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-frete-na-pagina-de-produto-640x360.png 640w, https://www.salestrategias.com.br/wp-content/uploads/2026/09/capa-frete-na-pagina-de-produto-1200x675.png 1200w" data-sizes="auto" data-original-sizes="(max-width: 640px) 100vw, 640px">
+					</figure>
+		<div class="card-corpo">
+			<span class="card-cat">E-commerce</span>			<h3>Frete na Página de Produto: Mostrar o Valor Aumenta a Conversão?</h3>
+			<time datetime="2026-09-01T08:05:12-03:00">1 de setembro de 2026</time>
+		</div>
+	</a>
+</article>
+			</div>
+		</div>
+	</section>
+	
+</main>
+
+
+<section data-rocket-location-hash="1a2795f0553ede8b1b81dbb50c38b6d5" class="band">
+	<div data-rocket-location-hash="3a687c1179b43179a14bb88151f6dc09" class="wrap">
+		<h2>Vamos agendar uma reunião e analisar a sua operação?</h2>
+		<p class="band-sub">Escolha um horário e analisamos as suas contas de anúncio, a sua presença no mapa e a sua concorrência. Você sai com as prioridades na mão.</p>
+		<a class="btn btn-primary" href="/agenda/">Contrate a SAL</a>
+	</div>
+</section>
+
+<footer data-rocket-location-hash="0e90ea385499054c4fe7037b818828cd" class="rodape">
+	<div class="wrap">
+		<div data-rocket-location-hash="c358333fa843fd5b7cdde75ee6400f88" class="rodape-grade">
+			<div>
+				<img data-od-unknown-tag data-od-xpath="/HTML/BODY/FOOTER[@class=&apos;rodape&apos;]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::IMG]" class="logo-escuro lazyload" data-src="/img/sal-wordmark.svg" alt="SAL Estratégias de Marketing" width="72" height="41" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" style="--smush-placeholder-width: 72px; --smush-placeholder-aspect-ratio: 72/41;">
+				<img data-od-unknown-tag data-od-xpath="/HTML/BODY/FOOTER[@class=&apos;rodape&apos;]/*[1][self::DIV]/*[1][self::DIV]/*[1][self::DIV]/*[2][self::IMG]" class="logo-claro lazyload" data-src="/img/sal-wordmark-tinta.svg" alt="SAL Estratégias de Marketing" width="72" height="41" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjwvc3ZnPg==" style="--smush-placeholder-width: 72px; --smush-placeholder-aspect-ratio: 72/41;">
+				<p>Assessoria de Tráfego Pago e SEO para lojas físicas e e-commerces. Fazemos marketing na medida certa para você vender mais e crescer de forma sustentável.</p>
+			</div>
+			<nav aria-label="Serviços">
+				<h3>Serviços</h3>
+				<a href="/seo-local/">SEO local</a>
+				<a href="/seo-para-ecommerce/">SEO para e-commerce</a>
+				<a href="/trafego-pago/">Tráfego pago</a>
+				<a href="/diagnostico-de-site/">Diagnóstico de site</a>
+			</nav>
+			<nav aria-label="Navegar">
+				<h3>Navegar</h3>
+				<a href="/">Site da SAL</a>
+				<a href="/quem-somos/">Quem somos</a>
+				<a href="https://www.salestrategias.com.br/blog/">Blog</a>
+				<a href="/politica-de-privacidade/">Política de privacidade</a>
+			</nav>
+			<nav aria-label="Editorias">
+				<h3>Editorias</h3>
+									<a href="https://www.salestrategias.com.br/blog/ecommerce/">E-commerce</a>
+									<a href="https://www.salestrategias.com.br/blog/seo/seo-local/">SEO Local</a>
+									<a href="https://www.salestrategias.com.br/blog/marketing-digital/">Marketing Digital</a>
+									<a href="https://www.salestrategias.com.br/blog/trafego-pago/">Tráfego Pago</a>
+									<a href="https://www.salestrategias.com.br/blog/seo/">SEO</a>
+							</nav>
+		</div>
+		<div data-rocket-location-hash="b89b90fa196aeeb73eec0c05c822d61e" class="rodape-legal">
+			<span>SAL ESTRATÉGIAS DE MARKETING LTDA — CNPJ 66.018.951/0001-04 — Porto Alegre, RS</span>
+			<span>Atendimento 100% online — <a href="https://wa.me/5551993380278" rel="noopener">(51) 99338-0278</a> — <a href="/cdn-cgi/l/email-protection#c7a4a8a9b3a6b3a887b4a6aba2b4b3b5a6b3a2a0aea6b4e9a4a8aae9a5b5"><span class="__cf_email__" data-cfemail="395a56574d584d56794a58555c4a4d4b584d5c5e50584a175a5654175b4b">[email&#160;protected]</span></a></span>
+		</div>
+	</div>
+</footer>
+
+<div data-rocket-location-hash="c26371bfa65f7115709e2b69722b96dd" class="cookies" id="cookies" hidden>
+	<p>Este site usa cookies para funcionar e, se você deixar, para medir o desempenho das páginas. Você escolhe. <a href="/politica-de-privacidade/">Ler a política de privacidade</a>.</p>
+	<div>
+		<button type="button" class="btn btn-ghost" data-cookies="recusar">Só os necessários</button>
+		<button type="button" class="btn btn-primary" data-cookies="aceitar">Aceitar todos</button>
+	</div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="speculationrules">
+{"prerender":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/sal-blog/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prerender, .no-prerender a"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"moderate"}]}
+</script>
+
+<!-- Botão Acessar com o Google adicionado pelo Site Kit -->
+		<style>
+		.googlesitekit-sign-in-with-google__frontend-output-button{max-width:320px}
+		.interim-login #login>.googlesitekit-sign-in-with-google__frontend-output-button{margin-bottom:16px}
+		</style>
+		<script type="rocketlazyloadscript" data-rocket-src="https://accounts.google.com/gsi/client" data-rocket-defer defer></script>
+<script type="rocketlazyloadscript" data-siwg-config="{&quot;clientID&quot;:&quot;877807612101-ok18l3dj1mer9j539ic6e38ogtcm7eg9.apps.googleusercontent.com&quot;,&quot;defaultButtonOptions&quot;:{&quot;theme&quot;:&quot;filled_blue&quot;,&quot;text&quot;:&quot;signin_with&quot;,&quot;shape&quot;:&quot;pill&quot;},&quot;loginURI&quot;:&quot;https:\/\/www.salestrategias.com.br\/wp-login.php?action=googlesitekit_auth&quot;,&quot;isUserLoggedIn&quot;:false,&quot;isWPLogin&quot;:false,&quot;isPreview&quot;:false,&quot;isWooCommerce&quot;:false,&quot;isExistingUserFlow&quot;:false,&quot;connectNonce&quot;:&quot;&quot;,&quot;followsPostRedirect&quot;:false,&quot;redirectTo&quot;:&quot;&quot;,&quot;redirectCookieName&quot;:&quot;googlesitekit_auth_redirect_to&quot;,&quot;redirectCookiePath&quot;:&quot;\/&quot;,&quot;redirectCookieTTL&quot;:0,&quot;shouldShowOneTapPrompt&quot;:false}" data-rocket-src="https://www.salestrategias.com.br/wp-content/plugins/google-site-kit/dist/assets/js/sign-in-with-google-15a07dd57b5f79886b45.js" data-rocket-defer defer></script>
+
+<!-- Botão Finalizar Acesso com Google adicionado pelo Site Kit -->
+<script type="rocketlazyloadscript" id="rocket-browser-checker-js-after">
+"use strict";var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||!1,descriptor.configurable=!0,"value"in descriptor&&(descriptor.writable=!0),Object.defineProperty(target,descriptor.key,descriptor)}}return function(Constructor,protoProps,staticProps){return protoProps&&defineProperties(Constructor.prototype,protoProps),staticProps&&defineProperties(Constructor,staticProps),Constructor}}();function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor))throw new TypeError("Cannot call a class as a function")}var RocketBrowserCompatibilityChecker=function(){function RocketBrowserCompatibilityChecker(options){_classCallCheck(this,RocketBrowserCompatibilityChecker),this.passiveSupported=!1,this._checkPassiveOption(this),this.options=!!this.passiveSupported&&options}return _createClass(RocketBrowserCompatibilityChecker,[{key:"_checkPassiveOption",value:function(self){try{var options={get passive(){return!(self.passiveSupported=!0)}};window.addEventListener("test",null,options),window.removeEventListener("test",null,options)}catch(err){self.passiveSupported=!1}}},{key:"initRequestIdleCallback",value:function(){!1 in window&&(window.requestIdleCallback=function(cb){var start=Date.now();return setTimeout(function(){cb({didTimeout:!1,timeRemaining:function(){return Math.max(0,50-(Date.now()-start))}})},1)}),!1 in window&&(window.cancelIdleCallback=function(id){return clearTimeout(id)})}},{key:"isDataSaverModeOn",value:function(){return"connection"in navigator&&!0===navigator.connection.saveData}},{key:"supportsLinkPrefetch",value:function(){var elem=document.createElement("link");return elem.relList&&elem.relList.supports&&elem.relList.supports("prefetch")&&window.IntersectionObserver&&"isIntersecting"in IntersectionObserverEntry.prototype}},{key:"isSlowConnection",value:function(){return"connection"in navigator&&"effectiveType"in navigator.connection&&("2g"===navigator.connection.effectiveType||"slow-2g"===navigator.connection.effectiveType)}}]),RocketBrowserCompatibilityChecker}();
+//# sourceURL=rocket-browser-checker-js-after
+</script>
+<script id="rocket-preload-links-js-extra">
+var RocketPreloadLinksConfig = {"excludeUris":"/sitemap_index.xml/|/(.*)-sitemap.xml/|/(?:.+/)?feed(?:/(?:.+/?)?)?$|/(?:.+/)?embed/|/(index.php/)?(.*)wp-json(/.*|$)|/refer/|/go/|/recommend/|/recommends/","usesTrailingSlash":"1","imageExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php","fileExt":"jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php|html|htm","siteUrl":"https://www.salestrategias.com.br","onHoverDelay":"100","rateThrottle":"3"};
+//# sourceURL=rocket-preload-links-js-extra
+</script>
+<script type="rocketlazyloadscript" id="rocket-preload-links-js-after">
+(function() {
+"use strict";var r="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},e=function(){function i(e,t){for(var n=0;n<t.length;n++){var i=t[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(e,t,n){return t&&i(e.prototype,t),n&&i(e,n),e}}();function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}var t=function(){function n(e,t){i(this,n),this.browser=e,this.config=t,this.options=this.browser.options,this.prefetched=new Set,this.eventTime=null,this.threshold=1111,this.numOnHover=0}return e(n,[{key:"init",value:function(){!this.browser.supportsLinkPrefetch()||this.browser.isDataSaverModeOn()||this.browser.isSlowConnection()||(this.regex={excludeUris:RegExp(this.config.excludeUris,"i"),images:RegExp(".("+this.config.imageExt+")$","i"),fileExt:RegExp(".("+this.config.fileExt+")$","i")},this._initListeners(this))}},{key:"_initListeners",value:function(e){-1<this.config.onHoverDelay&&document.addEventListener("mouseover",e.listener.bind(e),e.listenerOptions),document.addEventListener("mousedown",e.listener.bind(e),e.listenerOptions),document.addEventListener("touchstart",e.listener.bind(e),e.listenerOptions)}},{key:"listener",value:function(e){var t=e.target.closest("a"),n=this._prepareUrl(t);if(null!==n)switch(e.type){case"mousedown":case"touchstart":this._addPrefetchLink(n);break;case"mouseover":this._earlyPrefetch(t,n,"mouseout")}}},{key:"_earlyPrefetch",value:function(t,e,n){var i=this,r=setTimeout(function(){if(r=null,0===i.numOnHover)setTimeout(function(){return i.numOnHover=0},1e3);else if(i.numOnHover>i.config.rateThrottle)return;i.numOnHover++,i._addPrefetchLink(e)},this.config.onHoverDelay);t.addEventListener(n,function e(){t.removeEventListener(n,e,{passive:!0}),null!==r&&(clearTimeout(r),r=null)},{passive:!0})}},{key:"_addPrefetchLink",value:function(i){return this.prefetched.add(i.href),new Promise(function(e,t){var n=document.createElement("link");n.rel="prefetch",n.href=i.href,n.onload=e,n.onerror=t,document.head.appendChild(n)}).catch(function(){})}},{key:"_prepareUrl",value:function(e){if(null===e||"object"!==(void 0===e?"undefined":r(e))||!1 in e||-1===["http:","https:"].indexOf(e.protocol))return null;var t=e.href.substring(0,this.config.siteUrl.length),n=this._getPathname(e.href,t),i={original:e.href,protocol:e.protocol,origin:t,pathname:n,href:t+n};return this._isLinkOk(i)?i:null}},{key:"_getPathname",value:function(e,t){var n=t?e.substring(this.config.siteUrl.length):e;return n.startsWith("/")||(n="/"+n),this._shouldAddTrailingSlash(n)?n+"/":n}},{key:"_shouldAddTrailingSlash",value:function(e){return this.config.usesTrailingSlash&&!e.endsWith("/")&&!this.regex.fileExt.test(e)}},{key:"_isLinkOk",value:function(e){return null!==e&&"object"===(void 0===e?"undefined":r(e))&&(!this.prefetched.has(e.href)&&e.origin===this.config.siteUrl&&-1===e.href.indexOf("?")&&-1===e.href.indexOf("#")&&!this.regex.excludeUris.test(e.href)&&!this.regex.images.test(e.href))}}],[{key:"run",value:function(){"undefined"!=typeof RocketPreloadLinksConfig&&new n(new RocketBrowserCompatibilityChecker({capture:!0,passive:!0}),RocketPreloadLinksConfig).init()}}]),n}();t.run();
+}());
+
+//# sourceURL=rocket-preload-links-js-after
+</script>
+<script id="rocket_lazyload_css-js-extra">
+var rocket_lazyload_css_data = {"threshold":"300"};
+//# sourceURL=rocket_lazyload_css-js-extra
+</script>
+<script id="rocket_lazyload_css-js-after">
+!function o(n,c,a){function u(t,e){if(!c[t]){if(!n[t]){var r="function"==typeof require&&require;if(!e&&r)return r(t,!0);if(s)return s(t,!0);throw(e=new Error("Cannot find module '"+t+"'")).code="MODULE_NOT_FOUND",e}r=c[t]={exports:{}},n[t][0].call(r.exports,function(e){return u(n[t][1][e]||e)},r,r.exports,o,n,c,a)}return c[t].exports}for(var s="function"==typeof require&&require,e=0;e<a.length;e++)u(a[e]);return u}({1:[function(e,t,r){"use strict";{const c="undefined"==typeof rocket_pairs?[]:rocket_pairs,a=(("undefined"==typeof rocket_excluded_pairs?[]:rocket_excluded_pairs).map(t=>{var e=t.selector;document.querySelectorAll(e).forEach(e=>{e.setAttribute("data-rocket-lazy-bg-"+t.hash,"excluded")})}),document.querySelector("#wpr-lazyload-bg-container"));var o=rocket_lazyload_css_data.threshold||300;const u=new IntersectionObserver(e=>{e.forEach(t=>{t.isIntersecting&&c.filter(e=>t.target.matches(e.selector)).map(t=>{var e;t&&((e=document.createElement("style")).textContent=t.style,a.insertAdjacentElement("afterend",e),t.elements.forEach(e=>{u.unobserve(e),e.setAttribute("data-rocket-lazy-bg-"+t.hash,"loaded")}))})})},{rootMargin:o+"px"});function n(){0<(0<arguments.length&&void 0!==arguments[0]?arguments[0]:[]).length&&c.forEach(t=>{try{document.querySelectorAll(t.selector).forEach(e=>{"loaded"!==e.getAttribute("data-rocket-lazy-bg-"+t.hash)&&"excluded"!==e.getAttribute("data-rocket-lazy-bg-"+t.hash)&&(u.observe(e),(t.elements||=[]).push(e))})}catch(e){console.error(e)}})}n(),function(){const r=window.MutationObserver;return function(e,t){if(e&&1===e.nodeType)return(t=new r(t)).observe(e,{attributes:!0,childList:!0,subtree:!0}),t}}()(document.querySelector("body"),n)}},{}]},{},[1]);
+//# sourceURL=rocket_lazyload_css-js-after
+</script>
+<script id="smush-detector-js-extra">
+var smush_detector = {"ajax_url":"https://www.salestrategias.com.br/wp-admin/admin-ajax.php","nonce":"fead3b839d","is_mobile":"","data_store":{"type":"post-meta","data":{"post_id":2299}},"previous_data_version":"-1","previous_data_hash":"no-data"};
+//# sourceURL=smush-detector-js-extra
+</script>
+<script type="rocketlazyloadscript" id="smush-detector-js" data-rocket-src="https://www.salestrategias.com.br/wp-content/plugins/wp-smush-pro/app/assets/js/smush-detector.min.js?ver=4.0.3" data-rocket-defer defer></script>
+<script type="rocketlazyloadscript" id="googlesitekit-consent-mode-js" data-rocket-src="https://www.salestrategias.com.br/wp-content/plugins/google-site-kit/dist/assets/js/googlesitekit-consent-mode-755f1678e260138d789e.js" data-rocket-defer defer></script>
+<script id="sal-blog-js-extra">
+var SAL = {"ga":"G-DVRZ7L908H"};
+//# sourceURL=sal-blog-js-extra
+</script>
+<script type="rocketlazyloadscript" data-minify="1" id="sal-blog-js" data-rocket-src="https://www.salestrategias.com.br/wp-content/cache/min/1/wp-content/themes/sal-blog/js/tema.js?ver=1787315732" data-rocket-defer defer></script>
+<script type="rocketlazyloadscript" id="googlesitekit-events-provider-content-events-js-before">
+window._googlesitekit = window._googlesitekit || {};
+window._googlesitekit.contentEvents = {"postID":2299,"isSinglePost":true,"hasVimeoEmbed":false};
+//# sourceURL=googlesitekit-events-provider-content-events-js-before
+</script>
+<script type="rocketlazyloadscript" id="googlesitekit-events-provider-content-events-js" data-rocket-src="https://www.salestrategias.com.br/wp-content/plugins/google-site-kit/dist/assets/js/googlesitekit-events-provider-content-events-bb83c1a0aedefa5d25d1.js" defer></script>
+<script id="smush-lazy-load-js-before">
+var smushLazyLoadOptions = {"autoResizingEnabled":true,"autoResizeOptions":{"precision":5,"skipAutoWidth":true}};
+//# sourceURL=smush-lazy-load-js-before
+</script>
+<script id="smush-lazy-load-js" src="https://www.salestrategias.com.br/wp-content/plugins/wp-smush-pro/app/assets/js/smush-lazy-load.min.js?ver=4.0.3" data-rocket-defer defer></script>
+<script id="wp-consent-api-js-extra">
+var consent_api = {"consent_type":"","waitfor_consent_hook":"","cookie_expiration":"30","cookie_prefix":"wp_consent","services":[]};
+//# sourceURL=wp-consent-api-js-extra
+</script>
+<script type="rocketlazyloadscript" id="wp-consent-api-js" data-rocket-src="https://www.salestrategias.com.br/wp-content/plugins/wp-consent-api/assets/js/wp-consent-api.min.js?ver=2.0.1" data-rocket-defer defer></script>
+<script id="optimization-detective-detect-args" type="application/json">
+["https://www.salestrategias.com.br/wp-content/plugins/optimization-detective/detect.min.js?ver=1.0.0-beta6",{"minViewportAspectRatio":0.4,"maxViewportAspectRatio":2.5,"isDebug":false,"extensionModuleUrls":["https://www.salestrategias.com.br/wp-content/plugins/image-prioritizer/detect.min.js?ver=1.0.0-beta3"],"restApiEndpoint":"https://www.salestrategias.com.br/wp-json/optimization-detective/v1/url-metrics:store","currentETag":"8e5f2330b240442d83c6eaca914bbf1c","currentUrl":"https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/","urlMetricSlug":"521f58f92716051b1a8c4b748e784ecd","cachePurgePostId":2299,"urlMetricHMAC":"2cd58e4e3c2c733b61b6e3100b9854b7","urlMetricGroupStatuses":[{"minimumViewportWidth":0,"maximumViewportWidth":480,"complete":false},{"minimumViewportWidth":480,"maximumViewportWidth":600,"complete":false},{"minimumViewportWidth":600,"maximumViewportWidth":782,"complete":false},{"minimumViewportWidth":782,"maximumViewportWidth":null,"complete":false}],"storageLockTTL":60,"freshnessTTL":604800,"webVitalsLibrarySrc":"https://www.salestrategias.com.br/wp-content/plugins/optimization-detective/build/web-vitals.js?ver=5.1.0","gzdecodeAvailable":true,"maxUrlMetricSize":1048576}]
+</script>
+<script type="rocketlazyloadscript" data-rocket-type="module">
+async function load(){await new Promise((t=>{"complete"===document.readyState?t():window.addEventListener("load",t,{once:!0})})),"function"==typeof requestIdleCallback&&await new Promise((t=>{requestIdleCallback(t)}));const t="script#optimization-detective-detect-args",e=document.querySelector(t);if(!(e instanceof HTMLScriptElement))throw new Error(`Missing: ${t}`);const o=JSON.parse(e.text);if(!Array.isArray(o)||2!==o.length||"string"!=typeof o[0]||"object"!=typeof o[1])throw new Error("SCRIPT#optimization-detective-detect-args is not [ string, object ]");const i=o[0],a=o[1],n=(await import(i)).default;await n(a)}load();
+//# sourceURL=https://www.salestrategias.com.br/wp-content/plugins/optimization-detective/detect-loader.min.js?ver=1.0.0-beta6
+</script>
+<script>var rocket_beacon_data = {"ajax_url":"https:\/\/www.salestrategias.com.br\/wp-admin\/admin-ajax.php","nonce":"d379f5397d","url":"https:\/\/www.salestrategias.com.br\/quando-comecar-preparar-black-friday","is_mobile":false,"width_threshold":1600,"height_threshold":700,"delay":500,"debug":null,"status":{"atf":true,"lrc":true,"preload_fonts":true,"preconnect_external_domain":true},"elements":"img, video, picture, p, main, div, li, svg, section, header, span","lrc_threshold":1800,"preload_fonts_exclusions":["api.fontshare.com","cdn.fontshare.com"],"processed_extensions":["woff2","woff","ttf"],"external_font_exclusions":[],"preconnect_external_domain_elements":["link","script","iframe"],"preconnect_external_domain_exclusions":["static.cloudflareinsights.com","rel=\"profile\"","rel=\"preconnect\"","rel=\"dns-prefetch\"","rel=\"icon\""]}</script><script data-name="wpr-wpr-beacon" src='https://www.salestrategias.com.br/wp-content/plugins/wp-rocket/assets/js/wpr-beacon.min.js' async></script></body>
+</html>
+
+<!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me -->
