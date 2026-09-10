@@ -69,7 +69,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 60 | Pesquisa de palavras-chave para loja virtual: guia prático | pesquisa de palavras chave loja virtual | SEO | 13 | MOFU | PUBLICADO 2026-09-07 https://www.salestrategias.com.br/pesquisa-palavras-chave-loja-virtual/ |
 | 61 | Black Friday 2026 (27/11): o cronograma de 12 semanas começa agora | quando começar a preparar black friday | SAZ | 14 | MOFU | PUBLICADO 2026-09-08 https://www.salestrategias.com.br/quando-comecar-preparar-black-friday/ |
 | 62 | Teste A/B com pouco tráfego: o que dá pra testar numa loja pequena | teste ab loja virtual pouco trafego | CRO | 14 | MOFU | PUBLICADO 2026-09-09 https://www.salestrategias.com.br/teste-ab-pouco-trafego/ |
-| 63 | Full do Mercado Livre: quando compensa (e quando é armadilha) | full mercado livre vale a pena | MKT | 14 | MOFU | PENDENTE |
+| 63 | Full do Mercado Livre: quando compensa (e quando é armadilha) | full mercado livre vale a pena | MKT | 14 | MOFU | PUBLICADO 2026-09-10 https://www.salestrategias.com.br/full-mercado-livre-vale-a-pena/ |
 | 64 | Dashboard essencial da loja: as métricas que importam de verdade | metricas loja virtual dashboard | DAD | 29 | TOFU | PENDENTE |
 | 65 | Como divulgar uma loja nova no bairro: plano dos primeiros 90 dias | como divulgar loja nova no bairro | LOC | 17 | TOFU | PENDENTE |
 | 66 | API de conversões do Meta: sua loja precisa mesmo disso? | api de conversões meta | TP | 15 | MOFU | PENDENTE |
