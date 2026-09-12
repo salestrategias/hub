@@ -71,7 +71,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 62 | Teste A/B com pouco tráfego: o que dá pra testar numa loja pequena | teste ab loja virtual pouco trafego | CRO | 14 | MOFU | PUBLICADO 2026-09-09 https://www.salestrategias.com.br/teste-ab-pouco-trafego/ |
 | 63 | Full do Mercado Livre: quando compensa (e quando é armadilha) | full mercado livre vale a pena | MKT | 14 | MOFU | PUBLICADO 2026-09-10 https://www.salestrategias.com.br/full-mercado-livre-vale-a-pena/ |
 | 64 | Dashboard essencial da loja: as métricas que importam de verdade | metricas loja virtual dashboard | DAD | 29 | TOFU | PUBLICADO 2026-09-11 https://www.salestrategias.com.br/metricas-loja-virtual-dashboard/ |
-| 65 | Como divulgar uma loja nova no bairro: plano dos primeiros 90 dias | como divulgar loja nova no bairro | LOC | 17 | TOFU | PENDENTE |
+| 65 | Como divulgar uma loja nova no bairro: plano dos primeiros 90 dias | como divulgar loja nova no bairro | LOC | 17 | TOFU | PUBLICADO 2026-09-12 https://www.salestrategias.com.br/divulgar-loja-nova-bairro/ |
 | 66 | API de conversões do Meta: sua loja precisa mesmo disso? | api de conversões meta | TP | 15 | MOFU | PENDENTE |
 | 67 | Clientes sumidos: como montar uma campanha de reativação (win-back) | reativar clientes inativos | CRM | 14 | MOFU | PENDENTE |
 | 68 | Dia das Crianças (12/10) no varejo: campanha e estoque em 4 semanas | campanha dia das criancas varejo | SAZ | 29 | MOFU | PENDENTE |
