@@ -1,0 +1,45 @@
+{
+  "nome": "black-friday-setembro-2026-09-14",
+  "editoria": "E-commerce",
+  "legenda": "A Black Friday de novembro se ganha em setembro.\n\nQuem chega em novembro decidindo desconto no grito paga caro duas vezes: na margem e no anúncio. Arrasta para ver o que separa quem lucra de quem só fatura — e o que precisa estar pronto agora.\n\nO calendário completo de preparação está no blog da SAL (link na bio).\n\n#blackfriday #ecommerce #varejo #margem #planejamento",
+  "slides": [
+    {
+      "tipo": "capa",
+      "titulo": "A Black Friday de novembro se ganha em *setembro*."
+    },
+    {
+      "tipo": "texto",
+      "paragrafos": [
+        "Em novembro, o CPM dobra e todo mundo grita desconto.",
+        "Quem decide a promoção em cima da hora desconta no escuro.",
+        "Quem preparou setembro chega em novembro só executando."
+      ]
+    },
+    {
+      "tipo": "lista",
+      "titulo": "O que se resolve agora:",
+      "itens": [
+        "Margem calculada produto a produto.",
+        "Estoque do carro-chefe garantido.",
+        "Base de e-mail e remarketing aquecida.",
+        "Site testado para aguentar o pico."
+      ]
+    },
+    {
+      "tipo": "passo",
+      "num": "A CONTA DE SETEMBRO",
+      "titulo": "O desconto máximo que a margem paga.",
+      "texto": "Antes de prometer 50%, saiba em qual produto isso ainda deixa lucro. Desconto sem essa conta é faturamento comprado com prejuízo."
+    },
+    {
+      "tipo": "citacao",
+      "tema": "osso",
+      "texto": "Black Friday não premia quem *grita* mais. Premia quem calculou antes."
+    },
+    {
+      "tipo": "cta",
+      "titulo": "Quer chegar em novembro com a conta pronta?",
+      "sub": "Diagnóstico gratuito no link da bio."
+    }
+  ]
+}
