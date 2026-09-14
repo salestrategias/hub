@@ -73,7 +73,7 @@ Categorias WP: E-commerce=14, SEO=13, SEO Local=17, Tráfego Pago=15, Marketing 
 | 64 | Dashboard essencial da loja: as métricas que importam de verdade | metricas loja virtual dashboard | DAD | 29 | TOFU | PUBLICADO 2026-09-11 https://www.salestrategias.com.br/metricas-loja-virtual-dashboard/ |
 | 65 | Como divulgar uma loja nova no bairro: plano dos primeiros 90 dias | como divulgar loja nova no bairro | LOC | 17 | TOFU | PUBLICADO 2026-09-12 https://www.salestrategias.com.br/divulgar-loja-nova-bairro/ |
 | 66 | API de conversões do Meta: sua loja precisa mesmo disso? | api de conversões meta | TP | 15 | MOFU | PUBLICADO 2026-09-13 https://www.salestrategias.com.br/api-de-conversoes-meta/ |
-| 67 | Clientes sumidos: como montar uma campanha de reativação (win-back) | reativar clientes inativos | CRM | 14 | MOFU | PENDENTE |
+| 67 | Clientes sumidos: como montar uma campanha de reativação (win-back) | reativar clientes inativos | CRM | 14 | MOFU | PUBLICADO 2026-09-14 https://www.salestrategias.com.br/reativar-clientes-inativos/ |
 | 68 | Dia das Crianças (12/10) no varejo: campanha e estoque em 4 semanas | campanha dia das criancas varejo | SAZ | 29 | MOFU | PENDENTE |
 | 69 | Filtros da loja e navegação facetada: quando ajudam e quando atrapalham o SEO | navegação facetada seo | SEO | 13 | MOFU | PENDENTE |
 | 70 | Como conseguir avaliações de produto na loja virtual | como conseguir avaliações de produto | CRO | 14 | MOFU | PENDENTE |
