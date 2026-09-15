@@ -1,0 +1,1 @@
+Fechamento de página: `section.band` (gradiente de tinta marinho, borda superior), h2 de pergunta direta ("Pronto para escalar as suas vendas?"), sub curto, UM `.btn-primary` e a linha `.band-zap` com o canal humano (WhatsApp). Sempre a última seção antes do rodapé.

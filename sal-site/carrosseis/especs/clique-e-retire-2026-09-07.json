@@ -1,0 +1,41 @@
+{
+  "nome": "clique-e-retire-2026-09-07",
+  "editoria": "SEO Local",
+  "legenda": "O online não é inimigo da loja de rua. É a porta dela.\n\n“Clique e retire” parece detalhe técnico, mas é o cliente comprando às 23h e entrando na sua loja no dia seguinte — e, dentro da loja, ninguém sai só com o pedido. Arrasta para ver por que a retirada é a entrega que vende de novo.\n\nO guia completo está no blog da SAL (link na bio).\n\n#varejo #negociolocal #cliqueeretire #drivetostore #lojafisica",
+  "slides": [
+    {
+      "tipo": "capa-foto",
+      "imagem": "pascoa-gramado.webp",
+      "foco": "center 30%",
+      "titulo": "O online não é inimigo da loja de rua. É a *porta* dela."
+    },
+    {
+      "tipo": "texto",
+      "paragrafos": [
+        "“Clique e retire” parece detalhe técnico. Não é.",
+        "É o cliente comprando às 23h e entrando na sua loja no dia seguinte.",
+        "E, dentro da loja, ninguém sai só com o pedido."
+      ]
+    },
+    {
+      "tipo": "lista",
+      "titulo": "Por que funciona:",
+      "itens": [
+        "Frete zero — o cliente vai até você.",
+        "Entrega imediata, sem transportadora.",
+        "Cada retirada é fluxo dentro da loja.",
+        "O balcão puxa a segunda compra."
+      ]
+    },
+    {
+      "tipo": "citacao",
+      "tema": "osso",
+      "texto": "Retirada na loja é a única entrega que *vende de novo*."
+    },
+    {
+      "tipo": "cta",
+      "titulo": "Sua loja está pronta para vender às 23h?",
+      "sub": "Diagnóstico gratuito no link da bio."
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+---
+import Base from '../layouts/Base.astro';
+import Cabecalho from '../components/Cabecalho.astro';
+import Rodape from '../components/Rodape.astro';
+
+const title = 'Marcelo Freitas, fundador da SAL Estratégias de Marketing';
+const description =
+  'Marcelo Freitas é estrategista de marketing desde 2014, com 5 anos como gerente de marketing de shopping centers. Em 2024, fundou a SAL Estratégias.';
+
+const site = 'https://www.salestrategias.com.br';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': site + '/marcelo-freitas/#pessoa',
+      name: 'Marcelo Freitas',
+      jobTitle: 'Estrategista de marketing e fundador da SAL',
+      description,
+      url: site + '/marcelo-freitas/',
+      nationality: { '@type': 'Country', name: 'Brasil' },
+      homeLocation: { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: 'Porto Alegre', addressRegion: 'RS', addressCountry: 'BR' } },
+      knowsAbout: ['Marketing de varejo', 'Shopping center', 'Tráfego pago', 'SEO local', 'E-commerce', 'Tenant mix'],
+      sameAs: ['https://www.linkedin.com/in/mcfreitas/', 'https://marcelofreitas.substack.com/', 'https://www.instagram.com/marcelo.c.freitas/'],
+      worksFor: { '@type': 'Organization', name: 'SAL Estratégias de Marketing', url: site + '/' },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: site + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Marcelo Freitas', item: site + '/marcelo-freitas/' },
+      ],
+    },
+  ],
+};
+
+const redes = [
+  {
+    rot: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/mcfreitas/',
+    d: '<rect x="3" y="3" width="18" height="18" rx="3" /><path d="M7.5 10.5V17M7.5 7.4v.1M11.5 17v-3.6a2.4 2.4 0 0 1 4.8 0V17" />',
+  },
+  {
+    rot: 'Instagram',
+    href: 'https://www.instagram.com/marcelo.c.freitas/',
+    d: '<rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />',
+  },
+  {
+    rot: 'Substack',
+    href: 'https://marcelofreitas.substack.com/',
+    d: '<path d="M4.5 4.5h15v2.6h-15zM4.5 9.4h15V12h-15zM4.5 14.3 12 19l7.5-4.7v5.2L12 21.5l-7.5-2z" />',
+  },
+];
+---
+
+<Base title={title} description={description} canonical="/marcelo-freitas/" schema={schema}>
+  <Cabecalho />
+
+  <main>
+    <section class="capa">
+      <div class="malha"></div>
+      <div class="wrap">
+        <nav class="migalhas" aria-label="Você está aqui">
+          <a href="/">Início</a> <span aria-hidden="true">/</span> <span>Marcelo Freitas</span>
+        </nav>
+        <div class="perfil">
+          <div>
+            <h1>Marcelo Freitas, <em>fundador da SAL</em>.</h1>
+            <p class="sub">
+              Estrategista de marketing há 12 anos. Cinco deles dentro do universo de shopping center,
+              respondendo pelo movimento de dezenas de lojas ao mesmo tempo.
+            </p>
+            <ul class="redes-lista">
+              {redes.map((r) => (
+                <li>
+                  <a class="btn-rede" href={r.href} rel="noopener">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" set:html={r.d} />
+                    {r.rot}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <figure class="perfil-foto">
+            <img src="/img/fotos/marcelo-palestra.webp" alt="Marcelo Freitas falando em um evento de marketing" width="900" height="1125" fetchpriority="high" decoding="async" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <article class="texto-longo rev">
+          <p class="corpo">
+            Marcelo atua com marketing e comunicação desde 2014. Antes disso, trabalhou com TI, análise de
+            sistemas e criação de sites, base técnica que ainda hoje se reflete no trabalho da SAL.
+          </p>
+          <p class="corpo">
+            Foi gestor de marketing de uma instituição de ensino superior. Por cinco anos, atuou como
+            gerente de marketing de uma administradora de shopping centers, conduzindo tenant mix,
+            captação de lojas, produção de eventos e gestão de marcas.
+          </p>
+          <p class="corpo">
+            Coordenou o marketing do Vita Boulevard Gramado desde o lançamento, com expansão comercial
+            de mais de 40 marcas (Kopenhagen, Hering, Panvel, Belshop, Intimissimi, Calzedonia, Tip Top,
+            Grand Cru, entre outras). Pela administradora, atendeu também marcas como Starbucks,
+            Unimed, Cacau Show, Natura, Beagle e McDonald&rsquo;s.
+          </p>
+          <p class="corpo destaque-linha">Em 2024, fundou a SAL.</p>
+        </article>
+
+        <div class="galeria rev">
+          <figure>
+            <img src="/img/fotos/starbucks-inauguracao.webp" alt="Corte de fita na inauguração da primeira Starbucks de Porto Alegre" width="800" height="533" loading="lazy" decoding="async" />
+            <figcaption>Inauguração da loja ícone da Starbucks em Porto Alegre, na Galeria Chaves Barcellos.</figcaption>
+          </figure>
+          <figure>
+            <img src="/img/fotos/pascoa-gramado.webp" alt="Páscoa em Gramado, no Vita Boulevard, com personagens em frente ao letreiro da cidade" width="800" height="600" loading="lazy" decoding="async" />
+            <figcaption>Páscoa em Gramado, no Vita Boulevard.</figcaption>
+          </figure>
+          <figure>
+            <img src="/img/fotos/marcelo-evento-1.webp" alt="Marcelo Freitas em um evento do setor de shopping centers" width="800" height="533" loading="lazy" decoding="async" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec bone">
+      <div class="wrap">
+        <div class="cabeca rev">
+          <h2>Cinema, audiovisual e uma certa mania de estudar comportamento.</h2>
+        </div>
+        <div class="dupla">
+          <div class="rev">
+            <p class="corpo">
+              Apaixonado por cinema e audiovisual, o que ajuda mais do que parece em marketing: contar
+              histórias, entender ritmo e saber o que prende alguém nos primeiros segundos é o mesmo
+              ofício, em escalas diferentes.
+            </p>
+          </div>
+          <div class="rev">
+            <p class="corpo">
+              Escreve sobre varejo, marketing e comportamento de consumo no
+              <a class="link-texto" href="https://marcelofreitas.substack.com/" rel="noopener">Substack</a>
+              e no <a class="link-texto" href="/blog/">Blog da SAL</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="malha"></div>
+      <div class="wrap">
+        <h2>Quer conversar sobre a sua operação?</h2>
+        <p class="sub">
+          O diagnóstico é conduzido pelo Marcelo. Trinta minutos, online, analisando as suas contas de
+          anúncio, a sua presença no Google e a sua concorrência.
+        </p>
+        <a class="btn btn-primary" href="/agenda/">Contrate a SAL</a>
+      </div>
+    </section>
+  </main>
+
+  <Rodape />
+</Base>

@@ -1,0 +1,6 @@
+{
+  "projectId": "b42ba4c4-feeb-4f06-8fc3-7c18aec2ff0d",
+  "projectName": "SAL — Marinho & Coral",
+  "shape": "manual",
+  "note": "Repo sem biblioteca de componentes React/Storybook. O design system da SAL é CSS puro (sal-site/src/styles/tokens.css + site.css, Astro). Layout do ds-bundle é autorado manualmente (off-script), sem _ds_bundle.js e sem _ds_sync.json — cada sync reverifica e reenvia tudo."
+}

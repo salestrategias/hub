@@ -1,0 +1,42 @@
+{
+  "nome": "lingua-do-cliente-2026-09-14",
+  "editoria": "SEO",
+  "legenda": "Você otimiza para a palavra que VOCÊ usa. O cliente busca outra.\n\nDentro da loja se fala “mocassim em couro legítimo”. No Google, o cliente digita “sapato confortável para trabalhar”. Quem ranqueia é quem fala a língua de quem busca. Arrasta para ver onde roubar o vocabulário do seu cliente em três passos.\n\nO guia de pesquisa de palavras-chave está no blog da SAL (link na bio).\n\n#seo #palavraschave #caudalonga #ecommerce #google",
+  "slides": [
+    {
+      "tipo": "capa",
+      "titulo": "Você otimiza para a palavra que você usa. O cliente busca *outra*."
+    },
+    {
+      "tipo": "texto",
+      "paragrafos": [
+        "Na sua loja, é “mocassim em couro legítimo”.",
+        "No Google, é “sapato confortável para trabalhar”.",
+        "Quem ranqueia é quem fala a língua de quem busca."
+      ]
+    },
+    {
+      "tipo": "passo",
+      "num": "PASSO 01",
+      "titulo": "Roube do próprio cliente.",
+      "texto": "Busca interna da loja, perguntas do WhatsApp e texto das avaliações: é ali que está o vocabulário real de quem compra."
+    },
+    {
+      "tipo": "passo",
+      "num": "PASSO 02",
+      "titulo": "Prefira a cauda longa.",
+      "texto": "“Tênis” tem milhões de buscas e concorrência gigante. “Tênis de corrida para pisada pronada” tem menos busca — e muito mais intenção de compra."
+    },
+    {
+      "tipo": "passo",
+      "num": "PASSO 03",
+      "titulo": "Uma página por intenção.",
+      "texto": "Quem busca preço, quem compara e quem já decidiu são três buscas diferentes. Cada uma merece a sua página, não a mesma home."
+    },
+    {
+      "tipo": "cta",
+      "titulo": "Quer descobrir o que o seu cliente digita?",
+      "sub": "Diagnóstico gratuito no link da bio."
+    }
+  ]
+}

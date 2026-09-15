@@ -1,0 +1,52 @@
+{
+  "nome": "roas-alto-caixa-vazio",
+  "editoria": "Tráfego pago",
+  "legenda": "O gerenciador diz que você lucra. O caixa discorda.\n\nROAS alto vira festa na reunião e aperto no fim do mês quando ninguém faz a conta da margem. Arrasta para ver o cálculo do ROAS de equilíbrio — e os 4 sinais de que a sua campanha está pagando para existir.\n\nA conta completa está no blog da SAL (link na bio).\n\n#trafegopago #ecommerce #roas #margemdecontribuicao #marketingdigital",
+  "slides": [
+    {
+      "tipo": "capa",
+      "titulo": "O gerenciador diz que você lucra. O caixa *discorda*."
+    },
+    {
+      "tipo": "texto",
+      "paragrafos": [
+        "ROAS 8 significa: cada R$ 1 de anúncio vira R$ 8 de receita.",
+        "Só que receita não é lucro. Do R$ 8 saem produto, imposto, frete, taxa e embalagem.",
+        "Sobra quanto? É essa conta que quase ninguém faz."
+      ]
+    },
+    {
+      "tipo": "passo",
+      "num": "A CONTA",
+      "titulo": "ROAS de equilíbrio.",
+      "texto": "Divida 1 pela sua margem de contribuição. Margem de 25%? Equilíbrio é 4. Campanha abaixo disso está pagando para existir."
+    },
+    {
+      "tipo": "lista",
+      "titulo": "Sinais de alerta:",
+      "itens": [
+        "Comemorar ROAS sem saber a margem.",
+        "Escalar campanha que “performa”.",
+        "Frete grátis comendo o lucro por fora.",
+        "Meta de agência medida em cliques."
+      ]
+    },
+    {
+      "tipo": "interna-foto",
+      "imagem": "marcelo-palestra.webp",
+      "num": "QUEM AVISA",
+      "titulo": "Já vi essa conta quebrar loja grande.",
+      "texto": "Cinco anos gerenciando marketing de shoppings: a verba só rende quando a margem manda nela."
+    },
+    {
+      "tipo": "citacao",
+      "tema": "osso",
+      "texto": "Anúncio bom não é o que vende mais. É o que *sobra* mais."
+    },
+    {
+      "tipo": "cta",
+      "titulo": "Quer saber o seu ROAS de equilíbrio?",
+      "sub": "Diagnóstico gratuito no link da bio."
+    }
+  ]
+}

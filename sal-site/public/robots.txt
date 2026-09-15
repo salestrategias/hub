@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# O blog continua no WordPress e tem o sitemap próprio dele.
+Sitemap: https://www.salestrategias.com.br/sitemap.xml
+Sitemap: https://www.salestrategias.com.br/sitemap_index.xml

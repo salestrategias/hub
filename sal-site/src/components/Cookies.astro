@@ -1,0 +1,28 @@
+---
+/**
+ * Barra de consentimento de cookies, LGPD.
+ *
+ * Duas decisões que importam:
+ *
+ * 1. Nada de rastreamento roda antes do aceite. O GA4 e o pixel só são
+ *    carregados depois que a pessoa escolhe, e a escolha fica no
+ *    localStorage. Banner que só avisa, com o script já disparado atrás,
+ *    não cumpre a LGPD.
+ * 2. Recusar é tão fácil quanto aceitar: dois botões do mesmo tamanho,
+ *    na mesma linha. É exatamente o que a ANPD cobra.
+ */
+---
+
+<div id="cookies" class="cookies" role="dialog" aria-live="polite" aria-label="Aviso de cookies" hidden>
+  <div class="cookies-texto">
+    <p>
+      Este site usa cookies para funcionar e, se você deixar, para medir o desempenho das páginas e
+      das campanhas. Você escolhe.
+      <a href="/politica-de-privacidade/">Ler a política de privacidade</a>.
+    </p>
+  </div>
+  <div class="cookies-acoes">
+    <button type="button" class="btn btn-ghost" data-cookies="recusar">Só os necessários</button>
+    <button type="button" class="btn btn-primary" data-cookies="aceitar">Aceitar todos</button>
+  </div>
+</div>

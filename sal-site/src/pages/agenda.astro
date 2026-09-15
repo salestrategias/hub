@@ -1,0 +1,115 @@
+---
+import Base from '../layouts/Base.astro';
+
+const title = 'Agendar diagnóstico gratuito | SAL Estratégias de Marketing';
+const description =
+  'Escolha um horário e a SAL analisa suas contas de anúncio, sua presença no Google e a sua concorrência.';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: 'https://www.salestrategias.com.br/agenda/',
+  inLanguage: 'pt-BR',
+  isPartOf: { '@type': 'WebSite', name: 'SAL Estratégias de Marketing', url: 'https://www.salestrategias.com.br/' },
+  about: {
+    '@type': 'Service',
+    name: 'Diagnóstico de marketing para varejo e e-commerce',
+    provider: { '@type': 'Organization', name: 'SAL Estratégias de Marketing' },
+    areaServed: { '@type': 'Country', name: 'Brasil' },
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'BRL', description: 'Diagnóstico inicial gratuito, 30 minutos, online.' },
+  },
+};
+---
+
+<Base title={title} description={description} canonical="/agenda/" schema={schema}>
+
+  <header class="topo topo-limpo">
+    <div class="wrap">
+      <a href="/" aria-label="SAL Estratégias de Marketing"><img class="logo-escuro" src="/img/sal-wordmark.svg" alt="SAL Estratégias de Marketing" width="60" height="34" /><img class="logo-claro" src="/img/sal-wordmark-tinta.svg" alt="SAL Estratégias de Marketing" width="60" height="34" /></a>
+      <a class="link-side" href="/">← Voltar para o site</a>
+    </div>
+  </header>
+
+  <main class="agenda">
+    <div class="wrap">
+
+      <div class="agenda-cabeca">
+        <h1>Escolha o melhor horário para a nossa conversa.</h1>
+        <p>
+          Trinta minutos, online. Analisamos as suas contas de anúncio, a sua presença no Google e no
+          mapa, e os concorrentes da sua região. Você sai com as prioridades na mão.
+        </p>
+        <ul class="agenda-fatos">
+          <li>Reunião online, pelo Google Meet</li>
+          <li>Duração de 30 minutos</li>
+          <li>Diagnóstico inicial sem custo e sem compromisso</li>
+        </ul>
+      </div>
+
+      <!-- ETAPA 1: horário -->
+      <section id="etapa-horario" class="cartao">
+        <div class="agenda-grade">
+          <div>
+            <h2 class="titulo-campo">Selecione o dia</h2>
+            <div id="dias" class="dias" role="group" aria-label="Dias disponíveis"></div>
+            <p class="nota">Dias úteis, das 9h às 17h. Fuso de Brasília.</p>
+          </div>
+          <div>
+            <h2 class="titulo-campo">Horários</h2>
+            <div id="horas" class="horas" role="group" aria-label="Horários disponíveis"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ETAPA 2: qualificação -->
+      <section id="etapa-form" class="cartao" hidden>
+        <div class="barra-horario">
+          <span><b id="resumo-horario"></b></span>
+          <button type="button" id="trocar-horario" class="link-side">Trocar horário</button>
+        </div>
+
+        <div class="progresso" role="presentation"><span id="progresso-barra"></span></div>
+
+        <div id="pergunta" class="pergunta" role="group" aria-live="polite" aria-labelledby="pergunta-titulo"></div>
+
+        <div class="agenda-acoes">
+          <button type="button" id="voltar" class="btn btn-ghost" hidden>Voltar</button>
+          <button type="button" id="avancar" class="btn btn-primary">Continuar</button>
+        </div>
+
+        <p class="nota">
+          Seus dados servem só para preparar a reunião e retornar o contato. Nada de lista de disparo.
+        </p>
+      </section>
+
+      <!-- ETAPA 3: confirmação -->
+      <section id="etapa-fim" class="cartao fim" hidden>
+        <span class="grao" aria-hidden="true"></span>
+        <h2>Reunião marcada.</h2>
+        <p class="fim-quando" id="fim-horario"></p>
+        <p>
+          Recebemos as suas respostas. Confirmamos por e-mail ou WhatsApp e chegamos na reunião já
+          tendo analisado o seu site e a sua presença no Google.
+        </p>
+        <div class="agenda-acoes centro">
+          <a class="btn btn-primary" id="gcal" href="#" rel="noopener" target="_blank">Adicionar ao Google Calendar</a>
+          <a class="btn btn-ghost" id="zap" href="#" rel="noopener" target="_blank" data-zap-livre>Falar no WhatsApp</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="rodape rodape-curto">
+    <div class="wrap">
+      <div class="legal">
+        <span>SAL ESTRATÉGIAS DE MARKETING LTDA · CNPJ 66.018.951/0001-04 · Porto Alegre, RS</span>
+        <a href="/politica-de-privacidade/">Política de privacidade</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>import '../scripts/agenda.js';</script>
+</Base>

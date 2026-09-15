@@ -9,20 +9,24 @@
 // CSS 100% prefixado .sb- (tema hello-biz continua carregando via wp_head).
 // ─────────────────────────────────────────────────────────────────
 add_action( 'template_redirect', function () {
-	if ( ! is_home() && ! is_page( 'blog' ) ) return;
+	if ( ! is_home() && ! is_page( 'blog' ) && ! is_category() ) return;
 
 	// ─── Config ─────────────────────────────────────────────────
 	$LOGO_ROXO   = 'https://www.salestrategias.com.br/wp-content/uploads/2025/11/logotipo-sal-estrategias-marketing-2.svg';
 	$LOGO_BRANCO = 'https://www.salestrategias.com.br/wp-content/uploads/2025/11/logo-sal-branco.png';
 	$WHATS       = 'https://wa.me/5551993380278';
-	$DIAG        = 'https://salestrategias.com.br/diagnostico/';
+	$DIAG        = 'https://www.salestrategias.com.br/agenda/';
 
+	// A chave é o slug REAL da categoria no WordPress, para a editoria morar no
+	// arquivo de categoria de verdade (/blog/<slug>/) em vez de um ?editoria=.
 	$EDITORIAS = [
 		'trafego-pago' => [ 'id' => 15, 'nome' => 'Tráfego Pago' ],
-		'seo-geo'      => [ 'id' => 13, 'nome' => 'SEO & GEO' ],
-		'e-commerce'   => [ 'id' => 14, 'nome' => 'E-commerce' ],
-		'varejo-local' => [ 'id' => 17, 'nome' => 'Varejo Local' ],
+		'seo'          => [ 'id' => 13, 'nome' => 'SEO & GEO' ],
+		'ecommerce'    => [ 'id' => 14, 'nome' => 'E-commerce' ],
+		'seo-local'    => [ 'id' => 17, 'nome' => 'Varejo Local' ],
 	];
+	// slugs antigos do ?editoria=, mantidos só para não quebrar link já publicado
+	$EDITORIAS_ANTIGAS = [ 'seo-geo' => 'seo', 'e-commerce' => 'ecommerce', 'varejo-local' => 'seo-local' ];
 	$ROTULOS = [ 15 => 'Tráfego Pago', 13 => 'SEO & GEO', 14 => 'E-commerce', 17 => 'Varejo Local', 29 => 'Estratégia' ];
 
 	$GUIAS_SLUGS = [
@@ -32,8 +36,29 @@ add_action( 'template_redirect', function () {
 		'cac-e-ltv-como-calcular-metricas-negocio',
 	];
 
-	$ed_param = isset( $_GET['editoria'] ) ? sanitize_title( wp_unslash( $_GET['editoria'] ) ) : '';
-	$view_editoria = ( $ed_param && isset( $EDITORIAS[ $ed_param ] ) ) ? $EDITORIAS[ $ed_param ] : null;
+	$view_editoria = null;
+	$view_ed_slug  = '';
+
+	if ( is_category() ) {
+		$termo = get_queried_object();
+		if ( ! $termo || empty( $termo->term_id ) ) return;
+		// Categoria que não é uma das quatro editorias (Marketing Digital, por
+		// exemplo) também é desenhada aqui, com o nome que ela tem no WordPress.
+		// Sem isso ela cairia no template antigo do Elementor.
+		$view_editoria = $EDITORIAS[ $termo->slug ] ?? [ 'id' => $termo->term_id, 'nome' => $termo->name ];
+		$view_ed_slug  = $termo->slug;
+	} else {
+		// /blog/?editoria=slug é o endereço antigo. Manda para o arquivo de
+		// categoria com 301, para o histórico não ficar preso na query string.
+		$ed_param = isset( $_GET['editoria'] ) ? sanitize_title( wp_unslash( $_GET['editoria'] ) ) : '';
+		if ( $ed_param ) {
+			$destino = $EDITORIAS_ANTIGAS[ $ed_param ] ?? $ed_param;
+			if ( isset( $EDITORIAS[ $destino ] ) ) {
+				wp_safe_redirect( get_category_link( $EDITORIAS[ $destino ]['id'] ), 301 );
+				exit;
+			}
+		}
+	}
 
 	// ─── Helpers ────────────────────────────────────────────────
 	$rotulo = function ( $post ) use ( $ROTULOS ) {
@@ -52,8 +77,8 @@ add_action( 'template_redirect', function () {
 	$dataf = function ( $post ) {
 		return esc_html( date_i18n( 'j \d\e F \d\e Y', strtotime( $post->post_date ) ) );
 	};
-	$ed_url = function ( $slug ) {
-		return esc_url( add_query_arg( 'editoria', $slug, get_permalink( get_option( 'page_for_posts' ) ?: null ) ?: home_url( '/blog/' ) ) );
+	$ed_url = function ( $slug ) use ( $EDITORIAS ) {
+		return isset( $EDITORIAS[ $slug ] ) ? esc_url( get_category_link( $EDITORIAS[ $slug ]['id'] ) ) : esc_url( home_url( '/blog/' ) );
 	};
 	$card = function ( $post ) use ( $rotulo, $thumb, $dataf ) {
 		$img = $thumb( $post );
@@ -97,10 +122,9 @@ add_action( 'template_redirect', function () {
 	<head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<?php if ( $view_editoria ) : ?><meta name="robots" content="noindex,follow"><?php endif; ?>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Glook&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 	<?php if ( $favicon_32 ) : ?><link rel="icon" type="image/png" sizes="32x32" href="<?php echo esc_url( $favicon_32 ); ?>"><?php endif; ?>
 	<?php if ( $favicon_192 ) : ?><link rel="icon" type="image/png" sizes="192x192" href="<?php echo esc_url( $favicon_192 ); ?>"><link rel="apple-touch-icon" href="<?php echo esc_url( $favicon_192 ); ?>"><?php endif; ?>
 	<?php wp_head(); ?>
@@ -116,8 +140,8 @@ add_action( 'template_redirect', function () {
 	.sb-cat{color:#7E30E1}
 	.sb-grain{display:inline-block;width:7px;height:7px;background:#2D1D7A;transform:rotate(45deg);flex:none}
 	.sb-grain.sb-roxo{background:#7E30E1}.sb-grain.sb-neon{background:#F6FF74}
-	.sb-sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:#2D1D7A;text-transform:uppercase;margin-bottom:34px}
-	.sb-sec-label::after{content:"";height:1px;background:#E9E7E1;flex:1}
+	.sb-body .sb-sec-label{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;color:#2D1D7A;text-transform:uppercase;margin:0 0 34px}
+	.sb-body .sb-sec-label::after{content:"";height:1px;background:#E9E7E1;flex:1}
 	.sb-pill{display:inline-flex;align-items:center;gap:10px;background:#7E30E1;color:#fff !important;border-radius:40px;padding:18px 44px;font-weight:600;font-size:16px;transition:transform .15s ease,box-shadow .15s ease;cursor:pointer;border:none}
 	.sb-pill:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(126,48,225,.28);color:#fff}
 	.sb-pill.sb-ghost{background:transparent;color:#2D1D7A !important;border:2px solid #2D1D7A}
@@ -138,7 +162,9 @@ add_action( 'template_redirect', function () {
 	.sb-hero{padding:64px 0 56px}
 	.sb-hero .sb-wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
 	.sb-hero .sb-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:22px}
-	.sb-hero h1{font-size:clamp(38px,4.6vw,60px);font-weight:800;line-height:1.06;letter-spacing:-1.5px;margin-bottom:22px;color:#0A0A0F}
+	.sb-hero h2{font-size:clamp(38px,4.6vw,60px);font-weight:800;line-height:1.06;letter-spacing:-1.5px;margin:0 0 22px;color:#0A0A0F}
+	.sb-body .sb-blog-h1{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#2D1D7A;margin:0 0 26px}
+	.sb-body .sb-blog-h1 span{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:500;letter-spacing:-.2px;text-transform:none;color:#5A5A66;margin-top:8px}
 	.sb-hero p.sb-dek{font-size:19px;line-height:1.55;color:#5A5A66;max-width:56ch;margin-bottom:26px}
 	.sb-hero .sb-meta{font-family:'Inter',sans-serif;font-size:14px;color:#5A5A66;display:flex;align-items:center;gap:10px;margin-bottom:34px}
 	.sb-hero .sb-cta-row{display:flex;gap:16px;flex-wrap:wrap}
@@ -146,11 +172,25 @@ add_action( 'template_redirect', function () {
 	.sb-hero figure img{width:100%;height:100%;object-fit:cover}
 	.sb-hero .sb-badge{position:absolute;top:18px;left:18px;background:#F6FF74;color:#0A0A0F;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;padding:7px 14px;border-radius:40px;z-index:2}
 	.sb-ticker{background:#F4F7F7;border-top:1px solid #E9E7E1;border-bottom:1px solid #E9E7E1}
-	.sb-ticker .sb-wrap{display:flex;align-items:center;gap:22px;height:52px;overflow:hidden}
-	.sb-ticker .sb-lbl{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:3px;color:#7E30E1;white-space:nowrap;display:flex;gap:9px;align-items:center}
-	.sb-ticker ul{display:flex;gap:34px;white-space:nowrap;font-size:14px;font-weight:500;color:#2D1D7A;overflow:hidden}
-	.sb-ticker li{display:flex;align-items:center;gap:12px}
+	.sb-ticker .sb-wrap{display:flex;align-items:center;gap:22px;height:52px;position:relative;overflow:hidden}
+	.sb-ticker .sb-lbl{flex:none;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:3px;color:#7E30E1;white-space:nowrap;display:flex;gap:9px;align-items:center}
+	.sb-ticker ul{flex:1;min-width:0;display:flex;gap:34px;white-space:nowrap;font-size:14px;font-weight:500;color:#2D1D7A;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;scroll-padding-inline:12px}
+	.sb-ticker ul::-webkit-scrollbar{display:none}
+	/* no toque a barra nativa já aparece sozinha ao rolar. No mouse não aparece
+	   nada, então ali vale mostrar uma barra fina — senão ninguém descobre. */
+	@media (hover:hover) and (pointer:fine){
+		.sb-ticker ul{padding-bottom:7px;scrollbar-width:thin;scrollbar-color:#CFCBDD transparent}
+		.sb-ticker ul::-webkit-scrollbar{display:block;height:5px}
+		.sb-ticker ul::-webkit-scrollbar-track{background:transparent}
+		.sb-ticker ul::-webkit-scrollbar-thumb{background:#CFCBDD;border-radius:3px}
+		.sb-ticker ul:hover::-webkit-scrollbar-thumb{background:#A9A4C0}
+	}
+	.sb-ticker ul:focus-visible{outline:2px solid #7E30E1;outline-offset:3px;border-radius:4px}
+	.sb-ticker li{flex:none;display:flex;align-items:center;gap:12px;scroll-snap-align:start}
 	.sb-ticker li .sb-grain{width:5px;height:5px}
+	/* véu no fim da faixa: mostra que a lista continua. Se tudo couber, ele cai
+	   sobre o próprio fundo e não aparece. */
+	.sb-ticker .sb-wrap::after{content:"";position:absolute;top:0;right:0;width:64px;height:100%;pointer-events:none;background:linear-gradient(90deg,rgba(244,247,247,0),#F4F7F7 72%)}
 	.sb-ultimas{padding:72px 0}
 	.sb-grid-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
 	.sb-card{border-radius:20px;overflow:hidden;background:#fff;border:1px solid #E9E7E1;transition:transform .15s ease,box-shadow .15s ease;display:flex;flex-direction:column}
@@ -165,29 +205,29 @@ add_action( 'template_redirect', function () {
 	.sb-editoria{padding:46px 0;border-top:1px solid #E9E7E1}
 	.sb-editoria:nth-of-type(even){background:#F8F6F2}
 	.sb-ed-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px}
-	.sb-ed-head h2{font-size:30px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:16px;color:#0A0A0F}
-	.sb-ed-head h2 .sb-grain{width:9px;height:9px}
+	.sb-ed-head h3{font-size:30px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:16px;color:#0A0A0F}
+	.sb-ed-head h3 .sb-grain{width:9px;height:9px}
 	.sb-ed-head a{font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;color:#7E30E1}
 	.sb-ed-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:44px;align-items:center}
 	.sb-ed-destaque{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}
 	.sb-ed-destaque figure{border-radius:18px;overflow:hidden;aspect-ratio:4/3;background:#F4F7F7}
 	.sb-ed-destaque figure img{width:100%;height:100%;object-fit:cover}
-	.sb-ed-destaque h3{font-size:21px;font-weight:800;line-height:1.25;margin:10px 0;color:#0A0A0F}
+	.sb-ed-destaque h4{font-size:21px;font-weight:800;line-height:1.25;margin:10px 0;color:#0A0A0F}
 	.sb-ed-destaque p{font-size:14.5px;line-height:1.55;color:#5A5A66}
 	.sb-ed-lista{display:flex;flex-direction:column}
 	.sb-ed-lista li{display:flex;gap:18px;padding:16px 0;border-bottom:1px solid #E9E7E1;align-items:baseline}
 	.sb-ed-lista li:last-child{border-bottom:none}
-	.sb-ed-lista .sb-num{font-family:'Glook',cursive;font-size:26px;color:#7E30E1;min-width:34px}
+	.sb-ed-lista .sb-num{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:26px;color:#7E30E1;min-width:34px}
 	.sb-ed-lista h4{font-size:16.5px;font-weight:700;line-height:1.35;color:#0A0A0F}
 	.sb-ed-lista h4:hover{color:#7E30E1}
 	.sb-guias{background:#0A0A0F;color:#fff;padding:78px 0}
-	.sb-guias .sb-sec-label{color:rgba(255,255,255,.75)}
-	.sb-guias .sb-sec-label::after{background:rgba(255,255,255,.14)}
+	.sb-body .sb-guias .sb-sec-label{color:rgba(255,255,255,.75)}
+	.sb-body .sb-guias .sb-sec-label::after{background:rgba(255,255,255,.14)}
 	.sb-guias h2.sb-tit{font-size:clamp(30px,3.4vw,44px);font-weight:800;letter-spacing:-1px;margin-bottom:8px;color:#fff}
 	.sb-guias p.sb-sub{color:rgba(255,255,255,.65);font-size:17px;margin-bottom:44px;max-width:60ch}
 	.sb-guias .sb-lista{display:grid;grid-template-columns:repeat(2,1fr);gap:0 60px}
 	.sb-guias .sb-lista li{display:flex;gap:24px;align-items:baseline;padding:24px 0;border-bottom:1px solid rgba(255,255,255,.12)}
-	.sb-guias .sb-num{font-family:'Glook',cursive;font-size:44px;color:#A76BF2;min-width:64px}
+	.sb-guias .sb-num{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:44px;color:#A76BF2;min-width:64px}
 	.sb-guias h3{font-size:19px;font-weight:700;line-height:1.35;color:#fff}
 	.sb-guias h3:hover{color:#A76BF2}
 	.sb-guias .sb-dot{display:inline-block;width:6px;height:6px;background:#F6FF74;transform:rotate(45deg);margin-left:10px}
@@ -199,8 +239,8 @@ add_action( 'template_redirect', function () {
 	.sb-rc{padding:76px 0}
 	.sb-rc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:70px}
 	.sb-maislidos li{display:flex;gap:22px;align-items:baseline;padding:17px 0;border-bottom:1px solid #E9E7E1}
-	.sb-maislidos .sb-num{font-family:'Glook',cursive;font-size:38px;color:#7E30E1;min-width:50px}
-	.sb-maislidos h4{font-size:17.5px;font-weight:700;line-height:1.35;color:#0A0A0F}
+	.sb-maislidos .sb-num{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:800;font-size:38px;color:#7E30E1;min-width:50px}
+	.sb-maislidos h3{font-size:17.5px;font-weight:700;line-height:1.35;color:#0A0A0F}
 	.sb-news{background:#F4F7F7;border-radius:24px;padding:44px;height:fit-content}
 	.sb-news h3{font-size:24px;font-weight:800;margin-bottom:10px;color:#0A0A0F}
 	.sb-news p{font-size:15px;color:#5A5A66;line-height:1.55;margin-bottom:24px}
@@ -274,6 +314,7 @@ add_action( 'template_redirect', function () {
 	</section>
 	<section class="sb-ultimas">
 		<div class="sb-wrap">
+			<h2 class="sb-sec-label">Todos os artigos</h2>
 			<div class="sb-grid-cards">
 				<?php foreach ( $posts_ed as $p ) { $card( $p ); } ?>
 			</div>
@@ -286,8 +327,9 @@ add_action( 'template_redirect', function () {
 	<section class="sb-hero">
 		<div class="sb-wrap">
 			<div>
+				<h1 class="sb-blog-h1">Blog da SAL<span>Marketing para varejo local e e-commerce, sem enrolação.</span></h1>
 				<div class="sb-eyebrow"><span>01 · Manchete</span><span class="sb-grain sb-roxo"></span><span class="sb-cat"><?php echo esc_html( $rotulo( $manchete ) ); ?></span></div>
-				<h1><a href="<?php echo esc_url( get_permalink( $manchete ) ); ?>"><?php echo esc_html( get_the_title( $manchete ) ); ?></a></h1>
+				<h2><a href="<?php echo esc_url( get_permalink( $manchete ) ); ?>"><?php echo esc_html( get_the_title( $manchete ) ); ?></a></h2>
 				<p class="sb-dek"><?php echo $resumo( $manchete, 34 ); ?></p>
 				<div class="sb-meta">Marcelo Freitas <span class="sb-grain" style="width:5px;height:5px"></span> <?php echo $dataf( $manchete ); ?></div>
 				<div class="sb-cta-row">
@@ -303,7 +345,7 @@ add_action( 'template_redirect', function () {
 	<div class="sb-ticker">
 		<div class="sb-wrap">
 			<span class="sb-lbl"><span class="sb-grain sb-roxo"></span> AGORA NO VAREJO</span>
-			<ul>
+			<ul tabindex="0" role="list" aria-label="Últimas publicações">
 				<?php foreach ( array_slice( $ultimas, 0, 3 ) as $p ) : ?>
 					<li><span class="sb-grain sb-roxo"></span><a href="<?php echo esc_url( get_permalink( $p ) ); ?>"><?php echo esc_html( get_the_title( $p ) ); ?></a></li>
 				<?php endforeach; ?>
@@ -313,7 +355,7 @@ add_action( 'template_redirect', function () {
 
 	<section class="sb-ultimas" id="sb-ultimas">
 		<div class="sb-wrap">
-			<div class="sb-sec-label">02 · Últimas</div>
+			<h2 class="sb-sec-label">02 · Últimas</h2>
 			<div class="sb-grid-cards">
 				<?php foreach ( $ultimas as $p ) { $card( $p ); } ?>
 			</div>
@@ -321,7 +363,7 @@ add_action( 'template_redirect', function () {
 	</section>
 
 	<section class="sb-editorias">
-		<div class="sb-wrap"><div class="sb-sec-label">03 · Editorias</div></div>
+		<div class="sb-wrap"><h2 class="sb-sec-label">03 · Editorias</h2></div>
 		<?php foreach ( $EDITORIAS as $slug => $ed ) :
 			$lote = $por_ed[ $slug ];
 			if ( ! $lote ) continue;
@@ -331,7 +373,7 @@ add_action( 'template_redirect', function () {
 		<div class="sb-editoria">
 			<div class="sb-wrap">
 				<div class="sb-ed-head">
-					<h2><span class="sb-grain sb-roxo"></span><?php echo esc_html( $ed['nome'] ); ?></h2>
+					<h3><span class="sb-grain sb-roxo"></span><?php echo esc_html( $ed['nome'] ); ?></h3>
 					<a href="<?php echo $ed_url( $slug ); ?>">Ver editoria →</a>
 				</div>
 				<div class="sb-ed-grid">
@@ -339,7 +381,7 @@ add_action( 'template_redirect', function () {
 						<figure><?php if ( $timg ) : ?><img src="<?php echo esc_url( $timg ); ?>" alt="<?php echo esc_attr( get_the_title( $top ) ); ?>" loading="lazy"><?php endif; ?></figure>
 						<div>
 							<span class="sb-eyebrow sb-cat">Destaque</span>
-							<h3><?php echo esc_html( get_the_title( $top ) ); ?></h3>
+							<h4><?php echo esc_html( get_the_title( $top ) ); ?></h4>
 							<p><?php echo $resumo( $top, 20 ); ?></p>
 						</div>
 					</a>
@@ -375,23 +417,23 @@ add_action( 'template_redirect', function () {
 		<div class="sb-wrap">
 			<div class="sb-grains"><span class="sb-grain sb-roxo"></span><span class="sb-grain"></span><span class="sb-grain sb-roxo"></span></div>
 			<h2>Sua loja merece marketing <em>na medida certa</em>.</h2>
-			<p>Diagnóstico gratuito · 15 minutos · direto com quem faz</p>
-			<a class="sb-pill" href="<?php echo esc_url( $DIAG ); ?>">Fazer diagnóstico gratuito →</a>
+			<p>Diagnóstico sem custo · 30 minutos, online · direto com quem faz</p>
+			<a class="sb-pill" href="<?php echo esc_url( $DIAG ); ?>">Agendar diagnóstico →</a>
 		</div>
 	</section>
 
 	<section class="sb-rc">
 		<div class="sb-wrap sb-rc-grid">
 			<div class="sb-maislidos">
-				<div class="sb-sec-label">05 · Mais lidos</div>
+				<h2 class="sb-sec-label">05 · Mais lidos</h2>
 				<ol>
 					<?php $i = 1; foreach ( $mais_lidos as $p ) : ?>
-					<li><span class="sb-num"><?php echo $i++; ?></span><a href="<?php echo esc_url( get_permalink( $p ) ); ?>"><h4><?php echo esc_html( get_the_title( $p ) ); ?></h4></a></li>
+					<li><span class="sb-num"><?php echo $i++; ?></span><a href="<?php echo esc_url( get_permalink( $p ) ); ?>"><h3><?php echo esc_html( get_the_title( $p ) ); ?></h3></a></li>
 					<?php endforeach; ?>
 				</ol>
 			</div>
 			<div class="sb-news">
-				<h3>O varejo muda toda semana.<br>A gente resume pra você.</h3>
+				<h3>O varejo muda toda semana.<br>Resumimos pra você.</h3>
 				<p>Receba o essencial de tráfego, SEO e e-commerce, na medida certa. Sem spam, sem enrolação.</p>
 				<a class="sb-pill js-sal-lead-cta" data-sal-lead href="<?php echo esc_url( $WHATS ); ?>">Quero receber →</a>
 			</div>
